@@ -32,6 +32,10 @@ let package = Package(
             url: "https://github.com/graycampbell/SwiftSyntaxSugar",
             branch: "feature/protocol-decl-syntax"
         ),
+        .package(
+            url: "https://github.com/pointfreeco/xctest-dynamic-overlay",
+            exact: "1.0.2"
+        ),
     ],
     targets: [
         .macro(
@@ -44,7 +48,13 @@ let package = Package(
         ),
         .target(
             name: "Mockable",
-            dependencies: ["MockableMacros"]
+            dependencies: [
+                "MockableMacros",
+                .product(
+                    name: "XCTestDynamicOverlay",
+                    package: "xctest-dynamic-overlay"
+                ),
+            ]
         ),
         .executableTarget(
             name: "MockableClient",
