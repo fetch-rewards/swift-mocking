@@ -12,9 +12,9 @@ import SwiftSyntaxMacrosTestSupport
 import XCTest
 
 final class Mockable_AccessLevelTests: XCTestCase {
-    
+
     // MARK: Access Level Tests
-    
+
     func testProtocolAccessLevels() {
         testMockable { interface, mock in
             assertMockable(
@@ -22,10 +22,10 @@ final class Mockable_AccessLevelTests: XCTestCase {
                 \(interface.accessLevel) protocol Dependency {}
                 """,
                 generates: """
-                \(mock.modifiers)class DependencyMock: Dependency {
-                \(mock.defaultInit)
-                }
-                """
+                    \(mock.modifiers)class DependencyMock: Dependency {
+                    \(mock.defaultInit)
+                    }
+                    """
             )
         }
     }

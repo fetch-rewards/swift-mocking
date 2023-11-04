@@ -10,26 +10,27 @@ import MockableMacros
 import SwiftSyntaxSugar
 
 struct MockConfiguration {
-    
+
     // MARK: Properties
-    
+
     let accessLevel: AccessLevelSyntax
     let modifiers: String
     let memberModifiers: String
     let defaultInit: String
 
     // MARK: Initializers
-    
+
     init(interfaceAccessLevel: AccessLevelSyntax) {
         // TODO: Remove default
-        let accessLevel: AccessLevelSyntax = switch interfaceAccessLevel {
-        case .private: .fileprivate
-        default: interfaceAccessLevel
-        }
-        
+        let accessLevel: AccessLevelSyntax =
+            switch interfaceAccessLevel {
+            case .private: .fileprivate
+            default: interfaceAccessLevel
+            }
+
         let modifiers: String
         let memberModifiers: String
-        
+
         // TODO: Remove default
         switch accessLevel {
         case .internal:
@@ -39,14 +40,14 @@ struct MockConfiguration {
             modifiers = "\(accessLevel) final "
             memberModifiers = "\(accessLevel) "
         }
-        
+
         self.accessLevel = accessLevel
         self.modifiers = modifiers
         self.memberModifiers = memberModifiers
         self.defaultInit = """
-            \(memberModifiers)init() {
-            }
-        """
+                \(memberModifiers)init() {
+                }
+            """
     }
 }
 #endif

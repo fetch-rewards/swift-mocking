@@ -12,9 +12,9 @@ import SwiftSyntaxMacrosTestSupport
 import XCTest
 
 final class Mockable_AssociatedTypeTests: XCTestCase {
-    
+
     // MARK: Associated Type Inheritance Tests
-    
+
     func testProtocolAssociatedTypeInheritanceWithOneInheritedType() {
         testMockable { interface, mock in
             assertMockable(
@@ -25,14 +25,14 @@ final class Mockable_AssociatedTypeTests: XCTestCase {
                 }
                 """,
                 generates: """
-                \(mock.modifiers)class DependencyMock<A: Hashable, B: Identifiable>: Dependency {
-                \(mock.defaultInit)
-                }
-                """
+                    \(mock.modifiers)class DependencyMock<A: Hashable, B: Identifiable>: Dependency {
+                    \(mock.defaultInit)
+                    }
+                    """
             )
         }
     }
-    
+
     func testProtocolAssociatedTypeInheritanceWithMultipleInheritedTypes() {
         testMockable { interface, mock in
             assertMockable(
@@ -43,16 +43,16 @@ final class Mockable_AssociatedTypeTests: XCTestCase {
                 }
                 """,
                 generates: """
-                \(mock.modifiers)class DependencyMock<A: Hashable & Identifiable, B: Comparable & Equatable & RawRepresentable>: Dependency {
-                \(mock.defaultInit)
-                }
-                """
+                    \(mock.modifiers)class DependencyMock<A: Hashable & Identifiable, B: Comparable & Equatable & RawRepresentable>: Dependency {
+                    \(mock.defaultInit)
+                    }
+                    """
             )
         }
     }
-    
+
     // MARK: Associated Type Generic Where Clauses Tests
-    
+
     func testProtocolAssociatedTypeGenericWhereClauses() {
         testMockable { interface, mock in
             assertMockable(
@@ -64,10 +64,10 @@ final class Mockable_AssociatedTypeTests: XCTestCase {
                 }
                 """,
                 generates: """
-                \(mock.modifiers)class DependencyMock<A: Comparable, B: BidirectionalCollection, C: RandomAccessCollection>: Dependency where A: Hashable, B.Element: Equatable, B.Element: Identifiable, C.Element == String {
-                \(mock.defaultInit)
-                }
-                """
+                    \(mock.modifiers)class DependencyMock<A: Comparable, B: BidirectionalCollection, C: RandomAccessCollection>: Dependency where A: Hashable, B.Element: Equatable, B.Element: Identifiable, C.Element == String {
+                    \(mock.defaultInit)
+                    }
+                    """
             )
         }
     }

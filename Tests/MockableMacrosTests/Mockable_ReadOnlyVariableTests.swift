@@ -24,14 +24,14 @@ final class Mockable_ReadOnlyVariableTests: XCTestCase {
                 }
                 """,
                 generates: """
-                \(mock.modifiers)class DependencyMock: Dependency {
-                \(mock.defaultInit)
-                    \(mock.memberModifiers)var _variable = MockReadOnlyVariable<String>()
-                    \(mock.memberModifiers)var variable: String {
-                        self._variable.getter.get()
+                    \(mock.modifiers)class DependencyMock: Dependency {
+                    \(mock.defaultInit)
+                        \(mock.memberModifiers)var _variable = MockReadOnlyVariable<String>()
+                        \(mock.memberModifiers)var variable: String {
+                            self._variable.getter.get()
+                        }
                     }
-                }
-                """
+                    """
             )
         }
     }
@@ -47,16 +47,16 @@ final class Mockable_ReadOnlyVariableTests: XCTestCase {
                 }
                 """,
                 generates: """
-                \(mock.modifiers)class DependencyMock: Dependency {
-                \(mock.defaultInit)
-                    \(mock.memberModifiers)var _variable = MockReadOnlyAsyncVariable<String>()
-                    \(mock.memberModifiers)var variable: String {
-                        get async {
-                            await self._variable.getter.get()
+                    \(mock.modifiers)class DependencyMock: Dependency {
+                    \(mock.defaultInit)
+                        \(mock.memberModifiers)var _variable = MockReadOnlyAsyncVariable<String>()
+                        \(mock.memberModifiers)var variable: String {
+                            get async {
+                                await self._variable.getter.get()
+                            }
                         }
                     }
-                }
-                """
+                    """
             )
         }
     }
@@ -72,16 +72,16 @@ final class Mockable_ReadOnlyVariableTests: XCTestCase {
                 }
                 """,
                 generates: """
-                \(mock.modifiers)class DependencyMock: Dependency {
-                \(mock.defaultInit)
-                    \(mock.memberModifiers)var _variable = MockReadOnlyThrowingVariable<String>()
-                    \(mock.memberModifiers)var variable: String {
-                        get throws {
-                            try self._variable.getter.get()
+                    \(mock.modifiers)class DependencyMock: Dependency {
+                    \(mock.defaultInit)
+                        \(mock.memberModifiers)var _variable = MockReadOnlyThrowingVariable<String>()
+                        \(mock.memberModifiers)var variable: String {
+                            get throws {
+                                try self._variable.getter.get()
+                            }
                         }
                     }
-                }
-                """
+                    """
             )
         }
     }
@@ -97,16 +97,16 @@ final class Mockable_ReadOnlyVariableTests: XCTestCase {
                 }
                 """,
                 generates: """
-                \(mock.modifiers)class DependencyMock: Dependency {
-                \(mock.defaultInit)
-                    \(mock.memberModifiers)var _variable = MockReadOnlyAsyncThrowingVariable<String>()
-                    \(mock.memberModifiers)var variable: String {
-                        get async throws {
-                            try await self._variable.getter.get()
+                    \(mock.modifiers)class DependencyMock: Dependency {
+                    \(mock.defaultInit)
+                        \(mock.memberModifiers)var _variable = MockReadOnlyAsyncThrowingVariable<String>()
+                        \(mock.memberModifiers)var variable: String {
+                            get async throws {
+                                try await self._variable.getter.get()
+                            }
                         }
                     }
-                }
-                """
+                    """
             )
         }
     }

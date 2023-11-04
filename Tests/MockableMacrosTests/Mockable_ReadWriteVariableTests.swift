@@ -24,19 +24,19 @@ final class Mockable_ReadWriteVariableTests: XCTestCase {
                 }
                 """,
                 generates: """
-                \(mock.modifiers)class DependencyMock: Dependency {
-                \(mock.defaultInit)
-                    \(mock.memberModifiers)var _variable = MockReadWriteVariable<String>()
-                    \(mock.memberModifiers)var variable: String {
-                        get {
-                            self._variable.getter.get()
-                        }
-                        set {
-                            self._variable.setter.set(newValue)
+                    \(mock.modifiers)class DependencyMock: Dependency {
+                    \(mock.defaultInit)
+                        \(mock.memberModifiers)var _variable = MockReadWriteVariable<String>()
+                        \(mock.memberModifiers)var variable: String {
+                            get {
+                                self._variable.getter.get()
+                            }
+                            set {
+                                self._variable.setter.set(newValue)
+                            }
                         }
                     }
-                }
-                """
+                    """
             )
         }
     }

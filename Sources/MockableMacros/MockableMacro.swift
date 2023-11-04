@@ -20,7 +20,9 @@ public struct MockableMacro: PeerMacro {
         providingPeersOf declaration: some DeclSyntaxProtocol,
         in context: some MacroExpansionContext
     ) throws -> [DeclSyntax] {
-        guard let protocolDeclaration = declaration.as(ProtocolDeclSyntax.self) else {
+        guard
+            let protocolDeclaration = declaration.as(ProtocolDeclSyntax.self)
+        else {
             throw MockableError.canOnlyBeAppliedToProtocols
         }
 
@@ -30,9 +32,15 @@ public struct MockableMacro: PeerMacro {
                 protocolDeclaration.isActorConstrained ? .actor : .class
             ),
             name: "\(protocolDeclaration.name.trimmed)Mock",
-            genericParameterClause: self.mockGenericParameterClause(from: protocolDeclaration),
-            inheritanceClause: self.mockInheritanceClause(from: protocolDeclaration),
-            genericWhereClause: self.mockGenericWhereClause(from: protocolDeclaration),
+            genericParameterClause: self.mockGenericParameterClause(
+                from: protocolDeclaration
+            ),
+            inheritanceClause: self.mockInheritanceClause(
+                from: protocolDeclaration
+            ),
+            genericWhereClause: self.mockGenericWhereClause(
+                from: protocolDeclaration
+            ),
             memberBlock: try self.mockMemberBlock(from: protocolDeclaration)
         )
 
@@ -92,7 +100,8 @@ extension MockableMacro {
     private static func mockGenericParameterClause(
         from protocolDeclaration: ProtocolDeclSyntax
     ) -> GenericParameterClauseSyntax? {
-        let associatedTypeDeclarations = protocolDeclaration.associatedTypeDeclarations
+        let associatedTypeDeclarations =
+            protocolDeclaration.associatedTypeDeclarations
 
         guard !associatedTypeDeclarations.isEmpty else {
             return nil
@@ -102,7 +111,9 @@ extension MockableMacro {
             for associatedTypeDeclaration in associatedTypeDeclarations {
                 let name = associatedTypeDeclaration.name.trimmed
 
-                if let associatedTypeInheritanceClause = associatedTypeDeclaration.inheritanceClause {
+                if let associatedTypeInheritanceClause =
+                    associatedTypeDeclaration.inheritanceClause
+                {
                     GenericParameterSyntax(
                         name: name,
                         colon: .colonToken(),
@@ -134,7 +145,7 @@ extension MockableMacro {
     ) -> InheritanceClauseSyntax {
         InheritanceClauseSyntax(
             inheritedTypes: [
-                InheritedTypeSyntax(type: protocolDeclaration.type),
+                InheritedTypeSyntax(type: protocolDeclaration.type)
             ]
         )
     }
@@ -179,10 +190,12 @@ extension MockableMacro {
     ) throws -> MemberBlockSyntax {
         try MemberBlockSyntax {
             let accessLevel = protocolDeclaration.minimumConformingAccessLevel
+            let variableDeclarations = protocolDeclaration.variableDeclarations
+            let functionDeclarations = protocolDeclaration.functionDeclarations
 
             self.mockDefaultInitializerDeclaration(with: accessLevel)
 
-            for variableDeclaration in protocolDeclaration.variableDeclarations {
+            for variableDeclaration in variableDeclarations {
                 for binding in variableDeclaration.bindings {
                     self.mockVariableOverrideDeclaration(
                         for: binding,
@@ -195,7 +208,7 @@ extension MockableMacro {
                 }
             }
 
-            for functionDeclaration in protocolDeclaration.functionDeclarations {
+            for functionDeclaration in functionDeclarations {
                 self.mockFunctionOverrideDeclaration(
                     for: functionDeclaration,
                     with: accessLevel
@@ -224,7 +237,8 @@ extension MockableMacro {
                     accessLevel.modifier
                 }
             },
-            signature: FunctionSignatureSyntax(parameterClause: FunctionParameterClauseSyntax(
+            signature: FunctionSignatureSyntax(
+                parameterClause: FunctionParameterClauseSyntax(
                     parameters: FunctionParameterListSyntax()
                 )
             )
@@ -247,19 +261,20 @@ extension MockableMacro {
     ) -> VariableDeclSyntax {
         let name = binding.pattern.as(IdentifierPatternSyntax.self)!.identifier
         let type = binding.typeAnnotation!.type.trimmed
+        let accessorBlock = binding.accessorBlock
 
         var typeName = ""
 
-        if binding.accessorBlock?.containsSetAccessor == true {
+        if accessorBlock?.containsSetAccessor == true {
             typeName = "MockReadWrite"
         } else {
             typeName = "MockReadOnly"
 
-            if binding.accessorBlock?.getAccessorDeclaration?.isAsync == true {
+            if accessorBlock?.getAccessorDeclaration?.isAsync == true {
                 typeName += "Async"
             }
 
-            if binding.accessorBlock?.getAccessorDeclaration?.isThrowing == true {
+            if accessorBlock?.getAccessorDeclaration?.isThrowing == true {
                 typeName += "Throwing"
             }
         }
@@ -299,10 +314,13 @@ extension MockableMacro {
             AccessorDeclSyntax
         ) throws -> AccessorDeclSyntax = { getAccessorDeclaration in
             try getAccessorDeclaration.withBody {
-                if let invocationKeywordTokens = getAccessorDeclaration.invocationKeywordTokens {
-                    let joinedInvocationKeywordTokens = invocationKeywordTokens
-                        .map(\.text)
-                        .joined(separator: " ")
+                if let invocationKeywordTokens =
+                    getAccessorDeclaration.invocationKeywordTokens
+                {
+                    let joinedInvocationKeywordTokens =
+                        invocationKeywordTokens
+                            .map(\.text)
+                            .joined(separator: " ")
 
                     "\(raw: joinedInvocationKeywordTokens) self._\(name).getter.get()"
                 } else {
@@ -312,34 +330,41 @@ extension MockableMacro {
         }
 
         // TODO: Remove default
-        let accessors: AccessorBlockSyntax.Accessors = switch (
-            binding.accessorBlock?.getAccessorDeclaration,
-            binding.accessorBlock?.setAccessorDeclaration
-        ) {
-        case (
-            .some(let getAccessorDeclaration),
-            .some(let setAccessorDeclaration)
-        ):
-            .accessors(
-                try AccessorDeclListSyntax {
-                    try getAccessorConformanceDeclaration(getAccessorDeclaration)
-                    try setAccessorDeclaration.withBody {
-                        "self._\(name).setter.set(newValue)"
+        let accessors: AccessorBlockSyntax.Accessors =
+            switch (
+                binding.accessorBlock?.getAccessorDeclaration,
+                binding.accessorBlock?.setAccessorDeclaration
+            ) {
+            case (
+                .some(let getAccessorDeclaration),
+                .some(let setAccessorDeclaration)
+            ):
+                .accessors(
+                    try AccessorDeclListSyntax {
+                        try getAccessorConformanceDeclaration(
+                            getAccessorDeclaration
+                        )
+                        try setAccessorDeclaration.withBody {
+                            "self._\(name).setter.set(newValue)"
+                        }
                     }
-                }
+                )
+            case (
+                .some(let getAccessorDeclaration),
+                .none
             )
-        case (
-            .some(let getAccessorDeclaration),
-            .none
-        ) where getAccessorDeclaration.isAsync || getAccessorDeclaration.isThrowing:
-            .accessors(
-                try AccessorDeclListSyntax {
-                    try getAccessorConformanceDeclaration(getAccessorDeclaration)
-                }
-            )
-        default:
-            .getter("self._\(name).getter.get()")
-        }
+            where getAccessorDeclaration.isAsync
+                || getAccessorDeclaration.isThrowing:
+                .accessors(
+                    try AccessorDeclListSyntax {
+                        try getAccessorConformanceDeclaration(
+                            getAccessorDeclaration
+                        )
+                    }
+                )
+            default:
+                .getter("self._\(name).getter.get()")
+            }
 
         return VariableDeclSyntax(
             modifiers: DeclModifierListSyntax {
@@ -403,7 +428,8 @@ extension MockableMacro {
         }
 
         if !genericArguments.isEmpty {
-            initializerValue += "<\(genericArguments.joined(separator: ", "))>()"
+            initializerValue +=
+                "<\(genericArguments.joined(separator: ", "))>()"
         }
 
         return VariableDeclSyntax(
@@ -438,18 +464,22 @@ extension MockableMacro {
 
         var invocation = ""
 
-        if let invocationKeywordTokens = functionDeclaration.invocationKeywordTokens {
-            let joinedInvocationKeywordTokens = invocationKeywordTokens
-                .map(\.text)
-                .joined(separator: " ")
+        if let invocationKeywordTokens =
+            functionDeclaration.invocationKeywordTokens
+        {
+            let joinedInvocationKeywordTokens =
+                invocationKeywordTokens
+                    .map(\.text)
+                    .joined(separator: " ")
 
             invocation += "\(joinedInvocationKeywordTokens) "
         }
 
         if let arguments = functionDeclaration.parameterVariableNames {
-            let joinedArguments = arguments
-                .map(\.text)
-                .joined(separator: ", ")
+            let joinedArguments =
+                arguments
+                    .map(\.text)
+                    .joined(separator: ", ")
 
             invocation += "self._\(name).invoke((\(joinedArguments)))"
         } else {
