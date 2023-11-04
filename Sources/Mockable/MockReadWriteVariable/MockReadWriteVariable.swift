@@ -1,3 +1,10 @@
+//
+//  MockReadWriteVariable.swift
+//  Mockable
+//
+//  Created by Gray Campbell on 11/4/23.
+//
+
 import Foundation
 
 /// The invocation records and implementation for a mock's read-write variable.

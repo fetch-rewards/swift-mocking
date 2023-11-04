@@ -1,3 +1,10 @@
+//
+//  MockReadOnlyVariable+Getter.swift
+//  Mockable
+//
+//  Created by Gray Campbell on 11/4/23.
+//
+
 import Foundation
 import XCTestDynamicOverlay
 
