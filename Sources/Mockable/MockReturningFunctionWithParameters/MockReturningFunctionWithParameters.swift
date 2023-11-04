@@ -13,7 +13,7 @@ import XCTestDynamicOverlay
 public struct MockReturningFunctionWithParameters<Arguments, ReturnValue> {
 
     // MARK: Properties
-    
+
     /// The function's return value.
     public var returnValue: ReturnValue?
 
@@ -33,7 +33,7 @@ public struct MockReturningFunctionWithParameters<Arguments, ReturnValue> {
     public private(set) var latestReturnValue: ReturnValue?
 
     // MARK: Initializers
-    
+
     /// Creates a returning function with parameters.
     public init() {}
 
@@ -53,7 +53,7 @@ public struct MockReturningFunctionWithParameters<Arguments, ReturnValue> {
         guard let returnValue = self.returnValue else {
             return unimplemented("\(Self.self).returnValue")
         }
-        
+
         self.callCount += 1
         self.invocations.append(arguments)
         self.latestInvocation = arguments

@@ -10,14 +10,14 @@ import Foundation
 /// The invocation records and implementation for a mock's void function that
 /// does not have parameters.
 public struct MockVoidFunctionWithoutParameters {
-    
+
     // MARK: Properties
 
     /// The number of times the function has been called.
     public private(set) var callCount: Int = .zero
 
     // MARK: Initializers
-    
+
     /// Creates a void function without parameters.
     public init() {}
 

@@ -10,7 +10,7 @@ import Foundation
 /// The invocation records and implementation for a mock's void function that
 /// has parameters.
 public struct MockVoidFunctionWithParameters<Arguments> {
-    
+
     // MARK: Properties
 
     /// The number of times the function has been called.
@@ -23,7 +23,7 @@ public struct MockVoidFunctionWithParameters<Arguments> {
     public private(set) var latestInvocation: Arguments?
 
     // MARK: Initializers
-    
+
     /// Creates a void function with parameters.
     public init() {}
 

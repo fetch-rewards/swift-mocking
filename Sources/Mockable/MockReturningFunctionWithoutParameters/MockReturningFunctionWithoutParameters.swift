@@ -13,7 +13,7 @@ import XCTestDynamicOverlay
 public struct MockReturningFunctionWithoutParameters<ReturnValue> {
 
     // MARK: Properties
-    
+
     /// The function's return value.
     public var returnValue: ReturnValue?
 
@@ -27,7 +27,7 @@ public struct MockReturningFunctionWithoutParameters<ReturnValue> {
     public private(set) var latestReturnValue: ReturnValue?
 
     // MARK: Initializers
-    
+
     /// Creates a returning function without parameters.
     public init() {}
 

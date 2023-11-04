@@ -10,7 +10,9 @@ import XCTestDynamicOverlay
 
 /// The invocation records and implementation for a mock's returning, throwing
 /// function that has parameters.
-public struct MockReturningThrowingFunctionWithParameters<Arguments, ReturnValue> {
+public struct MockReturningThrowingFunctionWithParameters<
+    Arguments, ReturnValue
+> {
 
     // MARK: Properties
 

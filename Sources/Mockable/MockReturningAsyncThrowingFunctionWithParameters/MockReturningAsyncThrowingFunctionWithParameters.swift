@@ -10,7 +10,9 @@ import XCTestDynamicOverlay
 
 /// The invocation records and implementation for a mock's returning, async,
 /// throwing function that has parameters.
-public struct MockReturningAsyncThrowingFunctionWithParameters<Arguments, ReturnValue> {
+public struct MockReturningAsyncThrowingFunctionWithParameters<
+    Arguments, ReturnValue
+> {
 
     // MARK: Properties
 
@@ -50,7 +52,9 @@ public struct MockReturningAsyncThrowingFunctionWithParameters<Arguments, Return
     ///   invoked.
     /// - Throws: An error, if ``returnValue`` is `.failure`.
     /// - Returns: The function's return value.
-    public mutating func invoke(_ arguments: Arguments) async throws -> ReturnValue {
+    public mutating func invoke(
+        _ arguments: Arguments
+    ) async throws -> ReturnValue {
         guard let returnValue = self.returnValue else {
             return unimplemented("\(Self.self).returnValue")
         }
