@@ -7,7 +7,7 @@ import PackageDescription
 let package = Package(
     name: "Mockable",
     platforms: [
-        .macOS(.v10_15), 
+        .macOS(.v10_15),
         .iOS(.v13),
         .tvOS(.v13),
         .watchOS(.v6),
@@ -25,7 +25,7 @@ let package = Package(
     ],
     dependencies: [
         .package(
-            url: "https://github.com/apple/swift-syntax.git", 
+            url: "https://github.com/apple/swift-syntax.git",
             from: "509.0.0"
         ),
         .package(

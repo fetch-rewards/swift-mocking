@@ -13,7 +13,8 @@
 /// public final class DependencyMock: Dependency { ... }
 /// ```
 @attached(peer, names: suffixed(Mock))
-public macro Mockable() = #externalMacro(
-    module: "MockableMacros",
-    type: "MockableMacro"
-)
+public macro Mockable() =
+    #externalMacro(
+        module: "MockableMacros",
+        type: "MockableMacro"
+    )
