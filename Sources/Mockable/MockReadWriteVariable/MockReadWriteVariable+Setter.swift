@@ -1,11 +1,11 @@
 import Foundation
 
 extension MockReadWriteVariable {
-    
+
     /// The invocation records and implementation for a read-write variable's
     /// setter.
     public struct Setter {
-        
+
         // MARK: Properties
 
         /// The number of times the setter has been called.

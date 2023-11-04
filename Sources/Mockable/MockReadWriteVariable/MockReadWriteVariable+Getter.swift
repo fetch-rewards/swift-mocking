@@ -2,13 +2,13 @@ import Foundation
 import XCTestDynamicOverlay
 
 extension MockReadWriteVariable {
-    
+
     /// The invocation records and implementation for a read-write variable's
     /// getter.
     public struct Getter {
-        
+
         // MARK: Properties
-        
+
         /// The getter's value.
         public var value: Value?
 

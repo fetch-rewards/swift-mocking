@@ -2,7 +2,7 @@ import Foundation
 import XCTestDynamicOverlay
 
 extension MockReadOnlyVariable {
-    
+
     /// The invocation records and implementation for a read-only variable's
     /// getter.
     public struct Getter {
