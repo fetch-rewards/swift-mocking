@@ -37,22 +37,33 @@ public struct MockReturningAsyncThrowingFunctionWithParameters<
     // MARK: Initializers
 
     /// Creates a returning, async, throwing function with parameters.
-    public init() {}
+    private init() {}
+
+    // MARK: Factories
+
+    public static func makeFunction(
+    ) -> (
+        function: Self,
+        invoke: (Arguments) async throws -> ReturnValue
+    ) {
+        var function = Self()
+
+        return (
+            function,
+            { try await function.invoke($0) }
+        )
+    }
 
     // MARK: Invoke
 
     /// Records the invocation of the function and returns the function's return
     /// value or throws an error.
     ///
-    /// - Important: This method should only be called from a mock's
-    ///   function conformance declaration. Unless you are writing an
-    ///   implementation for a mock, you should never call this method
-    ///   directly.
     /// - Parameter arguments: The arguments with which the function is being
     ///   invoked.
     /// - Throws: An error, if ``returnValue`` is `.failure`.
     /// - Returns: The function's return value.
-    public mutating func invoke(
+    mutating func invoke(
         _ arguments: Arguments
     ) async throws -> ReturnValue {
         guard let returnValue = self.returnValue else {

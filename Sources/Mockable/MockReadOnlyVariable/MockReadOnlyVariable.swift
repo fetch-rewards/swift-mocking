@@ -18,5 +18,17 @@ public struct MockReadOnlyVariable<Value> {
     // MARK: Initializers
 
     /// Creates a read-only variable.
-    public init() {}
+    private init() {}
+
+    // MARK: Factories
+
+    public static func makeVariable(
+    ) -> (
+        variable: Self,
+        get: () -> Value
+    ) {
+        var variable = Self()
+
+        return (variable, { variable.getter.get() })
+    }
 }

@@ -25,19 +25,30 @@ public struct MockVoidFunctionWithParameters<Arguments> {
     // MARK: Initializers
 
     /// Creates a void function with parameters.
-    public init() {}
+    private init() {}
+
+    // MARK: Factories
+
+    public static func makeFunction(
+    ) -> (
+        function: Self,
+        invoke: (Arguments) -> Void
+    ) {
+        var function = Self()
+
+        return (
+            function,
+            { function.invoke($0) }
+        )
+    }
 
     // MARK: Invoke
 
     /// Records the invocation of the function.
     ///
-    /// - Important: This method should only be called from a mock's
-    ///   function conformance declaration. Unless you are writing an
-    ///   implementation for a mock, you should never call this method
-    ///   directly.
     /// - Parameter arguments: The arguments with which the function is being
     ///   invoked.
-    public mutating func invoke(_ arguments: Arguments) {
+    private mutating func invoke(_ arguments: Arguments) {
         self.callCount += 1
         self.invocations.append(arguments)
         self.latestInvocation = arguments

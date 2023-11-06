@@ -29,19 +29,30 @@ public struct MockReturningAsyncFunctionWithoutParameters<ReturnValue> {
     // MARK: Initializers
 
     /// Creates a returning, async function without parameters.
-    public init() {}
+    private init() {}
+
+    // MARK: Factories
+
+    public static func makeFunction(
+    ) -> (
+        function: Self,
+        invoke: () async -> ReturnValue
+    ) {
+        var function = Self()
+
+        return (
+            function,
+            { await function.invoke() }
+        )
+    }
 
     // MARK: Invoke
 
     /// Records the invocation of the function and returns the function's return
     /// value.
     ///
-    /// - Important: This method should only be called from a mock's
-    ///   function conformance declaration. Unless you are writing an
-    ///   implementation for a mock, you should never call this method
-    ///   directly.
     /// - Returns: The function's return value.
-    public mutating func invoke() async -> ReturnValue {
+    private mutating func invoke() async -> ReturnValue {
         guard let returnValue = self.returnValue else {
             return unimplemented("\(Self.self).returnValue")
         }

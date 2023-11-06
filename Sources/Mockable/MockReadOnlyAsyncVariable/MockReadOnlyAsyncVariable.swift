@@ -19,5 +19,17 @@ public struct MockReadOnlyAsyncVariable<Value> {
     // MARK: Initializers
 
     /// Creates a read-only, async variable.
-    public init() {}
+    private init() {}
+
+    // MARK: Factories
+
+    public static func makeVariable(
+    ) -> (
+        variable: Self,
+        get: () async -> Value
+    ) {
+        var variable = Self()
+
+        return (variable, { await variable.getter.get() })
+    }
 }

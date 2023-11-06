@@ -21,5 +21,22 @@ public struct MockReadWriteVariable<Value> {
     // MARK: Initializers
 
     /// Creates a read-write variable.
-    public init() {}
+    private init() {}
+
+    // MARK: Factories
+
+    public static func makeVariable(
+    ) -> (
+        variable: Self,
+        get: () -> Value,
+        set: (Value) -> Void
+    ) {
+        var variable = Self()
+
+        return (
+            variable,
+            { variable.getter.get() },
+            { variable.setter.set($0) }
+        )
+    }
 }

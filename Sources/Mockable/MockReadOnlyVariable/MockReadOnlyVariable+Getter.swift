@@ -26,12 +26,8 @@ extension MockReadOnlyVariable {
         /// Records the invocation of the variable's getter and returns the
         /// variable's value.
         ///
-        /// - Important: This method should only be called from a mock's
-        ///   variable conformance declaration. Unless you are writing an
-        ///   implementation for a mock, you should never call this method
-        ///   directly.
         /// - Returns: The variable's value.
-        public mutating func `get`() -> Value {
+        mutating func `get`() -> Value {
             guard let value = self.value else {
                 return unimplemented("\(Self.self).value")
             }

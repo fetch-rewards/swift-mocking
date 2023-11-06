@@ -31,21 +31,32 @@ public struct MockVoidAsyncThrowingFunctionWithParameters<Arguments> {
     // MARK: Initializers
 
     /// Creates a void, async, throwing function with parameters.
-    public init() {}
+    private init() {}
+
+    // MARK: Factories
+
+    public static func makeFunction(
+    ) -> (
+        function: Self,
+        invoke: (Arguments) async throws -> Void
+    ) {
+        var function = Self()
+
+        return (
+            function,
+            { try await function.invoke($0) }
+        )
+    }
 
     // MARK: Invoke
 
     /// Records the invocation of the function and throws an error if ``error``
     /// is not `nil`.
     ///
-    /// - Important: This method should only be called from a mock's
-    ///   function conformance declaration. Unless you are writing an
-    ///   implementation for a mock, you should never call this method
-    ///   directly.
     /// - Parameter arguments: The arguments with which the function is being
     ///   invoked.
     /// - Throws: ``error``, if it is not `nil`.
-    public mutating func invoke(_ arguments: Arguments) async throws {
+    private mutating func invoke(_ arguments: Arguments) async throws {
         self.callCount += 1
         self.invocations.append(arguments)
         self.latestInvocation = arguments
