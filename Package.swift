@@ -26,7 +26,7 @@ let package = Package(
     dependencies: [
         .package(
             url: "https://github.com/apple/swift-syntax.git",
-            from: "509.0.0"
+            exact: "509.0.0"
         ),
         .package(
             url: "https://github.com/graycampbell/SwiftSyntaxSugar",
