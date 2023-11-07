@@ -37,6 +37,8 @@ extension MockReadWriteVariable {
                 return unimplemented("\(Self.self).value")
             }
 
+            self.callCount += 1
+
             return value
         }
     }
