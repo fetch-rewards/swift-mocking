@@ -29,6 +29,11 @@ public struct MockVoidAsyncThrowingFunctionWithoutParameters {
 
     // MARK: Factories
 
+    /// Creates a new function and an async throwing closure to invoke the
+    /// function, returning them in a labeled tuple.
+    ///
+    /// - Returns: A tuple containing a new function and an async throwing
+    /// closure to invoke the function.
     public static func makeFunction(
     ) -> (
         function: Self,

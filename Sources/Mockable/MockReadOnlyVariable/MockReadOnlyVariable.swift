@@ -22,6 +22,11 @@ public struct MockReadOnlyVariable<Value> {
 
     // MARK: Factories
 
+    /// Creates a new variable and a closure to invoke the variable's getter,
+    /// returning them in a labeled tuple.
+    ///
+    /// - Returns: A tuple containing a new variable and a closure to invoke the
+    /// variable's getter.
     public static func makeVariable(
     ) -> (
         variable: Self,
