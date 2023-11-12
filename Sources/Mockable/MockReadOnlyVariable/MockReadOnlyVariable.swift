@@ -34,6 +34,9 @@ public struct MockReadOnlyVariable<Value> {
     ) {
         var variable = Self()
 
-        return (variable, { variable.getter.get() })
+        return (
+            variable: variable,
+            get: { variable.getter.get() }
+        )
     }
 }

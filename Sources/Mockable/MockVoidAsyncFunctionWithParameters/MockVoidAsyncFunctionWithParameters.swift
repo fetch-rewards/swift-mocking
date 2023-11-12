@@ -42,8 +42,8 @@ public struct MockVoidAsyncFunctionWithParameters<Arguments> {
         var function = Self()
 
         return (
-            function,
-            { await function.invoke($0) }
+            function: function,
+            invoke: { await function.invoke($0) }
         )
     }
 

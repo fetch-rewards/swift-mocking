@@ -46,8 +46,8 @@ public struct MockReturningThrowingFunctionWithoutParameters<ReturnValue> {
         var function = Self()
 
         return (
-            function,
-            { try function.invoke() }
+            function: function,
+            invoke: { try function.invoke() }
         )
     }
 

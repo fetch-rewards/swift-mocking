@@ -35,6 +35,9 @@ public struct MockReadOnlyAsyncThrowingVariable<Value> {
     ) {
         var variable = Self()
 
-        return (variable, { try await variable.getter.get() })
+        return (
+            variable: variable,
+            get: { try await variable.getter.get() }
+        )
     }
 }

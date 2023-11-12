@@ -54,8 +54,8 @@ public struct MockReturningAsyncThrowingFunctionWithParameters<
         var function = Self()
 
         return (
-            function,
-            { try await function.invoke($0) }
+            function: function,
+            invoke: { try await function.invoke($0) }
         )
     }
 
@@ -68,7 +68,7 @@ public struct MockReturningAsyncThrowingFunctionWithParameters<
     ///   invoked.
     /// - Throws: An error, if ``returnValue`` is `.failure`.
     /// - Returns: The function's return value.
-    mutating func invoke(
+    private mutating func invoke(
         _ arguments: Arguments
     ) async throws -> ReturnValue {
         guard let returnValue = self.returnValue else {

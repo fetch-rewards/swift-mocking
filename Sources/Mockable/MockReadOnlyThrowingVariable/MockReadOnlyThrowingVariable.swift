@@ -35,6 +35,9 @@ public struct MockReadOnlyThrowingVariable<Value> {
     ) {
         var variable = Self()
 
-        return (variable, { try variable.getter.get() })
+        return (
+            variable: variable,
+            get: { try variable.getter.get() }
+        )
     }
 }

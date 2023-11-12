@@ -48,8 +48,8 @@ public struct MockVoidAsyncThrowingFunctionWithParameters<Arguments> {
         var function = Self()
 
         return (
-            function,
-            { try await function.invoke($0) }
+            function: function,
+            invoke: { try await function.invoke($0) }
         )
     }
 

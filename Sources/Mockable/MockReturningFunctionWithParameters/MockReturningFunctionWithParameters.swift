@@ -52,8 +52,8 @@ public struct MockReturningFunctionWithParameters<Arguments, ReturnValue> {
         var function = Self()
 
         return (
-            function,
-            { function.invoke($0) }
+            function: function,
+            invoke: { function.invoke($0) }
         )
     }
 

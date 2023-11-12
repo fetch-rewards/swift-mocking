@@ -42,8 +42,8 @@ public struct MockVoidFunctionWithParameters<Arguments> {
         var function = Self()
 
         return (
-            function,
-            { function.invoke($0) }
+            function: function,
+            invoke: { function.invoke($0) }
         )
     }
 

@@ -40,9 +40,9 @@ public struct MockReadWriteVariable<Value> {
         var variable = Self()
 
         return (
-            variable,
-            { variable.getter.get() },
-            { variable.setter.set($0) }
+            variable: variable,
+            get: { variable.getter.get() },
+            set: { variable.setter.set($0) }
         )
     }
 }

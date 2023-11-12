@@ -42,8 +42,8 @@ public struct MockVoidThrowingFunctionWithoutParameters {
         var function = Self()
 
         return (
-            function,
-            { try function.invoke() }
+            function: function,
+            invoke: { try function.invoke() }
         )
     }
 
