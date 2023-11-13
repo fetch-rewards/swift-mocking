@@ -31,7 +31,7 @@ public struct MockableMacro: PeerMacro {
             classKeyword: .keyword(
                 protocolDeclaration.isActorConstrained ? .actor : .class
             ),
-            name: "\(protocolDeclaration.name.trimmed)Mock",
+            name: self.mockName(from: protocolDeclaration),
             genericParameterClause: self.mockGenericParameterClause(
                 from: protocolDeclaration
             ),
@@ -51,6 +51,15 @@ public struct MockableMacro: PeerMacro {
 // MARK: - Mock
 
 extension MockableMacro {
+
+    // MARK: Name
+
+    /// Returns the type name of the mock.
+    private static func mockName(
+        from protocolDeclaration: ProtocolDeclSyntax
+    ) -> TokenSyntax {
+        "\(protocolDeclaration.name.trimmed)Mock"
+    }
 
     // MARK: Modifiers
 
@@ -199,7 +208,8 @@ extension MockableMacro {
                 for binding in variableDeclaration.bindings {
                     let variableOverrideDeclarations = self.mockVariableOverrideDeclarations(
                         for: binding,
-                        with: accessLevel
+                        with: accessLevel,
+                        in: protocolDeclaration
                     )
 
                     variableOverrideDeclarations.backingVariable
@@ -215,7 +225,8 @@ extension MockableMacro {
             for functionDeclaration in functionDeclarations {
                 let functionOverrideDeclarations = self.mockFunctionOverrideDeclarations(
                     for: functionDeclaration,
-                    with: accessLevel
+                    with: accessLevel,
+                    in: protocolDeclaration
                 )
 
                 functionOverrideDeclarations.backingFunction
@@ -265,11 +276,13 @@ extension MockableMacro {
     /// - Returns: Variable override declarations to apply to the mock.
     private static func mockVariableOverrideDeclarations(
         for binding: PatternBindingSyntax,
-        with accessLevel: AccessLevelSyntax
+        with accessLevel: AccessLevelSyntax,
+        in protocolDeclaration: ProtocolDeclSyntax
     ) -> (
         backingVariable: VariableDeclSyntax,
         exposedVariable: VariableDeclSyntax
     ) {
+        let mockName = self.mockName(from: protocolDeclaration)
         let name = binding.pattern.as(IdentifierPatternSyntax.self)!.identifier
         let genericType = binding.typeAnnotation!.type.trimmed
         let accessorBlock = binding.accessorBlock
@@ -301,7 +314,7 @@ extension MockableMacro {
                 name: PatternSyntax(stringLiteral: "__\(name)"),
                 initializer: InitializerClauseSyntax(
                     value: ExprSyntax(
-                        stringLiteral: "\(type).makeVariable()"
+                        stringLiteral: "\(type).makeVariable(for: \\\(mockName)._\(name))"
                     )
                 )
             ),
@@ -431,11 +444,13 @@ extension MockableMacro {
     /// - Returns: Function override declarations to apply to the mock.
     private static func mockFunctionOverrideDeclarations(
         for functionDeclaration: FunctionDeclSyntax,
-        with accessLevel: AccessLevelSyntax
+        with accessLevel: AccessLevelSyntax,
+        in protocolDeclaration: ProtocolDeclSyntax
     ) -> (
         backingFunction: VariableDeclSyntax,
         exposedFunction: VariableDeclSyntax
     ) {
+        let mockName = self.mockName(from: protocolDeclaration)
         let name = functionDeclaration.name
         let functionSignature = functionDeclaration.signature
         let functionParameters = functionSignature.parameterClause.parameters
@@ -482,7 +497,7 @@ extension MockableMacro {
                 ),
                 initializer: InitializerClauseSyntax(
                     value: ExprSyntax(
-                        stringLiteral: "\(type).makeFunction()"
+                        stringLiteral: "\(type).makeFunction(for: \\\(mockName)._\(name))"
                     )
                 )
             ),
