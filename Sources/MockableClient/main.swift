@@ -17,10 +17,3 @@ public protocol Dependency<Item> where Item: Identifiable {
     func item(id: Item.ID) async throws -> Item
     func someFunction(with id: Item.ID, param: @escaping () -> Void) -> Int
 }
-
-struct User: Identifiable, Hashable {
-    let id = UUID()
-}
-
-let mock = DependencyMock<User, [User]>()
-mock._item.implementation = .returns { User() }
