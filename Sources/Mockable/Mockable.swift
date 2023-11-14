@@ -1,5 +1,9 @@
-// The Swift Programming Language
-// https://docs.swift.org/swift-book
+//
+//  Mockable.swift
+//  Mockable
+//
+//  Created by Gray Campbell on 11/4/23.
+//
 
 /// A macro that produces a mock when attached to a protocol.
 ///
