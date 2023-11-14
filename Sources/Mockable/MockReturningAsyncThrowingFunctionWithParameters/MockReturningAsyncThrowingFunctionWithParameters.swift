@@ -26,13 +26,17 @@ public struct MockReturningAsyncThrowingFunctionWithParameters<
     public private(set) var invocations: [Arguments] = []
 
     /// The latest arguments with which the function has been invoked.
-    public private(set) var latestInvocation: Arguments?
+    public var latestInvocation: Arguments? {
+        self.invocations.last
+    }
 
     /// All the values that have been returned by the function.
     public private(set) var returnValues: [Result<ReturnValue, Error>] = []
 
     /// The latest value returned by the function.
-    public private(set) var latestReturnValue: Result<ReturnValue, Error>?
+    public var latestReturnValue: Result<ReturnValue, Error>? {
+        self.returnValues.last
+    }
 
     // MARK: Initializers
 
@@ -61,9 +65,7 @@ public struct MockReturningAsyncThrowingFunctionWithParameters<
 
         self.callCount += 1
         self.invocations.append(arguments)
-        self.latestInvocation = arguments
         self.returnValues.append(returnValue)
-        self.latestReturnValue = returnValue
 
         return try returnValue.get()
     }

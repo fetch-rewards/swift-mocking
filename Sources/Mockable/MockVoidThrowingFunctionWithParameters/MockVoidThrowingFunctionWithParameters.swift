@@ -23,7 +23,9 @@ public struct MockVoidThrowingFunctionWithParameters<Arguments> {
     public private(set) var invocations: [Arguments] = []
 
     /// The latest arguments with which the function has been invoked.
-    public private(set) var latestInvocation: Arguments?
+    public var latestInvocation: Arguments? {
+        self.invocations.last
+    }
 
     /// All the errors that have been thrown by the function.
     public private(set) var errors: [Error] = []
@@ -48,7 +50,6 @@ public struct MockVoidThrowingFunctionWithParameters<Arguments> {
     public mutating func invoke(_ arguments: Arguments) throws {
         self.callCount += 1
         self.invocations.append(arguments)
-        self.latestInvocation = arguments
 
         guard let error = self.error else { return }
 
