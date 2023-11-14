@@ -24,7 +24,9 @@ public struct MockReturningFunctionWithoutParameters<ReturnValue> {
     public private(set) var returnValues: [ReturnValue] = []
 
     /// The latest value returned by the function.
-    public private(set) var latestReturnValue: ReturnValue?
+    public var latestReturnValue: ReturnValue? {
+        self.returnValues.last
+    }
 
     // MARK: Initializers
 
@@ -48,7 +50,6 @@ public struct MockReturningFunctionWithoutParameters<ReturnValue> {
 
         self.callCount += 1
         self.returnValues.append(returnValue)
-        self.latestReturnValue = returnValue
 
         return returnValue
     }
