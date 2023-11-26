@@ -30,7 +30,7 @@ public struct MockReadWriteVariable<Value> {
     /// tuple.
     ///
     /// - Returns: A tuple containing a new variable, a closure to invoke the
-    /// variable's getter, and a closure to invoke the variable's setter.
+    ///   variable's getter, and a closure to invoke the variable's setter.
     public static func makeVariable(
     ) -> (
         variable: Self,
