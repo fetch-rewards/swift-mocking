@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import XCTestDynamicOverlay
 
 /// The invocation records and implementation for a mock's returning, throwing
 /// function that does not have parameters.
