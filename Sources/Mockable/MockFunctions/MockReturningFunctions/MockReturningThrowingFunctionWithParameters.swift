@@ -32,7 +32,7 @@ public final class MockReturningThrowingFunctionWithParameters<Arguments, Return
     /// The latest value returned by the function.
     public private(set) var latestReturnValue: Result<ReturnValue, Error>?
 
-    /// The keypath for the mock's backing variable.
+    /// The description of the mock's backing variable.
     private let description: MockImplementationDescription
 
     // MARK: Initializers

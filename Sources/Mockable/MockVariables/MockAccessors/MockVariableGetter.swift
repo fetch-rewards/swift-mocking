@@ -18,7 +18,7 @@ public final class MockVariableGetter<Value> {
     /// The number of times the getter has been called.
     public private(set) var callCount: Int = .zero
 
-    /// The description for the mock's backing variable.
+    /// The description of the mock's backing variable.
     private let description: MockImplementationDescription
 
     // MARK: Initializers

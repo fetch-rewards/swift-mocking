@@ -9,9 +9,14 @@ import Foundation
 import XCTestDynamicOverlay
 
 public enum MockThrowingImplementation<Value> {
+    
+    // MARK: Cases
+    
     case unimplemented
     case returns(Value)
     case `throws`(Error)
+
+    // MARK: Call As Function
 
     func callAsFunction(description: MockImplementationDescription) throws -> Value {
         switch self {

@@ -9,8 +9,13 @@ import Foundation
 import XCTestDynamicOverlay
 
 public enum MockImplementation<Value> {
+
+    // MARK: Cases
+
     case unimplemented
     case returns(Value)
+
+    // MARK: Call As Function
 
     func callAsFunction(description: MockImplementationDescription) -> Value {
         switch self {

@@ -8,14 +8,21 @@
 import Foundation
 
 public struct MockImplementationDescription {
+
+    // MARK: Properties
+
     let type: String
     let member: String
+
+    // MARK: Initializers
 
     public init(type: String, member: String) {
         self.type = type
         self.member = member
     }
 }
+
+// MARK: - CustomDebugStringConvertible
 
 extension MockImplementationDescription: CustomDebugStringConvertible {
     public var debugDescription: String {
