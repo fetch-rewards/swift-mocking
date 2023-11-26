@@ -283,7 +283,7 @@ extension MockableMacro {
         exposedVariable: VariableDeclSyntax
     ) {
         let mockName = self.mockName(from: protocolDeclaration)
-        let name = binding.pattern.as(IdentifierPatternSyntax.self)!.identifier
+        let variableName = binding.pattern.as(IdentifierPatternSyntax.self)!.identifier
         let genericType = binding.typeAnnotation!.type.trimmed
         let accessorBlock = binding.accessorBlock
 
@@ -311,14 +311,14 @@ extension MockableMacro {
                     AccessLevelSyntax.private.modifier
                 },
                 .let,
-                name: PatternSyntax(stringLiteral: "__\(name)"),
+                name: PatternSyntax(stringLiteral: "__\(variableName)"),
                 initializer: InitializerClauseSyntax(
                     value: ExprSyntax(
                         stringLiteral: """
                             \(type).makeVariable(
                                 description: MockImplementationDescription(
                                     type: "\\(\(mockName).self)",
-                                    member: "_\(name)"
+                                    member: "_\(variableName)"
                                 )
                             )
                             """
@@ -334,14 +334,14 @@ extension MockableMacro {
                 bindingSpecifier: .keyword(.var),
                 bindingsBuilder: {
                     PatternBindingSyntax(
-                        pattern: PatternSyntax(stringLiteral: "_\(name)"),
+                        pattern: PatternSyntax(stringLiteral: "_\(variableName)"),
                         typeAnnotation: TypeAnnotationSyntax(
                             type: TypeSyntax(stringLiteral: type)
                         ),
                         accessorBlock: AccessorBlockSyntax(
                             accessors: .getter(
                                 CodeBlockItemListSyntax {
-                                    "self.__\(name).variable"
+                                    "self.__\(variableName).variable"
                                 }
                             )
                         )
@@ -458,7 +458,7 @@ extension MockableMacro {
         exposedFunction: VariableDeclSyntax
     ) {
         let mockName = self.mockName(from: protocolDeclaration)
-        let name = functionDeclaration.name
+        let functionName = functionDeclaration.name
         let functionSignature = functionDeclaration.signature
         let functionParameters = functionSignature.parameterClause.parameters
 
@@ -500,7 +500,7 @@ extension MockableMacro {
                 },
                 .let,
                 name: PatternSyntax(
-                    stringLiteral: "__\(name)"
+                    stringLiteral: "__\(functionName)"
                 ),
                 initializer: InitializerClauseSyntax(
                     value: ExprSyntax(
@@ -508,7 +508,7 @@ extension MockableMacro {
                             \(type).makeFunction(
                                 description: MockImplementationDescription(
                                     type: "\\(\(mockName).self)",
-                                    member: "_\(name)"
+                                    member: "_\(functionName)"
                                 )
                             )
                             """
@@ -524,14 +524,14 @@ extension MockableMacro {
                 bindingSpecifier: .keyword(.var),
                 bindingsBuilder: {
                     PatternBindingSyntax(
-                        pattern: PatternSyntax(stringLiteral: "_\(name)"),
+                        pattern: PatternSyntax(stringLiteral: "_\(functionName)"),
                         typeAnnotation: TypeAnnotationSyntax(
                             type: TypeSyntax(stringLiteral: type)
                         ),
                         accessorBlock: AccessorBlockSyntax(
                             accessors: .getter(
                                 CodeBlockItemListSyntax {
-                                    "self.__\(name).function"
+                                    "self.__\(functionName).function"
                                 }
                             )
                         )
