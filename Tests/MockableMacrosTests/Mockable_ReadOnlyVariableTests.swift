@@ -26,9 +26,17 @@ final class Mockable_ReadOnlyVariableTests: XCTestCase {
                 generates: """
                     \(mock.modifiers)class DependencyMock: Dependency {
                     \(mock.defaultInit)
-                        \(mock.memberModifiers)var _variable = MockReadOnlyVariable<String>()
+                        private let __variable = MockReadOnlyVariable<String> .makeVariable(
+                            description: MockImplementationDescription(
+                                type: "\\(DependencyMock.self)",
+                                member: "_variable"
+                            )
+                        )
+                        \(mock.memberModifiers)var _variable: MockReadOnlyVariable<String> {
+                            self.__variable.variable
+                        }
                         \(mock.memberModifiers)var variable: String {
-                            self._variable.getter.get()
+                            self.__variable.get()
                         }
                     }
                     """
@@ -49,10 +57,18 @@ final class Mockable_ReadOnlyVariableTests: XCTestCase {
                 generates: """
                     \(mock.modifiers)class DependencyMock: Dependency {
                     \(mock.defaultInit)
-                        \(mock.memberModifiers)var _variable = MockReadOnlyAsyncVariable<String>()
+                        private let __variable = MockReadOnlyAsyncVariable<String> .makeVariable(
+                            description: MockImplementationDescription(
+                                type: "\\(DependencyMock.self)",
+                                member: "_variable"
+                            )
+                        )
+                        \(mock.memberModifiers)var _variable: MockReadOnlyAsyncVariable<String> {
+                            self.__variable.variable
+                        }
                         \(mock.memberModifiers)var variable: String {
                             get async {
-                                await self._variable.getter.get()
+                                await self.__variable.get()
                             }
                         }
                     }
@@ -74,10 +90,18 @@ final class Mockable_ReadOnlyVariableTests: XCTestCase {
                 generates: """
                     \(mock.modifiers)class DependencyMock: Dependency {
                     \(mock.defaultInit)
-                        \(mock.memberModifiers)var _variable = MockReadOnlyThrowingVariable<String>()
+                        private let __variable = MockReadOnlyThrowingVariable<String> .makeVariable(
+                            description: MockImplementationDescription(
+                                type: "\\(DependencyMock.self)",
+                                member: "_variable"
+                            )
+                        )
+                        \(mock.memberModifiers)var _variable: MockReadOnlyThrowingVariable<String> {
+                            self.__variable.variable
+                        }
                         \(mock.memberModifiers)var variable: String {
                             get throws {
-                                try self._variable.getter.get()
+                                try self.__variable.get()
                             }
                         }
                     }
@@ -99,10 +123,18 @@ final class Mockable_ReadOnlyVariableTests: XCTestCase {
                 generates: """
                     \(mock.modifiers)class DependencyMock: Dependency {
                     \(mock.defaultInit)
-                        \(mock.memberModifiers)var _variable = MockReadOnlyAsyncThrowingVariable<String>()
+                        private let __variable = MockReadOnlyAsyncThrowingVariable<String> .makeVariable(
+                            description: MockImplementationDescription(
+                                type: "\\(DependencyMock.self)",
+                                member: "_variable"
+                            )
+                        )
+                        \(mock.memberModifiers)var _variable: MockReadOnlyAsyncThrowingVariable<String> {
+                            self.__variable.variable
+                        }
                         \(mock.memberModifiers)var variable: String {
                             get async throws {
-                                try await self._variable.getter.get()
+                                try await self.__variable.get()
                             }
                         }
                     }
