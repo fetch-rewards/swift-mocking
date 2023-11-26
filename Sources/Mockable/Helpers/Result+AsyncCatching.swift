@@ -9,6 +9,8 @@ import Foundation
 
 extension Result where Failure == Error {
 
+    // MARK: Initializers
+
     /// Creates a new result by evaluating an async throwing closure, capturing the
     /// returned value as a success, or any thrown error as a failure.
     ///
