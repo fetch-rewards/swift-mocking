@@ -18,16 +18,16 @@ public final class MockVariableAsyncThrowingGetter<Value> {
     /// The number of times the getter has been called.
     public private(set) var callCount: Int = .zero
 
-    /// The keypath for the mock's backing variable.
-    private let keyPath: AnyKeyPath
+    /// The description for the mock's backing variable.
+    private let description: MockImplementationDescription
 
     // MARK: Initializers
 
     /// Creates an async throwing variable getter.
     init(
-        for keyPath: AnyKeyPath
+        description: MockImplementationDescription
     ) {
-        self.keyPath = keyPath
+        self.description = description
     }
 
     // MARK: Get
@@ -39,6 +39,6 @@ public final class MockVariableAsyncThrowingGetter<Value> {
     func `get`() async throws -> Value {
         self.callCount += 1
 
-        return try await self.implementation(for: self.keyPath)
+        return try await self.implementation(description: self.description)
     }
 }

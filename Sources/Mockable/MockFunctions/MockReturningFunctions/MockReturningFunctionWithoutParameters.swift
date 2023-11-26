@@ -27,15 +27,15 @@ public final class MockReturningFunctionWithoutParameters<ReturnValue> {
     public private(set) var latestReturnValue: ReturnValue?
 
     /// The keypath for the mock's backing variable.
-    private let keyPath: AnyKeyPath
+    private let description: MockImplementationDescription
 
     // MARK: Initializers
 
     /// Creates a returning function without parameters.
     private init(
-        keyPath: AnyKeyPath
+        description: MockImplementationDescription
     ) {
-        self.keyPath = keyPath
+        self.description = description
     }
 
     // MARK: Factories
@@ -46,12 +46,12 @@ public final class MockReturningFunctionWithoutParameters<ReturnValue> {
     /// - Returns: A tuple containing a new function and a closure to invoke the
     /// function.
     public static func makeFunction(
-        for keyPath: AnyKeyPath
+        description: MockImplementationDescription
     ) -> (
         function: MockReturningFunctionWithoutParameters,
         invoke: () -> ReturnValue
     ) {
-        let function = Self(keyPath: keyPath)
+        let function = Self(description: description)
 
         return (
             function: function,
@@ -68,7 +68,7 @@ public final class MockReturningFunctionWithoutParameters<ReturnValue> {
     private func invoke() -> ReturnValue {
         self.callCount += 1
 
-        let returnValue = self.implementation(for: self.keyPath)
+        let returnValue = self.implementation(description: self.description)
 
         self.returnValues.append(returnValue)
         self.latestReturnValue = returnValue

@@ -13,10 +13,10 @@ public enum MockAsyncThrowingImplementation<Value> {
     case returns(() async -> Value)
     case `throws`(() async -> Error)
 
-    func callAsFunction(for keyPath: AnyKeyPath) async throws -> Value {
+    func callAsFunction(description: MockImplementationDescription) async throws -> Value {
         await switch self {
         case .unimplemented:
-            XCTestDynamicOverlay.unimplemented("\(keyPath)")
+            XCTestDynamicOverlay.unimplemented("\(description)")
         case .returns(let value):
             value()
         case .throws(let error):

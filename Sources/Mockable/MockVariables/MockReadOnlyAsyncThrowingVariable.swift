@@ -21,9 +21,9 @@ public final class MockReadOnlyAsyncThrowingVariable<Value> {
 
     /// Creates a read-only, async, throwing variable.
     private init(
-        keyPath: AnyKeyPath
+        description: MockImplementationDescription
     ) {
-        self.getter = MockVariableAsyncThrowingGetter(for: keyPath)
+        self.getter = MockVariableAsyncThrowingGetter(description: description)
     }
 
     // MARK: Factories
@@ -34,12 +34,12 @@ public final class MockReadOnlyAsyncThrowingVariable<Value> {
     /// - Returns: A tuple containing a new variable and an async throwing
     /// closure to invoke the variable's getter.
     public static func makeVariable(
-        for keyPath: AnyKeyPath
+        description: MockImplementationDescription
     ) -> (
         variable: MockReadOnlyAsyncThrowingVariable,
         get: () async throws -> Value
     ) {
-        let variable = Self(keyPath: keyPath)
+        let variable = Self(description: description)
 
         return (
             variable: variable,

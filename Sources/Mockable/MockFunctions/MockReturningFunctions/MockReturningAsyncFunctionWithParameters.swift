@@ -33,15 +33,15 @@ public final class MockReturningAsyncFunctionWithParameters<Arguments, ReturnVal
     public private(set) var latestReturnValue: ReturnValue?
 
     /// The keypath for the mock's backing variable.
-    private let keyPath: AnyKeyPath
+    private let description: MockImplementationDescription
 
     // MARK: Initializers
 
     /// Creates a returning, async function with parameters.
     private init(
-        keyPath: AnyKeyPath
+        description: MockImplementationDescription
     ) {
-        self.keyPath = keyPath
+        self.description = description
     }
 
     // MARK: Factories
@@ -52,12 +52,12 @@ public final class MockReturningAsyncFunctionWithParameters<Arguments, ReturnVal
     /// - Returns: A tuple containing a new function and an async closure to
     /// invoke the function.
     public static func makeFunction(
-        for keyPath: AnyKeyPath
+        description: MockImplementationDescription
     ) -> (
         function: MockReturningAsyncFunctionWithParameters,
         invoke: (Arguments) async -> ReturnValue
     ) {
-        let function = Self(keyPath: keyPath)
+        let function = Self(description: description)
 
         return (
             function: function,
@@ -78,7 +78,7 @@ public final class MockReturningAsyncFunctionWithParameters<Arguments, ReturnVal
         self.invocations.append(arguments)
         self.latestInvocation = arguments
 
-        let returnValue = await self.implementation(for: self.keyPath)
+        let returnValue = await self.implementation(description: self.description)
 
         self.returnValues.append(returnValue)
         self.latestReturnValue = returnValue

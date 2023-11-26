@@ -20,9 +20,9 @@ public final class MockReadOnlyAsyncVariable<Value> {
 
     /// Creates a read-only, async variable.
     private init(
-        keyPath: AnyKeyPath
+        description: MockImplementationDescription
     ) {
-        self.getter = MockVariableAsyncGetter(for: keyPath)
+        self.getter = MockVariableAsyncGetter(description: description)
     }
 
     // MARK: Factories
@@ -33,12 +33,12 @@ public final class MockReadOnlyAsyncVariable<Value> {
     /// - Returns: A tuple containing a new variable and an async closure to
     /// invoke the variable's getter.
     public static func makeVariable(
-        for keyPath: AnyKeyPath
+        description: MockImplementationDescription
     ) -> (
         variable: MockReadOnlyAsyncVariable,
         get: () async -> Value
     ) {
-        let variable = Self(keyPath: keyPath)
+        let variable = Self(description: description)
 
         return (
             variable: variable,

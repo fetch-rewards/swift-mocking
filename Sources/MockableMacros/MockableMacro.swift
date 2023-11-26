@@ -314,7 +314,14 @@ extension MockableMacro {
                 name: PatternSyntax(stringLiteral: "__\(name)"),
                 initializer: InitializerClauseSyntax(
                     value: ExprSyntax(
-                        stringLiteral: "\(type).makeVariable(for: \\\(mockName)._\(name))"
+                        stringLiteral: """
+                            \(type).makeVariable(
+                                description: MockImplementationDescription(
+                                    type: "\\(\(mockName).self)",
+                                    member: "_\(name)"
+                                )
+                            )
+                            """
                     )
                 )
             ),
@@ -497,7 +504,14 @@ extension MockableMacro {
                 ),
                 initializer: InitializerClauseSyntax(
                     value: ExprSyntax(
-                        stringLiteral: "\(type).makeFunction(for: \\\(mockName)._\(name))"
+                        stringLiteral: """
+                            \(type).makeFunction(
+                                description: MockImplementationDescription(
+                                    type: "\\(\(mockName).self)",
+                                    member: "_\(name)"
+                                )
+                            )
+                            """
                     )
                 )
             ),

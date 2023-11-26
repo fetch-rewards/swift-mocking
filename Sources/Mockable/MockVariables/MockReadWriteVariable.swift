@@ -22,9 +22,9 @@ public final class MockReadWriteVariable<Value> {
 
     /// Creates a read-write variable.
     private init(
-        keyPath: AnyKeyPath
+        description: MockImplementationDescription
     ) {
-        self.getter = MockVariableGetter(for: keyPath)
+        self.getter = MockVariableGetter(description: description)
     }
 
     // MARK: Factories
@@ -36,13 +36,13 @@ public final class MockReadWriteVariable<Value> {
     /// - Returns: A tuple containing a new variable, a closure to invoke the
     /// variable's getter, and a closure to invoke the variable's setter.
     public static func makeVariable(
-        for keyPath: AnyKeyPath
+        description: MockImplementationDescription
     ) -> (
         variable: MockReadWriteVariable,
         get: () -> Value,
         set: (Value) -> Void
     ) {
-        let variable = Self(keyPath: keyPath)
+        let variable = Self(description: description)
 
         return (
             variable: variable,

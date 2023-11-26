@@ -27,15 +27,15 @@ public final class MockReturningAsyncThrowingFunctionWithoutParameters<ReturnVal
     public private(set) var latestReturnValue: Result<ReturnValue, Error>?
 
     /// The keypath for the mock's backing variable.
-    private let keyPath: AnyKeyPath
+    private let description: MockImplementationDescription
 
     // MARK: Initializers
 
     /// Creates a returning, async, throwing function without parameters.
     private init(
-        keyPath: AnyKeyPath
+        description: MockImplementationDescription
     ) {
-        self.keyPath = keyPath
+        self.description = description
     }
 
     // MARK: Factories
@@ -46,12 +46,12 @@ public final class MockReturningAsyncThrowingFunctionWithoutParameters<ReturnVal
     /// - Returns: A tuple containing a new function and an async throwing
     /// closure to invoke the function.
     public static func makeFunction(
-        for keyPath: AnyKeyPath
+        description: MockImplementationDescription
     ) -> (
         function: MockReturningAsyncThrowingFunctionWithoutParameters,
         invoke: () async throws -> ReturnValue
     ) {
-        let function = Self(keyPath: keyPath)
+        let function = Self(description: description)
 
         return (
             function: function,
@@ -70,7 +70,7 @@ public final class MockReturningAsyncThrowingFunctionWithoutParameters<ReturnVal
         self.callCount += 1
 
         let returnValue = await Result {
-            try await self.implementation(for: self.keyPath)
+            try await self.implementation(description: self.description)
         }
 
         self.returnValues.append(returnValue)

@@ -18,16 +18,16 @@ public final class MockVariableGetter<Value> {
     /// The number of times the getter has been called.
     public private(set) var callCount: Int = .zero
 
-    /// The keypath for the mock's backing variable.
-    private let keyPath: AnyKeyPath
+    /// The description for the mock's backing variable.
+    private let description: MockImplementationDescription
 
     // MARK: Initializers
 
     /// Creates a variable getter.
     init(
-        for keyPath: AnyKeyPath
+        description: MockImplementationDescription
     ) {
-        self.keyPath = keyPath
+        self.description = description
     }
 
     // MARK: Get
@@ -39,6 +39,6 @@ public final class MockVariableGetter<Value> {
     func `get`() -> Value {
         self.callCount += 1
 
-        return self.implementation(for: self.keyPath)
+        return self.implementation(description: self.description)
     }
 }

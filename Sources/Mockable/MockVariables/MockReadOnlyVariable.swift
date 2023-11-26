@@ -19,9 +19,9 @@ public final class MockReadOnlyVariable<Value> {
 
     /// Creates a read-only variable.
     private init(
-        keyPath: AnyKeyPath
+        description: MockImplementationDescription
     ) {
-        self.getter = MockVariableGetter(for: keyPath)
+        self.getter = MockVariableGetter(description: description)
     }
 
     // MARK: Factories
@@ -32,12 +32,12 @@ public final class MockReadOnlyVariable<Value> {
     /// - Returns: A tuple containing a new variable and a closure to invoke the
     /// variable's getter.
     public static func makeVariable(
-        for keyPath: AnyKeyPath
+        description: MockImplementationDescription
     ) -> (
         variable: MockReadOnlyVariable,
         get: () -> Value
     ) {
-        let variable = Self(keyPath: keyPath)
+        let variable = Self(description: description)
 
         return (
             variable: variable,

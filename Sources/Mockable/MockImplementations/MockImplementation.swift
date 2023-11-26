@@ -12,10 +12,10 @@ public enum MockImplementation<Value> {
     case unimplemented
     case returns(Value)
 
-    func callAsFunction(for keyPath: AnyKeyPath) -> Value {
+    func callAsFunction(description: MockImplementationDescription) -> Value {
         switch self {
         case .unimplemented:
-            XCTestDynamicOverlay.unimplemented("\(keyPath)")
+            XCTestDynamicOverlay.unimplemented("\(description)")
         case .returns(let value):
             value
         }
