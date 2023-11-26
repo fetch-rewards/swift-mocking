@@ -24,7 +24,9 @@ public struct MockReturningAsyncThrowingFunctionWithoutParameters<ReturnValue> {
     public private(set) var returnValues: [Result<ReturnValue, Error>] = []
 
     /// The latest value returned by the function.
-    public private(set) var latestReturnValue: Result<ReturnValue, Error>?
+    public var latestReturnValue: Result<ReturnValue, Error>? {
+        self.returnValues.last
+    }
 
     // MARK: Initializers
 
@@ -65,7 +67,6 @@ public struct MockReturningAsyncThrowingFunctionWithoutParameters<ReturnValue> {
 
         self.callCount += 1
         self.returnValues.append(returnValue)
-        self.latestReturnValue = returnValue
 
         return try returnValue.get()
     }

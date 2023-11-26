@@ -20,7 +20,9 @@ public struct MockVoidAsyncFunctionWithParameters<Arguments> {
     public private(set) var invocations: [Arguments] = []
 
     /// The latest arguments with which the function has been invoked.
-    public private(set) var latestInvocation: Arguments?
+    public var latestInvocation: Arguments? {
+        self.invocations.last
+    }
 
     // MARK: Initializers
 
@@ -56,6 +58,5 @@ public struct MockVoidAsyncFunctionWithParameters<Arguments> {
     private mutating func invoke(_ arguments: Arguments) async {
         self.callCount += 1
         self.invocations.append(arguments)
-        self.latestInvocation = arguments
     }
 }

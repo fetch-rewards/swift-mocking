@@ -22,7 +22,9 @@ extension MockReadWriteVariable {
         public private(set) var values: [Value] = []
 
         /// The latest value with which the setter has been invoked.
-        public private(set) var latestValue: Value?
+        public var latestValue: Value? {
+            self.values.last
+        }
 
         // MARK: Set
 
@@ -34,7 +36,6 @@ extension MockReadWriteVariable {
         mutating func `set`(_ newValue: Value) {
             self.callCount += 1
             self.values.append(newValue)
-            self.latestValue = newValue
         }
     }
 }
