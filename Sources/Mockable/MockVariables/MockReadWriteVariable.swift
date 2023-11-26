@@ -21,9 +21,7 @@ public final class MockReadWriteVariable<Value> {
     // MARK: Initializers
 
     /// Creates a read-write variable.
-    private init(
-        description: MockImplementationDescription
-    ) {
+    private init(description: MockImplementationDescription) {
         self.getter = MockVariableGetter(description: description)
     }
 

@@ -38,9 +38,7 @@ public final class MockReturningAsyncFunctionWithParameters<Arguments, ReturnVal
     // MARK: Initializers
 
     /// Creates a returning, async function with parameters.
-    private init(
-        description: MockImplementationDescription
-    ) {
+    private init(description: MockImplementationDescription) {
         self.description = description
     }
 

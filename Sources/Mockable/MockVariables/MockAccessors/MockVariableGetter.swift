@@ -24,9 +24,7 @@ public final class MockVariableGetter<Value> {
     // MARK: Initializers
 
     /// Creates a variable getter.
-    init(
-        description: MockImplementationDescription
-    ) {
+    init(description: MockImplementationDescription) {
         self.description = description
     }
 

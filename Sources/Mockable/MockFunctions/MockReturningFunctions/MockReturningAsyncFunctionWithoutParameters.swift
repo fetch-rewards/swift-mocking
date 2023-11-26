@@ -32,9 +32,7 @@ public final class MockReturningAsyncFunctionWithoutParameters<ReturnValue> {
     // MARK: Initializers
 
     /// Creates a returning, async function without parameters.
-    private init(
-        description: MockImplementationDescription
-    ) {
+    private init(description: MockImplementationDescription) {
         self.description = description
     }
 

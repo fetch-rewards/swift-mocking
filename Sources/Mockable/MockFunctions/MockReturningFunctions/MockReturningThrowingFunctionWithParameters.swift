@@ -38,9 +38,7 @@ public final class MockReturningThrowingFunctionWithParameters<Arguments, Return
     // MARK: Initializers
 
     /// Creates a returning, throwing function with parameters.
-    private init(
-        description: MockImplementationDescription
-    ) {
+    private init(description: MockImplementationDescription) {
         self.description = description
     }
 

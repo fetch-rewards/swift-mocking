@@ -19,9 +19,7 @@ public final class MockReadOnlyAsyncVariable<Value> {
     // MARK: Initializers
 
     /// Creates a read-only, async variable.
-    private init(
-        description: MockImplementationDescription
-    ) {
+    private init(description: MockImplementationDescription) {
         self.getter = MockVariableAsyncGetter(description: description)
     }
 

@@ -32,9 +32,7 @@ public final class MockReturningThrowingFunctionWithoutParameters<ReturnValue> {
     // MARK: Initializers
 
     /// Creates a returning, throwing function without parameters.
-    private init(
-        description: MockImplementationDescription
-    ) {
+    private init(description: MockImplementationDescription) {
         self.description = description
     }
 

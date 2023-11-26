@@ -18,9 +18,7 @@ public final class MockReadOnlyVariable<Value> {
     // MARK: Initializers
 
     /// Creates a read-only variable.
-    private init(
-        description: MockImplementationDescription
-    ) {
+    private init(description: MockImplementationDescription) {
         self.getter = MockVariableGetter(description: description)
     }
 

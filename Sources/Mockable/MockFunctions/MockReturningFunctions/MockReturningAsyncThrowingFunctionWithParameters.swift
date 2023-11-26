@@ -38,9 +38,7 @@ public final class MockReturningAsyncThrowingFunctionWithParameters<Arguments, R
     // MARK: Initializers
 
     /// Creates a returning, async, throwing function with parameters.
-    private init(
-        description: MockImplementationDescription
-    ) {
+    private init(description: MockImplementationDescription) {
         self.description = description
     }
 
