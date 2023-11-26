@@ -24,7 +24,9 @@ public final class MockReturningFunctionWithoutParameters<ReturnValue> {
     public private(set) var returnValues: [ReturnValue] = []
 
     /// The latest value returned by the function.
-    public private(set) var latestReturnValue: ReturnValue?
+    public var latestReturnValue: ReturnValue? {
+        self.returnValues.last
+    }
 
     /// The description of the mock's backing variable.
     private let description: MockImplementationDescription
@@ -42,7 +44,7 @@ public final class MockReturningFunctionWithoutParameters<ReturnValue> {
     /// them in a labeled tuple.
     ///
     /// - Returns: A tuple containing a new function and a closure to invoke the
-    /// function.
+    ///   function.
     public static func makeFunction(
         description: MockImplementationDescription
     ) -> (
@@ -69,7 +71,6 @@ public final class MockReturningFunctionWithoutParameters<ReturnValue> {
         let returnValue = self.implementation(description: self.description)
 
         self.returnValues.append(returnValue)
-        self.latestReturnValue = returnValue
 
         return returnValue
     }

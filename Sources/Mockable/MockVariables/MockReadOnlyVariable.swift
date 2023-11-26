@@ -28,7 +28,7 @@ public final class MockReadOnlyVariable<Value> {
     /// returning them in a labeled tuple.
     ///
     /// - Returns: A tuple containing a new variable and a closure to invoke the
-    /// variable's getter.
+    ///   variable's getter.
     public static func makeVariable(
         description: MockImplementationDescription
     ) -> (

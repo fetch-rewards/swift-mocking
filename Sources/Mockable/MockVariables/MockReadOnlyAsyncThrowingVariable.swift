@@ -29,7 +29,7 @@ public final class MockReadOnlyAsyncThrowingVariable<Value> {
     /// variable's getter, returning them in a labeled tuple.
     ///
     /// - Returns: A tuple containing a new variable and an async throwing
-    /// closure to invoke the variable's getter.
+    ///   closure to invoke the variable's getter.
     public static func makeVariable(
         description: MockImplementationDescription
     ) -> (

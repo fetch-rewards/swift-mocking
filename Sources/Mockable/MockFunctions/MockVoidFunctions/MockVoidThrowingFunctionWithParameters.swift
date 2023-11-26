@@ -23,7 +23,9 @@ public final class MockVoidThrowingFunctionWithParameters<Arguments> {
     public private(set) var invocations: [Arguments] = []
 
     /// The latest arguments with which the function has been invoked.
-    public private(set) var latestInvocation: Arguments?
+    public var latestInvocation: Arguments? {
+        self.invocations.last
+    }
 
     /// All the errors that have been thrown by the function.
     public private(set) var errors: [Error] = []
@@ -39,7 +41,7 @@ public final class MockVoidThrowingFunctionWithParameters<Arguments> {
     /// returning them in a labeled tuple.
     ///
     /// - Returns: A tuple containing a new function and a throwing closure to
-    /// invoke the function.
+    ///   invoke the function.
     public static func makeFunction(
     ) -> (
         function: MockVoidThrowingFunctionWithParameters,
@@ -64,7 +66,6 @@ public final class MockVoidThrowingFunctionWithParameters<Arguments> {
     private func invoke(_ arguments: Arguments) throws {
         self.callCount += 1
         self.invocations.append(arguments)
-        self.latestInvocation = arguments
 
         guard let error = self.error else { return }
 

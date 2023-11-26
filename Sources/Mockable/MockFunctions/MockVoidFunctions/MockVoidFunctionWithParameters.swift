@@ -20,7 +20,9 @@ public final class MockVoidFunctionWithParameters<Arguments> {
     public private(set) var invocations: [Arguments] = []
 
     /// The latest arguments with which the function has been invoked.
-    public private(set) var latestInvocation: Arguments?
+    public var latestInvocation: Arguments? {
+        self.invocations.last
+    }
 
     // MARK: Initializers
 
@@ -33,7 +35,7 @@ public final class MockVoidFunctionWithParameters<Arguments> {
     /// them in a labeled tuple.
     ///
     /// - Returns: A tuple containing a new function and a closure to invoke the
-    /// function.
+    ///   function.
     public static func makeFunction(
     ) -> (
         function: MockVoidFunctionWithParameters,
@@ -56,6 +58,5 @@ public final class MockVoidFunctionWithParameters<Arguments> {
     private func invoke(_ arguments: Arguments) {
         self.callCount += 1
         self.invocations.append(arguments)
-        self.latestInvocation = arguments
     }
 }
