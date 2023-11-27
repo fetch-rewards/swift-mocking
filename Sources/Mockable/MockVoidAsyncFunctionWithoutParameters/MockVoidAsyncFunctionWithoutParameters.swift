@@ -44,7 +44,6 @@ public struct MockVoidAsyncFunctionWithoutParameters {
     // MARK: Invoke
 
     /// Records the invocation of the function.
-    ///
     private mutating func invoke() async {
         self.callCount += 1
     }

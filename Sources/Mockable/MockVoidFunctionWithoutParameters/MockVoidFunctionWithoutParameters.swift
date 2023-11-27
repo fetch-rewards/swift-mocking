@@ -44,7 +44,6 @@ public struct MockVoidFunctionWithoutParameters {
     // MARK: Invoke
 
     /// Records the invocation of the function.
-    ///
     private mutating func invoke() {
         self.callCount += 1
     }
