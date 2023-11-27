@@ -1,1 +1,1 @@
-brew "swift-format"
+brew "swiftformat"

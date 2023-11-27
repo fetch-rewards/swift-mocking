@@ -1,0 +1,488 @@
+# Swift Version
+--swiftversion 5.9
+
+# SwiftFormat Version
+--minversion 0.52.10
+
+# Options
+
+## Acronyms to auto-capitalize. Defaults to ID,URL,UUID.
+--acronyms ID,URL,UUID,API
+
+## Change type with only static members to enum: always (default) or structs-only.
+--enumnamespaces structs-only
+
+## Place ACL on-extension (default) or on-declarations.
+--extensionacl on-declarations
+
+## Function @attributes: preserve, prev-line, or same-line.
+--funcattributes prev-line
+
+## Header comments: strip, ignore, or the text you wish use.
+--header ignore
+
+## #if indenting: indent (default), no-indent, or outdent.
+--ifdef no-indent
+
+## testable-first/last, alpha (default), or length.
+--importgrouping testable-last
+
+## Number of spaces to indent, or tab to use tabs.
+--indent 4
+
+## Indent multiline strings: false (default) or true
+--indentstrings true
+
+## Mark types always (default), never, or if-not-empty
+--marktypes never
+
+## Maximum length of a line before wrapping or none (default).
+--maxwidth 100
+
+## Spacing for ranges: spaced (default) or no-space.
+--ranges no-space
+
+## Redundant type: inferred, explicit, or infer-locals-only (default).
+--redundanttype inferred
+
+## Explicit self: insert, remove (default), or init-only.
+--self insert
+
+## Allow semicolons: never or inline (default).
+--semicolons never
+
+## The width of a tab character. Defaults to unspecified.
+--tabwidth 4
+
+## Trim trailing space: always (default) or nonblank-lines.
+--trimwhitespace always
+
+## Type @attributes: preserve, prev-line, or same-line.
+--typeattributes prev-line
+
+## Blank lines from types: remove (default) or preserve.
+--typeblanklines preserve
+
+## Property @attributes: preserve, prev-line, or same-line.
+--varattributes same-line
+
+## Wrap all arguments: before-first, after-first, preserve.
+--wraparguments before-first
+
+## Wrap array/dict: before-first, after-first, preserve.
+--wrapcollections before-first
+
+## Wrap conditions: before-first, after-first, preserve.
+--wrapconditions preserve
+
+## Wrap effects: if-multiline, never, preserve.
+--wrapeffects never
+
+## Wrap func params: before-first, after-first, preserve
+--wrapparameters before-first
+
+## Wrap ternary operators: default, before-operators
+--wrapternary before-operators
+
+## Wrap typealiases: before-first, after-first, preserve
+--wraptypealiases before-first
+
+# Rules
+
+## Capitalize acronyms when the first character is capitalized.
+### Options: 
+###   --acronyms (default: ID,URL,UUID)
+--rules acronyms
+
+## Prefer comma over && in if, guard or while conditions.
+--rules andOperator
+
+## Prefer AnyObject over class in protocol definitions.
+--rules anyObjectProtocol
+
+## Replace obsolete @UIApplicationMain and @NSApplicationMain attributes 
+## with @main for Swift 5.3 and above.
+--rules applicationMain
+
+## Changes all instances of assert(false, ...) to assertionFailure(...) 
+## and precondition(false, ...) to preconditionFailure(...).
+--rules assertionFailures
+
+## Insert blank line after import statements.
+--rules blankLineAfterImports
+
+## Insert blank line before and after MARK: comments.
+### Options: 
+###   --lineaftermarks (default: true)
+--rules blankLinesAroundMark
+
+## Remove trailing blank line at the end of a scope.
+--rules blankLinesAtEndOfScope
+
+## Remove leading blank line at the start of a scope.
+### Options: 
+###   --typeblanklines (default: remove)
+--rules blankLinesAtStartOfScope
+
+## Remove blank lines between chained functions but keep the linebreaks.
+--rules blankLinesBetweenChainedFunctions
+
+## Remove blank lines between import statements.
+--rules blankLinesBetweenImports
+
+## Insert blank line before class, struct, enum, extension, protocol or function declarations.
+--rules blankLinesBetweenScopes
+
+## Convert block comments to consecutive single line comments.
+--rules blockComments
+
+## Wrap braces in accordance with selected style (K&R or Allman).
+### Options: 
+###   --allman (default: false)
+--rules braces
+
+## Assign properties using if / switch expressions.
+--rules conditionalAssignment
+
+## Replace consecutive blank lines with a single blank line.
+--rules consecutiveBlankLines
+
+## Replace consecutive spaces with a single space.
+--rules consecutiveSpaces
+
+## Use doc comments for API declarations, otherwise use regular comments.
+--rules docComments
+
+## Remove duplicate import statements.
+--rules duplicateImports
+
+## Place else, catch, or while keyword in accordance with current style (same or next line).
+### Options: 
+###   --elseposition (default: same-line)
+###   --guardelse (default: auto)
+--rules elseOnSameLine
+
+## Remove whitespace inside empty braces.
+### Options: 
+###   --emptybraces (default: no-space)
+--rules emptyBraces
+
+## Convert types used for hosting only static members into enums 
+## (an empty enum is the canonical way to create a namespace in Swift as it can't be instantiated).
+### Options: 
+###   --enumnamespaces (default: always)
+--rules enumNamespaces
+
+## Configure the placement of an extension's access control keyword.
+### Options: 
+###   --extensionacl (default: on-extension)
+--rules extensionAccessControl
+
+## Use specified source file header template for all files.
+### Options: 
+###   --header
+--rules fileHeader
+
+## Use angle brackets (extension Array<Foo>) for generic type extensions 
+## instead of type constraints (extension Array where Element == Foo).
+### Options: 
+###   --generictypes
+--rules genericExtensions
+
+## Ensure file name in header comment matches the actual file name.
+--rules headerFileName
+
+## Move inline await keyword(s) to start of expression.
+### Options: 
+###   --asynccapturing
+--rules hoistAwait
+
+## Reposition let or var bindings within pattern.
+### Options: 
+###   --patternlet (default: hoist)
+--rules hoistPatternLet
+
+## Move inline try keyword(s) to start of expression.
+### Options: 
+###   --throwcapturing
+--rules hoistTry
+
+## Indent code in accordance with the scope level.
+### Options: 
+###   --indent
+###   --tabwidth (default: unspecified)
+###   --smarttabs (default: enabled)
+###   --indentcase (default: false)
+###   --ifdef (default: indent)
+###   --xcodeindentation (default: disabled)
+###   --indentstrings (default: false)
+--rules indent
+
+## Add @available(*, unavailable) attribute to required init(coder:) when it hasn't been implemented.
+--rules initCoderUnavailable
+
+## Prefer isEmpty over comparing count against zero.
+--rules isEmpty
+
+## Move leading delimiters to the end of the previous line.
+--rules leadingDelimiters
+
+## Add empty blank line at end of file.
+--rules linebreakAtEndOfFile
+
+## Use specified linebreak character for all linebreaks (CR, LF or CRLF).
+### Options:
+###   --linebreaks (default: lf)
+--rules linebreaks
+
+## Add a MARK comment before top-level types and extensions.
+### Options:
+###   --marktypes (default: always)
+###   --typemark (default: MARK: - %t)
+###   --markextensions (default: always)
+###   --extensionmark (default: MARK: - %t + %c)
+###   --groupedextension (default: MARK: %c)
+--rules markTypes
+
+## Use consistent ordering for member modifiers.
+### Options:
+###   --modifierorder
+--rules modifierOrder
+
+## Use consistent grouping for numeric literals. 
+## Groups will be separated by _ delimiters to improve readability. 
+## For each numeric type you can specify a group size (the number of digits in each group) 
+## and a threshold (the minimum number of digits in a number before grouping is applied).
+### Options:
+###   --decimalgrouping (default: 3,6)
+###   --binarygrouping (default: 4,8)
+###   --octalgrouping (default: 4,8)
+###   --hexgrouping (default: 4,8)
+###   --fractiongrouping (default: disabled)
+###   --exponentgrouping (default: disabled)
+###   --hexliteralcase (default: uppercase)
+###   --exponentcase (default: uppercase)
+--rules numberFormatting
+
+## Use opaque generic parameters (some Protocol) 
+## instead of generic parameters with constraints (T where T: Protocol, etc) where equivalent. 
+## Also supports primary associated types for common standard library types, 
+## so definitions like T where T: Collection, T.Element == Foo are updated to some Collection<Foo>.
+### Options:
+###   --someany (default: true)
+--rules opaqueGenericParameters
+
+## Convert trivial map { $0.foo } closures to keyPath-based syntax.
+--rules preferKeyPath
+
+## Remove redundant backticks around identifiers.
+--rules redundantBackticks
+
+## Remove redundant break in switch case.
+--rules redundantBreak
+
+## Removes redundant closures bodies, containing a single statement, which are called immediately.
+--rules redundantClosure
+
+## Remove redundant access control modifiers.
+--rules redundantExtensionACL
+
+## Prefer private over fileprivate where equivalent.
+--rules redundantFileprivate
+
+## Remove unneeded get clause inside computed properties.
+--rules redundantGet
+
+## Remove explicit init if not required.
+--rules redundantInit
+
+## Remove redundant internal access control.
+--rules redundantInternal
+
+## Remove redundant let/var from ignored variables.
+--rules redundantLet
+
+## Remove redundant let error from catch clause.
+--rules redundantLetError
+
+## Remove redundant nil default value (Optional vars are nil by default).
+--rules redundantNilInit
+
+## Remove redundant @objc annotations.
+--rules redundantObjc
+
+## Remove redundant identifiers in optional binding conditions.
+--rules redundantOptionalBinding
+
+## Remove redundant parentheses.
+--rules redundantParens
+
+## Remove redundant parentheses.
+--rules redundantPattern
+
+## Remove redundant raw string values for enum cases.
+--rules redundantRawValues
+
+## Remove unneeded return keyword.
+--rules redundantReturn
+
+## Insert/remove explicit self where applicable.
+### Options:
+###   --self (default: remove)
+###   --selfrequired
+--rules redundantSelf
+
+## Remove explicit Self where applicable.
+--rules redundantStaticSelf
+
+## Remove redundant type from variable declarations.
+--rules redundantType
+
+## Remove explicit Void return type.
+### Options:
+###   --closurevoid (default: remove)
+--rules redundantVoidReturnType
+
+## Remove semicolons.
+### Options:
+###   --semicolons (default: inline).
+--rules semicolons
+
+## Sorts the body of declarations with // swiftformat:sort 
+## and declarations between // swiftformat:sort:begin 
+## and // swiftformat:sort:end comments.
+--rules sortDeclarations
+
+## Sort import statements alphabetically.
+### Options:
+###   --importgrouping (default: alpha)
+--rules sortImports
+
+## Sort switch cases alphabetically.
+--rules sortSwitchCases
+
+## Sort protocol composition typealiases alphabetically.
+--rules sortTypealiases
+
+## Add or remove space around curly braces.
+--rules spaceAroundBraces
+
+## Add or remove space around square brackets.
+--rules spaceAroundBrackets
+
+## Add space before and/or after comments.
+--rules spaceAroundComments
+
+## Remove space around angle brackets.
+--rules spaceAroundGenerics
+
+## Add or remove space around operators or delimiters.
+### Options:
+###   --operatorfunc (default: spaced)
+###   --nospaceoperators
+###   --ranges (default: spaced)
+--rules spaceAroundOperators
+
+## Add or remove space around parentheses.
+--rules spaceAroundParens
+
+## Add space inside curly braces.
+--rules spaceInsideBraces
+
+## Remove space inside square brackets.
+--rules spaceInsideBrackets
+
+## Add leading and/or trailing space inside comments.
+--rules spaceInsideComments
+
+## Remove space inside angle brackets.
+--rules spaceInsideGenerics
+
+## Remove space inside parentheses.
+--rules spaceInsideParens
+
+## Remove weak modifier from @IBOutlet properties.
+--rules strongOutlets
+
+## Remove backticks around self in Optional unwrap expressions.
+--rules strongifiedSelf
+
+## Use correct formatting for TODO:, MARK: or FIXME: comments.
+--rules todos
+
+## Use trailing closure syntax where applicable.
+### Options:
+###   --trailingclosures
+###   --nevertrailing
+--rules trailingClosures
+
+## Add or remove trailing comma from the last item in a collection literal.
+### Options:
+###   --commas (default: always)
+--rules trailingCommas
+
+## Remove trailing space at end of a line.
+### Options:
+###   --trimwhitespace (default: always)
+--rules trailingSpace
+
+## Prefer shorthand syntax for Arrays, Dictionaries and Optionals.
+### Options:
+###   --shortoptionals (default: always)
+--rules typeSugar
+
+## Mark unused function arguments with _.
+### Options:
+###   --stripunusedargs (default: always).
+--rules unusedArguments
+
+## Use Void for type declarations and () for values.
+### Options:
+###   --voidtype (default: void)
+--rules void
+
+## Wrap lines that exceed the specified maximum width.
+### Options:
+###   --maxwidth (default: none)
+###   --nowrapoperators
+###   --assetliterals
+###   --wrapternary (default: default)
+--rules wrap
+
+## Align wrapped function arguments or collection elements.
+### Options:
+###   --wraparguments
+###   --wrapparameters
+###   --wrapcollections
+###   --closingparen (default: balanced)
+###   --wrapreturntype (default: preserve)
+###   --wrapconditions
+###   --wraptypealiases
+###   --wrapeffects
+--rules wrapArguments
+
+## Wrap @attributes onto a separate line, or keep them on the same line.
+### Options:
+###   --funcattributes
+###   --typeattributes
+###   --varattributes
+--rules wrapAttributes
+
+## Wrap the bodies of inline conditional statements onto a new line.
+--rules wrapConditionalBodies
+
+## Rewrite comma-delimited enum cases to one case per line.
+### Options:
+###   --wrapenumcases (default: always)
+--rules wrapEnumCases
+
+## Wrap the opening brace of multiline statements.
+--rules wrapMultilineStatementBraces
+
+## Wrap single line // comments that exceed the specified --maxwidth.
+--rules wrapSingleLineComments
+
+## Prefer constant values to be on the right-hand-side of expressions.
+### Options:
+###   --yodaswap (default: always)
+--rules yodaConditions
