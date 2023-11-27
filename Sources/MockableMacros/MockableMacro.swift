@@ -498,11 +498,8 @@ extension MockableMacro {
         }
 
         if !genericArguments.isEmpty {
-            initializerValue +=
-                "<\(genericArguments.joined(separator: ", "))>"
+            type += "<\(genericArguments.joined(separator: ", "))>"
         }
-        
-        initializerValue += "()"
 
         return (
             backingFunction: VariableDeclSyntax(
