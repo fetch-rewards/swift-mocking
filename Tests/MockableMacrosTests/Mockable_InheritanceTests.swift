@@ -17,10 +17,9 @@ final class Mockable_InheritanceTests: XCTestCase {
 
     func testUnconstrainedProtocol() {
         testMockable { interface, mock in
-            assertMockable(
-                """
-                \(interface.accessLevel) protocol Dependency {}
-                """,
+            assertMockable("""
+                    \(interface.accessLevel) protocol Dependency {}
+                    """,
                 generates: """
                     \(mock.modifiers)class DependencyMock: Dependency {
                     \(mock.defaultInit)
@@ -34,10 +33,9 @@ final class Mockable_InheritanceTests: XCTestCase {
 
     func testActorConstrainedProtocol() {
         testMockable { interface, mock in
-            assertMockable(
-                """
-                \(interface.accessLevel) protocol Dependency: Actor {}
-                """,
+            assertMockable("""
+                    \(interface.accessLevel) protocol Dependency: Actor {}
+                    """,
                 generates: """
                     \(mock.modifiers)actor DependencyMock: Dependency {
                     \(mock.defaultInit)
@@ -51,10 +49,9 @@ final class Mockable_InheritanceTests: XCTestCase {
 
     func testClassConstrainedProtocol() {
         testMockable { interface, mock in
-            assertMockable(
-                """
-                \(interface.accessLevel) protocol Dependency: AnyObject {}
-                """,
+            assertMockable("""
+                    \(interface.accessLevel) protocol Dependency: AnyObject {}
+                    """,
                 generates: """
                     \(mock.modifiers)class DependencyMock: Dependency {
                     \(mock.defaultInit)
@@ -68,10 +65,9 @@ final class Mockable_InheritanceTests: XCTestCase {
 
     func testActorAndClassConstrainedProtocol() {
         testMockable { interface, mock in
-            assertMockable(
-                """
-                \(interface.accessLevel) protocol Dependency: Actor, AnyObject {}
-                """,
+            assertMockable("""
+                    \(interface.accessLevel) protocol Dependency: Actor, AnyObject {}
+                    """,
                 generates: """
                     \(mock.modifiers)actor DependencyMock: Dependency {
                     \(mock.defaultInit)
@@ -83,10 +79,9 @@ final class Mockable_InheritanceTests: XCTestCase {
 
     func testClassAndActorConstrainedProtocol() {
         testMockable { interface, mock in
-            assertMockable(
-                """
-                \(interface.accessLevel) protocol Dependency: AnyObject, Actor {}
-                """,
+            assertMockable("""
+                    \(interface.accessLevel) protocol Dependency: AnyObject, Actor {}
+                    """,
                 generates: """
                     \(mock.modifiers)actor DependencyMock: Dependency {
                     \(mock.defaultInit)

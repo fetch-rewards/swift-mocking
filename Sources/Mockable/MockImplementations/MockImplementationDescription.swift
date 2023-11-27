@@ -11,8 +11,8 @@ public struct MockImplementationDescription {
 
     // MARK: Properties
 
-    let type: String
-    let member: String
+    private let type: String
+    private let member: String
 
     // MARK: Initializers
 

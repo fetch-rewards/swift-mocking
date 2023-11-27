@@ -21,24 +21,23 @@ struct MockConfiguration {
     // MARK: Initializers
 
     init(interfaceAccessLevel: AccessLevelSyntax) {
-        // TODO: Remove default
-        let accessLevel: AccessLevelSyntax =
-            switch interfaceAccessLevel {
-            case .private: .fileprivate
-            default: interfaceAccessLevel
-            }
+        let accessLevel: AccessLevelSyntax = switch interfaceAccessLevel {
+        case .fileprivate, .internal, .open, .package, .public:
+            interfaceAccessLevel
+        case .private:
+            .fileprivate
+        }
 
         let modifiers: String
         let memberModifiers: String
 
-        // TODO: Remove default
         switch accessLevel {
+        case .fileprivate, .open, .package, .private, .public:
+            modifiers = "\(accessLevel) final "
+            memberModifiers = "\(accessLevel) "
         case .internal:
             modifiers = "final "
             memberModifiers = ""
-        default:
-            modifiers = "\(accessLevel) final "
-            memberModifiers = "\(accessLevel) "
         }
 
         self.accessLevel = accessLevel

@@ -32,11 +32,10 @@ func assertMockable(
     file: StaticString = #file,
     line: UInt = #line
 ) {
-    assertMacroExpansion(
-        """
-        @Mockable
-        \(interface)
-        """,
+    assertMacroExpansion("""
+            @Mockable
+            \(interface)
+            """,
         expandedSource: """
             \(interface)
 
