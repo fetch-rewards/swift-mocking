@@ -30,7 +30,7 @@ public final class MockVariableSetter<Value> {
     ///
     /// - Parameter newValue: The value to which to set the variable's
     ///   value.
-    func `set`(_ newValue: Value) {
+    func set(_ newValue: Value) {
         self.callCount += 1
         self.values.append(newValue)
     }

@@ -9,9 +9,9 @@ import Foundation
 import XCTestDynamicOverlay
 
 public enum MockThrowingImplementation<Value> {
-    
+
     // MARK: Cases
-    
+
     case unimplemented
     case returns(Value)
     case `throws`(Error)
