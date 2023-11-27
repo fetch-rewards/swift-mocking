@@ -31,7 +31,7 @@ public struct MockableMacro: PeerMacro {
             classKeyword: .keyword(
                 protocolDeclaration.isActorConstrained ? .actor : .class
             ),
-            name: "\(protocolDeclaration.name.trimmed)Mock",
+            name: self.mockName(from: protocolDeclaration),
             genericParameterClause: self.mockGenericParameterClause(
                 from: protocolDeclaration
             ),
@@ -51,6 +51,15 @@ public struct MockableMacro: PeerMacro {
 // MARK: - Mock
 
 extension MockableMacro {
+
+    // MARK: Name
+
+    /// Returns the type name of the mock.
+    private static func mockName(
+        from protocolDeclaration: ProtocolDeclSyntax
+    ) -> TokenSyntax {
+        "\(protocolDeclaration.name.trimmed)Mock"
+    }
 
     // MARK: Modifiers
 
@@ -206,7 +215,8 @@ extension MockableMacro {
                 for binding in variableDeclaration.bindings {
                     let variableOverrideDeclarations = self.mockVariableOverrideDeclarations(
                         for: binding,
-                        with: accessLevel
+                        with: accessLevel,
+                        in: protocolDeclaration
                     )
 
                     variableOverrideDeclarations.backingVariable
@@ -222,7 +232,8 @@ extension MockableMacro {
             for functionDeclaration in functionDeclarations {
                 let functionOverrideDeclarations = self.mockFunctionOverrideDeclarations(
                     for: functionDeclaration,
-                    with: accessLevel
+                    with: accessLevel,
+                    in: protocolDeclaration
                 )
 
                 functionOverrideDeclarations.backingFunction
@@ -272,12 +283,14 @@ extension MockableMacro {
     /// - Returns: Variable override declarations to apply to the mock.
     private static func mockVariableOverrideDeclarations(
         for binding: PatternBindingSyntax,
-        with accessLevel: AccessLevelSyntax
+        with accessLevel: AccessLevelSyntax,
+        in protocolDeclaration: ProtocolDeclSyntax
     ) -> (
         backingVariable: VariableDeclSyntax,
         exposedVariable: VariableDeclSyntax
     ) {
-        let name = binding.pattern.as(IdentifierPatternSyntax.self)!.identifier
+        let mockName = self.mockName(from: protocolDeclaration)
+        let variableName = binding.pattern.as(IdentifierPatternSyntax.self)!.identifier
         let genericType = binding.typeAnnotation!.type.trimmed
         let accessorBlock = binding.accessorBlock
 
@@ -305,10 +318,17 @@ extension MockableMacro {
                     AccessLevelSyntax.private.modifier
                 },
                 .let,
-                name: PatternSyntax(stringLiteral: "__\(name)"),
+                name: PatternSyntax(stringLiteral: "__\(variableName)"),
                 initializer: InitializerClauseSyntax(
                     value: ExprSyntax(
-                        stringLiteral: "\(type).makeVariable()"
+                        stringLiteral: """
+                            \(type).makeVariable(
+                                description: MockImplementationDescription(
+                                    type: "\\(\(mockName).self)",
+                                    member: "_\(variableName)"
+                                )
+                            )
+                            """
                     )
                 )
             ),
@@ -321,14 +341,14 @@ extension MockableMacro {
                 bindingSpecifier: .keyword(.var),
                 bindingsBuilder: {
                     PatternBindingSyntax(
-                        pattern: PatternSyntax(stringLiteral: "_\(name)"),
+                        pattern: PatternSyntax(stringLiteral: "_\(variableName)"),
                         typeAnnotation: TypeAnnotationSyntax(
                             type: TypeSyntax(stringLiteral: type)
                         ),
                         accessorBlock: AccessorBlockSyntax(
                             accessors: .getter(
                                 CodeBlockItemListSyntax {
-                                    "self.__\(name).variable"
+                                    "self.__\(variableName).variable"
                                 }
                             )
                         )
@@ -439,12 +459,14 @@ extension MockableMacro {
     /// - Returns: Function override declarations to apply to the mock.
     private static func mockFunctionOverrideDeclarations(
         for functionDeclaration: FunctionDeclSyntax,
-        with accessLevel: AccessLevelSyntax
+        with accessLevel: AccessLevelSyntax,
+        in protocolDeclaration: ProtocolDeclSyntax
     ) -> (
         backingFunction: VariableDeclSyntax,
         exposedFunction: VariableDeclSyntax
     ) {
-        let name = functionDeclaration.name
+        let mockName = self.mockName(from: protocolDeclaration)
+        let functionName = functionDeclaration.name
         let functionSignature = functionDeclaration.signature
         let functionParameters = functionSignature.parameterClause.parameters
 
@@ -476,11 +498,8 @@ extension MockableMacro {
         }
 
         if !genericArguments.isEmpty {
-            initializerValue +=
-                "<\(genericArguments.joined(separator: ", "))>"
+            type += "<\(genericArguments.joined(separator: ", "))>"
         }
-        
-        initializerValue += "()"
 
         return (
             backingFunction: VariableDeclSyntax(
@@ -489,11 +508,18 @@ extension MockableMacro {
                 },
                 .let,
                 name: PatternSyntax(
-                    stringLiteral: "__\(name)"
+                    stringLiteral: "__\(functionName)"
                 ),
                 initializer: InitializerClauseSyntax(
                     value: ExprSyntax(
-                        stringLiteral: "\(type).makeFunction()"
+                        stringLiteral: """
+                            \(type).makeFunction(
+                                description: MockImplementationDescription(
+                                    type: "\\(\(mockName).self)",
+                                    member: "_\(functionName)"
+                                )
+                            )
+                            """
                     )
                 )
             ),
@@ -506,14 +532,14 @@ extension MockableMacro {
                 bindingSpecifier: .keyword(.var),
                 bindingsBuilder: {
                     PatternBindingSyntax(
-                        pattern: PatternSyntax(stringLiteral: "_\(name)"),
+                        pattern: PatternSyntax(stringLiteral: "_\(functionName)"),
                         typeAnnotation: TypeAnnotationSyntax(
                             type: TypeSyntax(stringLiteral: type)
                         ),
                         accessorBlock: AccessorBlockSyntax(
                             accessors: .getter(
                                 CodeBlockItemListSyntax {
-                                    "self.__\(name).function"
+                                    "self.__\(functionName).function"
                                 }
                             )
                         )

@@ -26,13 +26,21 @@ final class Mockable_ReadWriteVariableTests: XCTestCase {
                 generates: """
                     \(mock.modifiers)class DependencyMock: Dependency {
                     \(mock.defaultInit)
-                        \(mock.memberModifiers)var _variable = MockReadWriteVariable<String>()
+                        private let __variable = MockReadWriteVariable<String> .makeVariable(
+                            description: MockImplementationDescription(
+                                type: "\\(DependencyMock.self)",
+                                member: "_variable"
+                            )
+                        )
+                        \(mock.memberModifiers)var _variable: MockReadWriteVariable<String> {
+                            self.__variable.variable
+                        }
                         \(mock.memberModifiers)var variable: String {
                             get {
-                                self._variable.getter.get()
+                                self.__variable.get()
                             }
                             set {
-                                self._variable.setter.set(newValue)
+                                self.__variable.set(newValue)
                             }
                         }
                     }
