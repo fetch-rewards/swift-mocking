@@ -155,7 +155,7 @@ extension MockableMacro {
     ) -> InheritanceClauseSyntax {
         InheritanceClauseSyntax(
             inheritedTypes: [
-                InheritedTypeSyntax(type: protocolDeclaration.type)
+                InheritedTypeSyntax(type: protocolDeclaration.type),
             ]
         )
     }
@@ -601,6 +601,6 @@ extension MockableMacro {
 @main
 struct MockablePlugin: CompilerPlugin {
     let providingMacros: [Macro.Type] = [
-        MockableMacro.self
+        MockableMacro.self,
     ]
 }

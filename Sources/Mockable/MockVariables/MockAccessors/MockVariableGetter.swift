@@ -34,7 +34,7 @@ public final class MockVariableGetter<Value> {
     /// variable's value.
     ///
     /// - Returns: The variable's value.
-    func `get`() -> Value {
+    func get() -> Value {
         self.callCount += 1
 
         return self.implementation(description: self.description)

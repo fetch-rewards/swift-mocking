@@ -11,7 +11,7 @@ import XCTestDynamicOverlay
 public enum MockAsyncThrowingImplementation<Value> {
 
     // MARK: Cases
-    
+
     case unimplemented
     case returns(() async -> Value)
     case `throws`(() async -> Error)
