@@ -146,6 +146,13 @@ extension MockableMacro {
     /// Returns the inheritance clause to apply to the mock declaration, which
     /// must conform to the provided protocol.
     ///
+    /// ```swift
+    /// @Mockable
+    /// protocol Dependency {}
+    ///
+    /// final class DependencyMock: Dependency {}
+    /// ```
+    ///
     /// - Parameter protocolDeclaration: The protocol to which the mock must
     ///   conform.
     /// - Returns: The inheritance clause to apply to the mock declaration.
@@ -366,9 +373,10 @@ extension MockableMacro {
         with accessLevel: AccessLevelSyntax
     ) throws -> VariableDeclSyntax {
         let name = binding.pattern.as(IdentifierPatternSyntax.self)!.identifier
-        let getAccessorConformanceDeclaration: (
-            AccessorDeclSyntax
-        ) throws -> AccessorDeclSyntax = { getAccessorDeclaration in
+
+        func getAccessorConformanceDeclaration(
+            for getAccessorDeclaration: AccessorDeclSyntax
+        ) throws -> AccessorDeclSyntax {
             try getAccessorDeclaration.withBody {
                 if let invocationKeywordTokens =
                     getAccessorDeclaration.invocationKeywordTokens
@@ -398,7 +406,7 @@ extension MockableMacro {
                 .accessors(
                     try AccessorDeclListSyntax {
                         try getAccessorConformanceDeclaration(
-                            getAccessorDeclaration
+                            for: getAccessorDeclaration
                         )
                         try setAccessorDeclaration.withBody {
                             "self.__\(name).set(newValue)"
@@ -414,7 +422,7 @@ extension MockableMacro {
                 .accessors(
                     try AccessorDeclListSyntax {
                         try getAccessorConformanceDeclaration(
-                            getAccessorDeclaration
+                            for: getAccessorDeclaration
                         )
                     }
                 )
@@ -490,8 +498,11 @@ extension MockableMacro {
         }
 
         if !genericArguments.isEmpty {
-            type += "<\(genericArguments.joined(separator: ", "))>"
+            initializerValue +=
+                "<\(genericArguments.joined(separator: ", "))>"
         }
+        
+        initializerValue += "()"
 
         return (
             backingFunction: VariableDeclSyntax(
