@@ -44,7 +44,6 @@ public final class MockVoidAsyncFunctionWithoutParameters {
     // MARK: Invoke
 
     /// Records the invocation of the function.
-    ///
     private func invoke() async {
         self.callCount += 1
     }

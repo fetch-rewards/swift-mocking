@@ -15,11 +15,10 @@ final class MockableErrorTests: XCTestCase {
 
     func testDescription() {
         for error in MockableError.allCases {
-            let expectedDescription =
-                switch error {
-                case .canOnlyBeAppliedToProtocols:
-                    "@Mockable can only be applied to protocols"
-                }
+            let expectedDescription = switch error {
+            case .canOnlyBeAppliedToProtocols:
+                "@Mockable can only be applied to protocols"
+            }
 
             XCTAssertEqual(error.description, expectedDescription)
         }

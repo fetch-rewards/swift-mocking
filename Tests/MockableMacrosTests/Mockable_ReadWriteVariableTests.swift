@@ -17,12 +17,11 @@ final class Mockable_ReadWriteVariableTests: XCTestCase {
 
     func testReadWriteVariable() {
         testMockable { interface, mock in
-            assertMockable(
-                """
-                \(interface.accessLevel) protocol Dependency {
-                    var variable: String { get set }
-                }
-                """,
+            assertMockable("""
+                    \(interface.accessLevel) protocol Dependency {
+                        var variable: String { get set }
+                    }
+                    """,
                 generates: """
                     \(mock.modifiers)class DependencyMock: Dependency {
                     \(mock.defaultInit)

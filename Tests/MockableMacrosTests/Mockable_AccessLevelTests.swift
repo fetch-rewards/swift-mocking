@@ -17,10 +17,9 @@ final class Mockable_AccessLevelTests: XCTestCase {
 
     func testProtocolAccessLevels() {
         testMockable { interface, mock in
-            assertMockable(
-                """
-                \(interface.accessLevel) protocol Dependency {}
-                """,
+            assertMockable("""
+                    \(interface.accessLevel) protocol Dependency {}
+                    """,
                 generates: """
                     \(mock.modifiers)class DependencyMock: Dependency {
                     \(mock.defaultInit)
