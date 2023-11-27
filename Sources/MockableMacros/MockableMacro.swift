@@ -204,10 +204,14 @@ extension MockableMacro {
 
             for variableDeclaration in variableDeclarations {
                 for binding in variableDeclaration.bindings {
-                    self.mockVariableOverrideDeclaration(
+                    let variableOverrideDeclarations = self.mockVariableOverrideDeclarations(
                         for: binding,
                         with: accessLevel
                     )
+
+                    variableOverrideDeclarations.backingVariable
+                    variableOverrideDeclarations.exposedVariable
+
                     try self.mockVariableConformanceDeclaration(
                         for: binding,
                         with: accessLevel
@@ -216,10 +220,14 @@ extension MockableMacro {
             }
 
             for functionDeclaration in functionDeclarations {
-                self.mockFunctionOverrideDeclaration(
+                let functionOverrideDeclarations = self.mockFunctionOverrideDeclarations(
                     for: functionDeclaration,
                     with: accessLevel
                 )
+
+                functionOverrideDeclarations.backingFunction
+                functionOverrideDeclarations.exposedFunction
+
                 try self.mockFunctionConformanceDeclaration(
                     for: functionDeclaration,
                     with: accessLevel
@@ -252,52 +260,80 @@ extension MockableMacro {
         ) {}
     }
 
-    /// Returns a variable override declaration to apply to the mock, generated
-    /// from the provided protocol variable binding and marked with the provided
-    /// access level.
+    /// Returns variable override declarations to apply to the mock, generated
+    /// from the provided protocol variable binding with the exposed declaration
+    /// marked with the provided access level.
     ///
     /// - Parameters:
     ///   - binding: A variable binding from the protocol to which the mock must
     ///     conform.
-    ///   - accessLevel: The access level to apply to the variable override
-    ///     declaration.
-    /// - Returns: A variable override declaration to apply to the mock.
-    private static func mockVariableOverrideDeclaration(
+    ///   - accessLevel: The access level to apply to the exposed variable
+    ///     override declaration.
+    /// - Returns: Variable override declarations to apply to the mock.
+    private static func mockVariableOverrideDeclarations(
         for binding: PatternBindingSyntax,
         with accessLevel: AccessLevelSyntax
-    ) -> VariableDeclSyntax {
+    ) -> (
+        backingVariable: VariableDeclSyntax,
+        exposedVariable: VariableDeclSyntax
+    ) {
         let name = binding.pattern.as(IdentifierPatternSyntax.self)!.identifier
-        let type = binding.typeAnnotation!.type.trimmed
+        let genericType = binding.typeAnnotation!.type.trimmed
         let accessorBlock = binding.accessorBlock
 
-        var typeName = ""
+        var type = ""
 
         if accessorBlock?.containsSetAccessor == true {
-            typeName = "MockReadWrite"
+            type = "MockReadWrite"
         } else {
-            typeName = "MockReadOnly"
+            type = "MockReadOnly"
 
             if accessorBlock?.getAccessorDeclaration?.isAsync == true {
-                typeName += "Async"
+                type += "Async"
             }
 
             if accessorBlock?.getAccessorDeclaration?.isThrowing == true {
-                typeName += "Throwing"
+                type += "Throwing"
             }
         }
 
-        typeName += "Variable"
+        type += "Variable<\(genericType)>"
 
-        return VariableDeclSyntax(
-            modifiers: DeclModifierListSyntax {
-                if accessLevel != .internal {
-                    accessLevel.modifier
+        return (
+            backingVariable: VariableDeclSyntax(
+                modifiers: DeclModifierListSyntax {
+                    AccessLevelSyntax.private.modifier
+                },
+                .let,
+                name: PatternSyntax(stringLiteral: "__\(name)"),
+                initializer: InitializerClauseSyntax(
+                    value: ExprSyntax(
+                        stringLiteral: "\(type).makeVariable()"
+                    )
+                )
+            ),
+            exposedVariable: VariableDeclSyntax(
+                modifiers: DeclModifierListSyntax {
+                    if accessLevel != .internal {
+                        accessLevel.modifier
+                    }
+                },
+                bindingSpecifier: .keyword(.var),
+                bindingsBuilder: {
+                    PatternBindingSyntax(
+                        pattern: PatternSyntax(stringLiteral: "_\(name)"),
+                        typeAnnotation: TypeAnnotationSyntax(
+                            type: TypeSyntax(stringLiteral: type)
+                        ),
+                        accessorBlock: AccessorBlockSyntax(
+                            accessors: .getter(
+                                CodeBlockItemListSyntax {
+                                    "self.__\(name).variable"
+                                }
+                            )
+                        )
+                    )
                 }
-            },
-            .var,
-            name: PatternSyntax(stringLiteral: "_\(name)"),
-            initializer: InitializerClauseSyntax(
-                value: ExprSyntax(stringLiteral: "\(typeName)<\(type)>()")
             )
         )
     }
@@ -317,6 +353,7 @@ extension MockableMacro {
         with accessLevel: AccessLevelSyntax
     ) throws -> VariableDeclSyntax {
         let name = binding.pattern.as(IdentifierPatternSyntax.self)!.identifier
+
         func getAccessorConformanceDeclaration(
             for getAccessorDeclaration: AccessorDeclSyntax
         ) throws -> AccessorDeclSyntax {
@@ -329,9 +366,9 @@ extension MockableMacro {
                             .map(\.text)
                             .joined(separator: " ")
 
-                    "\(raw: joinedInvocationKeywordTokens) self._\(name).getter.get()"
+                    "\(raw: joinedInvocationKeywordTokens) self.__\(name).get()"
                 } else {
-                    "self._\(name).getter.get()"
+                    "self.__\(name).get()"
                 }
             }
         }
@@ -352,7 +389,7 @@ extension MockableMacro {
                             for: getAccessorDeclaration
                         )
                         try setAccessorDeclaration.withBody {
-                            "self._\(name).setter.set(newValue)"
+                            "self.__\(name).set(newValue)"
                         }
                     }
                 )
@@ -370,7 +407,7 @@ extension MockableMacro {
                     }
                 )
             default:
-                .getter("self._\(name).getter.get()")
+                .getter("self.__\(name).get()")
             }
 
         return VariableDeclSyntax(
@@ -390,48 +427,52 @@ extension MockableMacro {
         )
     }
 
-    /// Returns a function override declaration to apply to the mock, generated
-    /// from the provided protocol function and marked with the provided access
-    /// level.
+    /// Returns function override declarations to apply to the mock, generated
+    /// from the provided protocol function with the exposed declaration marked
+    /// with the provided access level.
     ///
     /// - Parameters:
     ///   - functionDeclaration: A function from the protocol to which the mock
     ///     must conform.
-    ///   - accessLevel: The access level to apply to the function override
-    ///     declaration.
-    /// - Returns: A function override declaration to apply to the mock.
-    private static func mockFunctionOverrideDeclaration(
+    ///   - accessLevel: The access level to apply to the exposed function
+    ///     override declaration.
+    /// - Returns: Function override declarations to apply to the mock.
+    private static func mockFunctionOverrideDeclarations(
         for functionDeclaration: FunctionDeclSyntax,
         with accessLevel: AccessLevelSyntax
-    ) -> VariableDeclSyntax {
+    ) -> (
+        backingFunction: VariableDeclSyntax,
+        exposedFunction: VariableDeclSyntax
+    ) {
+        let name = functionDeclaration.name
         let functionSignature = functionDeclaration.signature
         let functionParameters = functionSignature.parameterClause.parameters
 
-        var initializerValue: String
+        var type: String
         var genericArguments: [String] = []
 
         if let returnClause = functionSignature.returnClause {
-            initializerValue = "MockReturning"
+            type = "MockReturning"
             genericArguments.append(returnClause.type.trimmedDescription)
         } else {
-            initializerValue = "MockVoid"
+            type = "MockVoid"
         }
 
         if functionDeclaration.isAsync {
-            initializerValue += "Async"
+            type += "Async"
         }
 
         if functionDeclaration.isThrowing {
-            initializerValue += "Throwing"
+            type += "Throwing"
         }
 
-        initializerValue += "Function"
+        type += "Function"
 
         if let arguments = functionParameters.toTupleTypeSyntax() {
-            initializerValue += "WithParameters"
+            type += "WithParameters"
             genericArguments.insert(arguments.trimmedDescription, at: .zero)
         } else {
-            initializerValue += "WithoutParameters"
+            type += "WithoutParameters"
         }
 
         if !genericArguments.isEmpty {
@@ -441,16 +482,43 @@ extension MockableMacro {
         
         initializerValue += "()"
 
-        return VariableDeclSyntax(
-            modifiers: DeclModifierListSyntax {
-                if accessLevel != .internal {
-                    accessLevel.modifier
+        return (
+            backingFunction: VariableDeclSyntax(
+                modifiers: DeclModifierListSyntax {
+                    AccessLevelSyntax.private.modifier
+                },
+                .let,
+                name: PatternSyntax(
+                    stringLiteral: "__\(name)"
+                ),
+                initializer: InitializerClauseSyntax(
+                    value: ExprSyntax(
+                        stringLiteral: "\(type).makeFunction()"
+                    )
+                )
+            ),
+            exposedFunction: VariableDeclSyntax(
+                modifiers: DeclModifierListSyntax {
+                    if accessLevel != .internal {
+                        accessLevel.modifier
+                    }
+                },
+                bindingSpecifier: .keyword(.var),
+                bindingsBuilder: {
+                    PatternBindingSyntax(
+                        pattern: PatternSyntax(stringLiteral: "_\(name)"),
+                        typeAnnotation: TypeAnnotationSyntax(
+                            type: TypeSyntax(stringLiteral: type)
+                        ),
+                        accessorBlock: AccessorBlockSyntax(
+                            accessors: .getter(
+                                CodeBlockItemListSyntax {
+                                    "self.__\(name).function"
+                                }
+                            )
+                        )
+                    )
                 }
-            },
-            .var,
-            name: PatternSyntax(stringLiteral: "_\(functionDeclaration.name)"),
-            initializer: InitializerClauseSyntax(
-                value: ExprSyntax(stringLiteral: initializerValue)
             )
         )
     }
@@ -490,9 +558,9 @@ extension MockableMacro {
                     .map(\.text)
                     .joined(separator: ", ")
 
-            invocation += "self._\(name).invoke((\(joinedArguments)))"
+            invocation += "self.__\(name).invoke((\(joinedArguments)))"
         } else {
-            invocation += "self._\(name).invoke()"
+            invocation += "self.__\(name).invoke()"
         }
 
         return try functionDeclaration

@@ -19,17 +19,32 @@ public struct MockVoidFunctionWithoutParameters {
     // MARK: Initializers
 
     /// Creates a void function without parameters.
-    public init() {}
+    private init() {}
+
+    // MARK: Factories
+
+    /// Creates a new function and a closure to invoke the function, returning
+    /// them in a labeled tuple.
+    ///
+    /// - Returns: A tuple containing a new function and a closure to invoke the
+    ///   function.
+    public static func makeFunction(
+    ) -> (
+        function: Self,
+        invoke: () -> Void
+    ) {
+        var function = Self()
+
+        return (
+            function: function,
+            invoke: { function.invoke() }
+        )
+    }
 
     // MARK: Invoke
 
     /// Records the invocation of the function.
-    ///
-    /// - Important: This method should only be called from a mock's
-    ///   function conformance declaration. Unless you are writing an
-    ///   implementation for a mock, you should never call this method
-    ///   directly.
-    public mutating func invoke() {
+    private mutating func invoke() {
         self.callCount += 1
     }
 }

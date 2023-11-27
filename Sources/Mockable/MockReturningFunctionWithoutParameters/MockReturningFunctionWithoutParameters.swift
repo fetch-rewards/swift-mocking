@@ -31,19 +31,35 @@ public struct MockReturningFunctionWithoutParameters<ReturnValue> {
     // MARK: Initializers
 
     /// Creates a returning function without parameters.
-    public init() {}
+    private init() {}
+
+    // MARK: Factories
+
+    /// Creates a new function and a closure to invoke the function, returning
+    /// them in a labeled tuple.
+    ///
+    /// - Returns: A tuple containing a new function and a closure to invoke the
+    ///   function.
+    public static func makeFunction(
+    ) -> (
+        function: Self,
+        invoke: () -> ReturnValue
+    ) {
+        var function = Self()
+
+        return (
+            function: function,
+            invoke: { function.invoke() }
+        )
+    }
 
     // MARK: Invoke
 
     /// Records the invocation of the function and returns the function's return
     /// value.
     ///
-    /// - Important: This method should only be called from a mock's
-    ///   function conformance declaration. Unless you are writing an
-    ///   implementation for a mock, you should never call this method
-    ///   directly.
     /// - Returns: The function's return value.
-    public mutating func invoke() -> ReturnValue {
+    private mutating func invoke() -> ReturnValue {
         guard let returnValue = self.returnValue else {
             return unimplemented("\(Self.self).returnValue")
         }

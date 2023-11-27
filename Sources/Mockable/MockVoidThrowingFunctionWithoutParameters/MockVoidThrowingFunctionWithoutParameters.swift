@@ -25,19 +25,35 @@ public struct MockVoidThrowingFunctionWithoutParameters {
     // MARK: Initializers
 
     /// Creates a void, throwing function without parameters.
-    public init() {}
+    private init() {}
+
+    // MARK: Factories
+
+    /// Creates a new function and a throwing closure to invoke the function,
+    /// returning them in a labeled tuple.
+    ///
+    /// - Returns: A tuple containing a new function and a throwing closure to
+    ///   invoke the function.
+    public static func makeFunction(
+    ) -> (
+        function: Self,
+        invoke: () throws -> Void
+    ) {
+        var function = Self()
+
+        return (
+            function: function,
+            invoke: { try function.invoke() }
+        )
+    }
 
     // MARK: Invoke
 
     /// Records the invocation of the function and throws an error if ``error``
     /// is not `nil`.
     ///
-    /// - Important: This method should only be called from a mock's
-    ///   function conformance declaration. Unless you are writing an
-    ///   implementation for a mock, you should never call this method
-    ///   directly.
     /// - Throws: ``error``, if it is not `nil`.
-    public mutating func invoke() throws {
+    private mutating func invoke() throws {
         self.callCount += 1
 
         guard let error = self.error else { return }

@@ -19,5 +19,25 @@ public struct MockReadOnlyThrowingVariable<Value> {
     // MARK: Initializers
 
     /// Creates a read-only, throwing variable.
-    public init() {}
+    private init() {}
+
+    // MARK: Factories
+
+    /// Creates a new variable and a throwing closure to invoke the variable's
+    /// getter, returning them in a labeled tuple.
+    ///
+    /// - Returns: A tuple containing a new variable and a throwing closure to
+    ///   invoke the variable's getter.
+    public static func makeVariable(
+    ) -> (
+        variable: Self,
+        get: () throws -> Value
+    ) {
+        var variable = Self()
+
+        return (
+            variable: variable,
+            get: { try variable.getter.get() }
+        )
+    }
 }

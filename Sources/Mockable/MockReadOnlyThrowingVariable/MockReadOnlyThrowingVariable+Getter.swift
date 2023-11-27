@@ -27,12 +27,8 @@ extension MockReadOnlyThrowingVariable {
         /// Records the invocation of the variable's getter and returns the
         /// variable's value or throws an error.
         ///
-        /// - Important: This method should only be called from a mock's
-        ///   variable conformance declaration. Unless you are writing an
-        ///   implementation for a mock, you should never call this method
-        ///   directly.
         /// - Returns: The variable's value.
-        public mutating func `get`() throws -> Value {
+        mutating func `get`() throws -> Value {
             guard let value = self.value else {
                 return unimplemented("\(Self.self).value")
             }
