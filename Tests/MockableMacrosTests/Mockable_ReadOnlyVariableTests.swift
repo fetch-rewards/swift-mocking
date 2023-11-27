@@ -17,11 +17,12 @@ final class Mockable_ReadOnlyVariableTests: XCTestCase {
 
     func testReadOnlyVariable() {
         testMockable { interface, mock in
-            assertMockable("""
-                    \(interface.accessLevel) protocol Dependency {
-                        var variable: String { get }
-                    }
-                    """,
+            assertMockable(
+                """
+                \(interface.accessLevel) protocol Dependency {
+                    var variable: String { get }
+                }
+                """,
                 generates: """
                     \(mock.modifiers)class DependencyMock: Dependency {
                     \(mock.defaultInit)
@@ -47,11 +48,12 @@ final class Mockable_ReadOnlyVariableTests: XCTestCase {
 
     func testReadOnlyAsyncVariable() {
         testMockable { interface, mock in
-            assertMockable("""
-                    \(interface.accessLevel) protocol Dependency {
-                        var variable: String { get async }
-                    }
-                    """,
+            assertMockable(
+                """
+                \(interface.accessLevel) protocol Dependency {
+                    var variable: String { get async }
+                }
+                """,
                 generates: """
                     \(mock.modifiers)class DependencyMock: Dependency {
                     \(mock.defaultInit)
@@ -79,11 +81,12 @@ final class Mockable_ReadOnlyVariableTests: XCTestCase {
 
     func testReadOnlyThrowingVariable() {
         testMockable { interface, mock in
-            assertMockable("""
-                    \(interface.accessLevel) protocol Dependency {
-                        var variable: String { get throws }
-                    }
-                    """,
+            assertMockable(
+                """
+                \(interface.accessLevel) protocol Dependency {
+                    var variable: String { get throws }
+                }
+                """,
                 generates: """
                     \(mock.modifiers)class DependencyMock: Dependency {
                     \(mock.defaultInit)
@@ -111,11 +114,12 @@ final class Mockable_ReadOnlyVariableTests: XCTestCase {
 
     func testReadOnlyAsyncThrowingVariable() {
         testMockable { interface, mock in
-            assertMockable("""
-                    \(interface.accessLevel) protocol Dependency {
-                        var variable: String { get async throws }
-                    }
-                    """,
+            assertMockable(
+                """
+                \(interface.accessLevel) protocol Dependency {
+                    var variable: String { get async throws }
+                }
+                """,
                 generates: """
                     \(mock.modifiers)class DependencyMock: Dependency {
                     \(mock.defaultInit)
