@@ -378,17 +378,16 @@ extension MockableMacro {
             for getAccessorDeclaration: AccessorDeclSyntax
         ) throws -> AccessorDeclSyntax {
             try getAccessorDeclaration.withBody {
-                if let invocationKeywordTokens =
-                    getAccessorDeclaration.invocationKeywordTokens
-                {
-                    let joinedInvocationKeywordTokens =
-                        invocationKeywordTokens
-                            .map(\.text)
-                            .joined(separator: " ")
+                let invocationKeywordTokens = getAccessorDeclaration.invocationKeywordTokens
+
+                if invocationKeywordTokens.isEmpty {
+                    "self.__\(name).get()"
+                } else {
+                    let joinedInvocationKeywordTokens = invocationKeywordTokens
+                        .map(\.text)
+                        .joined(separator: " ")
 
                     "\(raw: joinedInvocationKeywordTokens) self.__\(name).get()"
-                } else {
-                    "self.__\(name).get()"
                 }
             }
         }
@@ -564,29 +563,27 @@ extension MockableMacro {
         with accessLevel: AccessLevelSyntax
     ) throws -> FunctionDeclSyntax {
         let name = functionDeclaration.name.trimmed
+        let arguments = functionDeclaration.parameterVariableNames
+        let invocationKeywordTokens = functionDeclaration.invocationKeywordTokens
 
         var invocation = ""
 
-        if let invocationKeywordTokens =
-            functionDeclaration.invocationKeywordTokens
-        {
-            let joinedInvocationKeywordTokens =
-                invocationKeywordTokens
-                    .map(\.text)
-                    .joined(separator: " ")
+        if !invocationKeywordTokens.isEmpty {
+            let joinedInvocationKeywordTokens = invocationKeywordTokens
+                .map(\.text)
+                .joined(separator: " ")
 
             invocation += "\(joinedInvocationKeywordTokens) "
         }
 
-        if let arguments = functionDeclaration.parameterVariableNames {
-            let joinedArguments =
-                arguments
-                    .map(\.text)
-                    .joined(separator: ", ")
+        if arguments.isEmpty {
+            invocation += "self.__\(name).invoke()"
+        } else {
+            let joinedArguments = arguments
+                .map(\.text)
+                .joined(separator: ", ")
 
             invocation += "self.__\(name).invoke((\(joinedArguments)))"
-        } else {
-            invocation += "self.__\(name).invoke()"
         }
 
         return try functionDeclaration
