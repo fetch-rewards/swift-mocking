@@ -57,19 +57,19 @@ public final class MockReturningAsyncFunctionWithParameters<Arguments, ReturnVal
     /// returning them in a labeled tuple.
     ///
     /// ```swift
-    /// private let __item = MockReturningAsyncFunctionWithParameters<(Item.ID), Item>.makeFunction(
+    /// private let __user = MockReturningAsyncFunctionWithParameters<(User.ID), User>.makeFunction(
     ///     description: MockImplementationDescription(
     ///         type: Self.self,
-    ///         member: "_item"
+    ///         member: "_user"
     ///     )
     /// )
     ///
-    /// public var _item: MockReturningAsyncFunctionWithParameters<(Item.ID), Item> {
-    ///     self.__item.function
+    /// public var _user: MockReturningAsyncFunctionWithParameters<(User.ID), User> {
+    ///     self.__user.function
     /// }
     ///
-    /// public func item(id: Item.ID) async -> Item {
-    ///     await self.__item.invoke((id))
+    /// public func user(id: User.ID) async -> User {
+    ///     await self.__user.invoke((id))
     /// }
     /// ```
     ///

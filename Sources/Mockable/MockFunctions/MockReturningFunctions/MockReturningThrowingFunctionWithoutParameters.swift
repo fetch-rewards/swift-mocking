@@ -49,19 +49,19 @@ public final class MockReturningThrowingFunctionWithoutParameters<ReturnValue> {
     /// returning them in a labeled tuple.
     ///
     /// ```swift
-    /// private let __items = MockReturningThrowingFunctionWithoutParameters<Items>.makeFunction(
+    /// private let __users = MockReturningThrowingFunctionWithoutParameters<[User]>.makeFunction(
     ///     description: MockImplementationDescription(
     ///         type: Self.self,
-    ///         member: "_items"
+    ///         member: "_users"
     ///     )
     /// )
     ///
-    /// public var _items: MockReturningThrowingFunctionWithoutParameters<Items> {
-    ///     self.__items.function
+    /// public var _users: MockReturningThrowingFunctionWithoutParameters<[User]> {
+    ///     self.__users.function
     /// }
     ///
-    /// public func items() throws -> Items {
-    ///     try self.__items.invoke()
+    /// public func users() throws -> [User] {
+    ///     try self.__users.invoke()
     /// }
     /// ```
     ///

@@ -57,19 +57,19 @@ public final class MockReturningThrowingFunctionWithParameters<Arguments, Return
     /// returning them in a labeled tuple.
     ///
     /// ```swift
-    /// private let __item = MockReturningThrowingFunctionWithParameters<(Item.ID), Item>.makeFunction(
+    /// private let __user = MockReturningThrowingFunctionWithParameters<(User.ID), User>.makeFunction(
     ///     description: MockImplementationDescription(
     ///         type: Self.self,
-    ///         member: "_item"
+    ///         member: "_user"
     ///     )
     /// )
     ///
-    /// public var _item: MockReturningThrowingFunctionWithParameters<(Item.ID), Item> {
-    ///     self.__item.function
+    /// public var _user: MockReturningThrowingFunctionWithParameters<(User.ID), User> {
+    ///     self.__user.function
     /// }
     ///
-    /// public func item(id: Item.ID) throws -> Item {
-    ///     try self.__item.invoke((id))
+    /// public func user(id: User.ID) throws -> User {
+    ///     try self.__user.invoke((id))
     /// }
     /// ```
     ///
