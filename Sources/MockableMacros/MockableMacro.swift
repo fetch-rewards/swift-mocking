@@ -399,9 +399,9 @@ extension MockableMacro {
             binding.accessorBlock?.getAccessorDeclaration,
             binding.accessorBlock?.setAccessorDeclaration
         ) {
-        case (
-            .some(let getAccessorDeclaration),
-            .some(let setAccessorDeclaration)
+        case let (
+            .some(getAccessorDeclaration),
+            .some(setAccessorDeclaration)
         ):
             .accessors(
                 try AccessorDeclListSyntax {
@@ -413,8 +413,8 @@ extension MockableMacro {
                     }
                 }
             )
-        case (
-            .some(let getAccessorDeclaration),
+        case let (
+            .some(getAccessorDeclaration),
             .none
         ) where getAccessorDeclaration.isAsync || getAccessorDeclaration.isThrowing:
             .accessors(

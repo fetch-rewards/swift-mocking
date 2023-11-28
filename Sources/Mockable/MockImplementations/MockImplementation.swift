@@ -21,7 +21,7 @@ public enum MockImplementation<Value> {
         switch self {
         case .unimplemented:
             XCTestDynamicOverlay.unimplemented("\(description)")
-        case .returns(let value):
+        case let .returns(value):
             value
         }
     }

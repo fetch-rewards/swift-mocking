@@ -67,7 +67,9 @@ public final class MockVoidThrowingFunctionWithParameters<Arguments> {
         self.callCount += 1
         self.invocations.append(arguments)
 
-        guard let error = self.error else { return }
+        guard let error = self.error else {
+            return
+        }
 
         self.errors.append(error)
 

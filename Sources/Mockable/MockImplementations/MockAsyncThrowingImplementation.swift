@@ -22,9 +22,9 @@ public enum MockAsyncThrowingImplementation<Value> {
         await switch self {
         case .unimplemented:
             XCTestDynamicOverlay.unimplemented("\(description)")
-        case .returns(let value):
+        case let .returns(value):
             value()
-        case .throws(let error):
+        case let .throws(error):
             throw error()
         }
     }
