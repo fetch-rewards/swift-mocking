@@ -7,8 +7,8 @@
 
 import Foundation
 
-/// The invocation records and implementation for a mock's returning, async,
-/// throwing function that has parameters.
+/// The implementation and invocation records for a mock's returning, async,
+/// throwing function with parameters.
 public final class MockReturningAsyncThrowingFunctionWithParameters<Arguments, ReturnValue> {
 
     // MARK: Properties
@@ -35,30 +35,49 @@ public final class MockReturningAsyncThrowingFunctionWithParameters<Arguments, R
         self.returnValues.last
     }
 
-    /// The description of the mock's backing variable.
+    /// The description of the mock's exposed function.
+    ///
+    /// This description is used when generating an `unimplemented` test failure
+    /// to indicate which exposed function needs an implementation for the test
+    /// to succeed.
     private let description: MockImplementationDescription
 
     // MARK: Initializers
 
     /// Creates a returning, async, throwing function with parameters.
+    ///
+    /// - Parameter description: The description of the mock's exposed function.
     private init(description: MockImplementationDescription) {
         self.description = description
     }
 
     // MARK: Factories
 
-    /// Creates a new function and an async throwing closure to invoke the
+    /// Creates a function and an async, throwing closure for invoking the
     /// function, returning them in a labeled tuple.
     ///
-    /// - Returns: A tuple containing a new function and an async throwing
-    ///   closure to invoke the function.
+    /// ```swift
+    /// private let __item = MockReturningAsyncThrowingFunctionWithParameters<(Item.ID), Item>.makeFunction(
+    ///     description: MockImplementationDescription(
+    ///         type: Self.self,
+    ///         member: "_item"
+    ///     )
+    /// )
+    /// public var _item: MockReturningAsyncThrowingFunctionWithParameters<(Item.ID), Item> {
+    ///     self.__item.function
+    /// }
+    /// ```
+    ///
+    /// - Parameter description: The description of the mock's exposed function.
+    /// - Returns: A tuple containing a function and an async, throwing closure
+    ///   for invoking the function.
     public static func makeFunction(
         description: MockImplementationDescription
     ) -> (
         function: MockReturningAsyncThrowingFunctionWithParameters,
         invoke: (Arguments) async throws -> ReturnValue
     ) {
-        let function = Self(description: description)
+        let function = MockReturningAsyncThrowingFunctionWithParameters(description: description)
 
         return (
             function: function,
