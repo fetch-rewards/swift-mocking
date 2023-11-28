@@ -129,7 +129,8 @@ final class Mockable_ReadOnlyVariableTests: XCTestCase {
                                 member: "_variable"
                             )
                         )
-                        \(mock.memberModifiers)var _variable: MockReadOnlyAsyncThrowingVariable<String> {
+                        \(mock.memberModifiers)\
+                    var _variable: MockReadOnlyAsyncThrowingVariable<String> {
                             self.__variable.variable
                         }
                         \(mock.memberModifiers)var variable: String {
