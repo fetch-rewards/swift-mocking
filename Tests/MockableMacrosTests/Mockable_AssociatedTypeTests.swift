@@ -25,7 +25,8 @@ final class Mockable_AssociatedTypeTests: XCTestCase {
                 }
                 """,
                 generates: """
-                    \(mock.modifiers)class DependencyMock<A: Hashable, B: Identifiable>: Dependency {
+                    \(mock.modifiers)\
+                    class DependencyMock<A: Hashable, B: Identifiable>: Dependency {
                     \(mock.defaultInit)
                     }
                     """
@@ -43,7 +44,10 @@ final class Mockable_AssociatedTypeTests: XCTestCase {
                 }
                 """,
                 generates: """
-                    \(mock.modifiers)class DependencyMock<A: Hashable & Identifiable, B: Comparable & Equatable & RawRepresentable>: Dependency {
+                    \(mock.modifiers)\
+                    class DependencyMock\
+                    <A: Hashable & Identifiable, B: Comparable & Equatable & RawRepresentable>\
+                    : Dependency {
                     \(mock.defaultInit)
                     }
                     """
@@ -59,12 +63,17 @@ final class Mockable_AssociatedTypeTests: XCTestCase {
                 """
                 \(interface.accessLevel) protocol Dependency<A> where A: Hashable {
                     associatedtype A: Comparable
-                    associatedtype B: BidirectionalCollection where B.Element: Equatable, B.Element: Identifiable
+                    associatedtype B: BidirectionalCollection \
+                    where B.Element: Equatable, B.Element: Identifiable
                     associatedtype C: RandomAccessCollection where C.Element == String
                 }
                 """,
                 generates: """
-                    \(mock.modifiers)class DependencyMock<A: Comparable, B: BidirectionalCollection, C: RandomAccessCollection>: Dependency where A: Hashable, B.Element: Equatable, B.Element: Identifiable, C.Element == String {
+                    \(mock.modifiers)\
+                    class DependencyMock\
+                    <A: Comparable, B: BidirectionalCollection, C: RandomAccessCollection>\
+                    : Dependency where A: Hashable, B.Element: Equatable, \
+                    B.Element: Identifiable, C.Element == String {
                     \(mock.defaultInit)
                     }
                     """
