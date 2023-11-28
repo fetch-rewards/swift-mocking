@@ -18,6 +18,9 @@
 ## Function @attributes: preserve, prev-line, or same-line.
 --funcattributes prev-line
 
+## Mark for extension grouped with extended type: "MARK: %c" (default).
+--groupedextension "MARK: - %c"
+
 ## Header comments: strip, ignore, or the text you wish use.
 --header ignore
 
@@ -50,6 +53,9 @@
 
 ## Allow semicolons: never or inline (default).
 --semicolons never
+
+## Mark unused function arguments with _: closure-only, unnamed-only, or always (default).
+--stripunusedargs closure-only
 
 ## The width of a tab character. Defaults to unspecified.
 --tabwidth 4
@@ -192,20 +198,10 @@
 ## Ensure file name in header comment matches the actual file name.
 --rules headerFileName
 
-## Move inline await keyword(s) to start of expression.
-### Options: 
-###   --asynccapturing
---rules hoistAwait
-
 ## Reposition let or var bindings within pattern.
 ### Options: 
 ###   --patternlet (default: hoist)
 --rules hoistPatternLet
-
-## Move inline try keyword(s) to start of expression.
-### Options: 
-###   --throwcapturing
---rules hoistTry
 
 ## Indent code in accordance with the scope level.
 ### Options: 
@@ -331,9 +327,6 @@
 ###   --self (default: remove)
 ###   --selfrequired
 --rules redundantSelf
-
-## Remove explicit Self where applicable.
---rules redundantStaticSelf
 
 ## Remove redundant type from variable declarations.
 --rules redundantType
