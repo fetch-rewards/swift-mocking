@@ -55,8 +55,13 @@ public final class MockReturningAsyncFunctionWithoutParameters<ReturnValue> {
     ///         member: "_items"
     ///     )
     /// )
+    ///
     /// public var _items: MockReturningAsyncFunctionWithoutParameters<Items> {
     ///     self.__items.function
+    /// }
+    ///
+    /// public func items() async -> Items {
+    ///     await self.__items.invoke()
     /// }
     /// ```
     ///

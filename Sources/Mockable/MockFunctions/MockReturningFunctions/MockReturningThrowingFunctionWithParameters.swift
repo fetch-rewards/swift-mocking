@@ -63,8 +63,13 @@ public final class MockReturningThrowingFunctionWithParameters<Arguments, Return
     ///         member: "_item"
     ///     )
     /// )
+    ///
     /// public var _item: MockReturningThrowingFunctionWithParameters<(Item.ID), Item> {
     ///     self.__item.function
+    /// }
+    ///
+    /// public func item(id: Item.ID) throws -> Item {
+    ///     try self.__item.invoke((id))
     /// }
     /// ```
     ///
