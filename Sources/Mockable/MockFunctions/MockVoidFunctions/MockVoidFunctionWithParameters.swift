@@ -53,7 +53,7 @@ public final class MockVoidFunctionWithParameters<Arguments> {
         function: MockVoidFunctionWithParameters,
         invoke: (Arguments) -> Void
     ) {
-        let function = Self()
+        let function = MockVoidFunctionWithParameters()
 
         return (
             function: function,

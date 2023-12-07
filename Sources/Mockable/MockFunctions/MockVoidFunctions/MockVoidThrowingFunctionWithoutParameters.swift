@@ -51,7 +51,7 @@ public final class MockVoidThrowingFunctionWithoutParameters {
         function: MockVoidThrowingFunctionWithoutParameters,
         invoke: () throws -> Void
     ) {
-        let function = Self()
+        let function = MockVoidThrowingFunctionWithoutParameters()
 
         return (
             function: function,

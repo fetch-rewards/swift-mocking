@@ -45,7 +45,7 @@ public final class MockVoidFunctionWithoutParameters {
         function: MockVoidFunctionWithoutParameters,
         invoke: () -> Void
     ) {
-        let function = Self()
+        let function = MockVoidFunctionWithoutParameters()
 
         return (
             function: function,

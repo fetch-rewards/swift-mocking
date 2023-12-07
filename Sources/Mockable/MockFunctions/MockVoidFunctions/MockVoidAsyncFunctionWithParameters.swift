@@ -53,7 +53,7 @@ public final class MockVoidAsyncFunctionWithParameters<Arguments> {
         function: MockVoidAsyncFunctionWithParameters,
         invoke: (Arguments) async -> Void
     ) {
-        let function = Self()
+        let function = MockVoidAsyncFunctionWithParameters()
 
         return (
             function: function,
