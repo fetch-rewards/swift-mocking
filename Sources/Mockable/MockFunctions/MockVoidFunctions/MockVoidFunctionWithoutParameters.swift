@@ -7,8 +7,8 @@
 
 import Foundation
 
-/// The invocation records and implementation for a mock's void function that
-/// does not have parameters.
+/// The implementation and invocation records for a mock's void function without
+/// parameters.
 public final class MockVoidFunctionWithoutParameters {
 
     // MARK: Properties
@@ -23,10 +23,22 @@ public final class MockVoidFunctionWithoutParameters {
 
     // MARK: Factories
 
-    /// Creates a new function and a closure to invoke the function, returning
+    /// Creates a function and a closure for invoking the function, returning
     /// them in a labeled tuple.
     ///
-    /// - Returns: A tuple containing a new function and a closure to invoke the
+    /// ```swift
+    /// private let __logOut = MockVoidFunctionWithoutParameters.makeFunction()
+    ///
+    /// public var _logOut: MockVoidFunctionWithoutParameters {
+    ///     self.__logOut.function
+    /// }
+    ///
+    /// public func logOut() {
+    ///     self.__logOut.invoke()
+    /// }
+    /// ```
+    ///
+    /// - Returns: A tuple containing a function and a closure for invoking the
     ///   function.
     public static func makeFunction(
     ) -> (
