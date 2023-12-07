@@ -26,7 +26,8 @@ public enum MockImplementation<Value> {
     /// value if the implementation is ``MockImplementation/returns(_:)``.
     ///
     /// - Parameter description: The implementation's description.
-    /// - Returns: The implementation's return value.
+    /// - Returns: A value if the implementation is
+    ///   ``MockImplementation/returns(_:)``.
     func callAsFunction(description: MockImplementationDescription) -> Value {
         switch self {
         case .unimplemented:

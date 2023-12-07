@@ -33,7 +33,8 @@ public enum MockThrowingImplementation<Value> {
     /// - Parameter description: The implementation's description.
     /// - Throws: An error if the implementation is
     ///   ``MockThrowingImplementation/throws(_:)``.
-    /// - Returns: The implementation's return value.
+    /// - Returns: A value if the implementation is
+    ///   ``MockThrowingImplementation/returns(_:)``.
     func callAsFunction(description: MockImplementationDescription) throws -> Value {
         switch self {
         case .unimplemented:
