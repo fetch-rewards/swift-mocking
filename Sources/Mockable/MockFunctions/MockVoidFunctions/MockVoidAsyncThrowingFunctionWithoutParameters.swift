@@ -7,8 +7,8 @@
 
 import Foundation
 
-/// The implementation and invocation records for a mock's void, async, throwing
-/// function without parameters.
+/// The implementation details and invocation records for a mock's void, async,
+/// throwing function without parameters.
 public final class MockVoidAsyncThrowingFunctionWithoutParameters {
 
     // MARK: Properties

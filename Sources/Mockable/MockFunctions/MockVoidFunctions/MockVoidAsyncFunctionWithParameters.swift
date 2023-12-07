@@ -7,8 +7,8 @@
 
 import Foundation
 
-/// The implementation and invocation records for a mock's void, async function
-/// with parameters.
+/// The implementation details and invocation records for a mock's void, async
+/// function with parameters.
 public final class MockVoidAsyncFunctionWithParameters<Arguments> {
 
     // MARK: Properties
