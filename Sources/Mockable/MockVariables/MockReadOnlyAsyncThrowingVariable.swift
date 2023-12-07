@@ -7,8 +7,8 @@
 
 import Foundation
 
-/// The invocation records and implementation for a mock's read-only, async,
-/// throwing variable.
+/// The implementation details and invocation records for a mock's read-only,
+/// async, throwing variable.
 public final class MockReadOnlyAsyncThrowingVariable<Value> {
 
     // MARK: Properties
@@ -19,6 +19,8 @@ public final class MockReadOnlyAsyncThrowingVariable<Value> {
     // MARK: Initializers
 
     /// Creates a read-only, async, throwing variable.
+    ///
+    /// - Parameter description: The description of the mock's exposed variable.
     private init(description: MockImplementationDescription) {
         self.getter = MockVariableAsyncThrowingGetter(description: description)
     }
@@ -28,6 +30,7 @@ public final class MockReadOnlyAsyncThrowingVariable<Value> {
     /// Creates a new variable and an async throwing closure to invoke the
     /// variable's getter, returning them in a labeled tuple.
     ///
+    /// - Parameter description: The description of the mock's exposed variable.
     /// - Returns: A tuple containing a new variable and an async throwing
     ///   closure to invoke the variable's getter.
     public static func makeVariable(

@@ -7,7 +7,8 @@
 
 import Foundation
 
-/// The invocation records and implementation for a mock's read-write variable.
+/// The implementation details and invocation records for a mock's read-write
+/// variable.
 public final class MockReadWriteVariable<Value> {
 
     // MARK: Properties
@@ -21,6 +22,8 @@ public final class MockReadWriteVariable<Value> {
     // MARK: Initializers
 
     /// Creates a read-write variable.
+    ///
+    /// - Parameter description: The description of the mock's exposed variable.
     private init(description: MockImplementationDescription) {
         self.getter = MockVariableGetter(description: description)
     }
@@ -31,6 +34,7 @@ public final class MockReadWriteVariable<Value> {
     /// closure to invoke the variable's setter, returning them in a labeled
     /// tuple.
     ///
+    /// - Parameter description: The description of the mock's exposed variable.
     /// - Returns: A tuple containing a new variable, a closure to invoke the
     ///   variable's getter, and a closure to invoke the variable's setter.
     public static func makeVariable(
