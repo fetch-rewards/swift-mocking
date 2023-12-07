@@ -8,24 +8,40 @@
 import Foundation
 import XCTestDynamicOverlay
 
+/// A mock's async, throwing implementation.
 public enum MockAsyncThrowingImplementation<Value> {
 
     // MARK: Cases
 
+    /// Triggers a test failure when invoked.
     case unimplemented
+
+    /// Returns a value when invoked.
     case returns(() async -> Value)
+
+    /// Throws an error when invoked.
     case `throws`(() async -> Error)
 
     // MARK: Call As Function
 
+    /// Invokes the implementation, triggering a test failure if the
+    /// implementation is ``MockAsyncThrowingImplementation/unimplemented``,
+    /// returning a value if the implementation is
+    /// ``MockAsyncThrowingImplementation/returns(_:)``, or throwing an error if
+    /// the implementation is ``MockAsyncThrowingImplementation/throws(_:)``.
+    ///
+    /// - Parameter description: The implementation's description.
+    /// - Throws: An error if the implementation is
+    ///   ``MockAsyncThrowingImplementation/throws(_:)``.
+    /// - Returns: The implementation's return value.
     func callAsFunction(description: MockImplementationDescription) async throws -> Value {
-        await switch self {
+        switch self {
         case .unimplemented:
             XCTestDynamicOverlay.unimplemented("\(description)")
         case let .returns(value):
-            value()
+            await value()
         case let .throws(error):
-            throw error()
+            throw await error()
         }
     }
 }
