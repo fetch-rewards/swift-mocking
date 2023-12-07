@@ -32,15 +32,16 @@ public final class MockReturningThrowingFunctionWithoutParameters<ReturnValue> {
     /// This description is used when generating an `unimplemented` test failure
     /// to indicate which exposed function needs an implementation for the test
     /// to succeed.
-    private let description: MockImplementationDescription
+    private let exposedFunctionDescription: MockImplementationDescription
 
     // MARK: Initializers
 
     /// Creates a returning, throwing function without parameters.
     ///
-    /// - Parameter description: The description of the mock's exposed function.
-    private init(description: MockImplementationDescription) {
-        self.description = description
+    /// - Parameter exposedFunctionDescription: The description of the mock's
+    ///   exposed function.
+    private init(exposedFunctionDescription: MockImplementationDescription) {
+        self.exposedFunctionDescription = exposedFunctionDescription
     }
 
     // MARK: Factories
@@ -50,7 +51,7 @@ public final class MockReturningThrowingFunctionWithoutParameters<ReturnValue> {
     ///
     /// ```swift
     /// private let __users = MockReturningThrowingFunctionWithoutParameters<[User]>.makeFunction(
-    ///     description: MockImplementationDescription(
+    ///     exposedFunctionDescription: MockImplementationDescription(
     ///         type: Self.self,
     ///         member: "_users"
     ///     )
@@ -65,16 +66,19 @@ public final class MockReturningThrowingFunctionWithoutParameters<ReturnValue> {
     /// }
     /// ```
     ///
-    /// - Parameter description: The description of the mock's exposed function.
+    /// - Parameter exposedFunctionDescription: The description of the mock's
+    ///   exposed function.
     /// - Returns: A tuple containing a function and a throwing closure for
     ///   invoking the function.
     public static func makeFunction(
-        description: MockImplementationDescription
+        exposedFunctionDescription: MockImplementationDescription
     ) -> (
         function: MockReturningThrowingFunctionWithoutParameters,
         invoke: () throws -> ReturnValue
     ) {
-        let function = MockReturningThrowingFunctionWithoutParameters(description: description)
+        let function = MockReturningThrowingFunctionWithoutParameters(
+            exposedFunctionDescription: exposedFunctionDescription
+        )
 
         return (
             function: function,
@@ -93,7 +97,7 @@ public final class MockReturningThrowingFunctionWithoutParameters<ReturnValue> {
         self.callCount += 1
 
         let returnValue = Result {
-            try self.implementation(description: self.description)
+            try self.implementation(description: self.exposedFunctionDescription)
         }
 
         self.returnValues.append(returnValue)

@@ -499,6 +499,21 @@ extension MockableMacro {
             backingType += "<\(backingGenericArguments.joined(separator: ", "))>"
         }
 
+        let backingFunctionInitializerValue: String
+
+        if functionSignature.returnClause == nil {
+            backingFunctionInitializerValue = "\(backingType).makeFunction()"
+        } else {
+            backingFunctionInitializerValue = """
+                \(backingType).makeFunction(
+                    exposedFunctionDescription: MockImplementationDescription(
+                        type: \(mockName).self,
+                        member: "_\(functionName)"
+                    )
+                )
+                """
+        }
+
         return (
             backingFunction: VariableDeclSyntax(
                 modifiers: DeclModifierListSyntax {
@@ -509,16 +524,7 @@ extension MockableMacro {
                     stringLiteral: "__\(functionName)"
                 ),
                 initializer: InitializerClauseSyntax(
-                    value: ExprSyntax(
-                        stringLiteral: """
-                            \(backingType).makeFunction(
-                                description: MockImplementationDescription(
-                                    type: \(mockName).self,
-                                    member: "_\(functionName)"
-                                )
-                            )
-                            """
-                    )
+                    value: ExprSyntax(stringLiteral: backingFunctionInitializerValue)
                 )
             ),
             exposedFunction: VariableDeclSyntax(

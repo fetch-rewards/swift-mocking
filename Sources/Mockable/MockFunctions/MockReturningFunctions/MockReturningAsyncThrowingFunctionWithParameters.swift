@@ -40,15 +40,16 @@ public final class MockReturningAsyncThrowingFunctionWithParameters<Arguments, R
     /// This description is used when generating an `unimplemented` test failure
     /// to indicate which exposed function needs an implementation for the test
     /// to succeed.
-    private let description: MockImplementationDescription
+    private let exposedFunctionDescription: MockImplementationDescription
 
     // MARK: Initializers
 
     /// Creates a returning, async, throwing function with parameters.
     ///
-    /// - Parameter description: The description of the mock's exposed function.
-    private init(description: MockImplementationDescription) {
-        self.description = description
+    /// - Parameter exposedFunctionDescription: The description of the mock's
+    ///   exposed function.
+    private init(exposedFunctionDescription: MockImplementationDescription) {
+        self.exposedFunctionDescription = exposedFunctionDescription
     }
 
     // MARK: Factories
@@ -58,7 +59,7 @@ public final class MockReturningAsyncThrowingFunctionWithParameters<Arguments, R
     ///
     /// ```swift
     /// private let __user = MockReturningAsyncThrowingFunctionWithParameters<(User.ID), User>.makeFunction(
-    ///     description: MockImplementationDescription(
+    ///     exposedFunctionDescription: MockImplementationDescription(
     ///         type: Self.self,
     ///         member: "_user"
     ///     )
@@ -73,16 +74,19 @@ public final class MockReturningAsyncThrowingFunctionWithParameters<Arguments, R
     /// }
     /// ```
     ///
-    /// - Parameter description: The description of the mock's exposed function.
+    /// - Parameter exposedFunctionDescription: The description of the mock's
+    ///   exposed function.
     /// - Returns: A tuple containing a function and an async, throwing closure
     ///   for invoking the function.
     public static func makeFunction(
-        description: MockImplementationDescription
+        exposedFunctionDescription: MockImplementationDescription
     ) -> (
         function: MockReturningAsyncThrowingFunctionWithParameters,
         invoke: (Arguments) async throws -> ReturnValue
     ) {
-        let function = MockReturningAsyncThrowingFunctionWithParameters(description: description)
+        let function = MockReturningAsyncThrowingFunctionWithParameters(
+            exposedFunctionDescription: exposedFunctionDescription
+        )
 
         return (
             function: function,
@@ -106,7 +110,7 @@ public final class MockReturningAsyncThrowingFunctionWithParameters<Arguments, R
         self.invocations.append(arguments)
 
         let returnValue = await Result {
-            try await self.implementation(description: self.description)
+            try await self.implementation(description: self.exposedFunctionDescription)
         }
 
         self.returnValues.append(returnValue)
