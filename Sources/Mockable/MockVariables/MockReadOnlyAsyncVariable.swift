@@ -20,26 +20,32 @@ public final class MockReadOnlyAsyncVariable<Value> {
 
     /// Creates a read-only, async variable.
     ///
-    /// - Parameter description: The description of the mock's exposed variable.
-    private init(description: MockImplementationDescription) {
-        self.getter = MockVariableAsyncGetter(description: description)
+    /// - Parameter exposedVariableDescription: The description of the mock's
+    ///   exposed variable.
+    private init(exposedVariableDescription: MockImplementationDescription) {
+        self.getter = MockVariableAsyncGetter(
+            exposedVariableDescription: exposedVariableDescription
+        )
     }
 
     // MARK: Factories
 
-    /// Creates a new variable and an async closure to invoke the variable's
+    /// Creates a variable and an async closure for invoking the variable's
     /// getter, returning them in a labeled tuple.
     ///
-    /// - Parameter description: The description of the mock's exposed variable.
-    /// - Returns: A tuple containing a new variable and an async closure to
-    ///   invoke the variable's getter.
+    /// - Parameter exposedVariableDescription: The description of the mock's
+    ///   exposed variable.
+    /// - Returns: A tuple containing a variable and an async closure for
+    ///   invoking the variable's getter.
     public static func makeVariable(
-        description: MockImplementationDescription
+        exposedVariableDescription: MockImplementationDescription
     ) -> (
         variable: MockReadOnlyAsyncVariable,
         get: () async -> Value
     ) {
-        let variable = Self(description: description)
+        let variable = MockReadOnlyAsyncVariable(
+            exposedVariableDescription: exposedVariableDescription
+        )
 
         return (
             variable: variable,

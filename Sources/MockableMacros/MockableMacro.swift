@@ -325,7 +325,7 @@ extension MockableMacro {
                     value: ExprSyntax(
                         stringLiteral: """
                             \(backingType).makeVariable(
-                                description: MockImplementationDescription(
+                                exposedVariableDescription: MockImplementationDescription(
                                     type: \(mockName).self,
                                     member: "_\(variableName)"
                                 )

@@ -23,15 +23,16 @@ public final class MockVariableGetter<Value> {
     /// This description is used when generating an `unimplemented` test failure
     /// to indicate which exposed variable needs an implementation for the test
     /// to succeed.
-    private let description: MockImplementationDescription
+    private let exposedVariableDescription: MockImplementationDescription
 
     // MARK: Initializers
 
     /// Creates a variable getter.
     ///
-    /// - Parameter description: The description of the mock's exposed variable.
-    init(description: MockImplementationDescription) {
-        self.description = description
+    /// - Parameter exposedVariableDescription: The description of the mock's
+    ///   exposed variable.
+    init(exposedVariableDescription: MockImplementationDescription) {
+        self.exposedVariableDescription = exposedVariableDescription
     }
 
     // MARK: Get
@@ -43,6 +44,6 @@ public final class MockVariableGetter<Value> {
     func get() -> Value {
         self.callCount += 1
 
-        return self.implementation(description: self.description)
+        return self.implementation(description: self.exposedVariableDescription)
     }
 }

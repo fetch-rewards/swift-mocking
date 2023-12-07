@@ -27,7 +27,7 @@ final class Mockable_ReadWriteVariableTests: XCTestCase {
                     \(mock.modifiers)class DependencyMock: Dependency {
                     \(mock.defaultInit)
                         private let __variable = MockReadWriteVariable<String> .makeVariable(
-                            description: MockImplementationDescription(
+                            exposedVariableDescription: MockImplementationDescription(
                                 type: DependencyMock.self,
                                 member: "_variable"
                             )

@@ -20,26 +20,32 @@ public final class MockReadOnlyAsyncThrowingVariable<Value> {
 
     /// Creates a read-only, async, throwing variable.
     ///
-    /// - Parameter description: The description of the mock's exposed variable.
-    private init(description: MockImplementationDescription) {
-        self.getter = MockVariableAsyncThrowingGetter(description: description)
+    /// - Parameter exposedVariableDescription: The description of the mock's
+    ///   exposed variable.
+    private init(exposedVariableDescription: MockImplementationDescription) {
+        self.getter = MockVariableAsyncThrowingGetter(
+            exposedVariableDescription: exposedVariableDescription
+        )
     }
 
     // MARK: Factories
 
-    /// Creates a new variable and an async throwing closure to invoke the
+    /// Creates a variable and an async throwing closure for invoking the
     /// variable's getter, returning them in a labeled tuple.
     ///
-    /// - Parameter description: The description of the mock's exposed variable.
-    /// - Returns: A tuple containing a new variable and an async throwing
-    ///   closure to invoke the variable's getter.
+    /// - Parameter exposedVariableDescription: The description of the mock's
+    ///   exposed variable.
+    /// - Returns: A tuple containing a variable and an async throwing closure
+    ///   for invoking the variable's getter.
     public static func makeVariable(
-        description: MockImplementationDescription
+        exposedVariableDescription: MockImplementationDescription
     ) -> (
         variable: MockReadOnlyAsyncThrowingVariable,
         get: () async throws -> Value
     ) {
-        let variable = Self(description: description)
+        let variable = MockReadOnlyAsyncThrowingVariable(
+            exposedVariableDescription: exposedVariableDescription
+        )
 
         return (
             variable: variable,

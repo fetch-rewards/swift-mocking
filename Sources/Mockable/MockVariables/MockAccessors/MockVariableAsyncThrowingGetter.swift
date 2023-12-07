@@ -24,15 +24,16 @@ public final class MockVariableAsyncThrowingGetter<Value> {
     /// This description is used when generating an `unimplemented` test failure
     /// to indicate which exposed variable needs an implementation for the test
     /// to succeed.
-    private let description: MockImplementationDescription
+    private let exposedVariableDescription: MockImplementationDescription
 
     // MARK: Initializers
 
     /// Creates an async throwing variable getter.
     ///
-    /// - Parameter description: The description of the mock's exposed variable.
-    init(description: MockImplementationDescription) {
-        self.description = description
+    /// - Parameter exposedVariableDescription: The description of the mock's
+    ///   exposed variable.
+    init(exposedVariableDescription: MockImplementationDescription) {
+        self.exposedVariableDescription = exposedVariableDescription
     }
 
     // MARK: Get
@@ -44,6 +45,6 @@ public final class MockVariableAsyncThrowingGetter<Value> {
     func get() async throws -> Value {
         self.callCount += 1
 
-        return try await self.implementation(description: self.description)
+        return try await self.implementation(description: self.exposedVariableDescription)
     }
 }
