@@ -499,19 +499,17 @@ extension MockableMacro {
             backingType += "<\(backingGenericArguments.joined(separator: ", "))>"
         }
 
-        let backingFunctionInitializerValue: String
-
-        if functionSignature.returnClause == nil {
-            backingFunctionInitializerValue = "\(backingType).makeFunction()"
+        let backingFunctionInitializerValue = if functionSignature.returnClause == nil {
+            "\(backingType).makeFunction()"
         } else {
-            backingFunctionInitializerValue = """
-                \(backingType).makeFunction(
-                    exposedFunctionDescription: MockImplementationDescription(
-                        type: \(mockName).self,
-                        member: "_\(functionName)"
-                    )
+            """
+            \(backingType).makeFunction(
+                exposedFunctionDescription: MockImplementationDescription(
+                    type: \(mockName).self,
+                    member: "_\(functionName)"
                 )
-                """
+            )
+            """
         }
 
         return (
