@@ -7,8 +7,8 @@
 
 import Foundation
 
-/// The implementation and invocation records for a mock's returning function
-/// with parameters.
+/// The implementation details and invocation records for a mock's returning
+/// function with parameters.
 public final class MockReturningFunctionWithParameters<Arguments, ReturnValue> {
 
     // MARK: Properties

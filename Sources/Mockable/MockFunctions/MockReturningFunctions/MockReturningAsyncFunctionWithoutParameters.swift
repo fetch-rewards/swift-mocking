@@ -7,8 +7,8 @@
 
 import Foundation
 
-/// The implementation and invocation records for a mock's returning, async
-/// function without parameters.
+/// The implementation details and invocation records for a mock's returning,
+/// async function without parameters.
 public final class MockReturningAsyncFunctionWithoutParameters<ReturnValue> {
 
     // MARK: Properties

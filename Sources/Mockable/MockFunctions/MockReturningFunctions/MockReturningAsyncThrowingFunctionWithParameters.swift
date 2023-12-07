@@ -7,8 +7,8 @@
 
 import Foundation
 
-/// The implementation and invocation records for a mock's returning, async,
-/// throwing function with parameters.
+/// The implementation details and invocation records for a mock's returning,
+/// async, throwing function with parameters.
 public final class MockReturningAsyncThrowingFunctionWithParameters<Arguments, ReturnValue> {
 
     // MARK: Properties
