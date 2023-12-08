@@ -83,8 +83,8 @@ extension MockReturningAsyncFunctionWithoutParametersTests {
         test: (
             _ sut: SUT,
             _ invoke: () async -> ReturnValue
-        ) async throws -> Void
-    ) async rethrows {
+        ) async -> Void
+    ) async {
         let (sut, invoke) = SUT.makeFunction(
             exposedFunctionDescription: MockImplementationDescription(
                 type: Self.self,
@@ -92,6 +92,6 @@ extension MockReturningAsyncFunctionWithoutParametersTests {
             )
         )
 
-        try await test(sut, invoke)
+        await test(sut, invoke)
     }
 }
