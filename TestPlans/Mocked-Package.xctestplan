@@ -1,0 +1,49 @@
+{
+  "configurations" : [
+    {
+      "id" : "B67D33C9-71F1-4532-911C-4125A5EA16E8",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : {
+      "targets" : [
+        {
+          "containerPath" : "container:",
+          "identifier" : "Mocked",
+          "name" : "Mocked"
+        },
+        {
+          "containerPath" : "container:",
+          "identifier" : "MockedMacrosTests",
+          "name" : "MockedMacrosTests"
+        }
+      ]
+    },
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:",
+      "identifier" : "MockedClient",
+      "name" : "MockedClient"
+    }
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "MockedMacrosTests",
+        "name" : "MockedMacrosTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "MockedTests",
+        "name" : "MockedTests"
+      }
+    }
+  ],
+  "version" : 1
+}
