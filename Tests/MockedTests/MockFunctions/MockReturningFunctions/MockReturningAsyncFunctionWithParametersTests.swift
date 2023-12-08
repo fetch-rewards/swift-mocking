@@ -21,7 +21,7 @@ final class MockReturningAsyncFunctionWithParametersTests: XCTestCase {
     func testImplementationDefaultValue() async {
         await self.test { sut, _ in
             guard case .unimplemented = sut.implementation else {
-                XCTFail("Expected default implementation to be unimplemented")
+                XCTFail("Expected implementation to equal .unimplemented")
                 return
             }
         }
