@@ -13,8 +13,8 @@ final class MockReturningAsyncFunctionWithParametersTests: XCTestCase {
     // MARK: Typealiases
 
     typealias SUT = MockReturningAsyncFunctionWithParameters<Arguments, ReturnValue>
-    typealias Arguments = (integer: Int, boolean: Bool)
-    typealias ReturnValue = String
+    typealias Arguments = (string: String, boolean: Bool)
+    typealias ReturnValue = Int
 
     // MARK: Implementation Tests
 
@@ -33,9 +33,9 @@ final class MockReturningAsyncFunctionWithParametersTests: XCTestCase {
         await self.test { sut, invoke in
             XCTAssertEqual(sut.callCount, .zero)
 
-            sut.implementation = .returns { "a" }
+            sut.implementation = .returns { 5 }
 
-            _ = await invoke((5, true))
+            _ = await invoke(("a", true))
             XCTAssertEqual(sut.callCount, 1)
         }
     }
@@ -46,18 +46,18 @@ final class MockReturningAsyncFunctionWithParametersTests: XCTestCase {
         await self.test { sut, invoke in
             XCTAssertTrue(sut.invocations.isEmpty)
 
-            sut.implementation = .returns { "a" }
+            sut.implementation = .returns { 5 }
 
-            _ = await invoke((5, true))
+            _ = await invoke(("a", true))
             XCTAssertEqual(sut.invocations.count, 1)
-            XCTAssertEqual(sut.invocations.first?.integer, 5)
+            XCTAssertEqual(sut.invocations.first?.string, "a")
             XCTAssertEqual(sut.invocations.first?.boolean, true)
 
-            _ = await invoke((10, false))
+            _ = await invoke(("b", false))
             XCTAssertEqual(sut.invocations.count, 2)
-            XCTAssertEqual(sut.invocations.first?.integer, 5)
+            XCTAssertEqual(sut.invocations.first?.string, "a")
             XCTAssertEqual(sut.invocations.first?.boolean, true)
-            XCTAssertEqual(sut.invocations.last?.integer, 10)
+            XCTAssertEqual(sut.invocations.last?.string, "b")
             XCTAssertEqual(sut.invocations.last?.boolean, false)
         }
     }
@@ -68,14 +68,14 @@ final class MockReturningAsyncFunctionWithParametersTests: XCTestCase {
         await self.test { sut, invoke in
             XCTAssertNil(sut.latestInvocation)
 
-            sut.implementation = .returns { "a" }
+            sut.implementation = .returns { 5 }
 
-            _ = await invoke((5, true))
-            XCTAssertEqual(sut.latestInvocation?.integer, 5)
+            _ = await invoke(("a", true))
+            XCTAssertEqual(sut.latestInvocation?.string, "a")
             XCTAssertEqual(sut.latestInvocation?.boolean, true)
 
-            _ = await invoke((10, false))
-            XCTAssertEqual(sut.latestInvocation?.integer, 10)
+            _ = await invoke(("b", false))
+            XCTAssertEqual(sut.latestInvocation?.string, "b")
             XCTAssertEqual(sut.latestInvocation?.boolean, false)
         }
     }
@@ -86,15 +86,15 @@ final class MockReturningAsyncFunctionWithParametersTests: XCTestCase {
         await self.test { sut, invoke in
             XCTAssertEqual(sut.returnValues, [])
 
-            sut.implementation = .returns { "a" }
+            sut.implementation = .returns { 5 }
 
-            _ = await invoke((5, true))
-            XCTAssertEqual(sut.returnValues, ["a"])
+            _ = await invoke(("a", true))
+            XCTAssertEqual(sut.returnValues, [5])
 
-            sut.implementation = .returns { "b" }
+            sut.implementation = .returns { 10 }
 
-            _ = await invoke((10, false))
-            XCTAssertEqual(sut.returnValues, ["a", "b"])
+            _ = await invoke(("b", false))
+            XCTAssertEqual(sut.returnValues, [5, 10])
         }
     }
 
@@ -104,15 +104,15 @@ final class MockReturningAsyncFunctionWithParametersTests: XCTestCase {
         await self.test { sut, invoke in
             XCTAssertNil(sut.latestReturnValue)
 
-            sut.implementation = .returns { "a" }
+            sut.implementation = .returns { 5 }
 
-            _ = await invoke((5, true))
-            XCTAssertEqual(sut.latestReturnValue, "a")
+            _ = await invoke(("a", true))
+            XCTAssertEqual(sut.latestReturnValue, 5)
 
-            sut.implementation = .returns { "b" }
+            sut.implementation = .returns { 10 }
 
-            _ = await invoke((10, false))
-            XCTAssertEqual(sut.latestReturnValue, "b")
+            _ = await invoke(("b", false))
+            XCTAssertEqual(sut.latestReturnValue, 10)
         }
     }
 }
