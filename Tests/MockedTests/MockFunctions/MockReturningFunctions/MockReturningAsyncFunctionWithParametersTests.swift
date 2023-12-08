@@ -29,14 +29,10 @@ final class MockReturningAsyncFunctionWithParametersTests: XCTestCase {
 
     // MARK: Call Count Tests
 
-    func testCallCountDefaultValue() async {
-        await self.test { sut, _ in
-            XCTAssertEqual(sut.callCount, .zero)
-        }
-    }
-
-    func testInvokeIncrementsCallCountWhenImplementationReturnsValue() async {
+    func testCallCount() async {
         await self.test { sut, invoke in
+            XCTAssertEqual(sut.callCount, .zero)
+
             sut.implementation = .returns { "a" }
 
             _ = await invoke((5, true))
@@ -46,14 +42,10 @@ final class MockReturningAsyncFunctionWithParametersTests: XCTestCase {
 
     // MARK: Invocations Tests
 
-    func testInvocationsDefaultValue() async {
-        await self.test { sut, _ in
-            XCTAssertTrue(sut.invocations.isEmpty)
-        }
-    }
-
-    func testInvokeAppendsInvocationWhenImplementationReturnsValue() async {
+    func testInvocations() async {
         await self.test { sut, invoke in
+            XCTAssertTrue(sut.invocations.isEmpty)
+
             sut.implementation = .returns { "a" }
 
             _ = await invoke((5, true))
@@ -72,14 +64,10 @@ final class MockReturningAsyncFunctionWithParametersTests: XCTestCase {
 
     // MARK: Latest Invocation Tests
 
-    func testLatestInvocationDefaultValue() async {
-        await self.test { sut, _ in
-            XCTAssertNil(sut.latestInvocation)
-        }
-    }
-
-    func testLatestInvocationWhenImplementationReturnsValue() async {
+    func testLatestInvocation() async {
         await self.test { sut, invoke in
+            XCTAssertNil(sut.latestInvocation)
+
             sut.implementation = .returns { "a" }
 
             _ = await invoke((5, true))
@@ -94,14 +82,10 @@ final class MockReturningAsyncFunctionWithParametersTests: XCTestCase {
 
     // MARK: Return Values Tests
 
-    func testReturnValuesDefaultValue() async {
-        await self.test { sut, _ in
-            XCTAssertEqual(sut.returnValues, [])
-        }
-    }
-
-    func testInvokeAppendsReturnValueWhenImplementationReturnsValue() async {
+    func testReturnValues() async {
         await self.test { sut, invoke in
+            XCTAssertEqual(sut.returnValues, [])
+
             sut.implementation = .returns { "a" }
 
             _ = await invoke((5, true))
@@ -116,14 +100,10 @@ final class MockReturningAsyncFunctionWithParametersTests: XCTestCase {
 
     // MARK: Latest Return Value Tests
 
-    func testLatestReturnValueDefaultValue() async {
-        await self.test { sut, _ in
-            XCTAssertNil(sut.latestReturnValue)
-        }
-    }
-
-    func testLatestReturnValueWhenImplementationReturnsValue() async {
+    func testLatestReturnValue() async {
         await self.test { sut, invoke in
+            XCTAssertNil(sut.latestReturnValue)
+
             sut.implementation = .returns { "a" }
 
             _ = await invoke((5, true))
