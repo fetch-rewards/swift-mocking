@@ -189,7 +189,7 @@ extension MockedMacro {
     // MARK: Members
 
     /// Returns the member block to apply to the mock, generated from the
-    /// variables and functions of the provided protocol.
+    /// variables and methods of the provided protocol.
     ///
     /// - Parameter protocolDeclaration: The protocol to which the mock must
     ///   conform.
@@ -200,7 +200,7 @@ extension MockedMacro {
         try MemberBlockSyntax {
             let accessLevel = protocolDeclaration.minimumConformingAccessLevel
             let variableDeclarations = protocolDeclaration.variableDeclarations
-            let functionDeclarations = protocolDeclaration.functionDeclarations
+            let methodDeclarations = protocolDeclaration.functionDeclarations
 
             self.mockDefaultInitializerDeclaration(with: accessLevel)
 
@@ -222,18 +222,18 @@ extension MockedMacro {
                 }
             }
 
-            for functionDeclaration in functionDeclarations {
-                let functionOverrideDeclarations = self.mockFunctionOverrideDeclarations(
-                    for: functionDeclaration,
+            for methodDeclaration in methodDeclarations {
+                let methodOverrideDeclarations = self.mockMethodOverrideDeclarations(
+                    for: methodDeclaration,
                     with: accessLevel,
                     in: protocolDeclaration
                 )
 
-                functionOverrideDeclarations.backingFunction
-                functionOverrideDeclarations.exposedFunction
+                methodOverrideDeclarations.backingMethod
+                methodOverrideDeclarations.exposedMethod
 
-                try self.mockFunctionConformanceDeclaration(
-                    for: functionDeclaration,
+                try self.mockMethodConformanceDeclaration(
+                    for: methodDeclaration,
                     with: accessLevel
                 )
             }
@@ -444,50 +444,50 @@ extension MockedMacro {
         )
     }
 
-    /// Returns function override declarations to apply to the mock, generated
-    /// from the provided protocol function with the exposed declaration marked
+    /// Returns method override declarations to apply to the mock, generated
+    /// from the provided protocol method with the exposed declaration marked
     /// with the provided access level.
     ///
     /// - Parameters:
-    ///   - functionDeclaration: A function from the protocol to which the mock
-    ///     must conform.
-    ///   - accessLevel: The access level to apply to the exposed function
+    ///   - methodDeclaration: A method from the protocol to which the mock must
+    ///     conform.
+    ///   - accessLevel: The access level to apply to the exposed method
     ///     override declaration.
-    /// - Returns: Function override declarations to apply to the mock.
-    private static func mockFunctionOverrideDeclarations(
-        for functionDeclaration: FunctionDeclSyntax,
+    /// - Returns: Method override declarations to apply to the mock.
+    private static func mockMethodOverrideDeclarations(
+        for methodDeclaration: FunctionDeclSyntax,
         with accessLevel: AccessLevelSyntax,
         in protocolDeclaration: ProtocolDeclSyntax
     ) -> (
-        backingFunction: VariableDeclSyntax,
-        exposedFunction: VariableDeclSyntax
+        backingMethod: VariableDeclSyntax,
+        exposedMethod: VariableDeclSyntax
     ) {
         let mockName = self.mockName(from: protocolDeclaration)
-        let functionName = functionDeclaration.name
-        let functionSignature = functionDeclaration.signature
-        let functionParameters = functionSignature.parameterClause.parameters
+        let methodName = methodDeclaration.name
+        let methodSignature = methodDeclaration.signature
+        let methodParameters = methodSignature.parameterClause.parameters
 
         var backingType: String
         var backingGenericArguments: [String] = []
 
-        if let returnClause = functionSignature.returnClause {
+        if let returnClause = methodSignature.returnClause {
             backingType = "MockReturning"
             backingGenericArguments.append(returnClause.type.trimmedDescription)
         } else {
             backingType = "MockVoid"
         }
 
-        if functionDeclaration.isAsync {
+        if methodDeclaration.isAsync {
             backingType += "Async"
         }
 
-        if functionDeclaration.isThrowing {
+        if methodDeclaration.isThrowing {
             backingType += "Throwing"
         }
 
-        backingType += "Function"
+        backingType += "Method"
 
-        if let arguments = functionParameters.toTupleTypeSyntax() {
+        if let arguments = methodParameters.toTupleTypeSyntax() {
             backingType += "WithParameters"
             backingGenericArguments.insert(arguments.trimmedDescription, at: .zero)
         } else {
@@ -498,33 +498,33 @@ extension MockedMacro {
             backingType += "<\(backingGenericArguments.joined(separator: ", "))>"
         }
 
-        let backingFunctionInitializerValue = if functionSignature.returnClause == nil {
-            "\(backingType).makeFunction()"
+        let backingMethodInitializerValue = if methodSignature.returnClause == nil {
+            "\(backingType).makeMethod()"
         } else {
             """
-            \(backingType).makeFunction(
-                exposedFunctionDescription: MockImplementationDescription(
+            \(backingType).makeMethod(
+                exposedMethodDescription: MockImplementationDescription(
                     type: \(mockName).self,
-                    member: "_\(functionName)"
+                    member: "_\(methodName)"
                 )
             )
             """
         }
 
         return (
-            backingFunction: VariableDeclSyntax(
+            backingMethod: VariableDeclSyntax(
                 modifiers: DeclModifierListSyntax {
                     AccessLevelSyntax.private.modifier
                 },
                 .let,
                 name: PatternSyntax(
-                    stringLiteral: "__\(functionName)"
+                    stringLiteral: "__\(methodName)"
                 ),
                 initializer: InitializerClauseSyntax(
-                    value: ExprSyntax(stringLiteral: backingFunctionInitializerValue)
+                    value: ExprSyntax(stringLiteral: backingMethodInitializerValue)
                 )
             ),
-            exposedFunction: VariableDeclSyntax(
+            exposedMethod: VariableDeclSyntax(
                 modifiers: DeclModifierListSyntax {
                     if accessLevel != .internal {
                         accessLevel.modifier
@@ -533,14 +533,14 @@ extension MockedMacro {
                 bindingSpecifier: .keyword(.var),
                 bindingsBuilder: {
                     PatternBindingSyntax(
-                        pattern: PatternSyntax(stringLiteral: "_\(functionName)"),
+                        pattern: PatternSyntax(stringLiteral: "_\(methodName)"),
                         typeAnnotation: TypeAnnotationSyntax(
                             type: TypeSyntax(stringLiteral: backingType)
                         ),
                         accessorBlock: AccessorBlockSyntax(
                             accessors: .getter(
                                 CodeBlockItemListSyntax {
-                                    "self.__\(functionName).function"
+                                    "self.__\(methodName).method"
                                 }
                             )
                         )
@@ -550,23 +550,23 @@ extension MockedMacro {
         )
     }
 
-    /// Returns a function conformance declaration to apply to the mock,
-    /// generated from the provided protocol function and marked with the
-    /// provided access level.
+    /// Returns a method conformance declaration to apply to the mock, generated
+    /// from the provided protocol method and marked with the provided access
+    /// level.
     ///
     /// - Parameters:
-    ///   - functionDeclaration: A function from the protocol to which the mock
-    ///     must conform.
-    ///   - accessLevel: The access level to apply to the function conformance
+    ///   - methodDeclaration: A method from the protocol to which the mock must
+    ///     conform.
+    ///   - accessLevel: The access level to apply to the method conformance
     ///     declaration.
-    /// - Returns: A function conformance declaration to apply to the mock.
-    private static func mockFunctionConformanceDeclaration(
-        for functionDeclaration: FunctionDeclSyntax,
+    /// - Returns: A method conformance declaration to apply to the mock.
+    private static func mockMethodConformanceDeclaration(
+        for methodDeclaration: FunctionDeclSyntax,
         with accessLevel: AccessLevelSyntax
     ) throws -> FunctionDeclSyntax {
-        let functionName = functionDeclaration.name.trimmed
-        let invocationArguments = functionDeclaration.parameterVariableNames
-        let invocationKeywordTokens = functionDeclaration.invocationKeywordTokens
+        let methodName = methodDeclaration.name.trimmed
+        let invocationArguments = methodDeclaration.parameterVariableNames
+        let invocationKeywordTokens = methodDeclaration.invocationKeywordTokens
 
         var backingImplementationInvocation = ""
 
@@ -578,7 +578,7 @@ extension MockedMacro {
             backingImplementationInvocation += "\(joinedInvocationKeywordTokens) "
         }
 
-        backingImplementationInvocation += "self.__\(functionName).invoke"
+        backingImplementationInvocation += "self.__\(methodName).invoke"
 
         if invocationArguments.isEmpty {
             backingImplementationInvocation += "()"
@@ -590,7 +590,7 @@ extension MockedMacro {
             backingImplementationInvocation += "((\(joinedInvocationArguments)))"
         }
 
-        return try functionDeclaration
+        return try methodDeclaration
             .trimmed
             .withAccessLevel(accessLevel)
             .withBody {
