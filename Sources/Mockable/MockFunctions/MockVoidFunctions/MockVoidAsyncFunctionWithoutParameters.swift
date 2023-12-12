@@ -7,8 +7,8 @@
 
 import Foundation
 
-/// The invocation records and implementation for a mock's void, async function
-/// that does not have parameters.
+/// The implementation details and invocation records for a mock's void, async
+/// function without parameters.
 public final class MockVoidAsyncFunctionWithoutParameters {
 
     // MARK: Properties
@@ -23,17 +23,29 @@ public final class MockVoidAsyncFunctionWithoutParameters {
 
     // MARK: Factories
 
-    /// Creates a new function and an async closure to invoke the function,
+    /// Creates a function and an async closure for invoking the function,
     /// returning them in a labeled tuple.
     ///
-    /// - Returns: A tuple containing a new function and an async closure to
-    ///   invoke the function.
+    /// ```swift
+    /// private let __logOut = MockVoidAsyncFunctionWithoutParameters.makeFunction()
+    ///
+    /// public var _logOut: MockVoidAsyncFunctionWithoutParameters {
+    ///     self.__logOut.function
+    /// }
+    ///
+    /// public func logOut() async {
+    ///     await self.__logOut.invoke()
+    /// }
+    /// ```
+    ///
+    /// - Returns: A tuple containing a function and an async closure for
+    ///   invoking the function.
     public static func makeFunction(
     ) -> (
         function: MockVoidAsyncFunctionWithoutParameters,
         invoke: () async -> Void
     ) {
-        let function = Self()
+        let function = MockVoidAsyncFunctionWithoutParameters()
 
         return (
             function: function,

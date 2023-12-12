@@ -7,8 +7,8 @@
 
 import Foundation
 
-/// The invocation records and implementation for a mock's void function that
-/// has parameters.
+/// The implementation details and invocation records for a mock's void function
+/// with parameters.
 public final class MockVoidFunctionWithParameters<Arguments> {
 
     // MARK: Properties
@@ -31,17 +31,29 @@ public final class MockVoidFunctionWithParameters<Arguments> {
 
     // MARK: Factories
 
-    /// Creates a new function and a closure to invoke the function, returning
+    /// Creates a function and a closure for invoking the function, returning
     /// them in a labeled tuple.
     ///
-    /// - Returns: A tuple containing a new function and a closure to invoke the
+    /// ```swift
+    /// private let __logIn = MockVoidFunctionWithParameters<(String, String)>.makeFunction()
+    ///
+    /// public var _logIn: MockVoidFunctionWithParameters<(String, String)> {
+    ///     self.__logIn.function
+    /// }
+    ///
+    /// public func logIn(username: String, password: String) {
+    ///     self.__logIn.invoke((username, password))
+    /// }
+    /// ```
+    ///
+    /// - Returns: A tuple containing a function and a closure for invoking the
     ///   function.
     public static func makeFunction(
     ) -> (
         function: MockVoidFunctionWithParameters,
         invoke: (Arguments) -> Void
     ) {
-        let function = Self()
+        let function = MockVoidFunctionWithParameters()
 
         return (
             function: function,

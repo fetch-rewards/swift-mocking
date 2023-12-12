@@ -7,8 +7,8 @@
 
 import Foundation
 
-/// The invocation records and implementation for a mock's void, throwing
-/// function that does not have parameters.
+/// The implementation details and invocation records for a mock's void,
+/// throwing function without parameters.
 public final class MockVoidThrowingFunctionWithoutParameters {
 
     // MARK: Properties
@@ -29,17 +29,29 @@ public final class MockVoidThrowingFunctionWithoutParameters {
 
     // MARK: Factories
 
-    /// Creates a new function and a throwing closure to invoke the function,
+    /// Creates a function and a throwing closure for invoking the function,
     /// returning them in a labeled tuple.
     ///
-    /// - Returns: A tuple containing a new function and a throwing closure to
-    ///   invoke the function.
+    /// ```swift
+    /// private let __logOut = MockVoidThrowingFunctionWithoutParameters.makeFunction()
+    ///
+    /// public var _logOut: MockVoidThrowingFunctionWithoutParameters {
+    ///     self.__logOut.function
+    /// }
+    ///
+    /// public func logOut() throws {
+    ///     try self.__logOut.invoke()
+    /// }
+    /// ```
+    ///
+    /// - Returns: A tuple containing a function and a throwing closure for
+    ///   invoking the function.
     public static func makeFunction(
     ) -> (
         function: MockVoidThrowingFunctionWithoutParameters,
         invoke: () throws -> Void
     ) {
-        let function = Self()
+        let function = MockVoidThrowingFunctionWithoutParameters()
 
         return (
             function: function,

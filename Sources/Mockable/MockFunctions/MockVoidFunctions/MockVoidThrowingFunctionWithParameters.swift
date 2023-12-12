@@ -7,8 +7,8 @@
 
 import Foundation
 
-/// The invocation records and implementation for a mock's void, throwing
-/// function that has parameters.
+/// The implementation details and invocation records for a mock's void,
+/// throwing function with parameters.
 public final class MockVoidThrowingFunctionWithParameters<Arguments> {
 
     // MARK: Properties
@@ -37,17 +37,29 @@ public final class MockVoidThrowingFunctionWithParameters<Arguments> {
 
     // MARK: Factories
 
-    /// Creates a new function and a throwing closure to invoke the function,
+    /// Creates a function and a throwing closure for invoking the function,
     /// returning them in a labeled tuple.
     ///
-    /// - Returns: A tuple containing a new function and a throwing closure to
-    ///   invoke the function.
+    /// ```swift
+    /// private let __logIn = MockVoidThrowingFunctionWithParameters<(String, String)>.makeFunction()
+    ///
+    /// public var _logIn: MockVoidThrowingFunctionWithParameters<(String, String)> {
+    ///     self.__logIn.function
+    /// }
+    ///
+    /// public func logIn(username: String, password: String) throws {
+    ///     try self.__logIn.invoke((username, password))
+    /// }
+    /// ```
+    ///
+    /// - Returns: A tuple containing a function and a throwing closure for
+    ///   invoking the function.
     public static func makeFunction(
     ) -> (
         function: MockVoidThrowingFunctionWithParameters,
         invoke: (Arguments) throws -> Void
     ) {
-        let function = Self()
+        let function = MockVoidThrowingFunctionWithParameters()
 
         return (
             function: function,

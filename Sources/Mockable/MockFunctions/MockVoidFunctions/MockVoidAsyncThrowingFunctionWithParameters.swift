@@ -7,8 +7,8 @@
 
 import Foundation
 
-/// The invocation records and implementation for a mock's void, async, throwing
-/// function that has parameters.
+/// The implementation details and invocation records for a mock's void, async,
+/// throwing function with parameters.
 public final class MockVoidAsyncThrowingFunctionWithParameters<Arguments> {
 
     // MARK: Properties
@@ -37,17 +37,29 @@ public final class MockVoidAsyncThrowingFunctionWithParameters<Arguments> {
 
     // MARK: Factories
 
-    /// Creates a new function and an async throwing closure to invoke the
+    /// Creates a function and an async throwing closure for invoking the
     /// function, returning them in a labeled tuple.
     ///
-    /// - Returns: A tuple containing a new function and an async throwing
-    ///   closure to invoke the function.
+    /// ```swift
+    /// private let __logIn = MockVoidAsyncThrowingFunctionWithParameters<(String, String)>.makeFunction()
+    ///
+    /// public var _logIn: MockVoidAsyncThrowingFunctionWithParameters<(String, String)> {
+    ///     self.__logIn.function
+    /// }
+    ///
+    /// public func logIn(username: String, password: String) async throws {
+    ///     try await self.__logIn.invoke((username, password))
+    /// }
+    /// ```
+    ///
+    /// - Returns: A tuple containing a function and an async throwing closure
+    ///   for invoking the function.
     public static func makeFunction(
     ) -> (
         function: MockVoidAsyncThrowingFunctionWithParameters,
         invoke: (Arguments) async throws -> Void
     ) {
-        let function = Self()
+        let function = MockVoidAsyncThrowingFunctionWithParameters()
 
         return (
             function: function,
