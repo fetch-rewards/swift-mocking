@@ -16,22 +16,21 @@ public final class MockVariableSetter<Value> {
     public private(set) var callCount: Int = .zero
 
     /// All the values with which the setter has been invoked.
-    public private(set) var values: [Value] = []
+    public private(set) var invocations: [Value] = []
 
-    /// The latest value with which the setter has been invoked.
-    public var latestValue: Value? {
-        self.values.last
+    /// The last value with which the setter has been invoked.
+    public var lastInvocation: Value? {
+        self.invocations.last
     }
 
     // MARK: Set
 
-    /// Records the invocation of the variable's setter and sets the
-    /// variable's value to the provided value.
+    /// Records the invocation of the variable's setter and sets the variable's
+    /// value to the provided value.
     ///
-    /// - Parameter newValue: The value to which to set the variable's
-    ///   value.
+    /// - Parameter newValue: The value to which to set the variable's value.
     func set(_ newValue: Value) {
         self.callCount += 1
-        self.values.append(newValue)
+        self.invocations.append(newValue)
     }
 }

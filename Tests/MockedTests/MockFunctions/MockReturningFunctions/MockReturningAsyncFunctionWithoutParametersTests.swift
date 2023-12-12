@@ -39,39 +39,39 @@ final class MockReturningAsyncFunctionWithoutParametersTests: XCTestCase {
         }
     }
 
-    // MARK: Return Values Tests
+    // MARK: Returned Values Tests
 
-    func testReturnValues() async {
+    func testReturnedValues() async {
         await self.test { sut, invoke in
-            XCTAssertEqual(sut.returnValues, [])
+            XCTAssertEqual(sut.returnedValues, [])
 
             sut.implementation = .returns { 5 }
 
             _ = await invoke()
-            XCTAssertEqual(sut.returnValues, [5])
+            XCTAssertEqual(sut.returnedValues, [5])
 
             sut.implementation = .returns { 10 }
 
             _ = await invoke()
-            XCTAssertEqual(sut.returnValues, [5, 10])
+            XCTAssertEqual(sut.returnedValues, [5, 10])
         }
     }
 
-    // MARK: Latest Return Value Tests
+    // MARK: Last Returned Value Tests
 
-    func testLatestReturnValue() async {
+    func testLastReturnedValue() async {
         await self.test { sut, invoke in
-            XCTAssertNil(sut.latestReturnValue)
+            XCTAssertNil(sut.lastReturnedValue)
 
             sut.implementation = .returns { 5 }
 
             _ = await invoke()
-            XCTAssertEqual(sut.latestReturnValue, 5)
+            XCTAssertEqual(sut.lastReturnedValue, 5)
 
             sut.implementation = .returns { 10 }
 
             _ = await invoke()
-            XCTAssertEqual(sut.latestReturnValue, 10)
+            XCTAssertEqual(sut.lastReturnedValue, 10)
         }
     }
 }

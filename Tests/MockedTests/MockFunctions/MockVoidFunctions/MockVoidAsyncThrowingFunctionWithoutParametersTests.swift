@@ -42,10 +42,10 @@ final class MockVoidAsyncThrowingFunctionWithoutParametersTests: XCTestCase {
 
     func testErrors() async throws {
         try await self.test { sut, invoke in
-            XCTAssertTrue(sut.errors.isEmpty)
+            XCTAssertTrue(sut.thrownErrors.isEmpty)
 
             _ = try await invoke()
-            XCTAssertTrue(sut.errors.isEmpty)
+            XCTAssertTrue(sut.thrownErrors.isEmpty)
 
             sut.error = URLError(.badURL)
 
@@ -54,9 +54,9 @@ final class MockVoidAsyncThrowingFunctionWithoutParametersTests: XCTestCase {
                 XCTFail("Expected invoke to throw an error")
             } catch let error as URLError {
                 XCTAssertEqual(error.code, .badURL)
-                XCTAssertEqual(sut.errors.count, 1)
+                XCTAssertEqual(sut.thrownErrors.count, 1)
 
-                let firstError = try XCTUnwrap(sut.errors.first as? URLError)
+                let firstError = try XCTUnwrap(sut.thrownErrors.first as? URLError)
 
                 XCTAssertEqual(firstError.code, .badURL)
             } catch {
@@ -70,10 +70,10 @@ final class MockVoidAsyncThrowingFunctionWithoutParametersTests: XCTestCase {
                 XCTFail("Expected invoke to throw an error")
             } catch let error as URLError {
                 XCTAssertEqual(error.code, .badServerResponse)
-                XCTAssertEqual(sut.errors.count, 2)
+                XCTAssertEqual(sut.thrownErrors.count, 2)
 
-                let firstError = try XCTUnwrap(sut.errors.first as? URLError)
-                let lastError = try XCTUnwrap(sut.errors.last as? URLError)
+                let firstError = try XCTUnwrap(sut.thrownErrors.first as? URLError)
+                let lastError = try XCTUnwrap(sut.thrownErrors.last as? URLError)
 
                 XCTAssertEqual(firstError.code, .badURL)
                 XCTAssertEqual(lastError.code, .badServerResponse)
@@ -83,14 +83,14 @@ final class MockVoidAsyncThrowingFunctionWithoutParametersTests: XCTestCase {
         }
     }
 
-    // MARK: Latest Error Tests
+    // MARK: Last Error Tests
 
-    func testLatestError() async throws {
+    func testLastError() async throws {
         try await self.test { sut, invoke in
-            XCTAssertNil(sut.latestError)
+            XCTAssertNil(sut.lastThrownError)
 
             _ = try await invoke()
-            XCTAssertNil(sut.latestError)
+            XCTAssertNil(sut.lastThrownError)
 
             sut.error = URLError(.badURL)
 
@@ -100,9 +100,9 @@ final class MockVoidAsyncThrowingFunctionWithoutParametersTests: XCTestCase {
             } catch let error as URLError {
                 XCTAssertEqual(error.code, .badURL)
 
-                let latestError = try XCTUnwrap(sut.latestError as? URLError)
+                let lastError = try XCTUnwrap(sut.lastThrownError as? URLError)
 
-                XCTAssertEqual(latestError.code, .badURL)
+                XCTAssertEqual(lastError.code, .badURL)
             } catch {
                 XCTFail("Expected \(error) to equal URLError(.badURL)")
             }
@@ -115,9 +115,9 @@ final class MockVoidAsyncThrowingFunctionWithoutParametersTests: XCTestCase {
             } catch let error as URLError {
                 XCTAssertEqual(error.code, .badServerResponse)
 
-                let latestError = try XCTUnwrap(sut.latestError as? URLError)
+                let lastError = try XCTUnwrap(sut.lastThrownError as? URLError)
 
-                XCTAssertEqual(latestError.code, .badServerResponse)
+                XCTAssertEqual(lastError.code, .badServerResponse)
             } catch {
                 XCTFail("Expected \(error) to equal URLError(.badServerResponse)")
             }

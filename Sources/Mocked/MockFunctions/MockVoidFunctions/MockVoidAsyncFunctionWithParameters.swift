@@ -19,8 +19,8 @@ public final class MockVoidAsyncFunctionWithParameters<Arguments> {
     /// All the arguments with which the function has been invoked.
     public private(set) var invocations: [Arguments] = []
 
-    /// The latest arguments with which the function has been invoked.
-    public var latestInvocation: Arguments? {
+    /// The last arguments with which the function has been invoked.
+    public var lastInvocation: Arguments? {
         self.invocations.last
     }
 
