@@ -39,39 +39,39 @@ final class MockReturningFunctionWithoutParametersTests: XCTestCase {
         }
     }
 
-    // MARK: Return Values Tests
+    // MARK: Returned Values Tests
 
-    func testReturnValues() {
+    func testReturnedValues() {
         self.test { sut, invoke in
-            XCTAssertEqual(sut.returnValues, [])
+            XCTAssertEqual(sut.returnedValues, [])
 
             sut.implementation = .returns(5)
 
             _ = invoke()
-            XCTAssertEqual(sut.returnValues, [5])
+            XCTAssertEqual(sut.returnedValues, [5])
 
             sut.implementation = .returns(10)
 
             _ = invoke()
-            XCTAssertEqual(sut.returnValues, [5, 10])
+            XCTAssertEqual(sut.returnedValues, [5, 10])
         }
     }
 
-    // MARK: Latest Return Value Tests
+    // MARK: Last Returned Value Tests
 
-    func testLatestReturnValue() {
+    func testLastReturnedValue() {
         self.test { sut, invoke in
-            XCTAssertNil(sut.latestReturnValue)
+            XCTAssertNil(sut.lastReturnedValue)
 
             sut.implementation = .returns(5)
 
             _ = invoke()
-            XCTAssertEqual(sut.latestReturnValue, 5)
+            XCTAssertEqual(sut.lastReturnedValue, 5)
 
             sut.implementation = .returns(10)
 
             _ = invoke()
-            XCTAssertEqual(sut.latestReturnValue, 10)
+            XCTAssertEqual(sut.lastReturnedValue, 10)
         }
     }
 }

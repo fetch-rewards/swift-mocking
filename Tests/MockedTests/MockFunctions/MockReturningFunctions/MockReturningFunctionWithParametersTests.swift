@@ -62,57 +62,57 @@ final class MockReturningFunctionWithParametersTests: XCTestCase {
         }
     }
 
-    // MARK: Latest Invocation Tests
+    // MARK: Last Invocation Tests
 
-    func testLatestInvocation() {
+    func testLastInvocation() {
         self.test { sut, invoke in
-            XCTAssertNil(sut.latestInvocation)
+            XCTAssertNil(sut.lastInvocation)
 
             sut.implementation = .returns(5)
 
             _ = invoke(("a", true))
-            XCTAssertEqual(sut.latestInvocation?.string, "a")
-            XCTAssertEqual(sut.latestInvocation?.boolean, true)
+            XCTAssertEqual(sut.lastInvocation?.string, "a")
+            XCTAssertEqual(sut.lastInvocation?.boolean, true)
 
             _ = invoke(("b", false))
-            XCTAssertEqual(sut.latestInvocation?.string, "b")
-            XCTAssertEqual(sut.latestInvocation?.boolean, false)
+            XCTAssertEqual(sut.lastInvocation?.string, "b")
+            XCTAssertEqual(sut.lastInvocation?.boolean, false)
         }
     }
 
-    // MARK: Return Values Tests
+    // MARK: Returned Values Tests
 
-    func testReturnValues() {
+    func testReturnedValues() {
         self.test { sut, invoke in
-            XCTAssertEqual(sut.returnValues, [])
+            XCTAssertEqual(sut.returnedValues, [])
 
             sut.implementation = .returns(5)
 
             _ = invoke(("a", true))
-            XCTAssertEqual(sut.returnValues, [5])
+            XCTAssertEqual(sut.returnedValues, [5])
 
             sut.implementation = .returns(10)
 
             _ = invoke(("b", false))
-            XCTAssertEqual(sut.returnValues, [5, 10])
+            XCTAssertEqual(sut.returnedValues, [5, 10])
         }
     }
 
-    // MARK: Latest Return Value Tests
+    // MARK: Last Returned Value Tests
 
-    func testLatestReturnValue() {
+    func testLastReturnedValue() {
         self.test { sut, invoke in
-            XCTAssertNil(sut.latestReturnValue)
+            XCTAssertNil(sut.lastReturnedValue)
 
             sut.implementation = .returns(5)
 
             _ = invoke(("a", true))
-            XCTAssertEqual(sut.latestReturnValue, 5)
+            XCTAssertEqual(sut.lastReturnedValue, 5)
 
             sut.implementation = .returns(10)
 
             _ = invoke(("b", false))
-            XCTAssertEqual(sut.latestReturnValue, 10)
+            XCTAssertEqual(sut.lastReturnedValue, 10)
         }
     }
 }

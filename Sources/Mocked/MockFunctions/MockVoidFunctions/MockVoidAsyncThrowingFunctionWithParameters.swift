@@ -22,17 +22,17 @@ public final class MockVoidAsyncThrowingFunctionWithParameters<Arguments> {
     /// All the arguments with which the function has been invoked.
     public private(set) var invocations: [Arguments] = []
 
-    /// The latest arguments with which the function has been invoked.
-    public var latestInvocation: Arguments? {
+    /// The last arguments with which the function has been invoked.
+    public var lastInvocation: Arguments? {
         self.invocations.last
     }
 
     /// All the errors that have been thrown by the function.
-    public private(set) var errors: [Error] = []
+    public private(set) var thrownErrors: [Error] = []
 
-    /// The latest error thrown by the function.
-    public var latestError: Error? {
-        self.errors.last
+    /// The last error thrown by the function.
+    public var lastThrownError: Error? {
+        self.thrownErrors.last
     }
 
     // MARK: Initializers
@@ -88,7 +88,7 @@ public final class MockVoidAsyncThrowingFunctionWithParameters<Arguments> {
             return
         }
 
-        self.errors.append(error)
+        self.thrownErrors.append(error)
 
         throw error
     }

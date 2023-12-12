@@ -20,11 +20,11 @@ public final class MockReturningAsyncFunctionWithoutParameters<ReturnValue> {
     public private(set) var callCount: Int = .zero
 
     /// All the values that have been returned by the function.
-    public private(set) var returnValues: [ReturnValue] = []
+    public private(set) var returnedValues: [ReturnValue] = []
 
-    /// The latest value returned by the function.
-    public var latestReturnValue: ReturnValue? {
-        self.returnValues.last
+    /// The last value returned by the function.
+    public var lastReturnedValue: ReturnValue? {
+        self.returnedValues.last
     }
 
     /// The description of the mock's exposed function.
@@ -97,7 +97,7 @@ public final class MockReturningAsyncFunctionWithoutParameters<ReturnValue> {
 
         let returnValue = await self.implementation(description: self.exposedFunctionDescription)
 
-        self.returnValues.append(returnValue)
+        self.returnedValues.append(returnValue)
 
         return returnValue
     }

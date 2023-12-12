@@ -46,19 +46,19 @@ final class MockVoidAsyncFunctionWithParametersTests: XCTestCase {
         }
     }
 
-    // MARK: Latest Invocation Tests
+    // MARK: Last Invocation Tests
 
-    func testLatestInvocation() async {
+    func testLastInvocation() async {
         await self.test { sut, invoke in
-            XCTAssertNil(sut.latestInvocation)
+            XCTAssertNil(sut.lastInvocation)
 
             _ = await invoke(("a", true))
-            XCTAssertEqual(sut.latestInvocation?.string, "a")
-            XCTAssertEqual(sut.latestInvocation?.boolean, true)
+            XCTAssertEqual(sut.lastInvocation?.string, "a")
+            XCTAssertEqual(sut.lastInvocation?.boolean, true)
 
             _ = await invoke(("b", false))
-            XCTAssertEqual(sut.latestInvocation?.string, "b")
-            XCTAssertEqual(sut.latestInvocation?.boolean, false)
+            XCTAssertEqual(sut.lastInvocation?.string, "b")
+            XCTAssertEqual(sut.lastInvocation?.boolean, false)
         }
     }
 }

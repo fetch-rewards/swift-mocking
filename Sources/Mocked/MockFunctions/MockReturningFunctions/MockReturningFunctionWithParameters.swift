@@ -22,17 +22,17 @@ public final class MockReturningFunctionWithParameters<Arguments, ReturnValue> {
     /// All the arguments with which the function has been invoked.
     public private(set) var invocations: [Arguments] = []
 
-    /// The latest arguments with which the function has been invoked.
-    public var latestInvocation: Arguments? {
+    /// The last arguments with which the function has been invoked.
+    public var lastInvocation: Arguments? {
         self.invocations.last
     }
 
     /// All the values that have been returned by the function.
-    public private(set) var returnValues: [ReturnValue] = []
+    public private(set) var returnedValues: [ReturnValue] = []
 
-    /// The latest value returned by the function.
-    public var latestReturnValue: ReturnValue? {
-        self.returnValues.last
+    /// The last value returned by the function.
+    public var lastReturnedValue: ReturnValue? {
+        self.returnedValues.last
     }
 
     /// The description of the mock's exposed function.
@@ -108,7 +108,7 @@ public final class MockReturningFunctionWithParameters<Arguments, ReturnValue> {
 
         let returnValue = self.implementation(description: self.exposedFunctionDescription)
 
-        self.returnValues.append(returnValue)
+        self.returnedValues.append(returnValue)
 
         return returnValue
     }

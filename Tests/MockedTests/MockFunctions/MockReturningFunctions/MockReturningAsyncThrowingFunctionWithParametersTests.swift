@@ -84,17 +84,17 @@ final class MockReturningAsyncThrowingFunctionWithParametersTests: XCTestCase {
         }
     }
 
-    // MARK: Return Values Tests
+    // MARK: Returned Values Tests
 
-    func testReturnValues() async throws {
+    func testReturnedValues() async throws {
         try await self.test { sut, invoke in
-            XCTAssertTrue(sut.returnValues.isEmpty)
+            XCTAssertTrue(sut.returnedValues.isEmpty)
 
             sut.implementation = .returns { 5 }
 
             _ = try await invoke(("a", true))
-            XCTAssertEqual(sut.returnValues.count, 1)
-            XCTAssertEqual(try sut.returnValues.first?.get(), 5)
+            XCTAssertEqual(sut.returnedValues.count, 1)
+            XCTAssertEqual(try sut.returnedValues.first?.get(), 5)
 
             sut.implementation = .throws { URLError(.badURL) }
 
@@ -103,11 +103,11 @@ final class MockReturningAsyncThrowingFunctionWithParametersTests: XCTestCase {
                 XCTFail("Expected invoke to throw an error")
             } catch let error as URLError {
                 XCTAssertEqual(error.code, .badURL)
-                XCTAssertEqual(sut.returnValues.count, 2)
-                XCTAssertEqual(try sut.returnValues.first?.get(), 5)
+                XCTAssertEqual(sut.returnedValues.count, 2)
+                XCTAssertEqual(try sut.returnedValues.first?.get(), 5)
 
                 do {
-                    _ = try sut.returnValues.last?.get()
+                    _ = try sut.returnedValues.last?.get()
                     XCTFail("Expected last return value to throw an error")
                 } catch let error as URLError {
                     XCTAssertEqual(error.code, .badURL)
@@ -120,16 +120,16 @@ final class MockReturningAsyncThrowingFunctionWithParametersTests: XCTestCase {
         }
     }
 
-    // MARK: Latest Return Value Tests
+    // MARK: Last Returned Value Tests
 
-    func testLatestReturnValue() async throws {
+    func testLastReturnedValue() async throws {
         try await self.test { sut, invoke in
-            XCTAssertNil(sut.latestReturnValue)
+            XCTAssertNil(sut.lastReturnedValue)
 
             sut.implementation = .returns { 5 }
 
             _ = try await invoke(("a", true))
-            XCTAssertEqual(try sut.latestReturnValue?.get(), 5)
+            XCTAssertEqual(try sut.lastReturnedValue?.get(), 5)
 
             sut.implementation = .throws { URLError(.badURL) }
 
@@ -140,8 +140,8 @@ final class MockReturningAsyncThrowingFunctionWithParametersTests: XCTestCase {
                 XCTAssertEqual(error.code, .badURL)
 
                 do {
-                    _ = try sut.latestReturnValue?.get()
-                    XCTFail("Expected latest return value to throw an error")
+                    _ = try sut.lastReturnedValue?.get()
+                    XCTFail("Expected last return value to throw an error")
                 } catch let error as URLError {
                     XCTAssertEqual(error.code, .badURL)
                 } catch {

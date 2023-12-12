@@ -18,6 +18,14 @@ public final class MockVariableGetter<Value> {
     /// The number of times the getter has been called.
     public private(set) var callCount: Int = .zero
 
+    /// All the values that have been returned by the getter.
+    public private(set) var returnedValues: [Value] = []
+
+    /// The last value returned by the getter.
+    public var lastReturnedValue: Value? {
+        self.returnedValues.last
+    }
+
     /// The description of the mock's exposed variable.
     ///
     /// This description is used when generating an `unimplemented` test failure
@@ -44,6 +52,10 @@ public final class MockVariableGetter<Value> {
     func get() -> Value {
         self.callCount += 1
 
-        return self.implementation(description: self.exposedVariableDescription)
+        let value = self.implementation(description: self.exposedVariableDescription)
+
+        self.returnedValues.append(value)
+
+        return value
     }
 }
