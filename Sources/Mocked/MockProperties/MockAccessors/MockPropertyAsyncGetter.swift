@@ -1,5 +1,5 @@
 //
-//  MockVariableAsyncGetter.swift
+//  MockPropertyAsyncGetter.swift
 //  Mocked
 //
 //  Created by Cole Campbell on 11/12/23.
@@ -7,9 +7,9 @@
 
 import Foundation
 
-/// The implementation details and invocation records for a variable's async
+/// The implementation details and invocation records for a property's async
 /// getter.
-public final class MockVariableAsyncGetter<Value> {
+public final class MockPropertyAsyncGetter<Value> {
 
     // MARK: Properties
 
@@ -27,33 +27,33 @@ public final class MockVariableAsyncGetter<Value> {
         self.returnedValues.last
     }
 
-    /// The description of the mock's exposed variable.
+    /// The description of the mock's exposed property.
     ///
     /// This description is used when generating an `unimplemented` test failure
-    /// to indicate which exposed variable needs an implementation for the test
+    /// to indicate which exposed property needs an implementation for the test
     /// to succeed.
-    private let exposedVariableDescription: MockImplementationDescription
+    private let exposedPropertyDescription: MockImplementationDescription
 
     // MARK: Initializers
 
-    /// Creates an async variable getter.
+    /// Creates an async property getter.
     ///
-    /// - Parameter exposedVariableDescription: The description of the mock's
-    ///   exposed variable.
-    init(exposedVariableDescription: MockImplementationDescription) {
-        self.exposedVariableDescription = exposedVariableDescription
+    /// - Parameter exposedPropertyDescription: The description of the mock's
+    ///   exposed property.
+    init(exposedPropertyDescription: MockImplementationDescription) {
+        self.exposedPropertyDescription = exposedPropertyDescription
     }
 
     // MARK: Get
 
-    /// Records the invocation of the variable's getter and returns the
-    /// variable's value.
+    /// Records the invocation of the property's getter and returns the
+    /// property's value.
     ///
-    /// - Returns: The variable's value.
+    /// - Returns: The property's value.
     func get() async -> Value {
         self.callCount += 1
 
-        let value = await self.implementation(description: self.exposedVariableDescription)
+        let value = await self.implementation(description: self.exposedPropertyDescription)
 
         self.returnedValues.append(value)
 

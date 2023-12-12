@@ -1,5 +1,5 @@
 //
-//  Mocked_ReadOnlyVariableTests.swift
+//  Mocked_ReadOnlyPropertyTests.swift
 //  MockedMacrosTests
 //
 //  Created by Gray Campbell on 11/4/23.
@@ -11,32 +11,32 @@ import SwiftSyntaxMacros
 import SwiftSyntaxMacrosTestSupport
 import XCTest
 
-final class Mocked_ReadOnlyVariableTests: XCTestCase {
+final class Mocked_ReadOnlyPropertyTests: XCTestCase {
 
-    // MARK: Read-Only Variable Tests
+    // MARK: Read-Only Property Tests
 
-    func testReadOnlyVariable() {
+    func testReadOnlyProperty() {
         testMocked { interface, mock in
             assertMocked(
                 """
                 \(interface.accessLevel) protocol Dependency {
-                    var variable: String { get }
+                    var property: String { get }
                 }
                 """,
                 generates: """
                     \(mock.modifiers)class DependencyMock: Dependency {
                     \(mock.defaultInit)
-                        private let __variable = MockReadOnlyVariable<String> .makeVariable(
-                            exposedVariableDescription: MockImplementationDescription(
+                        private let __property = MockReadOnlyProperty<String> .makeProperty(
+                            exposedPropertyDescription: MockImplementationDescription(
                                 type: DependencyMock.self,
-                                member: "_variable"
+                                member: "_property"
                             )
                         )
-                        \(mock.memberModifiers)var _variable: MockReadOnlyVariable<String> {
-                            self.__variable.variable
+                        \(mock.memberModifiers)var _property: MockReadOnlyProperty<String> {
+                            self.__property.property
                         }
-                        \(mock.memberModifiers)var variable: String {
-                            self.__variable.get()
+                        \(mock.memberModifiers)var property: String {
+                            self.__property.get()
                         }
                     }
                     """
@@ -44,31 +44,31 @@ final class Mocked_ReadOnlyVariableTests: XCTestCase {
         }
     }
 
-    // MARK: Read-Only Async Variable Tests
+    // MARK: Read-Only Async Property Tests
 
-    func testReadOnlyAsyncVariable() {
+    func testReadOnlyAsyncProperty() {
         testMocked { interface, mock in
             assertMocked(
                 """
                 \(interface.accessLevel) protocol Dependency {
-                    var variable: String { get async }
+                    var property: String { get async }
                 }
                 """,
                 generates: """
                     \(mock.modifiers)class DependencyMock: Dependency {
                     \(mock.defaultInit)
-                        private let __variable = MockReadOnlyAsyncVariable<String> .makeVariable(
-                            exposedVariableDescription: MockImplementationDescription(
+                        private let __property = MockReadOnlyAsyncProperty<String> .makeProperty(
+                            exposedPropertyDescription: MockImplementationDescription(
                                 type: DependencyMock.self,
-                                member: "_variable"
+                                member: "_property"
                             )
                         )
-                        \(mock.memberModifiers)var _variable: MockReadOnlyAsyncVariable<String> {
-                            self.__variable.variable
+                        \(mock.memberModifiers)var _property: MockReadOnlyAsyncProperty<String> {
+                            self.__property.property
                         }
-                        \(mock.memberModifiers)var variable: String {
+                        \(mock.memberModifiers)var property: String {
                             get async {
-                                await self.__variable.get()
+                                await self.__property.get()
                             }
                         }
                     }
@@ -77,31 +77,31 @@ final class Mocked_ReadOnlyVariableTests: XCTestCase {
         }
     }
 
-    // MARK: Read-Only Throwing Variable Tests
+    // MARK: Read-Only Throwing Property Tests
 
-    func testReadOnlyThrowingVariable() {
+    func testReadOnlyThrowingProperty() {
         testMocked { interface, mock in
             assertMocked(
                 """
                 \(interface.accessLevel) protocol Dependency {
-                    var variable: String { get throws }
+                    var property: String { get throws }
                 }
                 """,
                 generates: """
                     \(mock.modifiers)class DependencyMock: Dependency {
                     \(mock.defaultInit)
-                        private let __variable = MockReadOnlyThrowingVariable<String> .makeVariable(
-                            exposedVariableDescription: MockImplementationDescription(
+                        private let __property = MockReadOnlyThrowingProperty<String> .makeProperty(
+                            exposedPropertyDescription: MockImplementationDescription(
                                 type: DependencyMock.self,
-                                member: "_variable"
+                                member: "_property"
                             )
                         )
-                        \(mock.memberModifiers)var _variable: MockReadOnlyThrowingVariable<String> {
-                            self.__variable.variable
+                        \(mock.memberModifiers)var _property: MockReadOnlyThrowingProperty<String> {
+                            self.__property.property
                         }
-                        \(mock.memberModifiers)var variable: String {
+                        \(mock.memberModifiers)var property: String {
                             get throws {
-                                try self.__variable.get()
+                                try self.__property.get()
                             }
                         }
                     }
@@ -110,32 +110,32 @@ final class Mocked_ReadOnlyVariableTests: XCTestCase {
         }
     }
 
-    // MARK: Read-Only Async Throwing Variable Tests
+    // MARK: Read-Only Async Throwing Property Tests
 
-    func testReadOnlyAsyncThrowingVariable() {
+    func testReadOnlyAsyncThrowingProperty() {
         testMocked { interface, mock in
             assertMocked(
                 """
                 \(interface.accessLevel) protocol Dependency {
-                    var variable: String { get async throws }
+                    var property: String { get async throws }
                 }
                 """,
                 generates: """
                     \(mock.modifiers)class DependencyMock: Dependency {
                     \(mock.defaultInit)
-                        private let __variable = MockReadOnlyAsyncThrowingVariable<String> .makeVariable(
-                            exposedVariableDescription: MockImplementationDescription(
+                        private let __property = MockReadOnlyAsyncThrowingProperty<String> .makeProperty(
+                            exposedPropertyDescription: MockImplementationDescription(
                                 type: DependencyMock.self,
-                                member: "_variable"
+                                member: "_property"
                             )
                         )
                         \(mock.memberModifiers)\
-                    var _variable: MockReadOnlyAsyncThrowingVariable<String> {
-                            self.__variable.variable
+                    var _property: MockReadOnlyAsyncThrowingProperty<String> {
+                            self.__property.property
                         }
-                        \(mock.memberModifiers)var variable: String {
+                        \(mock.memberModifiers)var property: String {
                             get async throws {
-                                try await self.__variable.get()
+                                try await self.__property.get()
                             }
                         }
                     }

@@ -1,5 +1,5 @@
 //
-//  MockVariableGetter.swift
+//  MockPropertyGetter.swift
 //  Mocked
 //
 //  Created by Cole Campbell on 11/12/23.
@@ -7,8 +7,8 @@
 
 import Foundation
 
-/// The implementation details and invocation records for a variable's getter.
-public final class MockVariableGetter<Value> {
+/// The implementation details and invocation records for a property's getter.
+public final class MockPropertyGetter<Value> {
 
     // MARK: Properties
 
@@ -26,33 +26,33 @@ public final class MockVariableGetter<Value> {
         self.returnedValues.last
     }
 
-    /// The description of the mock's exposed variable.
+    /// The description of the mock's exposed property.
     ///
     /// This description is used when generating an `unimplemented` test failure
-    /// to indicate which exposed variable needs an implementation for the test
+    /// to indicate which exposed property needs an implementation for the test
     /// to succeed.
-    private let exposedVariableDescription: MockImplementationDescription
+    private let exposedPropertyDescription: MockImplementationDescription
 
     // MARK: Initializers
 
-    /// Creates a variable getter.
+    /// Creates a property getter.
     ///
-    /// - Parameter exposedVariableDescription: The description of the mock's
-    ///   exposed variable.
-    init(exposedVariableDescription: MockImplementationDescription) {
-        self.exposedVariableDescription = exposedVariableDescription
+    /// - Parameter exposedPropertyDescription: The description of the mock's
+    ///   exposed property.
+    init(exposedPropertyDescription: MockImplementationDescription) {
+        self.exposedPropertyDescription = exposedPropertyDescription
     }
 
     // MARK: Get
 
-    /// Records the invocation of the variable's getter and returns the
-    /// variable's value.
+    /// Records the invocation of the property's getter and returns the
+    /// property's value.
     ///
-    /// - Returns: The variable's value.
+    /// - Returns: The property's value.
     func get() -> Value {
         self.callCount += 1
 
-        let value = self.implementation(description: self.exposedVariableDescription)
+        let value = self.implementation(description: self.exposedPropertyDescription)
 
         self.returnedValues.append(value)
 
