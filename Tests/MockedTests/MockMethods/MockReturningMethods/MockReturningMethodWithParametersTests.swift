@@ -19,7 +19,7 @@ final class MockReturningMethodWithParametersTests: XCTestCase {
     // MARK: Implementation Tests
 
     func testImplementationDefaultValue() {
-        self.test { sut, _ in
+        self.withSUT { sut, _ in
             guard case .unimplemented = sut.implementation else {
                 XCTFail("Expected implementation to equal .unimplemented")
                 return
@@ -30,7 +30,7 @@ final class MockReturningMethodWithParametersTests: XCTestCase {
     // MARK: Call Count Tests
 
     func testCallCount() {
-        self.test { sut, invoke in
+        self.withSUT { sut, invoke in
             XCTAssertEqual(sut.callCount, .zero)
 
             sut.implementation = .returns(5)
@@ -43,7 +43,7 @@ final class MockReturningMethodWithParametersTests: XCTestCase {
     // MARK: Invocations Tests
 
     func testInvocations() {
-        self.test { sut, invoke in
+        self.withSUT { sut, invoke in
             XCTAssertTrue(sut.invocations.isEmpty)
 
             sut.implementation = .returns(5)
@@ -65,7 +65,7 @@ final class MockReturningMethodWithParametersTests: XCTestCase {
     // MARK: Last Invocation Tests
 
     func testLastInvocation() {
-        self.test { sut, invoke in
+        self.withSUT { sut, invoke in
             XCTAssertNil(sut.lastInvocation)
 
             sut.implementation = .returns(5)
@@ -83,7 +83,7 @@ final class MockReturningMethodWithParametersTests: XCTestCase {
     // MARK: Returned Values Tests
 
     func testReturnedValues() {
-        self.test { sut, invoke in
+        self.withSUT { sut, invoke in
             XCTAssertEqual(sut.returnedValues, [])
 
             sut.implementation = .returns(5)
@@ -101,7 +101,7 @@ final class MockReturningMethodWithParametersTests: XCTestCase {
     // MARK: Last Returned Value Tests
 
     func testLastReturnedValue() {
-        self.test { sut, invoke in
+        self.withSUT { sut, invoke in
             XCTAssertNil(sut.lastReturnedValue)
 
             sut.implementation = .returns(5)
@@ -120,7 +120,7 @@ final class MockReturningMethodWithParametersTests: XCTestCase {
 // MARK: - Helpers
 
 extension MockReturningMethodWithParametersTests {
-    private func test(
+    private func withSUT(
         test: (
             _ sut: SUT,
             _ invoke: (Arguments) -> ReturnValue

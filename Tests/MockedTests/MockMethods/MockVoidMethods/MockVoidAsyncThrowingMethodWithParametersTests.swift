@@ -18,16 +18,16 @@ final class MockVoidAsyncThrowingMethodWithParametersTests: XCTestCase {
     // MARK: Call Count Tests
 
     func testCallCount() async throws {
-        try await self.test { sut, invoke in
+        try await self.withSUT { sut, invoke in
             XCTAssertEqual(sut.callCount, .zero)
 
-            _ = try await invoke(("a", true))
+            try await invoke(("a", true))
             XCTAssertEqual(sut.callCount, 1)
 
             sut.error = URLError(.badURL)
 
             do {
-                _ = try await invoke(("b", false))
+                try await invoke(("b", false))
                 XCTFail("Expected invoke to throw an error")
             } catch let error as URLError {
                 XCTAssertEqual(error.code, .badURL)
@@ -42,60 +42,78 @@ final class MockVoidAsyncThrowingMethodWithParametersTests: XCTestCase {
     // MARK: Invocations Tests
 
     func testInvocations() async throws {
-        try await self.test { sut, invoke in
+        try await self.withSUT { sut, invoke in
             XCTAssertTrue(sut.invocations.isEmpty)
 
-            _ = try await invoke(("a", true))
+            try await invoke(("a", true))
             XCTAssertEqual(sut.invocations.count, 1)
             XCTAssertEqual(sut.invocations.first?.string, "a")
             XCTAssertEqual(sut.invocations.first?.boolean, true)
 
-            _ = try await invoke(("b", false))
-            XCTAssertEqual(sut.invocations.count, 2)
-            XCTAssertEqual(sut.invocations.first?.string, "a")
-            XCTAssertEqual(sut.invocations.first?.boolean, true)
-            XCTAssertEqual(sut.invocations.last?.string, "b")
-            XCTAssertEqual(sut.invocations.last?.boolean, false)
+            sut.error = URLError(.badURL)
+
+            do {
+                try await invoke(("b", false))
+                XCTFail("Expected invoke to throw an error")
+            } catch let error as URLError {
+                XCTAssertEqual(error.code, .badURL)
+                XCTAssertEqual(sut.invocations.count, 2)
+                XCTAssertEqual(sut.invocations.first?.string, "a")
+                XCTAssertEqual(sut.invocations.first?.boolean, true)
+                XCTAssertEqual(sut.invocations.last?.string, "b")
+                XCTAssertEqual(sut.invocations.last?.boolean, false)
+            } catch {
+                XCTFail("Expected \(error) to equal URLError(.badURL)")
+            }
         }
     }
 
     // MARK: Last Invocation Tests
 
     func testLastInvocation() async throws {
-        try await self.test { sut, invoke in
+        try await self.withSUT { sut, invoke in
             XCTAssertNil(sut.lastInvocation)
 
-            _ = try await invoke(("a", true))
+            try await invoke(("a", true))
             XCTAssertEqual(sut.lastInvocation?.string, "a")
             XCTAssertEqual(sut.lastInvocation?.boolean, true)
 
-            _ = try await invoke(("b", false))
-            XCTAssertEqual(sut.lastInvocation?.string, "b")
-            XCTAssertEqual(sut.lastInvocation?.boolean, false)
+            sut.error = URLError(.badURL)
+
+            do {
+                try await invoke(("b", false))
+                XCTFail("Expected invoke to throw an error")
+            } catch let error as URLError {
+                XCTAssertEqual(error.code, .badURL)
+                XCTAssertEqual(sut.lastInvocation?.string, "b")
+                XCTAssertEqual(sut.lastInvocation?.boolean, false)
+            } catch {
+                XCTFail("Expected \(error) to equal URLError(.badURL)")
+            }
         }
     }
 
-    // MARK: Errors Tests
+    // MARK: Thrown Errors Tests
 
-    func testErrors() async throws {
-        try await self.test { sut, invoke in
+    func testThrownErrors() async throws {
+        try await self.withSUT { sut, invoke in
             XCTAssertTrue(sut.thrownErrors.isEmpty)
 
-            _ = try await invoke(("a", true))
+            try await invoke(("a", true))
             XCTAssertTrue(sut.thrownErrors.isEmpty)
 
             sut.error = URLError(.badURL)
 
             do {
-                _ = try await invoke(("b", false))
+                try await invoke(("b", false))
                 XCTFail("Expected invoke to throw an error")
             } catch let error as URLError {
                 XCTAssertEqual(error.code, .badURL)
                 XCTAssertEqual(sut.thrownErrors.count, 1)
 
-                let firstError = try XCTUnwrap(sut.thrownErrors.first as? URLError)
+                let firstThrownError = try XCTUnwrap(sut.thrownErrors.first as? URLError)
 
-                XCTAssertEqual(firstError.code, .badURL)
+                XCTAssertEqual(firstThrownError.code, .badURL)
             } catch {
                 XCTFail("Expected \(error) to equal URLError(.badURL)")
             }
@@ -103,43 +121,43 @@ final class MockVoidAsyncThrowingMethodWithParametersTests: XCTestCase {
             sut.error = URLError(.badServerResponse)
 
             do {
-                _ = try await invoke(("c", true))
+                try await invoke(("c", true))
                 XCTFail("Expected invoke to throw an error")
             } catch let error as URLError {
                 XCTAssertEqual(error.code, .badServerResponse)
                 XCTAssertEqual(sut.thrownErrors.count, 2)
 
-                let firstError = try XCTUnwrap(sut.thrownErrors.first as? URLError)
-                let lastError = try XCTUnwrap(sut.thrownErrors.last as? URLError)
+                let firstThrownError = try XCTUnwrap(sut.thrownErrors.first as? URLError)
+                let lastThrownError = try XCTUnwrap(sut.thrownErrors.last as? URLError)
 
-                XCTAssertEqual(firstError.code, .badURL)
-                XCTAssertEqual(lastError.code, .badServerResponse)
+                XCTAssertEqual(firstThrownError.code, .badURL)
+                XCTAssertEqual(lastThrownError.code, .badServerResponse)
             } catch {
                 XCTFail("Expected \(error) to equal URLError(.badServerResponse)")
             }
         }
     }
 
-    // MARK: Last Error Tests
+    // MARK: Last Thrown Error Tests
 
-    func testLastError() async throws {
-        try await self.test { sut, invoke in
+    func testLastThrownError() async throws {
+        try await self.withSUT { sut, invoke in
             XCTAssertNil(sut.lastThrownError)
 
-            _ = try await invoke(("a", true))
+            try await invoke(("a", true))
             XCTAssertNil(sut.lastThrownError)
 
             sut.error = URLError(.badURL)
 
             do {
-                _ = try await invoke(("b", false))
+                try await invoke(("b", false))
                 XCTFail("Expected invoke to throw an error")
             } catch let error as URLError {
                 XCTAssertEqual(error.code, .badURL)
 
-                let lastError = try XCTUnwrap(sut.lastThrownError as? URLError)
+                let lastThrownError = try XCTUnwrap(sut.lastThrownError as? URLError)
 
-                XCTAssertEqual(lastError.code, .badURL)
+                XCTAssertEqual(lastThrownError.code, .badURL)
             } catch {
                 XCTFail("Expected \(error) to equal URLError(.badURL)")
             }
@@ -147,14 +165,14 @@ final class MockVoidAsyncThrowingMethodWithParametersTests: XCTestCase {
             sut.error = URLError(.badServerResponse)
 
             do {
-                _ = try await invoke(("c", true))
+                try await invoke(("c", true))
                 XCTFail("Expected invoke to throw an error")
             } catch let error as URLError {
                 XCTAssertEqual(error.code, .badServerResponse)
 
-                let lastError = try XCTUnwrap(sut.lastThrownError as? URLError)
+                let lastThrownError = try XCTUnwrap(sut.lastThrownError as? URLError)
 
-                XCTAssertEqual(lastError.code, .badServerResponse)
+                XCTAssertEqual(lastThrownError.code, .badServerResponse)
             } catch {
                 XCTFail("Expected \(error) to equal URLError(.badServerResponse)")
             }
@@ -165,7 +183,7 @@ final class MockVoidAsyncThrowingMethodWithParametersTests: XCTestCase {
 // MARK: - Helpers
 
 extension MockVoidAsyncThrowingMethodWithParametersTests {
-    private func test(
+    private func withSUT(
         test: (
             _ sut: SUT,
             _ invoke: (Arguments) async throws -> Void

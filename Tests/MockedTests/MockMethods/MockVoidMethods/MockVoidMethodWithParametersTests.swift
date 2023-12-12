@@ -18,10 +18,10 @@ final class MockVoidMethodWithParametersTests: XCTestCase {
     // MARK: Call Count Tests
 
     func testCallCount() {
-        self.test { sut, invoke in
+        self.withSUT { sut, invoke in
             XCTAssertEqual(sut.callCount, .zero)
 
-            _ = invoke(("a", true))
+            invoke(("a", true))
             XCTAssertEqual(sut.callCount, 1)
         }
     }
@@ -29,15 +29,15 @@ final class MockVoidMethodWithParametersTests: XCTestCase {
     // MARK: Invocations Tests
 
     func testInvocations() {
-        self.test { sut, invoke in
+        self.withSUT { sut, invoke in
             XCTAssertTrue(sut.invocations.isEmpty)
 
-            _ = invoke(("a", true))
+            invoke(("a", true))
             XCTAssertEqual(sut.invocations.count, 1)
             XCTAssertEqual(sut.invocations.first?.string, "a")
             XCTAssertEqual(sut.invocations.first?.boolean, true)
 
-            _ = invoke(("b", false))
+            invoke(("b", false))
             XCTAssertEqual(sut.invocations.count, 2)
             XCTAssertEqual(sut.invocations.first?.string, "a")
             XCTAssertEqual(sut.invocations.first?.boolean, true)
@@ -49,14 +49,14 @@ final class MockVoidMethodWithParametersTests: XCTestCase {
     // MARK: Last Invocation Tests
 
     func testLastInvocation() {
-        self.test { sut, invoke in
+        self.withSUT { sut, invoke in
             XCTAssertNil(sut.lastInvocation)
 
-            _ = invoke(("a", true))
+            invoke(("a", true))
             XCTAssertEqual(sut.lastInvocation?.string, "a")
             XCTAssertEqual(sut.lastInvocation?.boolean, true)
 
-            _ = invoke(("b", false))
+            invoke(("b", false))
             XCTAssertEqual(sut.lastInvocation?.string, "b")
             XCTAssertEqual(sut.lastInvocation?.boolean, false)
         }
@@ -66,7 +66,7 @@ final class MockVoidMethodWithParametersTests: XCTestCase {
 // MARK: - Helpers
 
 extension MockVoidMethodWithParametersTests {
-    private func test(
+    private func withSUT(
         test: (
             _ sut: SUT,
             _ invoke: (Arguments) -> Void

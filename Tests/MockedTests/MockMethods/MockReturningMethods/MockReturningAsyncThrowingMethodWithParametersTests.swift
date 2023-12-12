@@ -19,7 +19,7 @@ final class MockReturningAsyncThrowingMethodWithParametersTests: XCTestCase {
     // MARK: Implementation Tests
 
     func testImplementationDefaultValue() async {
-        await self.test { sut, _ in
+        await self.withSUT { sut, _ in
             guard case .unimplemented = sut.implementation else {
                 XCTFail("Expected implementation to equal .unimplemented")
                 return
@@ -30,7 +30,7 @@ final class MockReturningAsyncThrowingMethodWithParametersTests: XCTestCase {
     // MARK: Call Count Tests
 
     func testCallCount() async throws {
-        try await self.test { sut, invoke in
+        try await self.withSUT { sut, invoke in
             XCTAssertEqual(sut.callCount, .zero)
 
             sut.implementation = .returns { 5 }
@@ -56,7 +56,7 @@ final class MockReturningAsyncThrowingMethodWithParametersTests: XCTestCase {
     // MARK: Invocations Tests
 
     func testInvocations() async throws {
-        try await self.test { sut, invoke in
+        try await self.withSUT { sut, invoke in
             XCTAssertTrue(sut.invocations.isEmpty)
 
             sut.implementation = .returns { 5 }
@@ -84,10 +84,37 @@ final class MockReturningAsyncThrowingMethodWithParametersTests: XCTestCase {
         }
     }
 
+    // MARK: Last Invocation Tests
+
+    func testLastInvocation() async throws {
+        try await self.withSUT { sut, invoke in
+            XCTAssertNil(sut.lastInvocation)
+
+            sut.implementation = .returns { 5 }
+
+            _ = try await invoke(("a", true))
+            XCTAssertEqual(sut.lastInvocation?.string, "a")
+            XCTAssertEqual(sut.lastInvocation?.boolean, true)
+
+            sut.implementation = .throws { URLError(.badURL) }
+
+            do {
+                _ = try await invoke(("b", false))
+                XCTFail("Expected invoke to throw an error")
+            } catch let error as URLError {
+                XCTAssertEqual(error.code, .badURL)
+                XCTAssertEqual(sut.lastInvocation?.string, "b")
+                XCTAssertEqual(sut.lastInvocation?.boolean, false)
+            } catch {
+                XCTFail("Expected \(error) to equal URLError(.badURL)")
+            }
+        }
+    }
+
     // MARK: Returned Values Tests
 
     func testReturnedValues() async throws {
-        try await self.test { sut, invoke in
+        try await self.withSUT { sut, invoke in
             XCTAssertTrue(sut.returnedValues.isEmpty)
 
             sut.implementation = .returns { 5 }
@@ -123,7 +150,7 @@ final class MockReturningAsyncThrowingMethodWithParametersTests: XCTestCase {
     // MARK: Last Returned Value Tests
 
     func testLastReturnedValue() async throws {
-        try await self.test { sut, invoke in
+        try await self.withSUT { sut, invoke in
             XCTAssertNil(sut.lastReturnedValue)
 
             sut.implementation = .returns { 5 }
@@ -157,7 +184,7 @@ final class MockReturningAsyncThrowingMethodWithParametersTests: XCTestCase {
 // MARK: - Helpers
 
 extension MockReturningAsyncThrowingMethodWithParametersTests {
-    private func test(
+    private func withSUT(
         test: (
             _ sut: SUT,
             _ invoke: (Arguments) async throws -> ReturnValue

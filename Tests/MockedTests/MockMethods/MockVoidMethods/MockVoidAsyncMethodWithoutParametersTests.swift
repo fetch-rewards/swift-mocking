@@ -17,10 +17,10 @@ final class MockVoidAsyncMethodWithoutParametersTests: XCTestCase {
     // MARK: Call Count Tests
 
     func testCallCount() async {
-        await self.test { sut, invoke in
+        await self.withSUT { sut, invoke in
             XCTAssertEqual(sut.callCount, .zero)
 
-            _ = await invoke()
+            await invoke()
             XCTAssertEqual(sut.callCount, 1)
         }
     }
@@ -29,7 +29,7 @@ final class MockVoidAsyncMethodWithoutParametersTests: XCTestCase {
 // MARK: - Helpers
 
 extension MockVoidAsyncMethodWithoutParametersTests {
-    private func test(
+    private func withSUT(
         test: (
             _ sut: SUT,
             _ invoke: () async -> Void
