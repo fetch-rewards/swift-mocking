@@ -30,7 +30,7 @@ let package = Package(
         ),
         .package(
             url: "https://github.com/graycampbell/SwiftSyntaxSugar",
-            branch: "feature/protocol-decl-syntax"
+            branch: "refactor/optional-arrays"
         ),
         .package(
             url: "https://github.com/pointfreeco/xctest-dynamic-overlay",
