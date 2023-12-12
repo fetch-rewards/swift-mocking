@@ -50,12 +50,21 @@ final class MockVoidAsyncThrowingMethodWithParametersTests: XCTestCase {
             XCTAssertEqual(sut.invocations.first?.string, "a")
             XCTAssertEqual(sut.invocations.first?.boolean, true)
 
-            try await invoke(("b", false))
-            XCTAssertEqual(sut.invocations.count, 2)
-            XCTAssertEqual(sut.invocations.first?.string, "a")
-            XCTAssertEqual(sut.invocations.first?.boolean, true)
-            XCTAssertEqual(sut.invocations.last?.string, "b")
-            XCTAssertEqual(sut.invocations.last?.boolean, false)
+            sut.error = URLError(.badURL)
+
+            do {
+                try await invoke(("b", false))
+                XCTFail("Expected invoke to throw an error")
+            } catch let error as URLError {
+                XCTAssertEqual(error.code, .badURL)
+                XCTAssertEqual(sut.invocations.count, 2)
+                XCTAssertEqual(sut.invocations.first?.string, "a")
+                XCTAssertEqual(sut.invocations.first?.boolean, true)
+                XCTAssertEqual(sut.invocations.last?.string, "b")
+                XCTAssertEqual(sut.invocations.last?.boolean, false)
+            } catch {
+                XCTFail("Expected \(error) to equal URLError(.badURL)")
+            }
         }
     }
 
@@ -69,9 +78,18 @@ final class MockVoidAsyncThrowingMethodWithParametersTests: XCTestCase {
             XCTAssertEqual(sut.lastInvocation?.string, "a")
             XCTAssertEqual(sut.lastInvocation?.boolean, true)
 
-            try await invoke(("b", false))
-            XCTAssertEqual(sut.lastInvocation?.string, "b")
-            XCTAssertEqual(sut.lastInvocation?.boolean, false)
+            sut.error = URLError(.badURL)
+
+            do {
+                try await invoke(("b", false))
+                XCTFail("Expected invoke to throw an error")
+            } catch let error as URLError {
+                XCTAssertEqual(error.code, .badURL)
+                XCTAssertEqual(sut.lastInvocation?.string, "b")
+                XCTAssertEqual(sut.lastInvocation?.boolean, false)
+            } catch {
+                XCTFail("Expected \(error) to equal URLError(.badURL)")
+            }
         }
     }
 
