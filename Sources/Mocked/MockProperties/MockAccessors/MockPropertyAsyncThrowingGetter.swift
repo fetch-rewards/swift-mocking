@@ -1,5 +1,5 @@
 //
-//  MockVariableAsyncThrowingGetter.swift
+//  MockPropertyAsyncThrowingGetter.swift
 //  Mocked
 //
 //  Created by Cole Campbell on 11/12/23.
@@ -7,9 +7,9 @@
 
 import Foundation
 
-/// The implementation details and invocation records for a variable's async,
+/// The implementation details and invocation records for a property's async,
 /// throwing getter.
-public final class MockVariableAsyncThrowingGetter<Value> {
+public final class MockPropertyAsyncThrowingGetter<Value> {
 
     // MARK: Properties
 
@@ -27,34 +27,34 @@ public final class MockVariableAsyncThrowingGetter<Value> {
         self.returnedValues.last
     }
 
-    /// The description of the mock's exposed variable.
+    /// The description of the mock's exposed property.
     ///
     /// This description is used when generating an `unimplemented` test failure
-    /// to indicate which exposed variable needs an implementation for the test
+    /// to indicate which exposed property needs an implementation for the test
     /// to succeed.
-    private let exposedVariableDescription: MockImplementationDescription
+    private let exposedPropertyDescription: MockImplementationDescription
 
     // MARK: Initializers
 
-    /// Creates an async throwing variable getter.
+    /// Creates an async throwing property getter.
     ///
-    /// - Parameter exposedVariableDescription: The description of the mock's
-    ///   exposed variable.
-    init(exposedVariableDescription: MockImplementationDescription) {
-        self.exposedVariableDescription = exposedVariableDescription
+    /// - Parameter exposedPropertyDescription: The description of the mock's
+    ///   exposed property.
+    init(exposedPropertyDescription: MockImplementationDescription) {
+        self.exposedPropertyDescription = exposedPropertyDescription
     }
 
     // MARK: Get
 
-    /// Records the invocation of the variable's getter and returns the
-    /// variable's value or throws an error.
+    /// Records the invocation of the property's getter and returns the
+    /// property's value or throws an error.
     ///
-    /// - Returns: The variable's value.
+    /// - Returns: The property's value.
     func get() async throws -> Value {
         self.callCount += 1
 
         let value = await Result {
-            try await self.implementation(description: self.exposedVariableDescription)
+            try await self.implementation(description: self.exposedPropertyDescription)
         }
 
         self.returnedValues.append(value)

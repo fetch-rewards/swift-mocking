@@ -1,5 +1,5 @@
 //
-//  Mocked_ReadWriteVariableTests.swift
+//  Mocked_ReadWritePropertyTests.swift
 //  MockedMacrosTests
 //
 //  Created by Gray Campbell on 11/4/23.
@@ -11,36 +11,36 @@ import SwiftSyntaxMacros
 import SwiftSyntaxMacrosTestSupport
 import XCTest
 
-final class Mocked_ReadWriteVariableTests: XCTestCase {
+final class Mocked_ReadWritePropertyTests: XCTestCase {
 
-    // MARK: Read-Write Variable Tests
+    // MARK: Read-Write Property Tests
 
-    func testReadWriteVariable() {
+    func testReadWriteProperty() {
         testMocked { interface, mock in
             assertMocked(
                 """
                 \(interface.accessLevel) protocol Dependency {
-                    var variable: String { get set }
+                    var property: String { get set }
                 }
                 """,
                 generates: """
                     \(mock.modifiers)class DependencyMock: Dependency {
                     \(mock.defaultInit)
-                        private let __variable = MockReadWriteVariable<String> .makeVariable(
-                            exposedVariableDescription: MockImplementationDescription(
+                        private let __property = MockReadWriteProperty<String> .makeProperty(
+                            exposedPropertyDescription: MockImplementationDescription(
                                 type: DependencyMock.self,
-                                member: "_variable"
+                                member: "_property"
                             )
                         )
-                        \(mock.memberModifiers)var _variable: MockReadWriteVariable<String> {
-                            self.__variable.variable
+                        \(mock.memberModifiers)var _property: MockReadWriteProperty<String> {
+                            self.__property.property
                         }
-                        \(mock.memberModifiers)var variable: String {
+                        \(mock.memberModifiers)var property: String {
                             get {
-                                self.__variable.get()
+                                self.__property.get()
                             }
                             set {
-                                self.__variable.set(newValue)
+                                self.__property.set(newValue)
                             }
                         }
                     }

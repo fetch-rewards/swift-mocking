@@ -189,7 +189,7 @@ extension MockedMacro {
     // MARK: Members
 
     /// Returns the member block to apply to the mock, generated from the
-    /// variables and methods of the provided protocol.
+    /// properties and methods of the provided protocol.
     ///
     /// - Parameter protocolDeclaration: The protocol to which the mock must
     ///   conform.
@@ -199,23 +199,23 @@ extension MockedMacro {
     ) throws -> MemberBlockSyntax {
         try MemberBlockSyntax {
             let accessLevel = protocolDeclaration.minimumConformingAccessLevel
-            let variableDeclarations = protocolDeclaration.variableDeclarations
+            let propertyDeclarations = protocolDeclaration.variableDeclarations
             let methodDeclarations = protocolDeclaration.functionDeclarations
 
             self.mockDefaultInitializerDeclaration(with: accessLevel)
 
-            for variableDeclaration in variableDeclarations {
-                for binding in variableDeclaration.bindings {
-                    let variableOverrideDeclarations = self.mockVariableOverrideDeclarations(
+            for propertyDeclaration in propertyDeclarations {
+                for binding in propertyDeclaration.bindings {
+                    let propertyOverrideDeclarations = self.mockPropertyOverrideDeclarations(
                         for: binding,
                         with: accessLevel,
                         in: protocolDeclaration
                     )
 
-                    variableOverrideDeclarations.backingVariable
-                    variableOverrideDeclarations.exposedVariable
+                    propertyOverrideDeclarations.backingProperty
+                    propertyOverrideDeclarations.exposedProperty
 
-                    try self.mockVariableConformanceDeclaration(
+                    try self.mockPropertyConformanceDeclaration(
                         for: binding,
                         with: accessLevel
                     )
@@ -273,26 +273,26 @@ extension MockedMacro {
         ) {}
     }
 
-    /// Returns variable override declarations to apply to the mock, generated
-    /// from the provided protocol variable binding with the exposed declaration
+    /// Returns property override declarations to apply to the mock, generated
+    /// from the provided protocol property binding with the exposed declaration
     /// marked with the provided access level.
     ///
     /// - Parameters:
-    ///   - binding: A variable binding from the protocol to which the mock must
+    ///   - binding: A property binding from the protocol to which the mock must
     ///     conform.
-    ///   - accessLevel: The access level to apply to the exposed variable
+    ///   - accessLevel: The access level to apply to the exposed property
     ///     override declaration.
-    /// - Returns: Variable override declarations to apply to the mock.
-    private static func mockVariableOverrideDeclarations(
+    /// - Returns: Property override declarations to apply to the mock.
+    private static func mockPropertyOverrideDeclarations(
         for binding: PatternBindingSyntax,
         with accessLevel: AccessLevelSyntax,
         in protocolDeclaration: ProtocolDeclSyntax
     ) -> (
-        backingVariable: VariableDeclSyntax,
-        exposedVariable: VariableDeclSyntax
+        backingProperty: VariableDeclSyntax,
+        exposedProperty: VariableDeclSyntax
     ) {
         let mockName = self.mockName(from: protocolDeclaration)
-        let variableName = binding.pattern.as(IdentifierPatternSyntax.self)!.identifier
+        let propertyName = binding.pattern.as(IdentifierPatternSyntax.self)!.identifier
         let backingGenericType = binding.typeAnnotation!.type.trimmed
 
         var backingType = ""
@@ -311,29 +311,29 @@ extension MockedMacro {
             }
         }
 
-        backingType += "Variable<\(backingGenericType)>"
+        backingType += "Property<\(backingGenericType)>"
 
         return (
-            backingVariable: VariableDeclSyntax(
+            backingProperty: VariableDeclSyntax(
                 modifiers: DeclModifierListSyntax {
                     AccessLevelSyntax.private.modifier
                 },
                 .let,
-                name: PatternSyntax(stringLiteral: "__\(variableName)"),
+                name: PatternSyntax(stringLiteral: "__\(propertyName)"),
                 initializer: InitializerClauseSyntax(
                     value: ExprSyntax(
                         stringLiteral: """
-                            \(backingType).makeVariable(
-                                exposedVariableDescription: MockImplementationDescription(
+                            \(backingType).makeProperty(
+                                exposedPropertyDescription: MockImplementationDescription(
                                     type: \(mockName).self,
-                                    member: "_\(variableName)"
+                                    member: "_\(propertyName)"
                                 )
                             )
                             """
                     )
                 )
             ),
-            exposedVariable: VariableDeclSyntax(
+            exposedProperty: VariableDeclSyntax(
                 modifiers: DeclModifierListSyntax {
                     if accessLevel != .internal {
                         accessLevel.modifier
@@ -342,14 +342,14 @@ extension MockedMacro {
                 bindingSpecifier: .keyword(.var),
                 bindingsBuilder: {
                     PatternBindingSyntax(
-                        pattern: PatternSyntax(stringLiteral: "_\(variableName)"),
+                        pattern: PatternSyntax(stringLiteral: "_\(propertyName)"),
                         typeAnnotation: TypeAnnotationSyntax(
                             type: TypeSyntax(stringLiteral: backingType)
                         ),
                         accessorBlock: AccessorBlockSyntax(
                             accessors: .getter(
                                 CodeBlockItemListSyntax {
-                                    "self.__\(variableName).variable"
+                                    "self.__\(propertyName).property"
                                 }
                             )
                         )
@@ -359,21 +359,21 @@ extension MockedMacro {
         )
     }
 
-    /// Returns a variable conformance declaration to apply to the mock,
-    /// generated from the provided protocol variable binding and marked with
+    /// Returns a property conformance declaration to apply to the mock,
+    /// generated from the provided protocol property binding and marked with
     /// the provided access level.
     ///
     /// - Parameters:
-    ///   - binding: A variable binding from the protocol to which the mock must
+    ///   - binding: A property binding from the protocol to which the mock must
     ///     conform.
-    ///   - accessLevel: The access level to apply to the variable conformance
+    ///   - accessLevel: The access level to apply to the property conformance
     ///     declaration.
-    /// - Returns: A variable conformance declaration to apply to the mock.
-    private static func mockVariableConformanceDeclaration(
+    /// - Returns: A property conformance declaration to apply to the mock.
+    private static func mockPropertyConformanceDeclaration(
         for binding: PatternBindingSyntax,
         with accessLevel: AccessLevelSyntax
     ) throws -> VariableDeclSyntax {
-        let variableName = binding.pattern.as(IdentifierPatternSyntax.self)!.identifier
+        let propertyName = binding.pattern.as(IdentifierPatternSyntax.self)!.identifier
 
         func getAccessorConformanceDeclaration(
             for getAccessorDeclaration: AccessorDeclSyntax
@@ -382,13 +382,13 @@ extension MockedMacro {
                 let getterInvocationKeywordTokens = getAccessorDeclaration.invocationKeywordTokens
 
                 if getterInvocationKeywordTokens.isEmpty {
-                    "self.__\(variableName).get()"
+                    "self.__\(propertyName).get()"
                 } else {
                     let joinedGetterInvocationKeywordTokens = getterInvocationKeywordTokens
                         .map(\.text)
                         .joined(separator: " ")
 
-                    "\(raw: joinedGetterInvocationKeywordTokens) self.__\(variableName).get()"
+                    "\(raw: joinedGetterInvocationKeywordTokens) self.__\(propertyName).get()"
                 }
             }
         }
@@ -408,7 +408,7 @@ extension MockedMacro {
                         for: getAccessorDeclaration
                     )
                     try setAccessorDeclaration.withBody {
-                        "self.__\(variableName).set(newValue)"
+                        "self.__\(propertyName).set(newValue)"
                     }
                 }
             )
@@ -424,7 +424,7 @@ extension MockedMacro {
                 }
             )
         default:
-            .getter("self.__\(variableName).get()")
+            .getter("self.__\(propertyName).get()")
         }
 
         return VariableDeclSyntax(
