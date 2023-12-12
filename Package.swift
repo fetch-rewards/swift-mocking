@@ -5,7 +5,7 @@ import CompilerPluginSupport
 import PackageDescription
 
 let package = Package(
-    name: "Mockable",
+    name: "Mocked",
     platforms: [
         .macOS(.v10_15),
         .iOS(.v13),
@@ -15,12 +15,12 @@ let package = Package(
     ],
     products: [
         .library(
-            name: "Mockable",
-            targets: ["Mockable"]
+            name: "Mocked",
+            targets: ["Mocked"]
         ),
         .executable(
-            name: "MockableClient",
-            targets: ["MockableClient"]
+            name: "MockedClient",
+            targets: ["MockedClient"]
         ),
     ],
     dependencies: [
@@ -39,7 +39,7 @@ let package = Package(
     ],
     targets: [
         .macro(
-            name: "MockableMacros",
+            name: "MockedMacros",
             dependencies: [
                 .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
                 .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
@@ -47,9 +47,9 @@ let package = Package(
             ]
         ),
         .target(
-            name: "Mockable",
+            name: "Mocked",
             dependencies: [
-                "MockableMacros",
+                "MockedMacros",
                 .product(
                     name: "XCTestDynamicOverlay",
                     package: "xctest-dynamic-overlay"
@@ -57,13 +57,13 @@ let package = Package(
             ]
         ),
         .executableTarget(
-            name: "MockableClient",
-            dependencies: ["Mockable"]
+            name: "MockedClient",
+            dependencies: ["Mocked"]
         ),
         .testTarget(
-            name: "MockableMacrosTests",
+            name: "MockedMacrosTests",
             dependencies: [
-                "MockableMacros",
+                "MockedMacros",
                 .product(
                     name: "SwiftSyntaxMacrosTestSupport",
                     package: "swift-syntax"
