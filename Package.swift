@@ -70,5 +70,11 @@ let package = Package(
                 ),
             ]
         ),
+        .testTarget(
+            name: "MockedTests",
+            dependencies: [
+                "Mocked",
+            ]
+        ),
     ]
 )
