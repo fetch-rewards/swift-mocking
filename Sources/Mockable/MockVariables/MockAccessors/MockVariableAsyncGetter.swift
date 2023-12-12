@@ -7,7 +7,8 @@
 
 import Foundation
 
-/// The invocation records and implementation for an async variable's getter.
+/// The implementation details and invocation records for a variable's async
+/// getter.
 public final class MockVariableAsyncGetter<Value> {
 
     // MARK: Properties
@@ -18,14 +19,21 @@ public final class MockVariableAsyncGetter<Value> {
     /// The number of times the getter has been called.
     public private(set) var callCount: Int = .zero
 
-    /// The description of the mock's backing variable.
-    private let description: MockImplementationDescription
+    /// The description of the mock's exposed variable.
+    ///
+    /// This description is used when generating an `unimplemented` test failure
+    /// to indicate which exposed variable needs an implementation for the test
+    /// to succeed.
+    private let exposedVariableDescription: MockImplementationDescription
 
     // MARK: Initializers
 
     /// Creates an async variable getter.
-    init(description: MockImplementationDescription) {
-        self.description = description
+    ///
+    /// - Parameter exposedVariableDescription: The description of the mock's
+    ///   exposed variable.
+    init(exposedVariableDescription: MockImplementationDescription) {
+        self.exposedVariableDescription = exposedVariableDescription
     }
 
     // MARK: Get
@@ -37,6 +45,6 @@ public final class MockVariableAsyncGetter<Value> {
     func get() async -> Value {
         self.callCount += 1
 
-        return await self.implementation(description: self.description)
+        return await self.implementation(description: self.exposedVariableDescription)
     }
 }

@@ -7,7 +7,8 @@
 
 import Foundation
 
-/// The invocation records and implementation for a mock's read-only variable.
+/// The implementation details and invocation records for a mock's read-only
+/// variable.
 public final class MockReadOnlyVariable<Value> {
 
     // MARK: Properties
@@ -18,24 +19,33 @@ public final class MockReadOnlyVariable<Value> {
     // MARK: Initializers
 
     /// Creates a read-only variable.
-    private init(description: MockImplementationDescription) {
-        self.getter = MockVariableGetter(description: description)
+    ///
+    /// - Parameter exposedVariableDescription: The description of the mock's
+    ///   exposed variable.
+    private init(exposedVariableDescription: MockImplementationDescription) {
+        self.getter = MockVariableGetter(
+            exposedVariableDescription: exposedVariableDescription
+        )
     }
 
     // MARK: Factories
 
-    /// Creates a new variable and a closure to invoke the variable's getter,
+    /// Creates a variable and a closure for invoking the variable's getter,
     /// returning them in a labeled tuple.
     ///
-    /// - Returns: A tuple containing a new variable and a closure to invoke the
+    /// - Parameter exposedVariableDescription: The description of the mock's
+    ///   exposed variable.
+    /// - Returns: A tuple containing a variable and a closure for invoking the
     ///   variable's getter.
     public static func makeVariable(
-        description: MockImplementationDescription
+        exposedVariableDescription: MockImplementationDescription
     ) -> (
         variable: MockReadOnlyVariable,
         get: () -> Value
     ) {
-        let variable = Self(description: description)
+        let variable = MockReadOnlyVariable(
+            exposedVariableDescription: exposedVariableDescription
+        )
 
         return (
             variable: variable,

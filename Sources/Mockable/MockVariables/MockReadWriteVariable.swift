@@ -7,7 +7,8 @@
 
 import Foundation
 
-/// The invocation records and implementation for a mock's read-write variable.
+/// The implementation details and invocation records for a mock's read-write
+/// variable.
 public final class MockReadWriteVariable<Value> {
 
     // MARK: Properties
@@ -21,26 +22,35 @@ public final class MockReadWriteVariable<Value> {
     // MARK: Initializers
 
     /// Creates a read-write variable.
-    private init(description: MockImplementationDescription) {
-        self.getter = MockVariableGetter(description: description)
+    ///
+    /// - Parameter exposedVariableDescription: The description of the mock's
+    ///   exposed variable.
+    private init(exposedVariableDescription: MockImplementationDescription) {
+        self.getter = MockVariableGetter(
+            exposedVariableDescription: exposedVariableDescription
+        )
     }
 
     // MARK: Factories
 
-    /// Creates a new variable, a closure to invoke the variable's getter, and a
-    /// closure to invoke the variable's setter, returning them in a labeled
+    /// Creates a variable, a closure for invoking the variable's getter, and a
+    /// closure for invoking the variable's setter, returning them in a labeled
     /// tuple.
     ///
-    /// - Returns: A tuple containing a new variable, a closure to invoke the
-    ///   variable's getter, and a closure to invoke the variable's setter.
+    /// - Parameter exposedVariableDescription: The description of the mock's
+    ///   exposed variable.
+    /// - Returns: A tuple containing a variable, a closure for invoking the
+    ///   variable's getter, and a closure for invoking the variable's setter.
     public static func makeVariable(
-        description: MockImplementationDescription
+        exposedVariableDescription: MockImplementationDescription
     ) -> (
         variable: MockReadWriteVariable,
         get: () -> Value,
         set: (Value) -> Void
     ) {
-        let variable = Self(description: description)
+        let variable = MockReadWriteVariable(
+            exposedVariableDescription: exposedVariableDescription
+        )
 
         return (
             variable: variable,

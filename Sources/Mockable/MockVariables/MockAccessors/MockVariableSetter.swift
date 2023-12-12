@@ -7,7 +7,7 @@
 
 import Foundation
 
-/// The invocation records and implementation for a variable's setter.
+/// The implementation details and invocation records for a variable's setter.
 public final class MockVariableSetter<Value> {
 
     // MARK: Properties

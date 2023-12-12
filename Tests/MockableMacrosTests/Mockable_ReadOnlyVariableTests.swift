@@ -27,7 +27,7 @@ final class Mockable_ReadOnlyVariableTests: XCTestCase {
                     \(mock.modifiers)class DependencyMock: Dependency {
                     \(mock.defaultInit)
                         private let __variable = MockReadOnlyVariable<String> .makeVariable(
-                            description: MockImplementationDescription(
+                            exposedVariableDescription: MockImplementationDescription(
                                 type: DependencyMock.self,
                                 member: "_variable"
                             )
@@ -58,7 +58,7 @@ final class Mockable_ReadOnlyVariableTests: XCTestCase {
                     \(mock.modifiers)class DependencyMock: Dependency {
                     \(mock.defaultInit)
                         private let __variable = MockReadOnlyAsyncVariable<String> .makeVariable(
-                            description: MockImplementationDescription(
+                            exposedVariableDescription: MockImplementationDescription(
                                 type: DependencyMock.self,
                                 member: "_variable"
                             )
@@ -91,7 +91,7 @@ final class Mockable_ReadOnlyVariableTests: XCTestCase {
                     \(mock.modifiers)class DependencyMock: Dependency {
                     \(mock.defaultInit)
                         private let __variable = MockReadOnlyThrowingVariable<String> .makeVariable(
-                            description: MockImplementationDescription(
+                            exposedVariableDescription: MockImplementationDescription(
                                 type: DependencyMock.self,
                                 member: "_variable"
                             )
@@ -124,7 +124,7 @@ final class Mockable_ReadOnlyVariableTests: XCTestCase {
                     \(mock.modifiers)class DependencyMock: Dependency {
                     \(mock.defaultInit)
                         private let __variable = MockReadOnlyAsyncThrowingVariable<String> .makeVariable(
-                            description: MockImplementationDescription(
+                            exposedVariableDescription: MockImplementationDescription(
                                 type: DependencyMock.self,
                                 member: "_variable"
                             )
