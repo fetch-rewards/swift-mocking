@@ -16,8 +16,8 @@ public struct MockImplementationDescription {
 
     // MARK: Initializers
 
-    public init(type: String, member: String) {
-        self.type = type
+    public init<Type>(type: Type.Type, member: String) {
+        self.type = String(describing: type)
         self.member = member
     }
 }

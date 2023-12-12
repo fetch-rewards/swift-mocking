@@ -326,7 +326,7 @@ extension MockableMacro {
                         stringLiteral: """
                             \(backingType).makeVariable(
                                 description: MockImplementationDescription(
-                                    type: "\\(\(mockName).self)",
+                                    type: \(mockName).self,
                                     member: "_\(variableName)"
                                 )
                             )
@@ -513,7 +513,7 @@ extension MockableMacro {
                         stringLiteral: """
                             \(backingType).makeFunction(
                                 description: MockImplementationDescription(
-                                    type: "\\(\(mockName).self)",
+                                    type: \(mockName).self,
                                     member: "_\(functionName)"
                                 )
                             )
