@@ -18,7 +18,7 @@ final class MockReturningAsyncThrowingMethodWithoutParametersTests: XCTestCase {
     // MARK: Implementation Tests
 
     func testImplementationDefaultValue() async {
-        await self.test { sut, _ in
+        await self.withSUT { sut, _ in
             guard case .unimplemented = sut.implementation else {
                 XCTFail("Expected implementation to equal .unimplemented")
                 return
@@ -29,7 +29,7 @@ final class MockReturningAsyncThrowingMethodWithoutParametersTests: XCTestCase {
     // MARK: Call Count Tests
 
     func testCallCount() async throws {
-        try await self.test { sut, invoke in
+        try await self.withSUT { sut, invoke in
             XCTAssertEqual(sut.callCount, .zero)
 
             sut.implementation = .returns { 5 }
@@ -55,7 +55,7 @@ final class MockReturningAsyncThrowingMethodWithoutParametersTests: XCTestCase {
     // MARK: Returned Values Tests
 
     func testReturnedValues() async throws {
-        try await self.test { sut, invoke in
+        try await self.withSUT { sut, invoke in
             XCTAssertTrue(sut.returnedValues.isEmpty)
 
             sut.implementation = .returns { 5 }
@@ -91,7 +91,7 @@ final class MockReturningAsyncThrowingMethodWithoutParametersTests: XCTestCase {
     // MARK: Last Returned Value Tests
 
     func testLastReturnedValue() async throws {
-        try await self.test { sut, invoke in
+        try await self.withSUT { sut, invoke in
             XCTAssertNil(sut.lastReturnedValue)
 
             sut.implementation = .returns { 5 }
@@ -125,7 +125,7 @@ final class MockReturningAsyncThrowingMethodWithoutParametersTests: XCTestCase {
 // MARK: - Helpers
 
 extension MockReturningAsyncThrowingMethodWithoutParametersTests {
-    private func test(
+    private func withSUT(
         test: (
             _ sut: SUT,
             _ invoke: () async throws -> ReturnValue

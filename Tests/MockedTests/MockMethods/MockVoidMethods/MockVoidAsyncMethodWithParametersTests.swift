@@ -18,10 +18,10 @@ final class MockVoidAsyncMethodWithParametersTests: XCTestCase {
     // MARK: Call Count Tests
 
     func testCallCount() async {
-        await self.test { sut, invoke in
+        await self.withSUT { sut, invoke in
             XCTAssertEqual(sut.callCount, .zero)
 
-            _ = await invoke(("a", true))
+            await invoke(("a", true))
             XCTAssertEqual(sut.callCount, 1)
         }
     }
@@ -29,15 +29,15 @@ final class MockVoidAsyncMethodWithParametersTests: XCTestCase {
     // MARK: Invocations Tests
 
     func testInvocations() async {
-        await self.test { sut, invoke in
+        await self.withSUT { sut, invoke in
             XCTAssertTrue(sut.invocations.isEmpty)
 
-            _ = await invoke(("a", true))
+            await invoke(("a", true))
             XCTAssertEqual(sut.invocations.count, 1)
             XCTAssertEqual(sut.invocations.first?.string, "a")
             XCTAssertEqual(sut.invocations.first?.boolean, true)
 
-            _ = await invoke(("b", false))
+            await invoke(("b", false))
             XCTAssertEqual(sut.invocations.count, 2)
             XCTAssertEqual(sut.invocations.first?.string, "a")
             XCTAssertEqual(sut.invocations.first?.boolean, true)
@@ -49,14 +49,14 @@ final class MockVoidAsyncMethodWithParametersTests: XCTestCase {
     // MARK: Last Invocation Tests
 
     func testLastInvocation() async {
-        await self.test { sut, invoke in
+        await self.withSUT { sut, invoke in
             XCTAssertNil(sut.lastInvocation)
 
-            _ = await invoke(("a", true))
+            await invoke(("a", true))
             XCTAssertEqual(sut.lastInvocation?.string, "a")
             XCTAssertEqual(sut.lastInvocation?.boolean, true)
 
-            _ = await invoke(("b", false))
+            await invoke(("b", false))
             XCTAssertEqual(sut.lastInvocation?.string, "b")
             XCTAssertEqual(sut.lastInvocation?.boolean, false)
         }
@@ -66,7 +66,7 @@ final class MockVoidAsyncMethodWithParametersTests: XCTestCase {
 // MARK: - Helpers
 
 extension MockVoidAsyncMethodWithParametersTests {
-    private func test(
+    private func withSUT(
         test: (
             _ sut: SUT,
             _ invoke: (Arguments) async -> Void
