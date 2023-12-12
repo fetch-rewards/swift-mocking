@@ -34,7 +34,7 @@ public final class MockVariableThrowingGetter<Value> {
     /// variable's value or throws an error.
     ///
     /// - Returns: The variable's value.
-    func `get`() throws -> Value {
+    func get() throws -> Value {
         self.callCount += 1
 
         return try self.implementation(description: self.description)

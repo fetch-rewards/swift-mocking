@@ -56,7 +56,9 @@ public final class MockVoidAsyncThrowingFunctionWithoutParameters {
     private func invoke() async throws {
         self.callCount += 1
 
-        guard let error = self.error else { return }
+        guard let error = self.error else {
+            return
+        }
 
         self.errors.append(error)
 

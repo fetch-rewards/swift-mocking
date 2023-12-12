@@ -9,9 +9,9 @@ import Foundation
 import XCTestDynamicOverlay
 
 public enum MockThrowingImplementation<Value> {
-    
+
     // MARK: Cases
-    
+
     case unimplemented
     case returns(Value)
     case `throws`(Error)
@@ -22,9 +22,9 @@ public enum MockThrowingImplementation<Value> {
         switch self {
         case .unimplemented:
             XCTestDynamicOverlay.unimplemented("\(description)")
-        case .returns(let value):
+        case let .returns(value):
             value
-        case .throws(let error):
+        case let .throws(error):
             throw error
         }
     }

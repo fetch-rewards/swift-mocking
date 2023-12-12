@@ -34,7 +34,7 @@ public final class MockVariableAsyncThrowingGetter<Value> {
     /// variable's value or throws an error.
     ///
     /// - Returns: The variable's value.
-    func `get`() async throws -> Value {
+    func get() async throws -> Value {
         self.callCount += 1
 
         return try await self.implementation(description: self.description)

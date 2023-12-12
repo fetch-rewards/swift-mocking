@@ -11,7 +11,7 @@ import XCTestDynamicOverlay
 public enum MockAsyncImplementation<Value> {
 
     // MARK: Cases
-    
+
     case unimplemented
     case returns(() async -> Value)
 
@@ -21,7 +21,7 @@ public enum MockAsyncImplementation<Value> {
         await switch self {
         case .unimplemented:
             XCTestDynamicOverlay.unimplemented("\(description)")
-        case .returns(let value):
+        case let .returns(value):
             value()
         }
     }
