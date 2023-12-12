@@ -7,8 +7,8 @@
 
 import Foundation
 
-/// The invocation records and implementation for a mock's returning function
-/// that has parameters.
+/// The implementation details and invocation records for a mock's returning
+/// function with parameters.
 public final class MockReturningFunctionWithParameters<Arguments, ReturnValue> {
 
     // MARK: Properties
@@ -35,30 +35,58 @@ public final class MockReturningFunctionWithParameters<Arguments, ReturnValue> {
         self.returnValues.last
     }
 
-    /// The description of the mock's backing variable.
-    private let description: MockImplementationDescription
+    /// The description of the mock's exposed function.
+    ///
+    /// This description is used when generating an `unimplemented` test failure
+    /// to indicate which exposed function needs an implementation for the test
+    /// to succeed.
+    private let exposedFunctionDescription: MockImplementationDescription
 
     // MARK: Initializers
 
     /// Creates a returning function with parameters.
-    private init(description: MockImplementationDescription) {
-        self.description = description
+    ///
+    /// - Parameter exposedFunctionDescription: The description of the mock's
+    ///   exposed function.
+    private init(exposedFunctionDescription: MockImplementationDescription) {
+        self.exposedFunctionDescription = exposedFunctionDescription
     }
 
     // MARK: Factories
 
-    /// Creates a new function and a closure to invoke the function, returning
+    /// Creates a function and a closure for invoking the function, returning
     /// them in a labeled tuple.
     ///
-    /// - Returns: A tuple containing a new function and a closure to invoke the
+    /// ```swift
+    /// private let __user = MockReturningFunctionWithParameters<(User.ID), User>.makeFunction(
+    ///     exposedFunctionDescription: MockImplementationDescription(
+    ///         type: Self.self,
+    ///         member: "_user"
+    ///     )
+    /// )
+    ///
+    /// public var _user: MockReturningFunctionWithParameters<(User.ID), User> {
+    ///     self.__user.function
+    /// }
+    ///
+    /// public func user(id: User.ID) -> User {
+    ///     self.__user.invoke((id))
+    /// }
+    /// ```
+    ///
+    /// - Parameter exposedFunctionDescription: The description of the mock's
+    ///   exposed function.
+    /// - Returns: A tuple containing a function and a closure for invoking the
     ///   function.
     public static func makeFunction(
-        description: MockImplementationDescription
+        exposedFunctionDescription: MockImplementationDescription
     ) -> (
         function: MockReturningFunctionWithParameters,
         invoke: (Arguments) -> ReturnValue
     ) {
-        let function = Self(description: description)
+        let function = MockReturningFunctionWithParameters(
+            exposedFunctionDescription: exposedFunctionDescription
+        )
 
         return (
             function: function,
@@ -78,7 +106,7 @@ public final class MockReturningFunctionWithParameters<Arguments, ReturnValue> {
         self.callCount += 1
         self.invocations.append(arguments)
 
-        let returnValue = self.implementation(description: self.description)
+        let returnValue = self.implementation(description: self.exposedFunctionDescription)
 
         self.returnValues.append(returnValue)
 

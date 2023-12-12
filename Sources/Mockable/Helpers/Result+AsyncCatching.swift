@@ -11,8 +11,8 @@ extension Result where Failure == Error {
 
     // MARK: Initializers
 
-    /// Creates a new result by evaluating an async throwing closure, capturing the
-    /// returned value as a success, or any thrown error as a failure.
+    /// Creates a result by evaluating an async throwing closure, capturing the
+    /// returned value as a success or any thrown error as a failure.
     ///
     /// - Parameter body: An async throwing closure to evaluate.
     init(catching body: () async throws -> Success) async {

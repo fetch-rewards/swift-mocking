@@ -7,8 +7,8 @@
 
 import Foundation
 
-/// The invocation records and implementation for a mock's returning function
-/// that does not have parameters.
+/// The implementation details and invocation records for a mock's returning
+/// function without parameters.
 public final class MockReturningFunctionWithoutParameters<ReturnValue> {
 
     // MARK: Properties
@@ -27,30 +27,58 @@ public final class MockReturningFunctionWithoutParameters<ReturnValue> {
         self.returnValues.last
     }
 
-    /// The description of the mock's backing variable.
-    private let description: MockImplementationDescription
+    /// The description of the mock's exposed function.
+    ///
+    /// This description is used when generating an `unimplemented` test failure
+    /// to indicate which exposed function needs an implementation for the test
+    /// to succeed.
+    private let exposedFunctionDescription: MockImplementationDescription
 
     // MARK: Initializers
 
     /// Creates a returning function without parameters.
-    private init(description: MockImplementationDescription) {
-        self.description = description
+    ///
+    /// - Parameter exposedFunctionDescription: The description of the mock's
+    ///   exposed function.
+    private init(exposedFunctionDescription: MockImplementationDescription) {
+        self.exposedFunctionDescription = exposedFunctionDescription
     }
 
     // MARK: Factories
 
-    /// Creates a new function and a closure to invoke the function, returning
+    /// Creates a function and a closure for invoking the function, returning
     /// them in a labeled tuple.
     ///
-    /// - Returns: A tuple containing a new function and a closure to invoke the
+    /// ```swift
+    /// private let __users = MockReturningFunctionWithoutParameters<[User]>.makeFunction(
+    ///     exposedFunctionDescription: MockImplementationDescription(
+    ///         type: Self.self,
+    ///         member: "_users"
+    ///     )
+    /// )
+    ///
+    /// public var _users: MockReturningFunctionWithoutParameters<[User]> {
+    ///     self.__users.function
+    /// }
+    ///
+    /// public func users() -> [User] {
+    ///     self.__users.invoke()
+    /// }
+    /// ```
+    ///
+    /// - Parameter exposedFunctionDescription: The description of the mock's
+    ///   exposed function.
+    /// - Returns: A tuple containing a function and a closure for invoking the
     ///   function.
     public static func makeFunction(
-        description: MockImplementationDescription
+        exposedFunctionDescription: MockImplementationDescription
     ) -> (
         function: MockReturningFunctionWithoutParameters,
         invoke: () -> ReturnValue
     ) {
-        let function = Self(description: description)
+        let function = MockReturningFunctionWithoutParameters(
+            exposedFunctionDescription: exposedFunctionDescription
+        )
 
         return (
             function: function,
@@ -67,7 +95,7 @@ public final class MockReturningFunctionWithoutParameters<ReturnValue> {
     private func invoke() -> ReturnValue {
         self.callCount += 1
 
-        let returnValue = self.implementation(description: self.description)
+        let returnValue = self.implementation(description: self.exposedFunctionDescription)
 
         self.returnValues.append(returnValue)
 

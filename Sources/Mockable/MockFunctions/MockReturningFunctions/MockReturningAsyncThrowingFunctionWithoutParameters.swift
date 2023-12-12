@@ -7,8 +7,8 @@
 
 import Foundation
 
-/// The invocation records and implementation for a mock's returning, async,
-/// throwing function that does not have parameters.
+/// The implementation details and invocation records for a mock's returning,
+/// async, throwing function without parameters.
 public final class MockReturningAsyncThrowingFunctionWithoutParameters<ReturnValue> {
 
     // MARK: Properties
@@ -27,30 +27,58 @@ public final class MockReturningAsyncThrowingFunctionWithoutParameters<ReturnVal
         self.returnValues.last
     }
 
-    /// The description of the mock's backing variable.
-    private let description: MockImplementationDescription
+    /// The description of the mock's exposed function.
+    ///
+    /// This description is used when generating an `unimplemented` test failure
+    /// to indicate which exposed function needs an implementation for the test
+    /// to succeed.
+    private let exposedFunctionDescription: MockImplementationDescription
 
     // MARK: Initializers
 
     /// Creates a returning, async, throwing function without parameters.
-    private init(description: MockImplementationDescription) {
-        self.description = description
+    ///
+    /// - Parameter exposedFunctionDescription: The description of the mock's
+    ///   exposed function.
+    private init(exposedFunctionDescription: MockImplementationDescription) {
+        self.exposedFunctionDescription = exposedFunctionDescription
     }
 
     // MARK: Factories
 
-    /// Creates a new function and an async throwing closure to invoke the
+    /// Creates a function and an async, throwing closure for invoking the
     /// function, returning them in a labeled tuple.
     ///
-    /// - Returns: A tuple containing a new function and an async throwing
-    ///   closure to invoke the function.
+    /// ```swift
+    /// private let __users = MockReturningAsyncThrowingFunctionWithoutParameters<[User]>.makeFunction(
+    ///     exposedFunctionDescription: MockImplementationDescription(
+    ///         type: Self.self,
+    ///         member: "_users"
+    ///     )
+    /// )
+    ///
+    /// public var _users: MockReturningAsyncThrowingFunctionWithoutParameters<[User]> {
+    ///     self.__users.function
+    /// }
+    ///
+    /// public func users() async throws -> [User] {
+    ///     try await self.__users.invoke()
+    /// }
+    /// ```
+    ///
+    /// - Parameter exposedFunctionDescription: The description of the mock's
+    ///   exposed function.
+    /// - Returns: A tuple containing a function and an async, throwing closure
+    ///   for invoking the function.
     public static func makeFunction(
-        description: MockImplementationDescription
+        exposedFunctionDescription: MockImplementationDescription
     ) -> (
         function: MockReturningAsyncThrowingFunctionWithoutParameters,
         invoke: () async throws -> ReturnValue
     ) {
-        let function = Self(description: description)
+        let function = MockReturningAsyncThrowingFunctionWithoutParameters(
+            exposedFunctionDescription: exposedFunctionDescription
+        )
 
         return (
             function: function,
@@ -69,7 +97,7 @@ public final class MockReturningAsyncThrowingFunctionWithoutParameters<ReturnVal
         self.callCount += 1
 
         let returnValue = await Result {
-            try await self.implementation(description: self.description)
+            try await self.implementation(description: self.exposedFunctionDescription)
         }
 
         self.returnValues.append(returnValue)
