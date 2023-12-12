@@ -30,6 +30,11 @@ public final class MockVoidThrowingFunctionWithParameters<Arguments> {
     /// All the errors that have been thrown by the function.
     public private(set) var errors: [Error] = []
 
+    /// The latest error thrown by the function.
+    public var latestError: Error? {
+        self.errors.last
+    }
+
     // MARK: Initializers
 
     /// Creates a void, throwing function with parameters.

@@ -22,6 +22,11 @@ public final class MockVoidAsyncThrowingFunctionWithoutParameters {
     /// All the errors that have been thrown by the function.
     public private(set) var errors: [Error] = []
 
+    /// The latest error thrown by the function.
+    public var latestError: Error? {
+        self.errors.last
+    }
+
     // MARK: Initializers
 
     /// Creates a void, async, throwing function without parameters.
