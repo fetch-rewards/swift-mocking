@@ -26,7 +26,7 @@ final class Mocked_ReadWritePropertyTests: XCTestCase {
                 generates: """
                     \(mock.modifiers)class DependencyMock: Dependency {
                     \(mock.defaultInit)
-                        private let __property = MockReadWriteProperty<String> .makeProperty(
+                        private let __property = MockReadWriteProperty<String>.makeProperty(
                             exposedPropertyDescription: MockImplementationDescription(
                                 type: DependencyMock.self,
                                 member: "_property"

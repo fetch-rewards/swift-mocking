@@ -26,7 +26,7 @@ final class Mocked_ReadOnlyPropertyTests: XCTestCase {
                 generates: """
                     \(mock.modifiers)class DependencyMock: Dependency {
                     \(mock.defaultInit)
-                        private let __property = MockReadOnlyProperty<String> .makeProperty(
+                        private let __property = MockReadOnlyProperty<String>.makeProperty(
                             exposedPropertyDescription: MockImplementationDescription(
                                 type: DependencyMock.self,
                                 member: "_property"
@@ -57,7 +57,7 @@ final class Mocked_ReadOnlyPropertyTests: XCTestCase {
                 generates: """
                     \(mock.modifiers)class DependencyMock: Dependency {
                     \(mock.defaultInit)
-                        private let __property = MockReadOnlyAsyncProperty<String> .makeProperty(
+                        private let __property = MockReadOnlyAsyncProperty<String>.makeProperty(
                             exposedPropertyDescription: MockImplementationDescription(
                                 type: DependencyMock.self,
                                 member: "_property"
@@ -90,7 +90,7 @@ final class Mocked_ReadOnlyPropertyTests: XCTestCase {
                 generates: """
                     \(mock.modifiers)class DependencyMock: Dependency {
                     \(mock.defaultInit)
-                        private let __property = MockReadOnlyThrowingProperty<String> .makeProperty(
+                        private let __property = MockReadOnlyThrowingProperty<String>.makeProperty(
                             exposedPropertyDescription: MockImplementationDescription(
                                 type: DependencyMock.self,
                                 member: "_property"
@@ -123,7 +123,7 @@ final class Mocked_ReadOnlyPropertyTests: XCTestCase {
                 generates: """
                     \(mock.modifiers)class DependencyMock: Dependency {
                     \(mock.defaultInit)
-                        private let __property = MockReadOnlyAsyncThrowingProperty<String> .makeProperty(
+                        private let __property = MockReadOnlyAsyncThrowingProperty<String>.makeProperty(
                             exposedPropertyDescription: MockImplementationDescription(
                                 type: DependencyMock.self,
                                 member: "_property"
