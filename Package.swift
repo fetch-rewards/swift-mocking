@@ -29,7 +29,7 @@ let package = Package(
             exact: "509.0.2"
         ),
         .package(
-            url: "https://github.com/fetch-rewards/SwiftSyntaxSugar",
+            url: "git@github.com:fetch-rewards/SwiftSyntaxSugar.git",
             branch: "refactor/optional-arrays"
         ),
         .package(
