@@ -34,7 +34,7 @@ let package = Package(
         ),
         .package(
             url: "https://github.com/pointfreeco/xctest-dynamic-overlay",
-            exact: "1.0.2"
+            from: "1.1.0"
         ),
     ],
     targets: [
