@@ -375,22 +375,42 @@ extension MockedMacro {
     ) throws -> VariableDeclSyntax {
         let propertyName = binding.pattern.as(IdentifierPatternSyntax.self)!.identifier
 
+        func modifier(
+            for accessorDeclaration: AccessorDeclSyntax
+        ) -> DeclModifierSyntax? {
+            let excludedTokenKinds: [TokenKind] = [
+                .keyword(.mutating),
+                .keyword(.nonmutating),
+            ]
+
+            guard
+                let modifier = accessorDeclaration.modifier,
+                !excludedTokenKinds.contains(modifier.name.tokenKind)
+            else {
+                return nil
+            }
+
+            return modifier
+        }
+
         func getAccessorConformanceDeclaration(
             for getAccessorDeclaration: AccessorDeclSyntax
         ) throws -> AccessorDeclSyntax {
-            try getAccessorDeclaration.withBody {
-                let getterInvocationKeywordTokens = getAccessorDeclaration.invocationKeywordTokens
+            try getAccessorDeclaration
+                .with(\.modifier, modifier(for: getAccessorDeclaration))
+                .with(\.body) {
+                    let getterInvocationKeywordTokens = getAccessorDeclaration.invocationKeywordTokens
 
-                if getterInvocationKeywordTokens.isEmpty {
-                    "self.__\(propertyName).get()"
-                } else {
-                    let joinedGetterInvocationKeywordTokens = getterInvocationKeywordTokens
-                        .map(\.text)
-                        .joined(separator: " ")
+                    if getterInvocationKeywordTokens.isEmpty {
+                        "self.__\(propertyName).get()"
+                    } else {
+                        let joinedGetterInvocationKeywordTokens = getterInvocationKeywordTokens
+                            .map(\.text)
+                            .joined(separator: " ")
 
-                    "\(raw: joinedGetterInvocationKeywordTokens) self.__\(propertyName).get()"
+                        "\(raw: joinedGetterInvocationKeywordTokens) self.__\(propertyName).get()"
+                    }
                 }
-            }
         }
 
         // TODO: Remove default
@@ -407,9 +427,11 @@ extension MockedMacro {
                     try getAccessorConformanceDeclaration(
                         for: getAccessorDeclaration
                     )
-                    try setAccessorDeclaration.withBody {
-                        "self.__\(propertyName).set(newValue)"
-                    }
+                    try setAccessorDeclaration
+                        .with(\.modifier, modifier(for: setAccessorDeclaration))
+                        .with(\.body) {
+                            "self.__\(propertyName).set(newValue)"
+                        }
                 }
             )
         case let (
@@ -593,7 +615,17 @@ extension MockedMacro {
         return try methodDeclaration
             .trimmed
             .withAccessLevel(accessLevel)
-            .withBody {
+            .with(\.modifiers) { modifiers in
+                let excludedTokenKinds: [TokenKind] = [
+                    .keyword(.mutating),
+                    .keyword(.nonmutating),
+                ]
+
+                for modifier in modifiers where !excludedTokenKinds.contains(modifier.name.tokenKind) {
+                    modifier
+                }
+            }
+            .with(\.body) {
                 CodeBlockItemSyntax(stringLiteral: backingImplementationInvocation)
             }
     }
