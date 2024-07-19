@@ -7,7 +7,7 @@
 
 import Foundation
 
-extension Result where Failure == Error {
+extension Result where Failure == any Error {
 
     // MARK: Initializers
 

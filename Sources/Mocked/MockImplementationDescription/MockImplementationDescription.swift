@@ -8,7 +8,7 @@
 import Foundation
 
 /// A mock implementation's description.
-public struct MockImplementationDescription {
+public struct MockImplementationDescription: Sendable {
 
     // MARK: Properties
 
