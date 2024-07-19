@@ -19,6 +19,9 @@ final class MockImplementationDescriptionTests: XCTestCase {
     func testDebugDescription() {
         let sut = SUT(type: Self.self, member: "sut")
 
-        XCTAssertEqual(sut.debugDescription, "MockImplementationDescriptionTests.sut")
+        XCTAssertEqual(
+            sut.debugDescription,
+            "MockImplementationDescriptionTests.sut"
+        )
     }
 }

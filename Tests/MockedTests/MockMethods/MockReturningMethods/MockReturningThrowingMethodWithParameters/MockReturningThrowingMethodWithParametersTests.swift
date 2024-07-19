@@ -1,24 +1,25 @@
 //
-//  MockVoidThrowingMethodWithParametersTests.swift
+//  MockReturningThrowingMethodWithParametersTests.swift
 //  MockedTests
 //
-//  Created by Gray Campbell on 12/8/23.
+//  Created by Gray Campbell on 12/7/23.
 //
 
 import XCTest
 @testable import Mocked
 
-final class MockVoidThrowingMethodWithParametersTests: XCTestCase {
+final class MockReturningThrowingMethodWithParametersTests: XCTestCase {
 
     // MARK: Typealiases
 
-    typealias SUT = MockVoidThrowingMethodWithParameters<Arguments>
+    typealias SUT = MockReturningThrowingMethodWithParameters<Arguments, ReturnValue>
     typealias Arguments = (string: String, boolean: Bool)
+    typealias ReturnValue = Int
 
     // MARK: Implementation Tests
 
-    func testImplementationDefaultValue() async {
-        let (sut, _) = SUT.makeMethod()
+    func testImplementationDefaultValue() {
+        let (sut, _) = self.sut()
 
         guard case .unimplemented = sut.implementation else {
             XCTFail("Expected implementation to equal .unimplemented")
@@ -29,17 +30,19 @@ final class MockVoidThrowingMethodWithParametersTests: XCTestCase {
     // MARK: Call Count Tests
 
     func testCallCount() throws {
-        let (sut, invoke) = SUT.makeMethod()
+        let (sut, invoke) = self.sut()
 
         XCTAssertEqual(sut.callCount, .zero)
 
-        try invoke(("a", true))
+        sut.implementation = .returns(5)
+
+        _ = try invoke(("a", true))
         XCTAssertEqual(sut.callCount, 1)
 
         sut.implementation = .throws(URLError(.badURL))
 
         do {
-            try invoke(("b", false))
+            _ = try invoke(("b", false))
             XCTFail("Expected invoke to throw an error")
         } catch let error as URLError {
             XCTAssertEqual(error.code, .badURL)
@@ -53,11 +56,13 @@ final class MockVoidThrowingMethodWithParametersTests: XCTestCase {
     // MARK: Invocations Tests
 
     func testInvocations() throws {
-        let (sut, invoke) = SUT.makeMethod()
+        let (sut, invoke) = self.sut()
 
         XCTAssertTrue(sut.invocations.isEmpty)
 
-        try invoke(("a", true))
+        sut.implementation = .returns(5)
+
+        _ = try invoke(("a", true))
         XCTAssertEqual(sut.invocations.count, 1)
         XCTAssertEqual(sut.invocations.first?.string, "a")
         XCTAssertEqual(sut.invocations.first?.boolean, true)
@@ -65,7 +70,7 @@ final class MockVoidThrowingMethodWithParametersTests: XCTestCase {
         sut.implementation = .throws(URLError(.badURL))
 
         do {
-            try invoke(("b", false))
+            _ = try invoke(("b", false))
             XCTFail("Expected invoke to throw an error")
         } catch let error as URLError {
             XCTAssertEqual(error.code, .badURL)
@@ -82,18 +87,20 @@ final class MockVoidThrowingMethodWithParametersTests: XCTestCase {
     // MARK: Last Invocation Tests
 
     func testLastInvocation() throws {
-        let (sut, invoke) = SUT.makeMethod()
+        let (sut, invoke) = self.sut()
 
         XCTAssertNil(sut.lastInvocation)
 
-        try invoke(("a", true))
+        sut.implementation = .returns(5)
+
+        _ = try invoke(("a", true))
         XCTAssertEqual(sut.lastInvocation?.string, "a")
         XCTAssertEqual(sut.lastInvocation?.boolean, true)
 
         sut.implementation = .throws(URLError(.badURL))
 
         do {
-            try invoke(("b", false))
+            _ = try invoke(("b", false))
             XCTFail("Expected invoke to throw an error")
         } catch let error as URLError {
             XCTAssertEqual(error.code, .badURL)
@@ -104,89 +111,88 @@ final class MockVoidThrowingMethodWithParametersTests: XCTestCase {
         }
     }
 
-    // MARK: Thrown Errors Tests
+    // MARK: Returned Values Tests
 
-    func testThrownErrors() throws {
-        let (sut, invoke) = SUT.makeMethod()
+    func testReturnedValues() throws {
+        let (sut, invoke) = self.sut()
 
-        XCTAssertTrue(sut.thrownErrors.isEmpty)
+        XCTAssertTrue(sut.returnedValues.isEmpty)
 
-        try invoke(("a", true))
-        XCTAssertTrue(sut.thrownErrors.isEmpty)
+        sut.implementation = .returns(5)
+
+        _ = try invoke(("a", true))
+        XCTAssertEqual(sut.returnedValues.count, 1)
+        XCTAssertEqual(try sut.returnedValues.first?.get(), 5)
 
         sut.implementation = .throws(URLError(.badURL))
 
         do {
-            try invoke(("b", false))
+            _ = try invoke(("b", false))
             XCTFail("Expected invoke to throw an error")
         } catch let error as URLError {
             XCTAssertEqual(error.code, .badURL)
-            XCTAssertEqual(sut.thrownErrors.count, 1)
+            XCTAssertEqual(sut.returnedValues.count, 2)
+            XCTAssertEqual(try sut.returnedValues.first?.get(), 5)
 
-            let firstThrownError = try XCTUnwrap(sut.thrownErrors.first as? URLError)
-
-            XCTAssertEqual(firstThrownError.code, .badURL)
+            do {
+                _ = try sut.returnedValues.last?.get()
+                XCTFail("Expected last return value to throw an error")
+            } catch let error as URLError {
+                XCTAssertEqual(error.code, .badURL)
+            } catch {
+                XCTFail("Expected \(error) to equal URLError(.badURL)")
+            }
         } catch {
             XCTFail("Expected \(error) to equal URLError(.badURL)")
-        }
-
-        sut.implementation = .throws(URLError(.badServerResponse))
-
-        do {
-            try invoke(("c", true))
-            XCTFail("Expected invoke to throw an error")
-        } catch let error as URLError {
-            XCTAssertEqual(error.code, .badServerResponse)
-            XCTAssertEqual(sut.thrownErrors.count, 2)
-
-            let firstThrownError = try XCTUnwrap(sut.thrownErrors.first as? URLError)
-            let lastThrownError = try XCTUnwrap(sut.thrownErrors.last as? URLError)
-
-            XCTAssertEqual(firstThrownError.code, .badURL)
-            XCTAssertEqual(lastThrownError.code, .badServerResponse)
-        } catch {
-            XCTFail("Expected \(error) to equal URLError(.badServerResponse)")
         }
     }
 
-    // MARK: Last Thrown Error Tests
+    // MARK: Last Returned Value Tests
 
-    func testLastThrownError() throws {
-        let (sut, invoke) = SUT.makeMethod()
+    func testLastReturnedValue() throws {
+        let (sut, invoke) = self.sut()
 
-        XCTAssertNil(sut.lastThrownError)
+        XCTAssertNil(sut.lastReturnedValue)
 
-        try invoke(("a", true))
-        XCTAssertNil(sut.lastThrownError)
+        sut.implementation = .returns(5)
+
+        _ = try invoke(("a", true))
+        XCTAssertEqual(try sut.lastReturnedValue?.get(), 5)
 
         sut.implementation = .throws(URLError(.badURL))
 
         do {
-            try invoke(("b", false))
+            _ = try invoke(("b", false))
             XCTFail("Expected invoke to throw an error")
         } catch let error as URLError {
             XCTAssertEqual(error.code, .badURL)
 
-            let lastThrownError = try XCTUnwrap(sut.lastThrownError as? URLError)
-
-            XCTAssertEqual(lastThrownError.code, .badURL)
+            do {
+                _ = try sut.lastReturnedValue?.get()
+                XCTFail("Expected last return value to throw an error")
+            } catch let error as URLError {
+                XCTAssertEqual(error.code, .badURL)
+            } catch {
+                XCTFail("Expected \(error) to equal URLError(.badURL)")
+            }
         } catch {
             XCTFail("Expected \(error) to equal URLError(.badURL)")
         }
+    }
+}
 
-        sut.implementation = .throws(URLError(.badServerResponse))
+// MARK: - Helpers
 
-        do {
-            try invoke(("c", true))
-            XCTFail("Expected invoke to throw an error")
-        } catch let error as URLError {
-            XCTAssertEqual(error.code, .badServerResponse)
-
-            let lastThrownError = try XCTUnwrap(sut.lastThrownError as? URLError)
-
-            XCTAssertEqual(lastThrownError.code, .badServerResponse)
-        } catch {
-            XCTFail("Expected \(error) to equal URLError(.badServerResponse)")
-        }
+extension MockReturningThrowingMethodWithParametersTests {
+    private func sut() -> (
+        method: SUT,
+        invoke: (Arguments) throws -> ReturnValue
+    ) {
+        SUT.makeMethod(
+            exposedMethodDescription: MockImplementationDescription(
+                type: Self.self,
+                member: "sut"
+            )
+        )
     }
 }

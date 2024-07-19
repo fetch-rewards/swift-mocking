@@ -15,65 +15,61 @@ final class MockVoidMethodWithParametersTests: XCTestCase {
     typealias SUT = MockVoidMethodWithParameters<Arguments>
     typealias Arguments = (string: String, boolean: Bool)
 
+    // MARK: Implementation Tests
+
+    func testImplementationDefaultValue() async {
+        let (sut, _) = SUT.makeMethod()
+
+        guard case .unimplemented = sut.implementation else {
+            XCTFail("Expected implementation to equal .unimplemented")
+            return
+        }
+    }
+
     // MARK: Call Count Tests
 
     func testCallCount() {
-        self.withSUT { sut, invoke in
-            XCTAssertEqual(sut.callCount, .zero)
+        let (sut, invoke) = SUT.makeMethod()
 
-            invoke(("a", true))
-            XCTAssertEqual(sut.callCount, 1)
-        }
+        XCTAssertEqual(sut.callCount, .zero)
+
+        invoke(("a", true))
+        XCTAssertEqual(sut.callCount, 1)
     }
 
     // MARK: Invocations Tests
 
     func testInvocations() {
-        self.withSUT { sut, invoke in
-            XCTAssertTrue(sut.invocations.isEmpty)
+        let (sut, invoke) = SUT.makeMethod()
 
-            invoke(("a", true))
-            XCTAssertEqual(sut.invocations.count, 1)
-            XCTAssertEqual(sut.invocations.first?.string, "a")
-            XCTAssertEqual(sut.invocations.first?.boolean, true)
+        XCTAssertTrue(sut.invocations.isEmpty)
 
-            invoke(("b", false))
-            XCTAssertEqual(sut.invocations.count, 2)
-            XCTAssertEqual(sut.invocations.first?.string, "a")
-            XCTAssertEqual(sut.invocations.first?.boolean, true)
-            XCTAssertEqual(sut.invocations.last?.string, "b")
-            XCTAssertEqual(sut.invocations.last?.boolean, false)
-        }
+        invoke(("a", true))
+        XCTAssertEqual(sut.invocations.count, 1)
+        XCTAssertEqual(sut.invocations.first?.string, "a")
+        XCTAssertEqual(sut.invocations.first?.boolean, true)
+
+        invoke(("b", false))
+        XCTAssertEqual(sut.invocations.count, 2)
+        XCTAssertEqual(sut.invocations.first?.string, "a")
+        XCTAssertEqual(sut.invocations.first?.boolean, true)
+        XCTAssertEqual(sut.invocations.last?.string, "b")
+        XCTAssertEqual(sut.invocations.last?.boolean, false)
     }
 
     // MARK: Last Invocation Tests
 
     func testLastInvocation() {
-        self.withSUT { sut, invoke in
-            XCTAssertNil(sut.lastInvocation)
-
-            invoke(("a", true))
-            XCTAssertEqual(sut.lastInvocation?.string, "a")
-            XCTAssertEqual(sut.lastInvocation?.boolean, true)
-
-            invoke(("b", false))
-            XCTAssertEqual(sut.lastInvocation?.string, "b")
-            XCTAssertEqual(sut.lastInvocation?.boolean, false)
-        }
-    }
-}
-
-// MARK: - Helpers
-
-extension MockVoidMethodWithParametersTests {
-    private func withSUT(
-        test: (
-            _ sut: SUT,
-            _ invoke: (Arguments) -> Void
-        ) -> Void
-    ) {
         let (sut, invoke) = SUT.makeMethod()
 
-        test(sut, invoke)
+        XCTAssertNil(sut.lastInvocation)
+
+        invoke(("a", true))
+        XCTAssertEqual(sut.lastInvocation?.string, "a")
+        XCTAssertEqual(sut.lastInvocation?.boolean, true)
+
+        invoke(("b", false))
+        XCTAssertEqual(sut.lastInvocation?.string, "b")
+        XCTAssertEqual(sut.lastInvocation?.boolean, false)
     }
 }
