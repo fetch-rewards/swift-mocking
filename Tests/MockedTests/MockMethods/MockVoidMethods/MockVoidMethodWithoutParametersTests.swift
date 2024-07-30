@@ -14,29 +14,25 @@ final class MockVoidMethodWithoutParametersTests: XCTestCase {
 
     typealias SUT = MockVoidMethodWithoutParameters
 
+    // MARK: Implementation Tests
+
+    func testImplementationDefaultValue() async {
+        let (sut, _) = SUT.makeMethod()
+
+        guard case .unimplemented = sut.implementation else {
+            XCTFail("Expected implementation to equal .unimplemented")
+            return
+        }
+    }
+
     // MARK: Call Count Tests
 
     func testCallCount() {
-        self.withSUT { sut, invoke in
-            XCTAssertEqual(sut.callCount, .zero)
-
-            invoke()
-            XCTAssertEqual(sut.callCount, 1)
-        }
-    }
-}
-
-// MARK: - Helpers
-
-extension MockVoidMethodWithoutParametersTests {
-    private func withSUT(
-        test: (
-            _ sut: SUT,
-            _ invoke: () -> Void
-        ) -> Void
-    ) {
         let (sut, invoke) = SUT.makeMethod()
 
-        test(sut, invoke)
+        XCTAssertEqual(sut.callCount, .zero)
+
+        invoke()
+        XCTAssertEqual(sut.callCount, 1)
     }
 }
