@@ -20,10 +20,10 @@ public final class MockReturningThrowingMethodWithoutParameters<ReturnValue> {
     public private(set) var callCount: Int = .zero
 
     /// All the values that have been returned by the method.
-    public private(set) var returnedValues: [Result<ReturnValue, Error>] = []
+    public private(set) var returnedValues: [Result<ReturnValue, any Error>] = []
 
     /// The last value returned by the method.
-    public var lastReturnedValue: Result<ReturnValue, Error>? {
+    public var lastReturnedValue: Result<ReturnValue, any Error>? {
         self.returnedValues.last
     }
 

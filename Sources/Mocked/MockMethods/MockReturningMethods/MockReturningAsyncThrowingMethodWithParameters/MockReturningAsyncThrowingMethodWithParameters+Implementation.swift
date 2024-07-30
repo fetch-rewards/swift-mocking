@@ -23,7 +23,7 @@ extension MockReturningAsyncThrowingMethodWithParameters {
         case returns((Arguments) async -> ReturnValue)
 
         /// Throws an error when invoked.
-        case `throws`((Arguments) async -> Error)
+        case `throws`((Arguments) async -> any Error)
 
         // MARK: Constructors
 
@@ -33,7 +33,7 @@ extension MockReturningAsyncThrowingMethodWithParameters {
         }
 
         /// Throws an error when invoked.
-        public static func `throws`(_ error: Error) -> Self {
+        public static func `throws`(_ error: any Error) -> Self {
             .throws { _ in error }
         }
 

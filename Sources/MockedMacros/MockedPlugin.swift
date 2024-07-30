@@ -10,7 +10,7 @@ import SwiftSyntaxMacros
 
 @main
 struct MockedPlugin: CompilerPlugin {
-    let providingMacros: [Macro.Type] = [
+    let providingMacros: [any Macro.Type] = [
         MockedMacro.self,
     ]
 }

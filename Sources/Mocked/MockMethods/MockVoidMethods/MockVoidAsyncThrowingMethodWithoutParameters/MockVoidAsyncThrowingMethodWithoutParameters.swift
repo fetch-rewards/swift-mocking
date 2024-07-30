@@ -20,10 +20,10 @@ public final class MockVoidAsyncThrowingMethodWithoutParameters {
     public private(set) var callCount: Int = .zero
 
     /// All the errors that have been thrown by the method.
-    public private(set) var thrownErrors: [Error] = []
+    public private(set) var thrownErrors: [any Error] = []
 
     /// The last error thrown by the method.
-    public var lastThrownError: Error? {
+    public var lastThrownError: (any Error)? {
         self.thrownErrors.last
     }
 

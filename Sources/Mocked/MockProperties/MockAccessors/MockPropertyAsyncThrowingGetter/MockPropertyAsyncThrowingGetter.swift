@@ -20,10 +20,10 @@ public final class MockPropertyAsyncThrowingGetter<Value> {
     public private(set) var callCount: Int = .zero
 
     /// All the values that have been returned by the getter.
-    public private(set) var returnedValues: [Result<Value, Error>] = []
+    public private(set) var returnedValues: [Result<Value, any Error>] = []
 
     /// The last value returned by the getter.
-    public var lastReturnedValue: Result<Value, Error>? {
+    public var lastReturnedValue: Result<Value, any Error>? {
         self.returnedValues.last
     }
 
