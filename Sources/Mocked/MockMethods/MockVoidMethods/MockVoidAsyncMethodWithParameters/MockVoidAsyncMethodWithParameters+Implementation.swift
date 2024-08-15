@@ -11,7 +11,7 @@ import XCTestDynamicOverlay
 extension MockVoidAsyncMethodWithParameters {
 
     /// An implementation for a mock's void, async method with parameters.
-    public enum Implementation {
+    public enum Implementation: @unchecked Sendable {
 
         // MARK: Cases
 
@@ -19,7 +19,7 @@ extension MockVoidAsyncMethodWithParameters {
         case unimplemented
 
         /// Invokes a closure when invoked.
-        case invokes((Arguments) async -> Void)
+        case uncheckedInvokes((Arguments) async -> Void)
 
         // MARK: Call As Function
 
@@ -33,9 +33,24 @@ extension MockVoidAsyncMethodWithParameters {
             switch self {
             case .unimplemented:
                 return
-            case let .invokes(closure):
+            case let .uncheckedInvokes(closure):
                 await closure(arguments)
             }
         }
+    }
+}
+
+// MARK: - Sendable
+
+extension MockVoidAsyncMethodWithParameters.Implementation
+where Arguments: Sendable {
+
+    // MARK: Constructors
+
+    /// Invokes a closure when invoked.
+    public static func invokes(
+        _ closure: @Sendable @escaping (Arguments) async -> Void
+    ) -> Self {
+        .uncheckedInvokes(closure)
     }
 }

@@ -11,7 +11,7 @@ import XCTestDynamicOverlay
 extension MockVoidThrowingMethodWithoutParameters {
 
     /// An implementation for a mock's void, throwing method without parameters.
-    public enum Implementation {
+    public enum Implementation: @unchecked Sendable {
 
         // MARK: Cases
 
@@ -19,16 +19,16 @@ extension MockVoidThrowingMethodWithoutParameters {
         case unimplemented
 
         /// Invokes a closure when invoked.
-        case invokes(() -> Void)
+        case uncheckedInvokes(() -> Void)
 
         /// Throws an error when invoked.
-        case `throws`(() -> any Error)
+        case uncheckedThrows(() -> any Error)
 
         // MARK: Constructors
 
         /// Throws an error when invoked.
-        public static func `throws`(_ error: any Error) -> Self {
-            .throws { error }
+        public static func uncheckedThrows(_ error: any Error) -> Self {
+            .uncheckedThrows { error }
         }
 
         // MARK: Call As Function
@@ -45,11 +45,37 @@ extension MockVoidThrowingMethodWithoutParameters {
             switch self {
             case .unimplemented:
                 return
-            case let .invokes(closure):
+            case let .uncheckedInvokes(closure):
                 closure()
-            case let .throws(error):
+            case let .uncheckedThrows(error):
                 throw error()
             }
         }
+    }
+}
+
+// MARK: - Sendable
+
+extension MockVoidThrowingMethodWithoutParameters.Implementation {
+
+    // MARK: Constructors
+
+    /// Invokes a closure when invoked.
+    public static func invokes(
+        _ closure: @Sendable @escaping () -> Void
+    ) -> Self {
+        .uncheckedInvokes(closure)
+    }
+
+    /// Throws an error when invoked.
+    public static func `throws`(
+        _ error: @Sendable @escaping () -> any Error
+    ) -> Self {
+        .uncheckedThrows(error)
+    }
+
+    /// Throws an error when invoked.
+    public static func `throws`(_ error: any Error) -> Self {
+        .uncheckedThrows { error }
     }
 }

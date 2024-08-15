@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Locked
 
 /// The implementation details and invocation records for a mock's void, async,
 /// throwing method with parameters.
@@ -14,12 +15,15 @@ public final class MockVoidAsyncThrowingMethodWithParameters<Arguments> {
     // MARK: Properties
 
     /// The method's implementation.
+    @Locked(.unchecked)
     public var implementation: Implementation = .unimplemented
 
     /// The number of times the method has been called.
+    @Locked(.unchecked)
     public private(set) var callCount: Int = .zero
 
     /// All the arguments with which the method has been invoked.
+    @Locked(.unchecked)
     public private(set) var invocations: [Arguments] = []
 
     /// The last arguments with which the method has been invoked.
@@ -28,6 +32,7 @@ public final class MockVoidAsyncThrowingMethodWithParameters<Arguments> {
     }
 
     /// All the errors that have been thrown by the method.
+    @Locked(.unchecked)
     public private(set) var thrownErrors: [any Error] = []
 
     /// The last error thrown by the method.
@@ -93,3 +98,8 @@ public final class MockVoidAsyncThrowingMethodWithParameters<Arguments> {
         }
     }
 }
+
+// MARK: - Sendable
+
+extension MockVoidAsyncThrowingMethodWithParameters: Sendable
+where Arguments: Sendable {}

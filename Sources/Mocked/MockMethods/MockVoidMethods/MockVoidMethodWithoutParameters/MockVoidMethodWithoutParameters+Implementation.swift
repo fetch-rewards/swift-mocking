@@ -11,7 +11,7 @@ import XCTestDynamicOverlay
 extension MockVoidMethodWithoutParameters {
 
     /// An implementation for a mock's void method without parameters.
-    public enum Implementation {
+    public enum Implementation: @unchecked Sendable {
 
         // MARK: Cases
 
@@ -19,7 +19,7 @@ extension MockVoidMethodWithoutParameters {
         case unimplemented
 
         /// Invokes a closure when invoked.
-        case invokes(() -> Void)
+        case uncheckedInvokes(() -> Void)
 
         // MARK: Call As Function
 
@@ -30,9 +30,23 @@ extension MockVoidMethodWithoutParameters {
             switch self {
             case .unimplemented:
                 return
-            case let .invokes(closure):
+            case let .uncheckedInvokes(closure):
                 closure()
             }
         }
+    }
+}
+
+// MARK: - Sendable
+
+extension MockVoidMethodWithoutParameters.Implementation {
+
+    // MARK: Constructors
+
+    /// Invokes a closure when invoked.
+    public static func invokes(
+        _ closure: @Sendable @escaping () -> Void
+    ) -> Self {
+        .uncheckedInvokes(closure)
     }
 }
