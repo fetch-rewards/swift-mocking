@@ -73,8 +73,8 @@ public final class MockVoidAsyncThrowingMethodWithoutParameters {
     /// Records the invocation of the method and invokes ``implementation``.
     ///
     /// - Throws: An error, if ``implementation`` is
-    ///   ``Implementation-swift.enum/throws(_:)-swift.enum.case`` or
-    ///   ``Implementation-swift.enum/throws(_:)-swift.type.method``.
+    ///   ``Implementation-swift.enum/uncheckedThrows(_:)-swift.enum.case`` or
+    ///   ``Implementation-swift.enum/uncheckedThrows(_:)-swift.type.method``.
     private func invoke() async throws {
         self.callCount += 1
 

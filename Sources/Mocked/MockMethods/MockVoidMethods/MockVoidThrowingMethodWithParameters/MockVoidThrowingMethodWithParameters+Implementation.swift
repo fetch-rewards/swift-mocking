@@ -35,14 +35,15 @@ extension MockVoidThrowingMethodWithParameters {
 
         /// Invokes the implementation, doing nothing if the implementation is
         /// ``unimplemented``, invoking a closure if the implementation is
-        /// ``invokes(_:)``, or throwing an error if the implementation is
-        /// ``throws(_:)-swift.enum.case`` or ``throws(_:)-swift.type.method``.
+        /// ``uncheckedInvokes(_:)``, or throwing an error if the implementation
+        /// is ``uncheckedThrows(_:)-swift.enum.case`` or
+        /// ``uncheckedThrows(_:)-swift.type.method``.
         ///
         /// - Parameter arguments: The arguments with which to invoke the
         ///   implementation.
         /// - Throws: An error, if the implementation is
-        ///   ``throws(_:)-swift.enum.case`` or
-        ///   ``throws(_:)-swift.type.method``.
+        ///   ``uncheckedThrows(_:)-swift.enum.case`` or
+        ///   ``uncheckedThrows(_:)-swift.type.method``.
         func callAsFunction(arguments: Arguments) throws {
             switch self {
             case .unimplemented:

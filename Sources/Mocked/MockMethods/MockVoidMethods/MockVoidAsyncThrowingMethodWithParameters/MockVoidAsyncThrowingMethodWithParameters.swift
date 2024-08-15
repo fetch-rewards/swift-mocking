@@ -84,8 +84,8 @@ public final class MockVoidAsyncThrowingMethodWithParameters<Arguments> {
     /// - Parameter arguments: The arguments with which the method is being
     ///   invoked.
     /// - Throws: An error, if ``implementation`` is
-    ///   ``Implementation-swift.enum/throws(_:)-swift.enum.case`` or
-    ///   ``Implementation-swift.enum/throws(_:)-swift.type.method``.
+    ///   ``Implementation-swift.enum/uncheckedThrows(_:)-swift.enum.case`` or
+    ///   ``Implementation-swift.enum/uncheckedThrows(_:)-swift.type.method``.
     private func invoke(_ arguments: Arguments) async throws {
         self.callCount += 1
         self.invocations.append(arguments)

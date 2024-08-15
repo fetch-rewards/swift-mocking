@@ -25,7 +25,7 @@ extension MockVoidAsyncMethodWithoutParameters {
 
         /// Invokes the implementation, doing nothing if the implementation is
         /// ``unimplemented`` or invoking a closure if the implementation is
-        /// ``invokes(_:)``.
+        /// ``uncheckedInvokes(_:)``.
         func callAsFunction() async {
             switch self {
             case .unimplemented:
