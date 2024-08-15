@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Locked
 
 /// The implementation details and invocation records for a mock's returning,
 /// async method with parameters.
@@ -14,12 +15,15 @@ public final class MockReturningAsyncMethodWithParameters<Arguments, ReturnValue
     // MARK: Properties
 
     /// The method's implementation.
+    @Locked(.unchecked)
     public var implementation: Implementation = .unimplemented
 
     /// The number of times the method has been called.
+    @Locked(.unchecked)
     public private(set) var callCount: Int = .zero
 
     /// All the arguments with which the method has been invoked.
+    @Locked(.unchecked)
     public private(set) var invocations: [Arguments] = []
 
     /// The last arguments with which the method has been invoked.
@@ -28,6 +32,7 @@ public final class MockReturningAsyncMethodWithParameters<Arguments, ReturnValue
     }
 
     /// All the values that have been returned by the method.
+    @Locked(.unchecked)
     public private(set) var returnedValues: [ReturnValue] = []
 
     /// The last value returned by the method.
@@ -117,3 +122,8 @@ public final class MockReturningAsyncMethodWithParameters<Arguments, ReturnValue
         return returnValue
     }
 }
+
+// MARK: - Sendable
+
+extension MockReturningAsyncMethodWithParameters: Sendable
+where Arguments: Sendable, ReturnValue: Sendable {}

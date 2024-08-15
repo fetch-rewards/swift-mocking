@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Locked
 
 /// The implementation details and invocation records for a mock's returning,
 /// async, throwing method without parameters.
@@ -14,12 +15,15 @@ public final class MockReturningAsyncThrowingMethodWithoutParameters<ReturnValue
     // MARK: Properties
 
     /// The method's implementation.
+    @Locked(.unchecked)
     public var implementation: Implementation = .unimplemented
 
     /// The number of times the method has been called.
+    @Locked(.unchecked)
     public private(set) var callCount: Int = .zero
 
     /// All the values that have been returned by the method.
+    @Locked(.unchecked)
     public private(set) var returnedValues: [Result<ReturnValue, any Error>] = []
 
     /// The last value returned by the method.
@@ -110,3 +114,8 @@ public final class MockReturningAsyncThrowingMethodWithoutParameters<ReturnValue
         return try returnValue.get()
     }
 }
+
+// MARK: - Sendable
+
+extension MockReturningAsyncThrowingMethodWithoutParameters: Sendable
+where ReturnValue: Sendable {}

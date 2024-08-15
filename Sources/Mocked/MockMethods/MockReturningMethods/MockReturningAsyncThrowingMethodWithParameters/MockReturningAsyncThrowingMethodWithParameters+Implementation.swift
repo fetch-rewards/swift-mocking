@@ -12,7 +12,7 @@ extension MockReturningAsyncThrowingMethodWithParameters {
 
     /// An implementation for a mock's returning, async, throwing method with
     /// parameters.
-    public enum Implementation {
+    public enum Implementation: @unchecked Sendable {
 
         // MARK: Cases
 
@@ -20,21 +20,21 @@ extension MockReturningAsyncThrowingMethodWithParameters {
         case unimplemented
 
         /// Returns a value when invoked.
-        case returns((Arguments) async -> ReturnValue)
+        case uncheckedReturns((Arguments) async -> ReturnValue)
 
         /// Throws an error when invoked.
-        case `throws`((Arguments) async -> any Error)
+        case uncheckedThrows((Arguments) async -> any Error)
 
         // MARK: Constructors
 
         /// Returns a value when invoked.
-        public static func returns(_ value: ReturnValue) -> Self {
-            .returns { _ in value }
+        public static func uncheckedReturns(_ value: ReturnValue) -> Self {
+            .uncheckedReturns { _ in value }
         }
 
         /// Throws an error when invoked.
-        public static func `throws`(_ error: any Error) -> Self {
-            .throws { _ in error }
+        public static func uncheckedThrows(_ error: any Error) -> Self {
+            .uncheckedThrows { _ in error }
         }
 
         // MARK: Call As Function
@@ -63,11 +63,43 @@ extension MockReturningAsyncThrowingMethodWithParameters {
             switch self {
             case .unimplemented:
                 XCTestDynamicOverlay.unimplemented("\(description)")
-            case let .returns(value):
+            case let .uncheckedReturns(value):
                 await value(arguments)
-            case let .throws(error):
+            case let .uncheckedThrows(error):
                 throw await error(arguments)
             }
         }
+    }
+}
+
+// MARK: - Sendable
+
+extension MockReturningAsyncThrowingMethodWithParameters.Implementation
+where Arguments: Sendable, ReturnValue: Sendable {
+
+    // MARK: Constructors
+
+    /// Returns a value when invoked.
+    public static func returns(
+        _ value: @Sendable @escaping (Arguments) async -> ReturnValue
+    ) -> Self {
+        .uncheckedReturns(value)
+    }
+
+    /// Returns a value when invoked.
+    public static func returns(_ value: ReturnValue) -> Self {
+        .uncheckedReturns { _ in value }
+    }
+
+    /// Throws an error when invoked.
+    public static func `throws`(
+        _ error: @Sendable @escaping (Arguments) async -> any Error
+    ) -> Self {
+        .uncheckedThrows(error)
+    }
+
+    /// Throws an error when invoked.
+    public static func `throws`(_ error: any Error) -> Self {
+        .uncheckedThrows { _ in error }
     }
 }

@@ -12,7 +12,7 @@ extension MockReturningAsyncMethodWithoutParameters {
 
     /// An implementation for a mock's returning, async method without
     /// parameters.
-    public enum Implementation {
+    public enum Implementation: @unchecked Sendable {
 
         // MARK: Cases
 
@@ -20,13 +20,13 @@ extension MockReturningAsyncMethodWithoutParameters {
         case unimplemented
 
         /// Returns a value when invoked.
-        case returns(() async -> ReturnValue)
+        case uncheckedReturns(() async -> ReturnValue)
 
         // MARK: Constructors
 
         /// Returns a value when invoked.
-        public static func returns(_ value: ReturnValue) -> Self {
-            .returns { value }
+        public static func uncheckedReturns(_ value: ReturnValue) -> Self {
+            .uncheckedReturns { value }
         }
 
         // MARK: Call As Function
@@ -46,9 +46,29 @@ extension MockReturningAsyncMethodWithoutParameters {
             switch self {
             case .unimplemented:
                 XCTestDynamicOverlay.unimplemented("\(description)")
-            case let .returns(value):
+            case let .uncheckedReturns(value):
                 await value()
             }
         }
+    }
+}
+
+// MARK: - Sendable
+
+extension MockReturningAsyncMethodWithoutParameters.Implementation 
+where ReturnValue: Sendable {
+
+    // MARK: Constructors
+
+    /// Returns a value when invoked.
+    public static func returns(
+        _ value: @Sendable @escaping () async -> ReturnValue
+    ) -> Self {
+        .uncheckedReturns(value)
+    }
+
+    /// Returns a value when invoked.
+    public static func returns(_ value: ReturnValue) -> Self {
+        .uncheckedReturns { value }
     }
 }

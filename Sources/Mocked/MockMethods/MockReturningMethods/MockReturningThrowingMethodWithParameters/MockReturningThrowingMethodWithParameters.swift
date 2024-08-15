@@ -6,20 +6,27 @@
 //
 
 import Foundation
+import Locked
 
 /// The implementation details and invocation records for a mock's returning,
 /// throwing method with parameters.
-public final class MockReturningThrowingMethodWithParameters<Arguments, ReturnValue> {
+public final class MockReturningThrowingMethodWithParameters<
+    Arguments,
+    ReturnValue
+> {
 
     // MARK: Properties
 
     /// The method's implementation.
+    @Locked(.unchecked)
     public var implementation: Implementation = .unimplemented
 
     /// The number of times the method has been called.
+    @Locked(.unchecked)
     public private(set) var callCount: Int = .zero
 
     /// All the arguments with which the method has been invoked.
+    @Locked(.unchecked)
     public private(set) var invocations: [Arguments] = []
 
     /// The last arguments with which the method has been invoked.
@@ -28,6 +35,7 @@ public final class MockReturningThrowingMethodWithParameters<Arguments, ReturnVa
     }
 
     /// All the values that have been returned by the method.
+    @Locked(.unchecked)
     public private(set) var returnedValues: [Result<ReturnValue, any Error>] = []
 
     /// The last value returned by the method.
@@ -122,3 +130,8 @@ public final class MockReturningThrowingMethodWithParameters<Arguments, ReturnVa
         return try returnValue.get()
     }
 }
+
+// MARK: - Sendable
+
+extension MockReturningThrowingMethodWithParameters: Sendable
+where Arguments: Sendable, ReturnValue: Sendable {}
