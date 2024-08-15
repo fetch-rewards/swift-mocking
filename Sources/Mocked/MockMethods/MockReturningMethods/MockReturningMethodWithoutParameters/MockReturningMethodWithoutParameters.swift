@@ -95,8 +95,8 @@ public final class MockReturningMethodWithoutParameters<ReturnValue> {
     /// Records the invocation of the method and invokes ``implementation``.
     ///
     /// - Returns: A value, if ``implementation`` is
-    ///   ``Implementation-swift.enum/returns(_:)-swift.enum.case`` or
-    ///   ``Implementation-swift.enum/returns(_:)-swift.type.method``.
+    ///   ``Implementation-swift.enum/uncheckedReturns(_:)-swift.enum.case`` or
+    ///   ``Implementation-swift.enum/uncheckedReturns(_:)-swift.type.method``.
     private func invoke() -> ReturnValue {
         self.callCount += 1
 

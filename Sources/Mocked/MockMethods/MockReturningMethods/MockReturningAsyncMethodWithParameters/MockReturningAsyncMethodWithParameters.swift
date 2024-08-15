@@ -106,8 +106,8 @@ public final class MockReturningAsyncMethodWithParameters<Arguments, ReturnValue
     /// - Parameter arguments: The arguments with which the method is being
     ///   invoked.
     /// - Returns: A value, if ``implementation`` is
-    ///   ``Implementation-swift.enum/returns(_:)-swift.enum.case`` or
-    ///   ``Implementation-swift.enum/returns(_:)-swift.type.method``.
+    ///   ``Implementation-swift.enum/uncheckedReturns(_:)-swift.enum.case`` or
+    ///   ``Implementation-swift.enum/uncheckedReturns(_:)-swift.type.method``.
     private func invoke(_ arguments: Arguments) async -> ReturnValue {
         self.callCount += 1
         self.invocations.append(arguments)

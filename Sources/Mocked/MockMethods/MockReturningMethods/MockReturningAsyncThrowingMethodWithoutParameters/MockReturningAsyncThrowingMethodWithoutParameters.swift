@@ -95,11 +95,11 @@ public final class MockReturningAsyncThrowingMethodWithoutParameters<ReturnValue
     /// Records the invocation of the method and invokes ``implementation``.
     ///
     /// - Throws: An error, if ``implementation`` is 
-    ///   ``Implementation-swift.enum/throws(_:)-swift.enum.case`` or
-    ///   ``Implementation-swift.enum/throws(_:)-swift.type.method``.
+    ///   ``Implementation-swift.enum/uncheckedThrows(_:)-swift.enum.case`` or
+    ///   ``Implementation-swift.enum/uncheckedThrows(_:)-swift.type.method``.
     /// - Returns: A value, if ``implementation`` is
-    ///   ``Implementation-swift.enum/returns(_:)-swift.enum.case`` or
-    ///   ``Implementation-swift.enum/returns(_:)-swift.type.method``.
+    ///   ``Implementation-swift.enum/uncheckedReturns(_:)-swift.enum.case`` or
+    ///   ``Implementation-swift.enum/uncheckedReturns(_:)-swift.type.method``.
     private func invoke() async throws -> ReturnValue {
         self.callCount += 1
 

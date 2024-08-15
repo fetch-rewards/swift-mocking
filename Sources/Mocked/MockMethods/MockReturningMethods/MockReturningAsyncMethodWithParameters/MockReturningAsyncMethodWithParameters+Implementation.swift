@@ -32,16 +32,16 @@ extension MockReturningAsyncMethodWithParameters {
 
         /// Invokes the implementation, triggering a test failure if the
         /// implementation is ``unimplemented`` or returning a value if the
-        /// implementation is ``returns(_:)-swift.enum.case`` or
-        /// ``returns(_:)-swift.type.method``.
+        /// implementation is ``uncheckedReturns(_:)-swift.enum.case`` or
+        /// ``uncheckedReturns(_:)-swift.type.method``.
         ///
         /// - Parameters:
         ///   - arguments: The arguments with which to invoke the
         ///     implementation.
         ///   - description: The implementation's description.
         /// - Returns: A value, if the implementation is
-        ///   ``returns(_:)-swift.enum.case`` or
-        ///   ``returns(_:)-swift.type.method``.
+        ///   ``uncheckedReturns(_:)-swift.enum.case`` or
+        ///   ``uncheckedReturns(_:)-swift.type.method``.
         func callAsFunction(
             arguments: Arguments,
             description: MockImplementationDescription

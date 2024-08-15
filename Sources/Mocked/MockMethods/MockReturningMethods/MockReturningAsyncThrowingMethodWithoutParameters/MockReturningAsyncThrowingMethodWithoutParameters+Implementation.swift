@@ -41,18 +41,18 @@ extension MockReturningAsyncThrowingMethodWithoutParameters {
 
         /// Invokes the implementation, triggering a test failure if the
         /// implementation is ``unimplemented``, returning a value if the
-        /// implementation is ``returns(_:)-swift.enum.case`` or
-        /// ``returns(_:)-swift.type.method``, or throwing an error if the
-        /// implementation is ``throws(_:)-swift.enum.case`` or
-        /// ``throws(_:)-swift.type.method``.
+        /// implementation is ``uncheckedReturns(_:)-swift.enum.case`` or
+        /// ``uncheckedReturns(_:)-swift.type.method``, or throwing an error if
+        /// the implementation is ``uncheckedThrows(_:)-swift.enum.case`` or
+        /// ``uncheckedThrows(_:)-swift.type.method``.
         ///
         /// - Parameter description: The implementation's description.
         /// - Throws: An error, if the implementation is 
-        ///   ``throws(_:)-swift.enum.case`` or
-        ///   ``throws(_:)-swift.type.method``.
+        ///   ``uncheckedThrows(_:)-swift.enum.case`` or
+        ///   ``uncheckedThrows(_:)-swift.type.method``.
         /// - Returns: A value, if the implementation is
-        ///   ``returns(_:)-swift.enum.case`` or
-        ///   ``returns(_:)-swift.type.method``.
+        ///   ``uncheckedReturns(_:)-swift.enum.case`` or
+        ///   ``uncheckedReturns(_:)-swift.type.method``.
         func callAsFunction(
             description: MockImplementationDescription
         ) async throws -> ReturnValue {
