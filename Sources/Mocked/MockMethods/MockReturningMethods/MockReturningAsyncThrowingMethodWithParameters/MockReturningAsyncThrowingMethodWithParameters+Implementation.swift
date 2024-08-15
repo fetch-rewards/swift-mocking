@@ -12,7 +12,7 @@ extension MockReturningAsyncThrowingMethodWithParameters {
 
     /// An implementation for a mock's returning, async, throwing method with
     /// parameters.
-    public enum Implementation {
+    public enum Implementation: @unchecked Sendable {
 
         // MARK: Cases
 
@@ -20,42 +20,42 @@ extension MockReturningAsyncThrowingMethodWithParameters {
         case unimplemented
 
         /// Returns a value when invoked.
-        case returns((Arguments) async -> ReturnValue)
+        case uncheckedReturns((Arguments) async -> ReturnValue)
 
         /// Throws an error when invoked.
-        case `throws`((Arguments) async -> any Error)
+        case uncheckedThrows((Arguments) async -> any Error)
 
         // MARK: Constructors
 
         /// Returns a value when invoked.
-        public static func returns(_ value: ReturnValue) -> Self {
-            .returns { _ in value }
+        public static func uncheckedReturns(_ value: ReturnValue) -> Self {
+            .uncheckedReturns { _ in value }
         }
 
         /// Throws an error when invoked.
-        public static func `throws`(_ error: any Error) -> Self {
-            .throws { _ in error }
+        public static func uncheckedThrows(_ error: any Error) -> Self {
+            .uncheckedThrows { _ in error }
         }
 
         // MARK: Call As Function
 
         /// Invokes the implementation, triggering a test failure if the
         /// implementation is ``unimplemented``, returning a value if the
-        /// implementation is ``returns(_:)-swift.enum.case`` or
-        /// ``returns(_:)-swift.type.method``, or throwing an error if the
-        /// implementation is ``throws(_:)-swift.enum.case`` or
-        /// ``throws(_:)-swift.type.method``.
+        /// implementation is ``uncheckedReturns(_:)-swift.enum.case`` or
+        /// ``uncheckedReturns(_:)-swift.type.method``, or throwing an error if
+        /// the implementation is ``uncheckedThrows(_:)-swift.enum.case`` or
+        /// ``uncheckedThrows(_:)-swift.type.method``.
         ///
         /// - Parameters:
         ///   - arguments: The arguments with which to invoke the
         ///     implementation.
         ///   - description: The implementation's description.
         /// - Throws: An error, if the implementation is
-        ///   ``throws(_:)-swift.enum.case`` or
-        ///   ``throws(_:)-swift.type.method``.
+        ///   ``uncheckedThrows(_:)-swift.enum.case`` or
+        ///   ``uncheckedThrows(_:)-swift.type.method``.
         /// - Returns: A value, if the implementation is
-        ///   ``returns(_:)-swift.enum.case`` or
-        ///   ``returns(_:)-swift.type.method``.
+        ///   ``uncheckedReturns(_:)-swift.enum.case`` or
+        ///   ``uncheckedReturns(_:)-swift.type.method``.
         func callAsFunction(
             arguments: Arguments,
             description: MockImplementationDescription
@@ -63,11 +63,43 @@ extension MockReturningAsyncThrowingMethodWithParameters {
             switch self {
             case .unimplemented:
                 XCTestDynamicOverlay.unimplemented("\(description)")
-            case let .returns(value):
+            case let .uncheckedReturns(value):
                 await value(arguments)
-            case let .throws(error):
+            case let .uncheckedThrows(error):
                 throw await error(arguments)
             }
         }
+    }
+}
+
+// MARK: - Sendable
+
+extension MockReturningAsyncThrowingMethodWithParameters.Implementation
+where Arguments: Sendable, ReturnValue: Sendable {
+
+    // MARK: Constructors
+
+    /// Returns a value when invoked.
+    public static func returns(
+        _ value: @Sendable @escaping (Arguments) async -> ReturnValue
+    ) -> Self {
+        .uncheckedReturns(value)
+    }
+
+    /// Returns a value when invoked.
+    public static func returns(_ value: ReturnValue) -> Self {
+        .uncheckedReturns { _ in value }
+    }
+
+    /// Throws an error when invoked.
+    public static func `throws`(
+        _ error: @Sendable @escaping (Arguments) async -> any Error
+    ) -> Self {
+        .uncheckedThrows(error)
+    }
+
+    /// Throws an error when invoked.
+    public static func `throws`(_ error: any Error) -> Self {
+        .uncheckedThrows { _ in error }
     }
 }

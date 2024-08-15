@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Locked
 
 /// The implementation details and invocation records for a mock's returning
 /// method without parameters.
@@ -14,12 +15,15 @@ public final class MockReturningMethodWithoutParameters<ReturnValue> {
     // MARK: Properties
 
     /// The method's implementation.
+    @Locked(.unchecked)
     public var implementation: Implementation = .unimplemented
 
     /// The number of times the method has been called.
+    @Locked(.unchecked)
     public private(set) var callCount: Int = .zero
 
     /// All the values that have been returned by the method.
+    @Locked(.unchecked)
     public private(set) var returnedValues: [ReturnValue] = []
 
     /// The last value returned by the method.
@@ -91,8 +95,8 @@ public final class MockReturningMethodWithoutParameters<ReturnValue> {
     /// Records the invocation of the method and invokes ``implementation``.
     ///
     /// - Returns: A value, if ``implementation`` is
-    ///   ``Implementation-swift.enum/returns(_:)-swift.enum.case`` or
-    ///   ``Implementation-swift.enum/returns(_:)-swift.type.method``.
+    ///   ``Implementation-swift.enum/uncheckedReturns(_:)-swift.enum.case`` or
+    ///   ``Implementation-swift.enum/uncheckedReturns(_:)-swift.type.method``.
     private func invoke() -> ReturnValue {
         self.callCount += 1
 
@@ -105,3 +109,8 @@ public final class MockReturningMethodWithoutParameters<ReturnValue> {
         return returnValue
     }
 }
+
+// MARK: - Sendable
+
+extension MockReturningMethodWithoutParameters: Sendable
+where ReturnValue: Sendable {}

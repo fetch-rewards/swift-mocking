@@ -11,7 +11,7 @@ import XCTestDynamicOverlay
 extension MockReturningAsyncMethodWithParameters {
 
     /// An implementation for a mock's returning, async method with parameters.
-    public enum Implementation {
+    public enum Implementation: @unchecked Sendable {
 
         // MARK: Cases
 
@@ -19,29 +19,29 @@ extension MockReturningAsyncMethodWithParameters {
         case unimplemented
 
         /// Returns a value when invoked.
-        case returns((Arguments) async -> ReturnValue)
+        case uncheckedReturns((Arguments) async -> ReturnValue)
 
         // MARK: Constructors
 
         /// Returns a value when invoked.
-        public static func returns(_ value: ReturnValue) -> Self {
-            .returns { _ in value }
+        public static func uncheckedReturns(_ value: ReturnValue) -> Self {
+            .uncheckedReturns { _ in value }
         }
 
         // MARK: Call As Function
 
         /// Invokes the implementation, triggering a test failure if the
         /// implementation is ``unimplemented`` or returning a value if the
-        /// implementation is ``returns(_:)-swift.enum.case`` or
-        /// ``returns(_:)-swift.type.method``.
+        /// implementation is ``uncheckedReturns(_:)-swift.enum.case`` or
+        /// ``uncheckedReturns(_:)-swift.type.method``.
         ///
         /// - Parameters:
         ///   - arguments: The arguments with which to invoke the
         ///     implementation.
         ///   - description: The implementation's description.
         /// - Returns: A value, if the implementation is
-        ///   ``returns(_:)-swift.enum.case`` or
-        ///   ``returns(_:)-swift.type.method``.
+        ///   ``uncheckedReturns(_:)-swift.enum.case`` or
+        ///   ``uncheckedReturns(_:)-swift.type.method``.
         func callAsFunction(
             arguments: Arguments,
             description: MockImplementationDescription
@@ -49,9 +49,29 @@ extension MockReturningAsyncMethodWithParameters {
             switch self {
             case .unimplemented:
                 XCTestDynamicOverlay.unimplemented("\(description)")
-            case let .returns(value):
+            case let .uncheckedReturns(value):
                 await value(arguments)
             }
         }
+    }
+}
+
+// MARK: - Sendable
+
+extension MockReturningAsyncMethodWithParameters.Implementation
+where Arguments: Sendable, ReturnValue: Sendable {
+
+    // MARK: Constructors
+
+    /// Returns a value when invoked.
+    public static func returns(
+        _ value: @Sendable @escaping (Arguments) async -> ReturnValue
+    ) -> Self {
+        .uncheckedReturns(value)
+    }
+
+    /// Returns a value when invoked.
+    public static func returns(_ value: ReturnValue) -> Self {
+        .uncheckedReturns { _ in value }
     }
 }
