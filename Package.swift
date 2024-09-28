@@ -41,15 +41,6 @@ let package = Package(
         ),
     ],
     targets: [
-        .macro(
-            name: "MockedMacros",
-            dependencies: [
-                .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
-                .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
-                .product(name: "SwiftSyntaxSugar", package: "SwiftSyntaxSugar"),
-            ],
-            swiftSettings: .default
-        ),
         .target(
             name: "Mocked",
             dependencies: [
@@ -65,9 +56,32 @@ let package = Package(
             ],
             swiftSettings: .default
         ),
+        .testTarget(
+            name: "MockedTests",
+            dependencies: ["Mocked"],
+            swiftSettings: .default
+        ),
         .executableTarget(
             name: "MockedClient",
             dependencies: ["Mocked"],
+            swiftSettings: .default
+        ),
+        .macro(
+            name: "MockedMacros",
+            dependencies: [
+                .product(
+                    name: "SwiftCompilerPlugin",
+                    package: "swift-syntax"
+                ),
+                .product(
+                    name: "SwiftSyntaxMacros",
+                    package: "swift-syntax"
+                ),
+                .product(
+                    name: "SwiftSyntaxSugar",
+                    package: "SwiftSyntaxSugar"
+                ),
+            ],
             swiftSettings: .default
         ),
         .testTarget(
@@ -78,13 +92,6 @@ let package = Package(
                     name: "SwiftSyntaxMacrosTestSupport",
                     package: "swift-syntax"
                 ),
-            ],
-            swiftSettings: .default
-        ),
-        .testTarget(
-            name: "MockedTests",
-            dependencies: [
-                "Mocked",
             ],
             swiftSettings: .default
         ),

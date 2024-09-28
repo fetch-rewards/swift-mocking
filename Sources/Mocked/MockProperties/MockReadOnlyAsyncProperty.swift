@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Locked
 
 /// The implementation details and invocation records for a mock's read-only,
 /// async property.
@@ -14,6 +15,7 @@ public final class MockReadOnlyAsyncProperty<Value> {
     // MARK: Properties
 
     /// The property's getter.
+    @Locked(.unchecked)
     public var getter: MockPropertyAsyncGetter<Value>
 
     // MARK: Initializers
@@ -23,8 +25,10 @@ public final class MockReadOnlyAsyncProperty<Value> {
     /// - Parameter exposedPropertyDescription: The description of the mock's
     ///   exposed property.
     private init(exposedPropertyDescription: MockImplementationDescription) {
-        self.getter = MockPropertyAsyncGetter(
-            exposedPropertyDescription: exposedPropertyDescription
+        self._getter = OSAllocatedUnfairLock(
+            uncheckedState: MockPropertyAsyncGetter(
+                exposedPropertyDescription: exposedPropertyDescription
+            )
         )
     }
 
@@ -53,3 +57,8 @@ public final class MockReadOnlyAsyncProperty<Value> {
         )
     }
 }
+
+// MARK: - Sendable
+
+extension MockReadOnlyAsyncProperty: Sendable
+where Value: Sendable {}

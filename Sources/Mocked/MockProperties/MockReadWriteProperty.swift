@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Locked
 
 /// The implementation details and invocation records for a mock's read-write
 /// property.
@@ -14,9 +15,11 @@ public final class MockReadWriteProperty<Value> {
     // MARK: Properties
 
     /// The property's getter.
+    @Locked(.unchecked)
     public var getter: MockPropertyGetter<Value>
 
     /// The property's setter.
+    @Locked(.unchecked)
     public var setter = MockPropertySetter<Value>()
 
     // MARK: Initializers
@@ -26,8 +29,10 @@ public final class MockReadWriteProperty<Value> {
     /// - Parameter exposedPropertyDescription: The description of the mock's
     ///   exposed property.
     private init(exposedPropertyDescription: MockImplementationDescription) {
-        self.getter = MockPropertyGetter(
-            exposedPropertyDescription: exposedPropertyDescription
+        self._getter = OSAllocatedUnfairLock(
+            uncheckedState: MockPropertyGetter(
+                exposedPropertyDescription: exposedPropertyDescription
+            )
         )
     }
 
@@ -59,3 +64,8 @@ public final class MockReadWriteProperty<Value> {
         )
     }
 }
+
+// MARK: - Sendable
+
+extension MockReadWriteProperty: Sendable
+where Value: Sendable {}

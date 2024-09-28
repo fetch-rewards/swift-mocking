@@ -11,7 +11,7 @@ import XCTestDynamicOverlay
 extension MockPropertyAsyncThrowingGetter {
 
     /// An implementation for a mock's async, throwing property getter.
-    public enum Implementation {
+    public enum Implementation: @unchecked Sendable {
 
         // MARK: Cases
 
@@ -19,50 +19,82 @@ extension MockPropertyAsyncThrowingGetter {
         case unimplemented
 
         /// Returns a value when invoked.
-        case returns(() async -> Value)
+        case uncheckedReturns(() async -> Value)
 
         /// Throws an error when invoked.
-        case `throws`(() async -> any Error)
+        case uncheckedThrows(() async -> any Error)
 
         // MARK: Constructors
 
         /// Returns a value when invoked.
-        public static func returns(_ value: Value) -> Self {
-            .returns { value }
+        public static func uncheckedReturns(_ value: Value) -> Self {
+            .uncheckedReturns { value }
         }
 
         /// Throws an error when invoked.
-        public static func `throws`(_ error: any Error) -> Self {
-            .throws { error }
+        public static func uncheckedThrows(_ error: any Error) -> Self {
+            .uncheckedThrows { error }
         }
 
         // MARK: Call As Function
 
         /// Invokes the implementation, triggering a test failure if the
         /// implementation is ``unimplemented``, returning a value if the
-        /// implementation is ``returns(_:)-swift.enum.case`` or
-        /// ``returns(_:)-swift.type.method``, or throwing an error if the
-        /// implementation is ``throws(_:)-swift.enum.case`` or
-        /// ``throws(_:)-swift.type.method``.
+        /// implementation is ``uncheckedReturns(_:)-swift.enum.case`` or
+        /// ``uncheckedReturns(_:)-swift.type.method``, or throwing an error if
+        /// the implementation is ``uncheckedThrows(_:)-swift.enum.case`` or
+        /// ``uncheckedThrows(_:)-swift.type.method``.
         ///
         /// - Parameter description: The implementation's description.
         /// - Throws: An error, if the implementation is
-        ///   ``throws(_:)-swift.enum.case`` or
-        ///   ``throws(_:)-swift.type.method``.
+        ///   ``uncheckedThrows(_:)-swift.enum.case`` or
+        ///   ``uncheckedThrows(_:)-swift.type.method``.
         /// - Returns: A value, if the implementation is
-        ///   ``returns(_:)-swift.enum.case`` or
-        ///   ``returns(_:)-swift.type.method``.
+        ///   ``uncheckedReturns(_:)-swift.enum.case`` or
+        ///   ``uncheckedReturns(_:)-swift.type.method``.
         func callAsFunction(
             description: MockImplementationDescription
         ) async throws -> Value {
             switch self {
             case .unimplemented:
                 XCTestDynamicOverlay.unimplemented("\(description)")
-            case let .returns(value):
+            case let .uncheckedReturns(value):
                 await value()
-            case let .throws(error):
+            case let .uncheckedThrows(error):
                 throw await error()
             }
         }
+    }
+}
+
+// MARK: - Sendable
+
+extension MockPropertyAsyncThrowingGetter.Implementation
+where Value: Sendable {
+
+    // MARK: Constructors
+
+    /// Returns a value when invoked.
+    public static func returns(
+        _ value: @Sendable @escaping () async -> Value
+    ) -> Self {
+        .uncheckedReturns(value)
+    }
+
+    /// Returns a value when invoked.
+    public static func returns(_ value: Value) -> Self {
+        .uncheckedReturns { value }
+    }
+
+    /// Throws an error when invoked.
+    public static func `throws`(
+        _ error: @Sendable @escaping () async -> any Error
+    ) -> Self {
+        .uncheckedThrows(error)
+    }
+
+    /// Throws an error when invoked.
+    public static func `throws`(_ error: any Error) -> Self {
+        .uncheckedThrows { error }
     }
 }
