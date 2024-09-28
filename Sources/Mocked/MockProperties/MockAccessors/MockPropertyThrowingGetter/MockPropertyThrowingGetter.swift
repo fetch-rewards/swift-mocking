@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Locked
 
 /// The implementation details and invocation records for a property's throwing
 /// getter.
@@ -14,12 +15,15 @@ public final class MockPropertyThrowingGetter<Value> {
     // MARK: Properties
 
     /// The getter's implementation.
+    @Locked(.unchecked)
     public var implementation: Implementation = .unimplemented
 
     /// The number of times the getter has been called.
+    @Locked(.unchecked)
     public private(set) var callCount: Int = .zero
 
     /// All the values that have been returned by the getter.
+    @Locked(.unchecked)
     public private(set) var returnedValues: [Result<Value, any Error>] = []
 
     /// The last value returned by the getter.
@@ -68,3 +72,8 @@ public final class MockPropertyThrowingGetter<Value> {
         return try value.get()
     }
 }
+
+// MARK: - Sendable
+
+extension MockPropertyThrowingGetter: Sendable
+where Value: Sendable {}

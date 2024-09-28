@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Locked
 
 /// The implementation details and invocation records for a property's setter.
 public final class MockPropertySetter<Value> {
@@ -13,12 +14,15 @@ public final class MockPropertySetter<Value> {
     // MARK: Properties
 
     /// The setter's implementation.
+    @Locked(.unchecked)
     public var implementation: Implementation = .unimplemented
 
     /// The number of times the setter has been called.
+    @Locked(.unchecked)
     public private(set) var callCount: Int = .zero
 
     /// All the values with which the setter has been invoked.
+    @Locked(.unchecked)
     public private(set) var invocations: [Value] = []
 
     /// The last value with which the setter has been invoked.
@@ -37,3 +41,8 @@ public final class MockPropertySetter<Value> {
         self.implementation(value: value)
     }
 }
+
+// MARK: - Sendable
+
+extension MockPropertySetter: Sendable
+where Value: Sendable {}

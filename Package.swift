@@ -7,11 +7,11 @@ import PackageDescription
 let package = Package(
     name: "Mocked",
     platforms: [
-        .macOS(.v10_15),
-        .iOS(.v13),
-        .tvOS(.v13),
-        .watchOS(.v6),
-        .macCatalyst(.v13),
+        .macOS(.v13),
+        .iOS(.v16),
+        .tvOS(.v16),
+        .watchOS(.v9),
+        .macCatalyst(.v16),
     ],
     products: [
         .library(
@@ -24,6 +24,10 @@ let package = Package(
         ),
     ],
     dependencies: [
+        .package(
+            url: "git@github.com:fetch-rewards/swift-locking.git",
+            branch: "feature/Locked"
+        ),
         .package(
             url: "https://github.com/apple/swift-syntax.git",
             exact: "509.0.2"
@@ -38,19 +42,14 @@ let package = Package(
         ),
     ],
     targets: [
-        .macro(
-            name: "MockedMacros",
-            dependencies: [
-                .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
-                .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
-                .product(name: "SwiftSyntaxSugar", package: "SwiftSyntaxSugar"),
-            ],
-            swiftSettings: .default
-        ),
         .target(
             name: "Mocked",
             dependencies: [
                 "MockedMacros",
+                .product(
+                    name: "Locked",
+                    package: "swift-locking"
+                ),
                 .product(
                     name: "XCTestDynamicOverlay",
                     package: "xctest-dynamic-overlay"
@@ -58,9 +57,32 @@ let package = Package(
             ],
             swiftSettings: .default
         ),
+        .testTarget(
+            name: "MockedTests",
+            dependencies: ["Mocked"],
+            swiftSettings: .default
+        ),
         .executableTarget(
             name: "MockedClient",
             dependencies: ["Mocked"],
+            swiftSettings: .default
+        ),
+        .macro(
+            name: "MockedMacros",
+            dependencies: [
+                .product(
+                    name: "SwiftCompilerPlugin",
+                    package: "swift-syntax"
+                ),
+                .product(
+                    name: "SwiftSyntaxMacros",
+                    package: "swift-syntax"
+                ),
+                .product(
+                    name: "SwiftSyntaxSugar",
+                    package: "SwiftSyntaxSugar"
+                ),
+            ],
             swiftSettings: .default
         ),
         .testTarget(
@@ -71,13 +93,6 @@ let package = Package(
                     name: "SwiftSyntaxMacrosTestSupport",
                     package: "swift-syntax"
                 ),
-            ],
-            swiftSettings: .default
-        ),
-        .testTarget(
-            name: "MockedTests",
-            dependencies: [
-                "Mocked",
             ],
             swiftSettings: .default
         ),

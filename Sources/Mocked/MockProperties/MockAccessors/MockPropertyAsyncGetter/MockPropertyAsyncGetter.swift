@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Locked
 
 /// The implementation details and invocation records for a property's async
 /// getter.
@@ -14,12 +15,15 @@ public final class MockPropertyAsyncGetter<Value> {
     // MARK: Properties
 
     /// The getter's implementation.
+    @Locked(.unchecked)
     public var implementation: Implementation = .unimplemented
 
     /// The number of times the getter has been called.
+    @Locked(.unchecked)
     public private(set) var callCount: Int = .zero
 
     /// All the values that have been returned by the getter.
+    @Locked(.unchecked)
     public private(set) var returnedValues: [Value] = []
 
     /// The last value returned by the getter.
@@ -49,8 +53,8 @@ public final class MockPropertyAsyncGetter<Value> {
     /// Records the invocation of the getter and invokes ``implementation``.
     ///
     /// - Returns: A value, if ``implementation`` is
-    ///   ``Implementation-swift.enum/returns(_:)-swift.enum.case`` or
-    ///   ``Implementation-swift.enum/returns(_:)-swift.type.method``.
+    ///   ``Implementation-swift.enum/uncheckedReturns(_:)-swift.enum.case`` or
+    ///   ``Implementation-swift.enum/uncheckedReturns(_:)-swift.type.method``.
     func get() async -> Value {
         self.callCount += 1
 
@@ -63,3 +67,8 @@ public final class MockPropertyAsyncGetter<Value> {
         return value
     }
 }
+
+// MARK: - Sendable
+
+extension MockPropertyAsyncGetter: Sendable
+where Value: Sendable {}
