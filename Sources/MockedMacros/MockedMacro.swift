@@ -317,6 +317,10 @@ extension MockedMacro {
             backingProperty: VariableDeclSyntax(
                 modifiers: DeclModifierListSyntax {
                     AccessLevelSyntax.private.modifier
+
+                    if protocolDeclaration.isActorConstrained {
+                        DeclModifierSyntax(name: .keyword(.nonisolated))
+                    }
                 },
                 .let,
                 name: PatternSyntax(stringLiteral: "__\(propertyName)"),
@@ -337,6 +341,10 @@ extension MockedMacro {
                 modifiers: DeclModifierListSyntax {
                     if accessLevel != .internal {
                         accessLevel.modifier
+                    }
+
+                    if protocolDeclaration.isActorConstrained {
+                        DeclModifierSyntax(name: .keyword(.nonisolated))
                     }
                 },
                 bindingSpecifier: .keyword(.var),
@@ -537,6 +545,10 @@ extension MockedMacro {
             backingMethod: VariableDeclSyntax(
                 modifiers: DeclModifierListSyntax {
                     AccessLevelSyntax.private.modifier
+
+                    if protocolDeclaration.isActorConstrained {
+                        DeclModifierSyntax(name: .keyword(.nonisolated))
+                    }
                 },
                 .let,
                 name: PatternSyntax(
@@ -550,6 +562,10 @@ extension MockedMacro {
                 modifiers: DeclModifierListSyntax {
                     if accessLevel != .internal {
                         accessLevel.modifier
+                    }
+
+                    if protocolDeclaration.isActorConstrained {
+                        DeclModifierSyntax(name: .keyword(.nonisolated))
                     }
                 },
                 bindingSpecifier: .keyword(.var),
