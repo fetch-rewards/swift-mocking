@@ -134,4 +134,47 @@ public final class MockReturningThrowingMethodWithParameters<
 // MARK: - Sendable
 
 extension MockReturningThrowingMethodWithParameters: Sendable
-where Arguments: Sendable, ReturnValue: Sendable {}
+where Arguments: Sendable, ReturnValue: Sendable {
+
+    // MARK: Factories
+
+    /// Creates a method and a throwing closure for invoking the method,
+    /// returning them in a labeled tuple.
+    ///
+    /// ```swift
+    /// private let __user = MockReturningThrowingMethodWithParameters<(User.ID), User>.makeMethod(
+    ///     exposedMethodDescription: MockImplementationDescription(
+    ///         type: Self.self,
+    ///         member: "_user"
+    ///     )
+    /// )
+    ///
+    /// public var _user: MockReturningThrowingMethodWithParameters<(User.ID), User> {
+    ///     self.__user.method
+    /// }
+    ///
+    /// public func user(id: User.ID) throws -> User {
+    ///     try self.__user.invoke((id))
+    /// }
+    /// ```
+    ///
+    /// - Parameter exposedMethodDescription: The description of the mock's
+    ///   exposed method.
+    /// - Returns: A tuple containing a method and a throwing closure for
+    ///   invoking the method.
+    public static func makeMethod(
+        exposedMethodDescription: MockImplementationDescription
+    ) -> (
+        method: MockReturningThrowingMethodWithParameters,
+        invoke: @Sendable (Arguments) throws -> ReturnValue
+    ) {
+        let method = MockReturningThrowingMethodWithParameters(
+            exposedMethodDescription: exposedMethodDescription
+        )
+
+        return (
+            method: method,
+            invoke: { try method.invoke($0) }
+        )
+    }
+}

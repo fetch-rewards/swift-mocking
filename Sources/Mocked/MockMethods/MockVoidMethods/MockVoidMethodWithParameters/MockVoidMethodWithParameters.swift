@@ -84,4 +84,37 @@ public final class MockVoidMethodWithParameters<Arguments> {
 // MARK: - Sendable
 
 extension MockVoidMethodWithParameters: Sendable
-where Arguments: Sendable {}
+where Arguments: Sendable {
+
+    // MARK: Factories
+
+    /// Creates a method and a closure for invoking the method, returning them
+    /// in a labeled tuple.
+    ///
+    /// ```swift
+    /// private let __logIn = MockVoidMethodWithParameters<(String, String)>.makeMethod()
+    ///
+    /// public var _logIn: MockVoidMethodWithParameters<(String, String)> {
+    ///     self.__logIn.method
+    /// }
+    ///
+    /// public func logIn(username: String, password: String) {
+    ///     self.__logIn.invoke((username, password))
+    /// }
+    /// ```
+    ///
+    /// - Returns: A tuple containing a method and a closure for invoking the
+    ///   method.
+    public static func makeMethod(
+    ) -> (
+        method: MockVoidMethodWithParameters,
+        invoke: @Sendable (Arguments) -> Void
+    ) {
+        let method = MockVoidMethodWithParameters()
+
+        return (
+            method: method,
+            invoke: { method.invoke($0) }
+        )
+    }
+}

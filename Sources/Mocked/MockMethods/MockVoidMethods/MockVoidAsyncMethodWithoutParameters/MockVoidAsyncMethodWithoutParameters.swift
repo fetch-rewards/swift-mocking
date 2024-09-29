@@ -10,7 +10,7 @@ import Locked
 
 /// The implementation details and invocation records for a mock's void, async
 /// method without parameters.
-public final class MockVoidAsyncMethodWithoutParameters {
+public final class MockVoidAsyncMethodWithoutParameters: Sendable {
 
     // MARK: Properties
 
@@ -49,7 +49,7 @@ public final class MockVoidAsyncMethodWithoutParameters {
     public static func makeMethod(
     ) -> (
         method: MockVoidAsyncMethodWithoutParameters,
-        invoke: () async -> Void
+        invoke: @Sendable () async -> Void
     ) {
         let method = MockVoidAsyncMethodWithoutParameters()
 
@@ -67,7 +67,3 @@ public final class MockVoidAsyncMethodWithoutParameters {
         await self.implementation()
     }
 }
-
-// MARK: - Sendable
-
-extension MockVoidAsyncMethodWithoutParameters: Sendable {}

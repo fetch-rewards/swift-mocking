@@ -68,4 +68,33 @@ public final class MockReadWriteProperty<Value> {
 // MARK: - Sendable
 
 extension MockReadWriteProperty: Sendable
-where Value: Sendable {}
+where Value: Sendable {
+
+    // MARK: Factories
+
+    /// Creates a property, a closure for invoking the property's getter, and a
+    /// closure for invoking the property's setter, returning them in a labeled
+    /// tuple.
+    ///
+    /// - Parameter exposedPropertyDescription: The description of the mock's
+    ///   exposed property.
+    /// - Returns: A tuple containing a property, a closure for invoking the
+    ///   property's getter, and a closure for invoking the property's setter.
+    public static func makeProperty(
+        exposedPropertyDescription: MockImplementationDescription
+    ) -> (
+        property: MockReadWriteProperty,
+        get: @Sendable () -> Value,
+        set: @Sendable (Value) -> Void
+    ) {
+        let property = MockReadWriteProperty(
+            exposedPropertyDescription: exposedPropertyDescription
+        )
+
+        return (
+            property: property,
+            get: { property.getter.get() },
+            set: { property.setter.set($0) }
+        )
+    }
+}
