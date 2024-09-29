@@ -61,4 +61,30 @@ public final class MockReadOnlyAsyncProperty<Value> {
 // MARK: - Sendable
 
 extension MockReadOnlyAsyncProperty: Sendable
-where Value: Sendable {}
+where Value: Sendable {
+
+    // MARK: Factories
+
+    /// Creates a property and an async closure for invoking the property's
+    /// getter, returning them in a labeled tuple.
+    ///
+    /// - Parameter exposedPropertyDescription: The description of the mock's
+    ///   exposed property.
+    /// - Returns: A tuple containing a property and an async closure for
+    ///   invoking the property's getter.
+    public static func makeProperty(
+        exposedPropertyDescription: MockImplementationDescription
+    ) -> (
+        property: MockReadOnlyAsyncProperty,
+        get: @Sendable () async -> Value
+    ) {
+        let property = MockReadOnlyAsyncProperty(
+            exposedPropertyDescription: exposedPropertyDescription
+        )
+
+        return (
+            property: property,
+            get: { await property.getter.get() }
+        )
+    }
+}

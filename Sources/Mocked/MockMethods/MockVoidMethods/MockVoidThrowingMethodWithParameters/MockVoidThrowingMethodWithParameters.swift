@@ -102,4 +102,37 @@ public final class MockVoidThrowingMethodWithParameters<Arguments> {
 // MARK: - Sendable
 
 extension MockVoidThrowingMethodWithParameters: Sendable
-where Arguments: Sendable {}
+where Arguments: Sendable {
+
+    // MARK: Factories
+
+    /// Creates a method and a throwing closure for invoking the method,
+    /// returning them in a labeled tuple.
+    ///
+    /// ```swift
+    /// private let __logIn = MockVoidThrowingMethodWithParameters<(String, String)>.makeMethod()
+    ///
+    /// public var _logIn: MockVoidThrowingMethodWithParameters<(String, String)> {
+    ///     self.__logIn.method
+    /// }
+    ///
+    /// public func logIn(username: String, password: String) throws {
+    ///     try self.__logIn.invoke((username, password))
+    /// }
+    /// ```
+    ///
+    /// - Returns: A tuple containing a method and a throwing closure for
+    ///   invoking the method.
+    public static func makeMethod(
+    ) -> (
+        method: MockVoidThrowingMethodWithParameters,
+        invoke: @Sendable (Arguments) throws -> Void
+    ) {
+        let method = MockVoidThrowingMethodWithParameters()
+
+        return (
+            method: method,
+            invoke: { try method.invoke($0) }
+        )
+    }
+}
