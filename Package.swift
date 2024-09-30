@@ -33,8 +33,8 @@ let package = Package(
             branch: "refactor/SyntaxProtocol-with"
         ),
         .package(
-            url: "https://github.com/pointfreeco/xctest-dynamic-overlay",
-            from: "1.1.0"
+            url: "https://github.com/pointfreeco/swift-issue-reporting",
+            from: "1.0.0"
         ),
     ],
     targets: [
@@ -53,7 +53,7 @@ let package = Package(
                 "MockedMacros",
                 .product(
                     name: "XCTestDynamicOverlay",
-                    package: "xctest-dynamic-overlay"
+                    package: "swift-issue-reporting"
                 ),
             ],
             swiftSettings: .default
