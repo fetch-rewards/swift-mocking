@@ -5,9 +5,9 @@
 //  Created by Gray Campbell on 11/4/23.
 //
 
-import SwiftSyntax
+public import SwiftSyntax
 import SwiftSyntaxBuilder
-import SwiftSyntaxMacros
+public import SwiftSyntaxMacros
 import SwiftSyntaxSugar
 
 public struct MockedMacro: PeerMacro {
