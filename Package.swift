@@ -6,11 +6,11 @@ import PackageDescription
 let package = Package(
     name: "Mocked",
     platforms: [
-        .macOS(.v10_15),
-        .iOS(.v13),
-        .tvOS(.v13),
-        .watchOS(.v6),
-        .macCatalyst(.v13),
+        .macOS(.v13),
+        .iOS(.v16),
+        .tvOS(.v16),
+        .watchOS(.v9),
+        .macCatalyst(.v16),
     ],
     products: [
         .library(
@@ -23,6 +23,10 @@ let package = Package(
         ),
     ],
     dependencies: [
+        .package(
+            url: "git@github.com:fetch-rewards/swift-locking.git",
+            revision: "0baad738fcc9c1d9e2a0696ae7c6dddb3d130a04"
+        ),
         .package(
             url: "https://github.com/apple/swift-syntax.git",
             exact: "600.0.1"
@@ -53,6 +57,10 @@ let package = Package(
                 .product(
                     name: "XCTestDynamicOverlay",
                     package: "xctest-dynamic-overlay"
+                ),
+                .product(
+                    name: "Locked",
+                    package: "swift-locking"
                 ),
             ],
             swiftSettings: .default
