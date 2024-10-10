@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import Mocked
+public import Mocked
 
 @Mocked
 public protocol Dependency<Item> where Item: Identifiable {
