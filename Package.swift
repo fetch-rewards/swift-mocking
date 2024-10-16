@@ -6,11 +6,11 @@ import PackageDescription
 let package = Package(
     name: "Mocked",
     platforms: [
-        .macOS(.v10_15),
-        .iOS(.v13),
-        .tvOS(.v13),
-        .watchOS(.v6),
-        .macCatalyst(.v13),
+        .macOS(.v13),
+        .iOS(.v16),
+        .tvOS(.v16),
+        .watchOS(.v9),
+        .macCatalyst(.v16),
     ],
     products: [
         .library(
@@ -23,6 +23,10 @@ let package = Package(
         ),
     ],
     dependencies: [
+        .package(
+            url: "git@github.com:fetch-rewards/swift-locking.git",
+            revision: "72c51636ce63d48472a97b87aad305c872b57569"
+        ),
         .package(
             url: "https://github.com/apple/swift-syntax.git",
             exact: "600.0.1"
@@ -53,6 +57,10 @@ let package = Package(
                 .product(
                     name: "XCTestDynamicOverlay",
                     package: "xctest-dynamic-overlay"
+                ),
+                .product(
+                    name: "Locked",
+                    package: "swift-locking"
                 ),
             ],
             swiftSettings: .default
@@ -86,8 +94,13 @@ let package = Package(
 // MARK: - Swift Settings
 
 extension SwiftSetting {
-    static let internalImportsByDefault: SwiftSetting = .enableUpcomingFeature("InternalImportsByDefault")
-    static let existentialAny: SwiftSetting = .enableUpcomingFeature("ExistentialAny")
+    static let existentialAny: SwiftSetting = .enableUpcomingFeature(
+        "ExistentialAny"
+    )
+
+    static let internalImportsByDefault: SwiftSetting = .enableUpcomingFeature(
+        "InternalImportsByDefault"
+    )
 }
 
 extension Array where Element == SwiftSetting {
@@ -95,6 +108,6 @@ extension Array where Element == SwiftSetting {
     /// Default Swift settings to enable for targets.
     static let `default`: [SwiftSetting] = [
         .existentialAny,
-        .internalImportsByDefault
+        .internalImportsByDefault,
     ]
 }
