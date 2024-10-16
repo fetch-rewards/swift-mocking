@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Locked
 
 /// The implementation details and invocation records for a mock's returning
 /// method with parameters.
@@ -14,12 +15,15 @@ public final class MockReturningMethodWithParameters<Arguments, ReturnValue> {
     // MARK: Properties
 
     /// The method's implementation.
+    @Locked(.unchecked)
     public var implementation: Implementation = .unimplemented
 
     /// The number of times the method has been called.
+    @Locked(.unchecked)
     public private(set) var callCount: Int = .zero
 
     /// All the arguments with which the method has been invoked.
+    @Locked(.unchecked)
     public private(set) var invocations: [Arguments] = []
 
     /// The last arguments with which the method has been invoked.
@@ -28,6 +32,7 @@ public final class MockReturningMethodWithParameters<Arguments, ReturnValue> {
     }
 
     /// All the values that have been returned by the method.
+    @Locked(.unchecked)
     public private(set) var returnedValues: [ReturnValue] = []
 
     /// The last value returned by the method.
@@ -101,8 +106,8 @@ public final class MockReturningMethodWithParameters<Arguments, ReturnValue> {
     /// - Parameter arguments: The arguments with which the method is being
     ///   invoked.
     /// - Returns: A value, if ``implementation`` is
-    ///   ``Implementation-swift.enum/returns(_:)-swift.enum.case`` or
-    ///   ``Implementation-swift.enum/returns(_:)-swift.type.method``.
+    ///   ``Implementation-swift.enum/uncheckedReturns(_:)-swift.enum.case`` or
+    ///   ``Implementation-swift.enum/uncheckedReturns(_:)-swift.type.method``.
     private func invoke(_ arguments: Arguments) -> ReturnValue {
         self.callCount += 1
         self.invocations.append(arguments)
@@ -117,3 +122,8 @@ public final class MockReturningMethodWithParameters<Arguments, ReturnValue> {
         return returnValue
     }
 }
+
+// MARK: - Sendable
+
+extension MockReturningMethodWithParameters: Sendable
+where Arguments: Sendable, ReturnValue: Sendable {}
