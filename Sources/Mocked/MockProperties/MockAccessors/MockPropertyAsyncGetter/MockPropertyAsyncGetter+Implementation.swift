@@ -11,7 +11,7 @@ import XCTestDynamicOverlay
 extension MockPropertyAsyncGetter {
 
     /// An implementation for a mock's async property getter.
-    public enum Implementation {
+    public enum Implementation: @unchecked Sendable {
 
         // MARK: Cases
 
@@ -19,35 +19,55 @@ extension MockPropertyAsyncGetter {
         case unimplemented
 
         /// Returns a value when invoked.
-        case returns(() async -> Value)
+        case uncheckedReturns(() async -> Value)
 
         // MARK: Constructors
 
         /// Returns a value when invoked.
-        public static func returns(_ value: Value) -> Self {
-            .returns { value }
+        public static func uncheckedReturns(_ value: Value) -> Self {
+            .uncheckedReturns { value }
         }
 
         // MARK: Call As Function
 
         /// Invokes the implementation, triggering a test failure if the
         /// implementation is ``unimplemented`` or returning a value if the
-        /// implementation is ``returns(_:)-swift.enum.case`` or
-        /// ``returns(_:)-swift.type.method``.
+        /// implementation is ``uncheckedReturns(_:)-swift.enum.case`` or
+        /// ``uncheckedReturns(_:)-swift.type.method``.
         ///
         /// - Parameter description: The implementation's description.
         /// - Returns: A value, if the implementation is
-        ///   ``returns(_:)-swift.enum.case`` or
-        ///   ``returns(_:)-swift.type.method``.
+        ///   ``uncheckedReturns(_:)-swift.enum.case`` or
+        ///   ``uncheckedReturns(_:)-swift.type.method``.
         func callAsFunction(
             description: MockImplementationDescription
         ) async -> Value {
             switch self {
             case .unimplemented:
                 XCTestDynamicOverlay.unimplemented("\(description)")
-            case let .returns(value):
+            case let .uncheckedReturns(value):
                 await value()
             }
         }
+    }
+}
+
+// MARK: - Sendable
+
+extension MockPropertyAsyncGetter.Implementation
+where Value: Sendable {
+
+    // MARK: Constructors
+
+    /// Returns a value when invoked.
+    public static func returns(
+        _ value: @Sendable @escaping () async -> Value
+    ) -> Self {
+        .uncheckedReturns(value)
+    }
+
+    /// Returns a value when invoked.
+    public static func returns(_ value: Value) -> Self {
+        .uncheckedReturns { value }
     }
 }

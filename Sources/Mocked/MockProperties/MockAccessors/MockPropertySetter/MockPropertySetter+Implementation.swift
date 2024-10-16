@@ -11,7 +11,7 @@ import XCTestDynamicOverlay
 extension MockPropertySetter {
 
     /// An implementation for a mock's property setter.
-    public enum Implementation {
+    public enum Implementation: @unchecked Sendable {
 
         // MARK: Cases
 
@@ -19,13 +19,13 @@ extension MockPropertySetter {
         case unimplemented
 
         /// Invokes a closure when invoked.
-        case invokes((Value) -> Void)
+        case uncheckedInvokes((Value) -> Void)
 
         // MARK: Call As Function
 
         /// Invokes the implementation, doing nothing if the implementation is
         /// ``unimplemented`` or invoking a closure if the implementation is
-        /// ``invokes(_:)``.
+        /// ``uncheckedInvokes(_:)``.
         ///
         /// - Parameter value: The value with which to invoke the
         ///   implementation.
@@ -33,9 +33,24 @@ extension MockPropertySetter {
             switch self {
             case .unimplemented:
                 return
-            case let .invokes(closure):
+            case let .uncheckedInvokes(closure):
                 closure(value)
             }
         }
+    }
+}
+
+// MARK: - Sendable
+
+extension MockPropertySetter.Implementation
+where Value: Sendable {
+
+    // MARK: Constructors
+
+    /// Invokes a closure when invoked.
+    public static func invokes(
+        _ closure: @Sendable @escaping (Value) -> Void
+    ) -> Self {
+        .uncheckedInvokes(closure)
     }
 }
