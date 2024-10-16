@@ -25,7 +25,7 @@ let package = Package(
     dependencies: [
         .package(
             url: "git@github.com:fetch-rewards/swift-locking.git",
-            revision: "0baad738fcc9c1d9e2a0696ae7c6dddb3d130a04"
+            revision: "72c51636ce63d48472a97b87aad305c872b57569"
         ),
         .package(
             url: "https://github.com/apple/swift-syntax.git",
@@ -94,8 +94,13 @@ let package = Package(
 // MARK: - Swift Settings
 
 extension SwiftSetting {
-    static let internalImportsByDefault: SwiftSetting = .enableUpcomingFeature("InternalImportsByDefault")
-    static let existentialAny: SwiftSetting = .enableUpcomingFeature("ExistentialAny")
+    static let existentialAny: SwiftSetting = .enableUpcomingFeature(
+        "ExistentialAny"
+    )
+
+    static let internalImportsByDefault: SwiftSetting = .enableUpcomingFeature(
+        "InternalImportsByDefault"
+    )
 }
 
 extension Array where Element == SwiftSetting {
@@ -103,6 +108,6 @@ extension Array where Element == SwiftSetting {
     /// Default Swift settings to enable for targets.
     static let `default`: [SwiftSetting] = [
         .existentialAny,
-        .internalImportsByDefault
+        .internalImportsByDefault,
     ]
 }
