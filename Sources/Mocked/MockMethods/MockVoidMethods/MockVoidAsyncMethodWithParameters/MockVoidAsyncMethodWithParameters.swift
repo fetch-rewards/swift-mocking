@@ -84,4 +84,37 @@ public final class MockVoidAsyncMethodWithParameters<Arguments> {
 // MARK: - Sendable
 
 extension MockVoidAsyncMethodWithParameters: Sendable
-where Arguments: Sendable {}
+where Arguments: Sendable {
+
+    // MARK: Factories
+
+    /// Creates a method and an async closure for invoking the method, returning
+    /// them in a labeled tuple.
+    ///
+    /// ```swift
+    /// private let __logIn = MockVoidAsyncMethodWithParameters<(String, String)>.makeMethod()
+    ///
+    /// public var _logIn: MockVoidAsyncMethodWithParameters<(String, String)> {
+    ///     self.__logIn.method
+    /// }
+    ///
+    /// public func logIn(username: String, password: String) async {
+    ///     await self.__logIn.invoke((username, password))
+    /// }
+    /// ```
+    ///
+    /// - Returns: A tuple containing a method and an async closure for invoking
+    ///   the method.
+    public static func makeMethod(
+    ) -> (
+        method: MockVoidAsyncMethodWithParameters,
+        invoke: @Sendable (Arguments) async -> Void
+    ) {
+        let method = MockVoidAsyncMethodWithParameters()
+
+        return (
+            method: method,
+            invoke: { await method.invoke($0) }
+        )
+    }
+}

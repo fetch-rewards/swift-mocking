@@ -113,4 +113,47 @@ public final class MockReturningAsyncMethodWithoutParameters<ReturnValue> {
 // MARK: - Sendable
 
 extension MockReturningAsyncMethodWithoutParameters: Sendable 
-where ReturnValue: Sendable {}
+where ReturnValue: Sendable {
+
+    // MARK: Factories
+
+    /// Creates a method and an async closure for invoking the method, returning
+    /// them in a labeled tuple.
+    ///
+    /// ```swift
+    /// private let __users = MockReturningAsyncMethodWithoutParameters<[User]>.makeMethod(
+    ///     exposedMethodDescription: MockImplementationDescription(
+    ///         type: Self.self,
+    ///         member: "_users"
+    ///     )
+    /// )
+    ///
+    /// public var _users: MockReturningAsyncMethodWithoutParameters<[User]> {
+    ///     self.__users.method
+    /// }
+    ///
+    /// public func users() async -> [User] {
+    ///     await self.__users.invoke()
+    /// }
+    /// ```
+    ///
+    /// - Parameter exposedMethodDescription: The description of the mock's
+    ///   exposed method.
+    /// - Returns: A tuple containing a method and an async closure for invoking
+    ///   the method.
+    public static func makeMethod(
+        exposedMethodDescription: MockImplementationDescription
+    ) -> (
+        method: MockReturningAsyncMethodWithoutParameters,
+        invoke: @Sendable () async -> ReturnValue
+    ) {
+        let method = MockReturningAsyncMethodWithoutParameters(
+            exposedMethodDescription: exposedMethodDescription
+        )
+
+        return (
+            method: method,
+            invoke: { await method.invoke() }
+        )
+    }
+}
