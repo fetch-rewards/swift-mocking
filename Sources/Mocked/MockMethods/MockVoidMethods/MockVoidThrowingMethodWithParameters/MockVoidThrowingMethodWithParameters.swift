@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Locked
 
 /// The implementation details and invocation records for a mock's void,
 /// throwing method with parameters.
@@ -14,12 +15,15 @@ public final class MockVoidThrowingMethodWithParameters<Arguments> {
     // MARK: Properties
 
     /// The method's implementation.
+    @Locked(.unchecked)
     public var implementation: Implementation = .unimplemented
 
     /// The number of times the method has been called.
+    @Locked(.unchecked)
     public private(set) var callCount: Int = .zero
 
     /// All the arguments with which the method has been invoked.
+    @Locked(.unchecked)
     public private(set) var invocations: [Arguments] = []
 
     /// The last arguments with which the method has been invoked.
@@ -28,6 +32,7 @@ public final class MockVoidThrowingMethodWithParameters<Arguments> {
     }
 
     /// All the errors that have been thrown by the method.
+    @Locked(.unchecked)
     public private(set) var thrownErrors: [any Error] = []
 
     /// The last error thrown by the method.
@@ -79,8 +84,8 @@ public final class MockVoidThrowingMethodWithParameters<Arguments> {
     /// - Parameter arguments: The arguments with which the method is being
     ///   invoked.
     /// - Throws: An error, if ``implementation`` is
-    ///   ``Implementation-swift.enum/throws(_:)-swift.enum.case`` or
-    ///   ``Implementation-swift.enum/throws(_:)-swift.type.method``.
+    ///   ``Implementation-swift.enum/uncheckedThrows(_:)-swift.enum.case`` or
+    ///   ``Implementation-swift.enum/uncheckedThrows(_:)-swift.type.method``.
     private func invoke(_ arguments: Arguments) throws {
         self.callCount += 1
         self.invocations.append(arguments)
@@ -93,3 +98,8 @@ public final class MockVoidThrowingMethodWithParameters<Arguments> {
         }
     }
 }
+
+// MARK: - Sendable
+
+extension MockVoidThrowingMethodWithParameters: Sendable
+where Arguments: Sendable {}
