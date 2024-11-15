@@ -25,10 +25,8 @@ public final class MockReadOnlyThrowingProperty<Value> {
     /// - Parameter exposedPropertyDescription: The description of the mock's
     ///   exposed property.
     private init(exposedPropertyDescription: MockImplementationDescription) {
-        self._getter = OSAllocatedUnfairLock(
-            uncheckedState: MockPropertyThrowingGetter(
-                exposedPropertyDescription: exposedPropertyDescription
-            )
+        self.getter = MockPropertyThrowingGetter(
+            exposedPropertyDescription: exposedPropertyDescription
         )
     }
 

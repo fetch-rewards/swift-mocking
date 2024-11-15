@@ -29,10 +29,8 @@ public final class MockReadWriteProperty<Value> {
     /// - Parameter exposedPropertyDescription: The description of the mock's
     ///   exposed property.
     private init(exposedPropertyDescription: MockImplementationDescription) {
-        self._getter = OSAllocatedUnfairLock(
-            uncheckedState: MockPropertyGetter(
-                exposedPropertyDescription: exposedPropertyDescription
-            )
+        self.getter = MockPropertyGetter(
+            exposedPropertyDescription: exposedPropertyDescription
         )
     }
 
