@@ -25,7 +25,7 @@ let package = Package(
     dependencies: [
         .package(
             url: "git@github.com:fetch-rewards/swift-locking.git",
-            revision: "72c51636ce63d48472a97b87aad305c872b57569"
+            revision: "00244dc3f08de5fb2c31d9026c35e5830175fd05"
         ),
         .package(
             url: "https://github.com/apple/swift-syntax.git",

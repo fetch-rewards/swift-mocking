@@ -25,10 +25,8 @@ public final class MockReadOnlyAsyncProperty<Value> {
     /// - Parameter exposedPropertyDescription: The description of the mock's
     ///   exposed property.
     private init(exposedPropertyDescription: MockImplementationDescription) {
-        self._getter = OSAllocatedUnfairLock(
-            uncheckedState: MockPropertyAsyncGetter(
-                exposedPropertyDescription: exposedPropertyDescription
-            )
+        self.getter = MockPropertyAsyncGetter(
+            exposedPropertyDescription: exposedPropertyDescription
         )
     }
 
