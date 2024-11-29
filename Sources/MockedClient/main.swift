@@ -8,12 +8,68 @@
 import Foundation
 public import Mocked
 
+/// A protocol for testing/verifying Mocked's expansion.
+///
+/// - Important: Only use this for temporary testing/verification of Mocked's
+///   expansion. Assume that anything added to this protocol can and will be
+///   removed or replaced at some point in the future.
 @Mocked
-public protocol Dependency<Item> where Item: Identifiable {
-    associatedtype Item where Item: Hashable
-    associatedtype Items: RandomAccessCollection where Items.Element == Item
-    var items: Items { get async throws }
-    var selectedItem: Item { get set }
-    func item(id: Item.ID) async throws -> Item
-    func someFunction(with id: Item.ID, param: @escaping () -> Void) -> Int
+public protocol Playground {}
+
+// MARK: Static Members
+
+/// A protocol for verifying Mocked's handling of static properties and methods.
+///
+/// - Important: Please only use this protocol for permanent verification of
+///   Mocked's handling of static properties and methods. For temporary testing
+///   of Mocked's expansion, use the ``Playground`` protocol.
+@Mocked
+public protocol StaticMembers {
+    static var staticReadOnlyAsyncProperty: Int { get async }
+    static var staticReadOnlyAsyncThrowingProperty: Int { get async throws }
+    static var staticReadOnlyProperty: Int { get }
+    static var staticReadOnlyThrowingProperty: Int { get throws }
+    static var staticReadWriteProperty: Int { get set }
+
+    var readOnlyAsyncProperty: Int { get async }
+    var readOnlyAsyncThrowingProperty: Int { get async throws }
+    var readOnlyProperty: Int { get }
+    var readOnlyThrowingProperty: Int { get throws }
+    var readWriteProperty: Int { get set }
+
+    static func staticReturningAsyncMethodWithoutParameters() async -> Int
+    static func staticReturningAsyncMethodWithParameters(parameter: Int) async -> Int
+    static func staticReturningAsyncThrowingMethodWithoutParameters() async throws -> Int
+    static func staticReturningAsyncThrowingMethodWithParameters(parameter: Int) async throws -> Int
+    static func staticReturningMethodWithoutParameters() -> Int
+    static func staticReturningMethodWithParameters(parameter: Int) -> Int
+    static func staticReturningThrowingMethodWithoutParameters() throws -> Int
+    static func staticReturningThrowingMethodWithParameters(parameter: Int) throws -> Int
+
+    func returningAsyncMethodWithoutParameters() async -> Int
+    func returningAsyncMethodWithParameters(parameter: Int) async -> Int
+    func returningAsyncThrowingMethodWithoutParameters() async throws -> Int
+    func returningAsyncThrowingMethodWithParameters(parameter: Int) async throws -> Int
+    func returningMethodWithoutParameters() -> Int
+    func returningMethodWithParameters(parameter: Int) -> Int
+    func returningThrowingMethodWithoutParameters() throws -> Int
+    func returningThrowingMethodWithParameters(parameter: Int) throws -> Int
+
+    static func staticVoidAsyncMethodWithoutParameters() async
+    static func staticVoidAsyncMethodWithParameters(parameter: Int) async
+    static func staticVoidAsyncThrowingMethodWithoutParameters() async throws
+    static func staticVoidAsyncThrowingMethodWithParameters(parameter: Int) async throws
+    static func staticVoidMethodWithoutParameters()
+    static func staticVoidMethodWithParameters(parameter: Int)
+    static func staticVoidThrowingMethodWithoutParameters() throws
+    static func staticVoidThrowingMethodWithParameters(parameter: Int) throws
+
+    func voidAsyncMethodWithoutParameters() async
+    func voidAsyncMethodWithParameters(parameter: Int) async
+    func voidAsyncThrowingMethodWithoutParameters() async throws
+    func voidAsyncThrowingMethodWithParameters(parameter: Int) async throws
+    func voidMethodWithoutParameters()
+    func voidMethodWithParameters(parameter: Int)
+    func voidThrowingMethodWithoutParameters() throws
+    func voidThrowingMethodWithParameters(parameter: Int) throws
 }

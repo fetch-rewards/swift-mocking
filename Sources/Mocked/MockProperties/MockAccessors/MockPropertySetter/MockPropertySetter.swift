@@ -40,6 +40,15 @@ public final class MockPropertySetter<Value> {
         self.invocations.append(value)
         self.implementation(value: value)
     }
+
+    // MARK: Reset
+
+    /// Resets the setter's implementation and invocation records.
+    func reset() {
+        self.implementation = .unimplemented
+        self.callCount = .zero
+        self.invocations.removeAll()
+    }
 }
 
 // MARK: - Sendable

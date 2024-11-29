@@ -197,48 +197,76 @@ extension MockedMacro {
     private static func mockMemberBlock(
         from protocolDeclaration: ProtocolDeclSyntax
     ) throws -> MemberBlockSyntax {
-        try MemberBlockSyntax {
-            let accessLevel = protocolDeclaration.minimumConformingAccessLevel
-            let propertyDeclarations = protocolDeclaration.variableDeclarations
-            let methodDeclarations = protocolDeclaration.functionDeclarations
+        let accessLevel = protocolDeclaration.minimumConformingAccessLevel
+        let propertyDeclarations = protocolDeclaration.variableDeclarations
+        let methodDeclarations = protocolDeclaration.functionDeclarations
 
-            self.mockDefaultInitializerDeclaration(with: accessLevel)
+        var members: [any DeclSyntaxProtocol] = []
+        var backingOverrideDeclarations: [VariableDeclSyntax] = []
 
-            for propertyDeclaration in propertyDeclarations {
-                for binding in propertyDeclaration.bindings {
-                    let propertyOverrideDeclarations = self.mockPropertyOverrideDeclarations(
-                        for: binding,
-                        with: accessLevel,
-                        in: protocolDeclaration
-                    )
+        let initializerDeclaration = self.mockDefaultInitializerDeclaration(
+            with: accessLevel
+        )
 
-                    propertyOverrideDeclarations.backingProperty
-                    propertyOverrideDeclarations.exposedProperty
+        members.append(initializerDeclaration)
 
-                    try self.mockPropertyConformanceDeclaration(
-                        for: binding,
-                        with: accessLevel
-                    )
-                }
-            }
-
-            for methodDeclaration in methodDeclarations {
-                let methodOverrideDeclarations = self.mockMethodOverrideDeclarations(
-                    for: methodDeclaration,
+        for propertyDeclaration in propertyDeclarations {
+            for binding in propertyDeclaration.bindings {
+                let propertyOverrideDeclarations = self.mockPropertyOverrideDeclarations(
                     with: accessLevel,
+                    for: binding,
+                    from: propertyDeclaration,
                     in: protocolDeclaration
                 )
-
-                methodOverrideDeclarations.backingMethod
-                methodOverrideDeclarations.exposedMethod
-
-                try self.mockMethodConformanceDeclaration(
-                    for: methodDeclaration,
-                    with: accessLevel
+                let propertyConformanceDeclaration = try self.mockPropertyConformanceDeclaration(
+                    with: accessLevel,
+                    for: binding,
+                    from: propertyDeclaration
                 )
+
+                backingOverrideDeclarations.append(
+                    propertyOverrideDeclarations.backingProperty
+                )
+                members.append(propertyOverrideDeclarations.backingProperty)
+                members.append(propertyOverrideDeclarations.exposedProperty)
+                members.append(propertyConformanceDeclaration)
+            }
+        }
+
+        for methodDeclaration in methodDeclarations {
+            let methodOverrideDeclarations = self.mockMethodOverrideDeclarations(
+                with: accessLevel,
+                for: methodDeclaration,
+                in: protocolDeclaration
+            )
+            let methodConformanceDeclaration = try self.mockMethodConformanceDeclaration(
+                with: accessLevel,
+                for: methodDeclaration
+            )
+
+            backingOverrideDeclarations.append(
+                methodOverrideDeclarations.backingMethod
+            )
+            members.append(methodOverrideDeclarations.backingMethod)
+            members.append(methodOverrideDeclarations.exposedMethod)
+            members.append(methodConformanceDeclaration)
+        }
+
+        if let resetStaticMembersMethodDeclaration = self.resetStaticMembersMethodDeclaration(
+            backingOverrideDeclarations: backingOverrideDeclarations,
+            protocolDeclaration: protocolDeclaration
+        ) {
+            members.append(resetStaticMembersMethodDeclaration)
+        }
+
+        return MemberBlockSyntax {
+            for member in members {
+                member
             }
         }
     }
+
+    // MARK: Initializers
 
     /// Returns a default initializer to apply to the mock, with no parameters
     /// and an empty body.
@@ -273,19 +301,26 @@ extension MockedMacro {
         ) {}
     }
 
+    // MARK: Properties
+
     /// Returns property override declarations to apply to the mock, generated
     /// from the provided protocol property binding with the exposed declaration
     /// marked with the provided access level.
     ///
     /// - Parameters:
-    ///   - binding: A property binding from the protocol to which the mock must
-    ///     conform.
     ///   - accessLevel: The access level to apply to the exposed property
     ///     override declaration.
+    ///   - binding: A property binding from the protocol to which the mock must
+    ///     conform.
+    ///   - propertyDeclaration: The property declaration that contains the
+    ///     binding.
+    ///   - protocolDeclaration: The protocol declaration to which the mock must
+    ///     conform.
     /// - Returns: Property override declarations to apply to the mock.
     private static func mockPropertyOverrideDeclarations(
-        for binding: PatternBindingSyntax,
         with accessLevel: AccessLevelSyntax,
+        for binding: PatternBindingSyntax,
+        from propertyDeclaration: VariableDeclSyntax,
         in protocolDeclaration: ProtocolDeclSyntax
     ) -> (
         backingProperty: VariableDeclSyntax,
@@ -315,13 +350,11 @@ extension MockedMacro {
 
         return (
             backingProperty: VariableDeclSyntax(
-                modifiers: DeclModifierListSyntax {
-                    AccessLevelSyntax.private.modifier
-
-                    if protocolDeclaration.isActorConstrained {
-                        DeclModifierSyntax(name: .keyword(.nonisolated))
-                    }
-                },
+                modifiers: self.mockOverrideDeclarationModifiers(
+                    from: propertyDeclaration.modifiers,
+                    with: AccessLevelSyntax.private,
+                    in: protocolDeclaration
+                ),
                 .let,
                 name: PatternSyntax(stringLiteral: "__\(propertyName)"),
                 initializer: InitializerClauseSyntax(
@@ -338,15 +371,11 @@ extension MockedMacro {
                 )
             ),
             exposedProperty: VariableDeclSyntax(
-                modifiers: DeclModifierListSyntax {
-                    if accessLevel != .internal {
-                        accessLevel.modifier
-                    }
-
-                    if protocolDeclaration.isActorConstrained {
-                        DeclModifierSyntax(name: .keyword(.nonisolated))
-                    }
-                },
+                modifiers: self.mockOverrideDeclarationModifiers(
+                    from: propertyDeclaration.modifiers,
+                    with: accessLevel,
+                    in: protocolDeclaration
+                ),
                 bindingSpecifier: .keyword(.var),
                 bindingsBuilder: {
                     PatternBindingSyntax(
@@ -372,14 +401,17 @@ extension MockedMacro {
     /// the provided access level.
     ///
     /// - Parameters:
-    ///   - binding: A property binding from the protocol to which the mock must
-    ///     conform.
     ///   - accessLevel: The access level to apply to the property conformance
     ///     declaration.
+    ///   - binding: A property binding from the protocol to which the mock must
+    ///     conform.
+    ///   - propertyDeclaration: The property declaration that contains the
+    ///     binding.
     /// - Returns: A property conformance declaration to apply to the mock.
     private static func mockPropertyConformanceDeclaration(
+        with accessLevel: AccessLevelSyntax,
         for binding: PatternBindingSyntax,
-        with accessLevel: AccessLevelSyntax
+        from propertyDeclaration: VariableDeclSyntax
     ) throws -> VariableDeclSyntax {
         let propertyName = binding.pattern.as(IdentifierPatternSyntax.self)!.identifier
 
@@ -421,7 +453,6 @@ extension MockedMacro {
                 }
         }
 
-        // TODO: Remove default
         let accessors: AccessorBlockSyntax.Accessors = switch (
             binding.accessorBlock?.getAccessorDeclaration,
             binding.accessorBlock?.setAccessorDeclaration
@@ -458,11 +489,10 @@ extension MockedMacro {
         }
 
         return VariableDeclSyntax(
-            modifiers: DeclModifierListSyntax {
-                if accessLevel != .internal {
-                    accessLevel.modifier
-                }
-            },
+            modifiers: self.mockConformanceDeclarationModifiers(
+                from: propertyDeclaration.modifiers,
+                with: accessLevel
+            ),
             bindingSpecifier: .keyword(.var),
             bindingsBuilder: {
                 PatternBindingSyntax(
@@ -474,19 +504,22 @@ extension MockedMacro {
         )
     }
 
+    // MARK: Methods
+
     /// Returns method override declarations to apply to the mock, generated
     /// from the provided protocol method with the exposed declaration marked
     /// with the provided access level.
     ///
     /// - Parameters:
-    ///   - methodDeclaration: A method from the protocol to which the mock must
-    ///     conform.
     ///   - accessLevel: The access level to apply to the exposed method
     ///     override declaration.
+    ///   - methodDeclaration: A method from the protocol to which the mock must
+    ///     conform.
+    ///   - protocolDeclaration: The protocol being mocked.
     /// - Returns: Method override declarations to apply to the mock.
     private static func mockMethodOverrideDeclarations(
-        for methodDeclaration: FunctionDeclSyntax,
         with accessLevel: AccessLevelSyntax,
+        for methodDeclaration: FunctionDeclSyntax,
         in protocolDeclaration: ProtocolDeclSyntax
     ) -> (
         backingMethod: VariableDeclSyntax,
@@ -543,13 +576,11 @@ extension MockedMacro {
 
         return (
             backingMethod: VariableDeclSyntax(
-                modifiers: DeclModifierListSyntax {
-                    AccessLevelSyntax.private.modifier
-
-                    if protocolDeclaration.isActorConstrained {
-                        DeclModifierSyntax(name: .keyword(.nonisolated))
-                    }
-                },
+                modifiers: self.mockOverrideDeclarationModifiers(
+                    from: methodDeclaration.modifiers,
+                    with: AccessLevelSyntax.private,
+                    in: protocolDeclaration
+                ),
                 .let,
                 name: PatternSyntax(
                     stringLiteral: "__\(methodName)"
@@ -559,15 +590,11 @@ extension MockedMacro {
                 )
             ),
             exposedMethod: VariableDeclSyntax(
-                modifiers: DeclModifierListSyntax {
-                    if accessLevel != .internal {
-                        accessLevel.modifier
-                    }
-
-                    if protocolDeclaration.isActorConstrained {
-                        DeclModifierSyntax(name: .keyword(.nonisolated))
-                    }
-                },
+                modifiers: self.mockOverrideDeclarationModifiers(
+                    from: methodDeclaration.modifiers,
+                    with: accessLevel,
+                    in: protocolDeclaration
+                ),
                 bindingSpecifier: .keyword(.var),
                 bindingsBuilder: {
                     PatternBindingSyntax(
@@ -593,14 +620,14 @@ extension MockedMacro {
     /// level.
     ///
     /// - Parameters:
-    ///   - methodDeclaration: A method from the protocol to which the mock must
-    ///     conform.
     ///   - accessLevel: The access level to apply to the method conformance
     ///     declaration.
+    ///   - methodDeclaration: A method from the protocol to which the mock must
+    ///     conform.
     /// - Returns: A method conformance declaration to apply to the mock.
     private static func mockMethodConformanceDeclaration(
-        for methodDeclaration: FunctionDeclSyntax,
-        with accessLevel: AccessLevelSyntax
+        with accessLevel: AccessLevelSyntax,
+        for methodDeclaration: FunctionDeclSyntax
     ) throws -> FunctionDeclSyntax {
         let methodName = methodDeclaration.name.trimmed
         let invocationArguments = methodDeclaration.parameterVariableNames
@@ -632,17 +659,139 @@ extension MockedMacro {
             .trimmed
             .withAccessLevel(accessLevel)
             .with(\.modifiers) { modifiers in
-                let excludedTokenKinds: [TokenKind] = [
-                    .keyword(.mutating),
-                    .keyword(.nonmutating),
-                ]
+                let shouldIncludeModifier: (DeclModifierSyntax) -> Bool = { modifier in
+                    let excludedTokenKinds: [TokenKind] = [
+                        .keyword(.mutating),
+                        .keyword(.nonmutating),
+                    ]
 
-                for modifier in modifiers where !excludedTokenKinds.contains(modifier.name.tokenKind) {
+                    return !excludedTokenKinds.contains(modifier.name.tokenKind)
+                }
+
+                for modifier in modifiers where shouldIncludeModifier(modifier) {
                     modifier
                 }
             }
             .with(\.body) {
                 CodeBlockItemSyntax(stringLiteral: backingImplementationInvocation)
             }
+    }
+
+    // MARK: Modifiers
+
+    /// Returns modifiers to apply to override declarations, generated using the
+    /// provided `protocolDeclaration`, `accessLevel`, and protocol requirement
+    /// `modifiers`.
+    ///
+    /// - Parameters:
+    ///   - modifiers: The modifiers taken from the protocol requirement.
+    ///   - accessLevel: The access level to apply to the override declaration.
+    ///   - protocolDeclaration: The protocol being mocked.
+    /// - Returns: Modifiers to apply to override declarations.
+    private static func mockOverrideDeclarationModifiers(
+        from modifiers: DeclModifierListSyntax,
+        with accessLevel: AccessLevelSyntax,
+        in protocolDeclaration: ProtocolDeclSyntax
+    ) -> DeclModifierListSyntax {
+        let shouldIncludeModifier: (DeclModifierSyntax) -> Bool = { modifier in
+            let isModifierNonIsolated = modifier.name.tokenKind != .keyword(.nonisolated)
+            let isProtocolActorConstrained = protocolDeclaration.isActorConstrained
+
+            return !modifier.isAccessLevel
+                && (!isProtocolActorConstrained || !isModifierNonIsolated)
+        }
+
+        return DeclModifierListSyntax {
+            if accessLevel != .internal {
+                accessLevel.modifier
+            }
+
+            for modifier in modifiers where shouldIncludeModifier(modifier) {
+                modifier.trimmed
+            }
+
+            if protocolDeclaration.isActorConstrained {
+                DeclModifierSyntax(name: .keyword(.nonisolated))
+            }
+        }
+    }
+
+    /// Returns modifiers to apply to a conformance declaration, generated using
+    /// the provided `accessLevel` and protocol requirement `modifiers`.
+    ///
+    /// - Parameters:
+    ///   - modifiers: The modifiers taken from the protocol requirement.
+    ///   - accessLevel: The access level to apply to the conformance
+    ///     declaration.
+    /// - Returns: Modifiers to apply to a conformance declaration.
+    private static func mockConformanceDeclarationModifiers(
+        from modifiers: DeclModifierListSyntax,
+        with accessLevel: AccessLevelSyntax
+    ) -> DeclModifierListSyntax {
+        DeclModifierListSyntax {
+            if accessLevel != .internal {
+                accessLevel.modifier
+            }
+
+            for modifier in modifiers where !modifier.isAccessLevel {
+                modifier.trimmed
+            }
+        }
+    }
+
+    // MARK: Reset Static Members Method
+
+    /// Returns a `resetStaticMembers` method declaration that, when invoked,
+    /// resets the `static` backing override declarations contained in the
+    /// provided `backingOverrideDeclarations` collection.
+    ///
+    /// - Parameters:
+    ///   - backingOverrideDeclarations: The mock's backing override
+    ///     declarations.
+    ///   - protocolDeclaration: The protocol to which the mock must conform.
+    /// - Returns: A `resetStaticMembers` method declaration that, when invoked,
+    ///   resets the `static` backing override declarations contained in the
+    ///   provided `backingOverrideDeclarations` collection.
+    private static func resetStaticMembersMethodDeclaration(
+        backingOverrideDeclarations: [VariableDeclSyntax],
+        protocolDeclaration: ProtocolDeclSyntax
+    ) -> FunctionDeclSyntax? {
+        let staticBackingOverrideDeclarations = backingOverrideDeclarations
+            .filter { declaration in
+                declaration.modifiers.contains { modifier in
+                    modifier.name.tokenKind == .keyword(.static)
+                }
+            }
+
+        guard !staticBackingOverrideDeclarations.isEmpty else {
+            return nil
+        }
+
+        return FunctionDeclSyntax(
+            leadingTrivia: "",
+            modifiers: DeclModifierListSyntax {
+                if protocolDeclaration.accessLevel != .internal {
+                    protocolDeclaration.accessLevel.modifier
+                }
+
+                DeclModifierSyntax(name: .keyword(.static))
+            },
+            funcKeyword: .keyword(.func),
+            name: .identifier("resetStaticMembers"),
+            signature: FunctionSignatureSyntax(
+                parameterClause: FunctionParameterClauseSyntax(
+                    leftParen: .leftParenToken(),
+                    rightParen: .rightParenToken()
+                ) {}
+            )
+        ) {
+            for staticBackingOverrideDeclaration in staticBackingOverrideDeclarations {
+                if let binding = staticBackingOverrideDeclaration.bindings.first {
+                    let bindingName = binding.pattern.trimmed
+
+                    "self.\(bindingName).reset()"
+                }
+            }
+        }
     }
 }

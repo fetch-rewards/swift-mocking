@@ -50,8 +50,8 @@ public final class MockReturningMethodWithoutParameters<ReturnValue> {
 
     // MARK: Factories
 
-    /// Creates a method and a closure for invoking the method, returning them
-    /// in a labeled tuple.
+    /// Creates a method, a closure for invoking the method, and a closure for
+    /// resetting the method, returning them in a labeled tuple.
     ///
     /// ```swift
     /// private let __users = MockReturningMethodWithoutParameters<[User]>.makeMethod(
@@ -72,13 +72,14 @@ public final class MockReturningMethodWithoutParameters<ReturnValue> {
     ///
     /// - Parameter exposedMethodDescription: The description of the mock's
     ///   exposed method.
-    /// - Returns: A tuple containing a method and a closure for invoking the
-    ///   method.
+    /// - Returns: A tuple containing a method, a closure for invoking the
+    ///   method, and a closure for resetting the method.
     public static func makeMethod(
         exposedMethodDescription: MockImplementationDescription
     ) -> (
         method: MockReturningMethodWithoutParameters,
-        invoke: () -> ReturnValue
+        invoke: () -> ReturnValue,
+        reset: () -> Void
     ) {
         let method = MockReturningMethodWithoutParameters(
             exposedMethodDescription: exposedMethodDescription
@@ -86,7 +87,8 @@ public final class MockReturningMethodWithoutParameters<ReturnValue> {
 
         return (
             method: method,
-            invoke: { method.invoke() }
+            invoke: { method.invoke() },
+            reset: { method.reset() }
         )
     }
 
@@ -108,6 +110,15 @@ public final class MockReturningMethodWithoutParameters<ReturnValue> {
 
         return returnValue
     }
+
+    // MARK: Reset
+
+    /// Resets the method's implementation and invocation records.
+    private func reset() {
+        self.implementation = .unimplemented
+        self.callCount = .zero
+        self.returnedValues.removeAll()
+    }
 }
 
 // MARK: - Sendable
@@ -117,8 +128,8 @@ where ReturnValue: Sendable {
 
     // MARK: Factories
 
-    /// Creates a method and a closure for invoking the method, returning them
-    /// in a labeled tuple.
+    /// Creates a method, a closure for invoking the method, and a closure for
+    /// resetting the method, returning them in a labeled tuple.
     ///
     /// ```swift
     /// private let __users = MockReturningMethodWithoutParameters<[User]>.makeMethod(
@@ -139,13 +150,14 @@ where ReturnValue: Sendable {
     ///
     /// - Parameter exposedMethodDescription: The description of the mock's
     ///   exposed method.
-    /// - Returns: A tuple containing a method and a closure for invoking the
-    ///   method.
+    /// - Returns: A tuple containing a method, a closure for invoking the
+    ///   method, and a closure for resetting the method.
     public static func makeMethod(
         exposedMethodDescription: MockImplementationDescription
     ) -> (
         method: MockReturningMethodWithoutParameters,
-        invoke: @Sendable () -> ReturnValue
+        invoke: @Sendable () -> ReturnValue,
+        reset: @Sendable () -> Void
     ) {
         let method = MockReturningMethodWithoutParameters(
             exposedMethodDescription: exposedMethodDescription
@@ -153,7 +165,8 @@ where ReturnValue: Sendable {
 
         return (
             method: method,
-            invoke: { method.invoke() }
+            invoke: { method.invoke() },
+            reset: { method.reset() }
         )
     }
 }
