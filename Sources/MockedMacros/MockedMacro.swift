@@ -768,7 +768,10 @@ extension MockedMacro {
         }
 
         return FunctionDeclSyntax(
-            leadingTrivia: "",
+            leadingTrivia: """
+            /// Resets the implementations and invocation records of the mock's static
+            /// properties and methods.\n
+            """,
             modifiers: DeclModifierListSyntax {
                 if protocolDeclaration.accessLevel != .internal {
                     protocolDeclaration.accessLevel.modifier
