@@ -67,7 +67,8 @@ public final class MockReturningAsyncThrowingMethodWithParameters<
     /// tuple.
     ///
     /// ```swift
-    /// private let __user = MockReturningAsyncThrowingMethodWithParameters<(User.ID), User>.makeMethod(
+    /// private let __user = MockReturningAsyncThrowingMethodWithParameters<(User.ID),
+    /// User>.makeMethod(
     ///     exposedMethodDescription: MockImplementationDescription(
     ///         type: Self.self,
     ///         member: "_user"
@@ -149,7 +150,8 @@ public final class MockReturningAsyncThrowingMethodWithParameters<
 // MARK: - Sendable
 
 extension MockReturningAsyncThrowingMethodWithParameters: Sendable
-where Arguments: Sendable, ReturnValue: Sendable {
+    where Arguments: Sendable, ReturnValue: Sendable
+{
 
     // MARK: Factories
 
@@ -158,7 +160,8 @@ where Arguments: Sendable, ReturnValue: Sendable {
     /// tuple.
     ///
     /// ```swift
-    /// private let __user = MockReturningAsyncThrowingMethodWithParameters<(User.ID), User>.makeMethod(
+    /// private let __user = MockReturningAsyncThrowingMethodWithParameters<(User.ID),
+    /// User>.makeMethod(
     ///     exposedMethodDescription: MockImplementationDescription(
     ///         type: Self.self,
     ///         member: "_user"

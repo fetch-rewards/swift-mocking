@@ -38,10 +38,10 @@ func assertMocked(
         \(interface)
         """,
         expandedSource: """
-            \(interface)
+        \(interface)
 
-            \(mock)
-            """,
+        \(mock)
+        """,
         diagnostics: diagnostics,
         macros: ["Mocked": MockedMacro.self],
         file: file,

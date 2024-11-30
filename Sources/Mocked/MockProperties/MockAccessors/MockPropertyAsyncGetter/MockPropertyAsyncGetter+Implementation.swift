@@ -55,7 +55,8 @@ extension MockPropertyAsyncGetter {
 // MARK: - Sendable
 
 extension MockPropertyAsyncGetter.Implementation
-where Value: Sendable {
+    where Value: Sendable
+{
 
     // MARK: Constructors
 

@@ -127,7 +127,8 @@ public final class MockReturningThrowingMethodWithoutParameters<ReturnValue> {
 // MARK: - Sendable
 
 extension MockReturningThrowingMethodWithoutParameters: Sendable
-where ReturnValue: Sendable {
+    where ReturnValue: Sendable
+{
 
     // MARK: Factories
 

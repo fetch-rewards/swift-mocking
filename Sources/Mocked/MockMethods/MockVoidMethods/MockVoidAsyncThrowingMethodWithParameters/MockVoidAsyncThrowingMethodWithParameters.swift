@@ -52,7 +52,8 @@ public final class MockVoidAsyncThrowingMethodWithParameters<Arguments> {
     /// tuple.
     ///
     /// ```swift
-    /// private let __logIn = MockVoidAsyncThrowingMethodWithParameters<(String, String)>.makeMethod()
+    /// private let __logIn = MockVoidAsyncThrowingMethodWithParameters<(String,
+    /// String)>.makeMethod()
     ///
     /// public var _logIn: MockVoidAsyncThrowingMethodWithParameters<(String, String)> {
     ///     self.__logIn.method
@@ -115,7 +116,8 @@ public final class MockVoidAsyncThrowingMethodWithParameters<Arguments> {
 // MARK: - Sendable
 
 extension MockVoidAsyncThrowingMethodWithParameters: Sendable
-where Arguments: Sendable {
+    where Arguments: Sendable
+{
 
     // MARK: Factories
 
@@ -124,7 +126,8 @@ where Arguments: Sendable {
     /// tuple.
     ///
     /// ```swift
-    /// private let __logIn = MockVoidAsyncThrowingMethodWithParameters<(String, String)>.makeMethod()
+    /// private let __logIn = MockVoidAsyncThrowingMethodWithParameters<(String,
+    /// String)>.makeMethod()
     ///
     /// public var _logIn: MockVoidAsyncThrowingMethodWithParameters<(String, String)> {
     ///     self.__logIn.method

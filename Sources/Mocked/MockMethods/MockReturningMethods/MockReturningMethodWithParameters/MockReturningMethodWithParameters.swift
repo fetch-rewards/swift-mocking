@@ -138,7 +138,8 @@ public final class MockReturningMethodWithParameters<Arguments, ReturnValue> {
 // MARK: - Sendable
 
 extension MockReturningMethodWithParameters: Sendable
-where Arguments: Sendable, ReturnValue: Sendable {
+    where Arguments: Sendable, ReturnValue: Sendable
+{
 
     // MARK: Factories
 

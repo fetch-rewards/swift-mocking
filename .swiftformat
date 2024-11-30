@@ -33,6 +33,9 @@
 ## Number of spaces to indent, or tab to use tabs.
 --indent 4
 
+## Mark extensions always (default), never, if-not-empty
+--markextensions never
+
 ## Mark types always (default), never, or if-not-empty
 --marktypes never
 

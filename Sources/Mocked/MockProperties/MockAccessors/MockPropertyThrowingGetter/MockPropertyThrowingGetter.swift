@@ -42,7 +42,7 @@ public final class MockPropertyThrowingGetter<Value> {
 
     /// Creates a throwing property getter.
     ///
-    /// - Parameter exposedPropertyDescription: The description of the mock's 
+    /// - Parameter exposedPropertyDescription: The description of the mock's
     ///   exposed property.
     init(exposedPropertyDescription: MockImplementationDescription) {
         self.exposedPropertyDescription = exposedPropertyDescription
@@ -85,4 +85,4 @@ public final class MockPropertyThrowingGetter<Value> {
 // MARK: - Sendable
 
 extension MockPropertyThrowingGetter: Sendable
-where Value: Sendable {}
+    where Value: Sendable {}

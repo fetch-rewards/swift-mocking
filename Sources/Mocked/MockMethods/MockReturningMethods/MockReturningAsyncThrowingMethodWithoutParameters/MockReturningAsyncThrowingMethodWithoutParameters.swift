@@ -97,7 +97,7 @@ public final class MockReturningAsyncThrowingMethodWithoutParameters<ReturnValue
 
     /// Records the invocation of the method and invokes ``implementation``.
     ///
-    /// - Throws: An error, if ``implementation`` is 
+    /// - Throws: An error, if ``implementation`` is
     ///   ``Implementation-swift.enum/uncheckedThrows(_:)-swift.enum.case`` or
     ///   ``Implementation-swift.enum/uncheckedThrows(_:)-swift.type.method``.
     /// - Returns: A value, if ``implementation`` is
@@ -130,7 +130,8 @@ public final class MockReturningAsyncThrowingMethodWithoutParameters<ReturnValue
 // MARK: - Sendable
 
 extension MockReturningAsyncThrowingMethodWithoutParameters: Sendable
-where ReturnValue: Sendable {
+    where ReturnValue: Sendable
+{
 
     // MARK: Factories
 

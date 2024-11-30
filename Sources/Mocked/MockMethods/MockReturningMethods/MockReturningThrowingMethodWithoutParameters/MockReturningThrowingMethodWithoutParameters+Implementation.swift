@@ -10,7 +10,7 @@ import XCTestDynamicOverlay
 
 extension MockReturningThrowingMethodWithoutParameters {
 
-    /// An implementation for a mock's returning, throwing method without 
+    /// An implementation for a mock's returning, throwing method without
     /// parameters.
     public enum Implementation: @unchecked Sendable {
 
@@ -71,7 +71,8 @@ extension MockReturningThrowingMethodWithoutParameters {
 // MARK: - Sendable
 
 extension MockReturningThrowingMethodWithoutParameters.Implementation
-where ReturnValue: Sendable {
+    where ReturnValue: Sendable
+{
 
     // MARK: Constructors
 

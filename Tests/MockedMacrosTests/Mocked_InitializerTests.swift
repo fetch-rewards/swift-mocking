@@ -22,10 +22,10 @@ final class Mocked_InitializerTests: XCTestCase {
                 \(interface.accessLevel) protocol Dependency {}
                 """,
                 generates: """
-                    \(mock.modifiers)class DependencyMock: Dependency {
-                    \(mock.defaultInit)
-                    }
-                    """
+                \(mock.modifiers)class DependencyMock: Dependency {
+                \(mock.defaultInit)
+                }
+                """
             )
         }
     }
@@ -42,14 +42,14 @@ final class Mocked_InitializerTests: XCTestCase {
                 }
                 """,
                 generates: """
-                    \(mock.modifiers)class DependencyMock: Dependency {
-                    \(mock.defaultInit)
-                        \(mock.memberModifiers)init(parameter: Int) {
-                        }
-                        \(mock.memberModifiers)init(parameter1: Int, parameter2: Int) {
-                        }
+                \(mock.modifiers)class DependencyMock: Dependency {
+                \(mock.defaultInit)
+                    \(mock.memberModifiers)init(parameter: Int) {
                     }
-                    """
+                    \(mock.memberModifiers)init(parameter1: Int, parameter2: Int) {
+                    }
+                }
+                """
             )
         }
     }

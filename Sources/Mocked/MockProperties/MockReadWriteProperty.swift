@@ -100,7 +100,8 @@ public final class MockReadWriteProperty<Value> {
 // MARK: - Sendable
 
 extension MockReadWriteProperty: Sendable
-where Value: Sendable {
+    where Value: Sendable
+{
 
     // MARK: Factories
 

@@ -41,7 +41,7 @@ extension MockPropertyThrowingGetter {
         /// Invokes the implementation, triggering a test failure if the
         /// implementation is ``unimplemented``, returning a value if the
         /// implementation is ``uncheckedReturns(_:)-swift.enum.case`` or
-        /// ``uncheckedReturns(_:)-swift.type.method``, or throwing an error if 
+        /// ``uncheckedReturns(_:)-swift.type.method``, or throwing an error if
         /// the implementation is ``uncheckedThrows(_:)-swift.enum.case`` or
         /// ``uncheckedThrows(_:)-swift.type.method``.
         ///
@@ -70,7 +70,8 @@ extension MockPropertyThrowingGetter {
 // MARK: - Sendable
 
 extension MockPropertyThrowingGetter.Implementation
-where Value: Sendable {
+    where Value: Sendable
+{
 
     // MARK: Constructors
 

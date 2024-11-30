@@ -47,7 +47,7 @@ extension MockReturningAsyncThrowingMethodWithoutParameters {
         /// ``uncheckedThrows(_:)-swift.type.method``.
         ///
         /// - Parameter description: The implementation's description.
-        /// - Throws: An error, if the implementation is 
+        /// - Throws: An error, if the implementation is
         ///   ``uncheckedThrows(_:)-swift.enum.case`` or
         ///   ``uncheckedThrows(_:)-swift.type.method``.
         /// - Returns: A value, if the implementation is
@@ -71,7 +71,8 @@ extension MockReturningAsyncThrowingMethodWithoutParameters {
 // MARK: - Sendable
 
 extension MockReturningAsyncThrowingMethodWithoutParameters.Implementation
-where ReturnValue: Sendable {
+    where ReturnValue: Sendable
+{
 
     // MARK: Constructors
 

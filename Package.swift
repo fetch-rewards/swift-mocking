@@ -110,7 +110,7 @@ extension SwiftSetting {
     )
 }
 
-extension Array where Element == SwiftSetting {
+extension [SwiftSetting] {
 
     /// Default Swift settings to enable for targets.
     static let `default`: [SwiftSetting] = [

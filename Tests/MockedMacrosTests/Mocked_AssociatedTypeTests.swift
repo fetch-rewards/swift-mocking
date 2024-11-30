@@ -25,11 +25,11 @@ final class Mocked_AssociatedTypeTests: XCTestCase {
                 }
                 """,
                 generates: """
-                    \(mock.modifiers)\
-                    class DependencyMock<A: Hashable, B: Identifiable>: Dependency {
-                    \(mock.defaultInit)
-                    }
-                    """
+                \(mock.modifiers)\
+                class DependencyMock<A: Hashable, B: Identifiable>: Dependency {
+                \(mock.defaultInit)
+                }
+                """
             )
         }
     }
@@ -44,13 +44,13 @@ final class Mocked_AssociatedTypeTests: XCTestCase {
                 }
                 """,
                 generates: """
-                    \(mock.modifiers)\
-                    class DependencyMock\
-                    <A: Hashable & Identifiable, B: Comparable & Equatable & RawRepresentable>\
-                    : Dependency {
-                    \(mock.defaultInit)
-                    }
-                    """
+                \(mock.modifiers)\
+                class DependencyMock\
+                <A: Hashable & Identifiable, B: Comparable & Equatable & RawRepresentable>\
+                : Dependency {
+                \(mock.defaultInit)
+                }
+                """
             )
         }
     }
@@ -69,14 +69,14 @@ final class Mocked_AssociatedTypeTests: XCTestCase {
                 }
                 """,
                 generates: """
-                    \(mock.modifiers)\
-                    class DependencyMock\
-                    <A: Comparable, B: BidirectionalCollection, C: RandomAccessCollection>\
-                    : Dependency where A: Hashable, B.Element: Equatable, \
-                    B.Element: Identifiable, C.Element == String {
-                    \(mock.defaultInit)
-                    }
-                    """
+                \(mock.modifiers)\
+                class DependencyMock\
+                <A: Comparable, B: BidirectionalCollection, C: RandomAccessCollection>\
+                : Dependency where A: Hashable, B.Element: Equatable, \
+                B.Element: Identifiable, C.Element == String {
+                \(mock.defaultInit)
+                }
+                """
             )
         }
     }
