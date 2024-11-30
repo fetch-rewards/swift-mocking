@@ -33,9 +33,6 @@
 ## Number of spaces to indent, or tab to use tabs.
 --indent 4
 
-## Indent multiline strings: false (default) or true
---indentstrings true
-
 ## Mark types always (default), never, or if-not-empty
 --marktypes never
 
@@ -70,7 +67,7 @@
 --typeblanklines preserve
 
 ## Property @attributes: preserve, prev-line, or same-line.
---varattributes same-line
+--varattributes preserve
 
 ## Wrap all arguments: before-first, after-first, preserve.
 --wraparguments before-first
