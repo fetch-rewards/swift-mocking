@@ -1,8 +1,8 @@
 # Swift Version
---swiftversion 5.9
+--swiftversion 6.0
 
 # SwiftFormat Version
---minversion 0.52.10
+--minversion 0.55.3
 
 # Options
 
