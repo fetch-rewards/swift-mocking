@@ -18,7 +18,7 @@ final class MockReturningAsyncThrowingMethodWithoutParametersTests: XCTestCase {
     // MARK: Implementation Tests
 
     func testImplementationDefaultValue() async {
-        let (sut, _) = self.sut()
+        let (sut, _, _) = self.sut()
 
         guard case .unimplemented = sut.implementation else {
             XCTFail("Expected implementation to equal .unimplemented")
@@ -29,7 +29,7 @@ final class MockReturningAsyncThrowingMethodWithoutParametersTests: XCTestCase {
     // MARK: Call Count Tests
 
     func testCallCount() async throws {
-        let (sut, invoke) = self.sut()
+        let (sut, invoke, reset) = self.sut()
 
         XCTAssertEqual(sut.callCount, .zero)
 
@@ -50,12 +50,15 @@ final class MockReturningAsyncThrowingMethodWithoutParametersTests: XCTestCase {
         }
 
         XCTAssertEqual(sut.callCount, 2)
+
+        reset()
+        XCTAssertEqual(sut.callCount, .zero)
     }
 
     // MARK: Returned Values Tests
 
     func testReturnedValues() async throws {
-        let (sut, invoke) = self.sut()
+        let (sut, invoke, reset) = self.sut()
 
         XCTAssertTrue(sut.returnedValues.isEmpty)
 
@@ -86,12 +89,15 @@ final class MockReturningAsyncThrowingMethodWithoutParametersTests: XCTestCase {
         } catch {
             XCTFail("Expected \(error) to equal URLError(.badURL)")
         }
+
+        reset()
+        XCTAssertTrue(sut.returnedValues.isEmpty)
     }
 
     // MARK: Last Returned Value Tests
 
     func testLastReturnedValue() async throws {
-        let (sut, invoke) = self.sut()
+        let (sut, invoke, reset) = self.sut()
 
         XCTAssertNil(sut.lastReturnedValue)
 
@@ -119,6 +125,9 @@ final class MockReturningAsyncThrowingMethodWithoutParametersTests: XCTestCase {
         } catch {
             XCTFail("Expected \(error) to equal URLError(.badURL)")
         }
+
+        reset()
+        XCTAssertNil(sut.lastReturnedValue)
     }
 }
 
@@ -127,7 +136,8 @@ final class MockReturningAsyncThrowingMethodWithoutParametersTests: XCTestCase {
 extension MockReturningAsyncThrowingMethodWithoutParametersTests {
     private func sut() -> (
         method: SUT,
-        invoke: () async throws -> ReturnValue
+        invoke: () async throws -> ReturnValue,
+        reset: () -> Void
     ) {
         SUT.makeMethod(
             exposedMethodDescription: MockImplementationDescription(

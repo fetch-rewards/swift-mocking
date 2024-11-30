@@ -18,7 +18,7 @@ final class MockReturningMethodWithoutParametersTests: XCTestCase {
     // MARK: Implementation Tests
 
     func testImplementationDefaultValue() {
-        let (sut, _) = self.sut()
+        let (sut, _, _) = self.sut()
 
         guard case .unimplemented = sut.implementation else {
             XCTFail("Expected implementation to equal .unimplemented")
@@ -29,7 +29,7 @@ final class MockReturningMethodWithoutParametersTests: XCTestCase {
     // MARK: Call Count Tests
 
     func testCallCount() {
-        let (sut, invoke) = self.sut()
+        let (sut, invoke, reset) = self.sut()
 
         XCTAssertEqual(sut.callCount, .zero)
 
@@ -37,12 +37,15 @@ final class MockReturningMethodWithoutParametersTests: XCTestCase {
 
         _ = invoke()
         XCTAssertEqual(sut.callCount, 1)
+
+        reset()
+        XCTAssertEqual(sut.callCount, .zero)
     }
 
     // MARK: Returned Values Tests
 
     func testReturnedValues() {
-        let (sut, invoke) = self.sut()
+        let (sut, invoke, reset) = self.sut()
 
         XCTAssertEqual(sut.returnedValues, [])
 
@@ -55,12 +58,15 @@ final class MockReturningMethodWithoutParametersTests: XCTestCase {
 
         _ = invoke()
         XCTAssertEqual(sut.returnedValues, [5, 10])
+
+        reset()
+        XCTAssertTrue(sut.returnedValues.isEmpty)
     }
 
     // MARK: Last Returned Value Tests
 
     func testLastReturnedValue() {
-        let (sut, invoke) = self.sut()
+        let (sut, invoke, reset) = self.sut()
 
         XCTAssertNil(sut.lastReturnedValue)
 
@@ -73,6 +79,9 @@ final class MockReturningMethodWithoutParametersTests: XCTestCase {
 
         _ = invoke()
         XCTAssertEqual(sut.lastReturnedValue, 10)
+
+        reset()
+        XCTAssertNil(sut.lastReturnedValue)
     }
 }
 
@@ -81,7 +90,8 @@ final class MockReturningMethodWithoutParametersTests: XCTestCase {
 extension MockReturningMethodWithoutParametersTests {
     private func sut() -> (
         method: SUT,
-        invoke: () -> ReturnValue
+        invoke: () -> ReturnValue,
+        reset: () -> Void
     ) {
         SUT.makeMethod(
             exposedMethodDescription: MockImplementationDescription(

@@ -18,7 +18,7 @@ final class MockVoidAsyncMethodWithParametersTests: XCTestCase {
     // MARK: Implementation Tests
 
     func testImplementationDefaultValue() async {
-        let (sut, _) = SUT.makeMethod()
+        let (sut, _, _) = SUT.makeMethod()
 
         guard case .unimplemented = sut.implementation else {
             XCTFail("Expected implementation to equal .unimplemented")
@@ -29,18 +29,21 @@ final class MockVoidAsyncMethodWithParametersTests: XCTestCase {
     // MARK: Call Count Tests
 
     func testCallCount() async {
-        let (sut, invoke) = SUT.makeMethod()
+        let (sut, invoke, reset) = SUT.makeMethod()
 
         XCTAssertEqual(sut.callCount, .zero)
 
         await invoke(("a", true))
         XCTAssertEqual(sut.callCount, 1)
+
+        reset()
+        XCTAssertEqual(sut.callCount, .zero)
     }
 
     // MARK: Invocations Tests
 
     func testInvocations() async {
-        let (sut, invoke) = SUT.makeMethod()
+        let (sut, invoke, reset) = SUT.makeMethod()
 
         XCTAssertTrue(sut.invocations.isEmpty)
 
@@ -55,12 +58,15 @@ final class MockVoidAsyncMethodWithParametersTests: XCTestCase {
         XCTAssertEqual(sut.invocations.first?.boolean, true)
         XCTAssertEqual(sut.invocations.last?.string, "b")
         XCTAssertEqual(sut.invocations.last?.boolean, false)
+
+        reset()
+        XCTAssertTrue(sut.invocations.isEmpty)
     }
 
     // MARK: Last Invocation Tests
 
     func testLastInvocation() async {
-        let (sut, invoke) = SUT.makeMethod()
+        let (sut, invoke, reset) = SUT.makeMethod()
 
         XCTAssertNil(sut.lastInvocation)
 
@@ -71,5 +77,8 @@ final class MockVoidAsyncMethodWithParametersTests: XCTestCase {
         await invoke(("b", false))
         XCTAssertEqual(sut.lastInvocation?.string, "b")
         XCTAssertEqual(sut.lastInvocation?.boolean, false)
+
+        reset()
+        XCTAssertNil(sut.lastInvocation)
     }
 }
