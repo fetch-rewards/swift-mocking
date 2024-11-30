@@ -472,9 +472,6 @@
 ## Wrap the opening brace of multiline statements.
 --rules wrapMultilineStatementBraces
 
-## Wrap single line // comments that exceed the specified --maxwidth.
---rules wrapSingleLineComments
-
 ## Prefer constant values to be on the right-hand-side of expressions.
 ### Options:
 ###   --yodaswap (default: always)
