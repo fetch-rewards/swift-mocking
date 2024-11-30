@@ -16,6 +16,19 @@ public import Mocked
 @Mocked
 public protocol Playground {}
 
+// MARK: Initializers
+
+/// A protocol for verifying Mocked's handling of initializers.
+///
+/// - Important: Please only use this protocol for permanent verification of
+///   Mocked's handling of initializers. For temporary testing of Mocked's
+///   expansion, use the ``Playground`` protocol.
+@Mocked
+public protocol Initializers {
+    init(parameter: Int)
+    init(parameter1: Int, parameter2: Int)
+}
+
 // MARK: Static Members
 
 /// A protocol for verifying Mocked's handling of static properties and methods.

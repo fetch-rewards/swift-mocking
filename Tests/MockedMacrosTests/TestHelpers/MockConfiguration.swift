@@ -44,9 +44,9 @@ struct MockConfiguration {
         self.modifiers = modifiers
         self.memberModifiers = memberModifiers
         self.defaultInit = """
-                \(memberModifiers)init() {
-                }
-            """
+            \(memberModifiers)init() {
+            }
+        """
     }
 }
 #endif
