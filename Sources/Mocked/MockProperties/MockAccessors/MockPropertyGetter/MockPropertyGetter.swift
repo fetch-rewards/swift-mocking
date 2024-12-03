@@ -78,5 +78,5 @@ public final class MockPropertyGetter<Value> {
 
 // MARK: - Sendable
 
-extension MockPropertyGetter: Sendable 
-where Value: Sendable {}
+extension MockPropertyGetter: Sendable
+    where Value: Sendable {}

@@ -36,7 +36,7 @@ extension MockVoidAsyncThrowingMethodWithoutParameters {
 
         /// Invokes the implementation, doing nothing if the implementation is
         /// ``unimplemented``, invoking a closure if the implementation is
-        /// ``uncheckedInvokes(_:)``, or throwing an error if the implementation 
+        /// ``uncheckedInvokes(_:)``, or throwing an error if the implementation
         /// is ``uncheckedThrows(_:)-swift.enum.case`` or
         /// ``uncheckedThrows(_:)-swift.type.method``.
         ///

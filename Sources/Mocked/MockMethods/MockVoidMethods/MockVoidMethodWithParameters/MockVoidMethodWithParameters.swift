@@ -95,7 +95,8 @@ public final class MockVoidMethodWithParameters<Arguments> {
 // MARK: - Sendable
 
 extension MockVoidMethodWithParameters: Sendable
-where Arguments: Sendable {
+    where Arguments: Sendable
+{
 
     // MARK: Factories
 

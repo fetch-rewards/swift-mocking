@@ -1,8 +1,8 @@
 # Swift Version
---swiftversion 5.9
+--swiftversion 6.0
 
 # SwiftFormat Version
---minversion 0.52.10
+--minversion 0.55.3
 
 # Options
 
@@ -33,8 +33,8 @@
 ## Number of spaces to indent, or tab to use tabs.
 --indent 4
 
-## Indent multiline strings: false (default) or true
---indentstrings true
+## Mark extensions always (default), never, if-not-empty
+--markextensions never
 
 ## Mark types always (default), never, or if-not-empty
 --marktypes never
@@ -70,7 +70,7 @@
 --typeblanklines preserve
 
 ## Property @attributes: preserve, prev-line, or same-line.
---varattributes same-line
+--varattributes preserve
 
 ## Wrap all arguments: before-first, after-first, preserve.
 --wraparguments before-first
@@ -471,9 +471,6 @@
 
 ## Wrap the opening brace of multiline statements.
 --rules wrapMultilineStatementBraces
-
-## Wrap single line // comments that exceed the specified --maxwidth.
---rules wrapSingleLineComments
 
 ## Prefer constant values to be on the right-hand-side of expressions.
 ### Options:

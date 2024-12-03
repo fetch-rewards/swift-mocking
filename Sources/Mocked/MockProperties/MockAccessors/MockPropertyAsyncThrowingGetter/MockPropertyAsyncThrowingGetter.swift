@@ -85,4 +85,4 @@ public final class MockPropertyAsyncThrowingGetter<Value> {
 // MARK: - Sendable
 
 extension MockPropertyAsyncThrowingGetter: Sendable
-where Value: Sendable {}
+    where Value: Sendable {}

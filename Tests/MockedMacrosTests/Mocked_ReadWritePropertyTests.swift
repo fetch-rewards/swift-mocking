@@ -24,27 +24,27 @@ final class Mocked_ReadWritePropertyTests: XCTestCase {
                 }
                 """,
                 generates: """
-                    \(mock.modifiers)class DependencyMock: Dependency {
-                    \(mock.defaultInit)
-                        private let __property = MockReadWriteProperty<String>.makeProperty(
-                            exposedPropertyDescription: MockImplementationDescription(
-                                type: DependencyMock.self,
-                                member: "_property"
-                            )
+                \(mock.modifiers)class DependencyMock: Dependency {
+                \(mock.defaultInit)
+                    private let __property = MockReadWriteProperty<String>.makeProperty(
+                        exposedPropertyDescription: MockImplementationDescription(
+                            type: DependencyMock.self,
+                            member: "_property"
                         )
-                        \(mock.memberModifiers)var _property: MockReadWriteProperty<String> {
-                            self.__property.property
+                    )
+                    \(mock.memberModifiers)var _property: MockReadWriteProperty<String> {
+                        self.__property.property
+                    }
+                    \(mock.memberModifiers)var property: String {
+                        get {
+                            self.__property.get()
                         }
-                        \(mock.memberModifiers)var property: String {
-                            get {
-                                self.__property.get()
-                            }
-                            set {
-                                self.__property.set(newValue)
-                            }
+                        set {
+                            self.__property.set(newValue)
                         }
                     }
-                    """
+                }
+                """
             )
         }
     }
@@ -58,27 +58,27 @@ final class Mocked_ReadWritePropertyTests: XCTestCase {
                 }
                 """,
                 generates: """
-                    \(mock.modifiers)class DependencyMock: Dependency {
-                    \(mock.defaultInit)
-                        private let __property = MockReadWriteProperty<String>.makeProperty(
-                            exposedPropertyDescription: MockImplementationDescription(
-                                type: DependencyMock.self,
-                                member: "_property"
-                            )
+                \(mock.modifiers)class DependencyMock: Dependency {
+                \(mock.defaultInit)
+                    private let __property = MockReadWriteProperty<String>.makeProperty(
+                        exposedPropertyDescription: MockImplementationDescription(
+                            type: DependencyMock.self,
+                            member: "_property"
                         )
-                        \(mock.memberModifiers)var _property: MockReadWriteProperty<String> {
-                            self.__property.property
+                    )
+                    \(mock.memberModifiers)var _property: MockReadWriteProperty<String> {
+                        self.__property.property
+                    }
+                    \(mock.memberModifiers)var property: String {
+                        get {
+                            self.__property.get()
                         }
-                        \(mock.memberModifiers)var property: String {
-                            get {
-                                self.__property.get()
-                            }
-                            set {
-                                self.__property.set(newValue)
-                            }
+                        set {
+                            self.__property.set(newValue)
                         }
                     }
-                    """
+                }
+                """
             )
         }
     }
@@ -92,27 +92,27 @@ final class Mocked_ReadWritePropertyTests: XCTestCase {
                 }
                 """,
                 generates: """
-                    \(mock.modifiers)class DependencyMock: Dependency {
-                    \(mock.defaultInit)
-                        private let __property = MockReadWriteProperty<String>.makeProperty(
-                            exposedPropertyDescription: MockImplementationDescription(
-                                type: DependencyMock.self,
-                                member: "_property"
-                            )
+                \(mock.modifiers)class DependencyMock: Dependency {
+                \(mock.defaultInit)
+                    private let __property = MockReadWriteProperty<String>.makeProperty(
+                        exposedPropertyDescription: MockImplementationDescription(
+                            type: DependencyMock.self,
+                            member: "_property"
                         )
-                        \(mock.memberModifiers)var _property: MockReadWriteProperty<String> {
-                            self.__property.property
+                    )
+                    \(mock.memberModifiers)var _property: MockReadWriteProperty<String> {
+                        self.__property.property
+                    }
+                    \(mock.memberModifiers)var property: String {
+                        get {
+                            self.__property.get()
                         }
-                        \(mock.memberModifiers)var property: String {
-                            get {
-                                self.__property.get()
-                            }
-                            set {
-                                self.__property.set(newValue)
-                            }
+                        set {
+                            self.__property.set(newValue)
                         }
                     }
-                    """
+                }
+                """
             )
         }
     }
@@ -126,27 +126,27 @@ final class Mocked_ReadWritePropertyTests: XCTestCase {
                 }
                 """,
                 generates: """
-                    \(mock.modifiers)class DependencyMock: Dependency {
-                    \(mock.defaultInit)
-                        private let __property = MockReadWriteProperty<String>.makeProperty(
-                            exposedPropertyDescription: MockImplementationDescription(
-                                type: DependencyMock.self,
-                                member: "_property"
-                            )
+                \(mock.modifiers)class DependencyMock: Dependency {
+                \(mock.defaultInit)
+                    private let __property = MockReadWriteProperty<String>.makeProperty(
+                        exposedPropertyDescription: MockImplementationDescription(
+                            type: DependencyMock.self,
+                            member: "_property"
                         )
-                        \(mock.memberModifiers)var _property: MockReadWriteProperty<String> {
-                            self.__property.property
+                    )
+                    \(mock.memberModifiers)var _property: MockReadWriteProperty<String> {
+                        self.__property.property
+                    }
+                    \(mock.memberModifiers)var property: String {
+                        get {
+                            self.__property.get()
                         }
-                        \(mock.memberModifiers)var property: String {
-                            get {
-                                self.__property.get()
-                            }
-                            set {
-                                self.__property.set(newValue)
-                            }
+                        set {
+                            self.__property.set(newValue)
                         }
                     }
-                    """
+                }
+                """
             )
         }
     }
@@ -160,27 +160,27 @@ final class Mocked_ReadWritePropertyTests: XCTestCase {
                 }
                 """,
                 generates: """
-                    \(mock.modifiers)class DependencyMock: Dependency {
-                    \(mock.defaultInit)
-                        private let __property = MockReadWriteProperty<String>.makeProperty(
-                            exposedPropertyDescription: MockImplementationDescription(
-                                type: DependencyMock.self,
-                                member: "_property"
-                            )
+                \(mock.modifiers)class DependencyMock: Dependency {
+                \(mock.defaultInit)
+                    private let __property = MockReadWriteProperty<String>.makeProperty(
+                        exposedPropertyDescription: MockImplementationDescription(
+                            type: DependencyMock.self,
+                            member: "_property"
                         )
-                        \(mock.memberModifiers)var _property: MockReadWriteProperty<String> {
-                            self.__property.property
+                    )
+                    \(mock.memberModifiers)var _property: MockReadWriteProperty<String> {
+                        self.__property.property
+                    }
+                    \(mock.memberModifiers)var property: String {
+                        get {
+                            self.__property.get()
                         }
-                        \(mock.memberModifiers)var property: String {
-                            get {
-                                self.__property.get()
-                            }
-                            set {
-                                self.__property.set(newValue)
-                            }
+                        set {
+                            self.__property.set(newValue)
                         }
                     }
-                    """
+                }
+                """
             )
         }
     }
@@ -194,27 +194,27 @@ final class Mocked_ReadWritePropertyTests: XCTestCase {
                 }
                 """,
                 generates: """
-                    \(mock.modifiers)class DependencyMock: Dependency {
-                    \(mock.defaultInit)
-                        private let __property = MockReadWriteProperty<String>.makeProperty(
-                            exposedPropertyDescription: MockImplementationDescription(
-                                type: DependencyMock.self,
-                                member: "_property"
-                            )
+                \(mock.modifiers)class DependencyMock: Dependency {
+                \(mock.defaultInit)
+                    private let __property = MockReadWriteProperty<String>.makeProperty(
+                        exposedPropertyDescription: MockImplementationDescription(
+                            type: DependencyMock.self,
+                            member: "_property"
                         )
-                        \(mock.memberModifiers)var _property: MockReadWriteProperty<String> {
-                            self.__property.property
+                    )
+                    \(mock.memberModifiers)var _property: MockReadWriteProperty<String> {
+                        self.__property.property
+                    }
+                    \(mock.memberModifiers)var property: String {
+                        get {
+                            self.__property.get()
                         }
-                        \(mock.memberModifiers)var property: String {
-                            get {
-                                self.__property.get()
-                            }
-                            set {
-                                self.__property.set(newValue)
-                            }
+                        set {
+                            self.__property.set(newValue)
                         }
                     }
-                    """
+                }
+                """
             )
         }
     }
@@ -228,27 +228,27 @@ final class Mocked_ReadWritePropertyTests: XCTestCase {
                 }
                 """,
                 generates: """
-                    \(mock.modifiers)class DependencyMock: Dependency {
-                    \(mock.defaultInit)
-                        private let __property = MockReadWriteProperty<String>.makeProperty(
-                            exposedPropertyDescription: MockImplementationDescription(
-                                type: DependencyMock.self,
-                                member: "_property"
-                            )
+                \(mock.modifiers)class DependencyMock: Dependency {
+                \(mock.defaultInit)
+                    private let __property = MockReadWriteProperty<String>.makeProperty(
+                        exposedPropertyDescription: MockImplementationDescription(
+                            type: DependencyMock.self,
+                            member: "_property"
                         )
-                        \(mock.memberModifiers)var _property: MockReadWriteProperty<String> {
-                            self.__property.property
+                    )
+                    \(mock.memberModifiers)var _property: MockReadWriteProperty<String> {
+                        self.__property.property
+                    }
+                    \(mock.memberModifiers)var property: String {
+                        get {
+                            self.__property.get()
                         }
-                        \(mock.memberModifiers)var property: String {
-                            get {
-                                self.__property.get()
-                            }
-                            set {
-                                self.__property.set(newValue)
-                            }
+                        set {
+                            self.__property.set(newValue)
                         }
                     }
-                    """
+                }
+                """
             )
         }
     }
@@ -262,27 +262,27 @@ final class Mocked_ReadWritePropertyTests: XCTestCase {
                 }
                 """,
                 generates: """
-                    \(mock.modifiers)class DependencyMock: Dependency {
-                    \(mock.defaultInit)
-                        private let __property = MockReadWriteProperty<String>.makeProperty(
-                            exposedPropertyDescription: MockImplementationDescription(
-                                type: DependencyMock.self,
-                                member: "_property"
-                            )
+                \(mock.modifiers)class DependencyMock: Dependency {
+                \(mock.defaultInit)
+                    private let __property = MockReadWriteProperty<String>.makeProperty(
+                        exposedPropertyDescription: MockImplementationDescription(
+                            type: DependencyMock.self,
+                            member: "_property"
                         )
-                        \(mock.memberModifiers)var _property: MockReadWriteProperty<String> {
-                            self.__property.property
+                    )
+                    \(mock.memberModifiers)var _property: MockReadWriteProperty<String> {
+                        self.__property.property
+                    }
+                    \(mock.memberModifiers)var property: String {
+                        get {
+                            self.__property.get()
                         }
-                        \(mock.memberModifiers)var property: String {
-                            get {
-                                self.__property.get()
-                            }
-                            set {
-                                self.__property.set(newValue)
-                            }
+                        set {
+                            self.__property.set(newValue)
                         }
                     }
-                    """
+                }
+                """
             )
         }
     }
@@ -296,27 +296,27 @@ final class Mocked_ReadWritePropertyTests: XCTestCase {
                 }
                 """,
                 generates: """
-                    \(mock.modifiers)class DependencyMock: Dependency {
-                    \(mock.defaultInit)
-                        private let __property = MockReadWriteProperty<String>.makeProperty(
-                            exposedPropertyDescription: MockImplementationDescription(
-                                type: DependencyMock.self,
-                                member: "_property"
-                            )
+                \(mock.modifiers)class DependencyMock: Dependency {
+                \(mock.defaultInit)
+                    private let __property = MockReadWriteProperty<String>.makeProperty(
+                        exposedPropertyDescription: MockImplementationDescription(
+                            type: DependencyMock.self,
+                            member: "_property"
                         )
-                        \(mock.memberModifiers)var _property: MockReadWriteProperty<String> {
-                            self.__property.property
+                    )
+                    \(mock.memberModifiers)var _property: MockReadWriteProperty<String> {
+                        self.__property.property
+                    }
+                    \(mock.memberModifiers)var property: String {
+                        get {
+                            self.__property.get()
                         }
-                        \(mock.memberModifiers)var property: String {
-                            get {
-                                self.__property.get()
-                            }
-                            set {
-                                self.__property.set(newValue)
-                            }
+                        set {
+                            self.__property.set(newValue)
                         }
                     }
-                    """
+                }
+                """
             )
         }
     }

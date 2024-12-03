@@ -60,7 +60,8 @@ extension MockVoidThrowingMethodWithParameters {
 // MARK: - Sendable
 
 extension MockVoidThrowingMethodWithParameters.Implementation
-where Arguments: Sendable {
+    where Arguments: Sendable
+{
 
     // MARK: Constructors
 

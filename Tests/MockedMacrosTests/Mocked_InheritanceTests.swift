@@ -22,10 +22,10 @@ final class Mocked_InheritanceTests: XCTestCase {
                 \(interface.accessLevel) protocol Dependency {}
                 """,
                 generates: """
-                    \(mock.modifiers)class DependencyMock: Dependency {
-                    \(mock.defaultInit)
-                    }
-                    """
+                \(mock.modifiers)class DependencyMock: Dependency {
+                \(mock.defaultInit)
+                }
+                """
             )
         }
     }
@@ -39,10 +39,10 @@ final class Mocked_InheritanceTests: XCTestCase {
                 \(interface.accessLevel) protocol Dependency: Actor {}
                 """,
                 generates: """
-                    \(mock.modifiers)actor DependencyMock: Dependency {
-                    \(mock.defaultInit)
-                    }
-                    """
+                \(mock.modifiers)actor DependencyMock: Dependency {
+                \(mock.defaultInit)
+                }
+                """
             )
         }
     }
@@ -56,10 +56,10 @@ final class Mocked_InheritanceTests: XCTestCase {
                 \(interface.accessLevel) protocol Dependency: AnyObject {}
                 """,
                 generates: """
-                    \(mock.modifiers)class DependencyMock: Dependency {
-                    \(mock.defaultInit)
-                    }
-                    """
+                \(mock.modifiers)class DependencyMock: Dependency {
+                \(mock.defaultInit)
+                }
+                """
             )
         }
     }
@@ -73,10 +73,10 @@ final class Mocked_InheritanceTests: XCTestCase {
                 \(interface.accessLevel) protocol Dependency: Actor, AnyObject {}
                 """,
                 generates: """
-                    \(mock.modifiers)actor DependencyMock: Dependency {
-                    \(mock.defaultInit)
-                    }
-                    """
+                \(mock.modifiers)actor DependencyMock: Dependency {
+                \(mock.defaultInit)
+                }
+                """
             )
         }
     }
@@ -88,10 +88,10 @@ final class Mocked_InheritanceTests: XCTestCase {
                 \(interface.accessLevel) protocol Dependency: AnyObject, Actor {}
                 """,
                 generates: """
-                    \(mock.modifiers)actor DependencyMock: Dependency {
-                    \(mock.defaultInit)
-                    }
-                    """
+                \(mock.modifiers)actor DependencyMock: Dependency {
+                \(mock.defaultInit)
+                }
+                """
             )
         }
     }

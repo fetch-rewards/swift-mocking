@@ -43,7 +43,8 @@ extension MockVoidAsyncMethodWithParameters {
 // MARK: - Sendable
 
 extension MockVoidAsyncMethodWithParameters.Implementation
-where Arguments: Sendable {
+    where Arguments: Sendable
+{
 
     // MARK: Constructors
 

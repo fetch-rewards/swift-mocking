@@ -265,10 +265,12 @@ extension MockedMacro {
             members.append(methodConformanceDeclaration)
         }
 
-        if let resetMockedStaticMembersMethodDeclaration = self.resetMockedStaticMembersMethodDeclaration(
-            backingOverrideDeclarations: backingOverrideDeclarations,
-            protocolDeclaration: protocolDeclaration
-        ) {
+        if let resetMockedStaticMembersMethodDeclaration = self
+            .resetMockedStaticMembersMethodDeclaration(
+                backingOverrideDeclarations: backingOverrideDeclarations,
+                protocolDeclaration: protocolDeclaration
+            )
+        {
             members.append(resetMockedStaticMembersMethodDeclaration)
         }
 
@@ -401,13 +403,13 @@ extension MockedMacro {
                 initializer: InitializerClauseSyntax(
                     value: ExprSyntax(
                         stringLiteral: """
-                            \(backingType).makeProperty(
-                                exposedPropertyDescription: MockImplementationDescription(
-                                    type: \(mockName).self,
-                                    member: "_\(propertyName)"
-                                )
+                        \(backingType).makeProperty(
+                            exposedPropertyDescription: MockImplementationDescription(
+                                type: \(mockName).self,
+                                member: "_\(propertyName)"
                             )
-                            """
+                        )
+                        """
                     )
                 )
             ),
@@ -480,7 +482,8 @@ extension MockedMacro {
             try getAccessorDeclaration
                 .with(\.modifier, modifier(for: getAccessorDeclaration))
                 .with(\.body) {
-                    let getterInvocationKeywordTokens = getAccessorDeclaration.invocationKeywordTokens
+                    let getterInvocationKeywordTokens = getAccessorDeclaration
+                        .invocationKeywordTokens
 
                     if getterInvocationKeywordTokens.isEmpty {
                         "self.__\(propertyName).get()"

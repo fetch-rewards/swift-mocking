@@ -75,7 +75,8 @@ extension MockReturningThrowingMethodWithParameters {
 // MARK: - Sendable
 
 extension MockReturningThrowingMethodWithParameters.Implementation
-where Arguments: Sendable, ReturnValue: Sendable {
+    where Arguments: Sendable, ReturnValue: Sendable
+{
 
     // MARK: Constructors
 

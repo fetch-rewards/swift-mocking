@@ -24,22 +24,22 @@ final class Mocked_ReadOnlyPropertyTests: XCTestCase {
                 }
                 """,
                 generates: """
-                    \(mock.modifiers)class DependencyMock: Dependency {
-                    \(mock.defaultInit)
-                        private let __property = MockReadOnlyProperty<String>.makeProperty(
-                            exposedPropertyDescription: MockImplementationDescription(
-                                type: DependencyMock.self,
-                                member: "_property"
-                            )
+                \(mock.modifiers)class DependencyMock: Dependency {
+                \(mock.defaultInit)
+                    private let __property = MockReadOnlyProperty<String>.makeProperty(
+                        exposedPropertyDescription: MockImplementationDescription(
+                            type: DependencyMock.self,
+                            member: "_property"
                         )
-                        \(mock.memberModifiers)var _property: MockReadOnlyProperty<String> {
-                            self.__property.property
-                        }
-                        \(mock.memberModifiers)var property: String {
-                            self.__property.get()
-                        }
+                    )
+                    \(mock.memberModifiers)var _property: MockReadOnlyProperty<String> {
+                        self.__property.property
                     }
-                    """
+                    \(mock.memberModifiers)var property: String {
+                        self.__property.get()
+                    }
+                }
+                """
             )
         }
     }
@@ -53,22 +53,22 @@ final class Mocked_ReadOnlyPropertyTests: XCTestCase {
                 }
                 """,
                 generates: """
-                    \(mock.modifiers)class DependencyMock: Dependency {
-                    \(mock.defaultInit)
-                        private let __property = MockReadOnlyProperty<String>.makeProperty(
-                            exposedPropertyDescription: MockImplementationDescription(
-                                type: DependencyMock.self,
-                                member: "_property"
-                            )
+                \(mock.modifiers)class DependencyMock: Dependency {
+                \(mock.defaultInit)
+                    private let __property = MockReadOnlyProperty<String>.makeProperty(
+                        exposedPropertyDescription: MockImplementationDescription(
+                            type: DependencyMock.self,
+                            member: "_property"
                         )
-                        \(mock.memberModifiers)var _property: MockReadOnlyProperty<String> {
-                            self.__property.property
-                        }
-                        \(mock.memberModifiers)var property: String {
-                            self.__property.get()
-                        }
+                    )
+                    \(mock.memberModifiers)var _property: MockReadOnlyProperty<String> {
+                        self.__property.property
                     }
-                    """
+                    \(mock.memberModifiers)var property: String {
+                        self.__property.get()
+                    }
+                }
+                """
             )
         }
     }
@@ -82,22 +82,22 @@ final class Mocked_ReadOnlyPropertyTests: XCTestCase {
                 }
                 """,
                 generates: """
-                    \(mock.modifiers)class DependencyMock: Dependency {
-                    \(mock.defaultInit)
-                        private let __property = MockReadOnlyProperty<String>.makeProperty(
-                            exposedPropertyDescription: MockImplementationDescription(
-                                type: DependencyMock.self,
-                                member: "_property"
-                            )
+                \(mock.modifiers)class DependencyMock: Dependency {
+                \(mock.defaultInit)
+                    private let __property = MockReadOnlyProperty<String>.makeProperty(
+                        exposedPropertyDescription: MockImplementationDescription(
+                            type: DependencyMock.self,
+                            member: "_property"
                         )
-                        \(mock.memberModifiers)var _property: MockReadOnlyProperty<String> {
-                            self.__property.property
-                        }
-                        \(mock.memberModifiers)var property: String {
-                            self.__property.get()
-                        }
+                    )
+                    \(mock.memberModifiers)var _property: MockReadOnlyProperty<String> {
+                        self.__property.property
                     }
-                    """
+                    \(mock.memberModifiers)var property: String {
+                        self.__property.get()
+                    }
+                }
+                """
             )
         }
     }
@@ -113,24 +113,24 @@ final class Mocked_ReadOnlyPropertyTests: XCTestCase {
                 }
                 """,
                 generates: """
-                    \(mock.modifiers)class DependencyMock: Dependency {
-                    \(mock.defaultInit)
-                        private let __property = MockReadOnlyAsyncProperty<String>.makeProperty(
-                            exposedPropertyDescription: MockImplementationDescription(
-                                type: DependencyMock.self,
-                                member: "_property"
-                            )
+                \(mock.modifiers)class DependencyMock: Dependency {
+                \(mock.defaultInit)
+                    private let __property = MockReadOnlyAsyncProperty<String>.makeProperty(
+                        exposedPropertyDescription: MockImplementationDescription(
+                            type: DependencyMock.self,
+                            member: "_property"
                         )
-                        \(mock.memberModifiers)var _property: MockReadOnlyAsyncProperty<String> {
-                            self.__property.property
-                        }
-                        \(mock.memberModifiers)var property: String {
-                            get async {
-                                await self.__property.get()
-                            }
+                    )
+                    \(mock.memberModifiers)var _property: MockReadOnlyAsyncProperty<String> {
+                        self.__property.property
+                    }
+                    \(mock.memberModifiers)var property: String {
+                        get async {
+                            await self.__property.get()
                         }
                     }
-                    """
+                }
+                """
             )
         }
     }
@@ -144,24 +144,24 @@ final class Mocked_ReadOnlyPropertyTests: XCTestCase {
                 }
                 """,
                 generates: """
-                    \(mock.modifiers)class DependencyMock: Dependency {
-                    \(mock.defaultInit)
-                        private let __property = MockReadOnlyAsyncProperty<String>.makeProperty(
-                            exposedPropertyDescription: MockImplementationDescription(
-                                type: DependencyMock.self,
-                                member: "_property"
-                            )
+                \(mock.modifiers)class DependencyMock: Dependency {
+                \(mock.defaultInit)
+                    private let __property = MockReadOnlyAsyncProperty<String>.makeProperty(
+                        exposedPropertyDescription: MockImplementationDescription(
+                            type: DependencyMock.self,
+                            member: "_property"
                         )
-                        \(mock.memberModifiers)var _property: MockReadOnlyAsyncProperty<String> {
-                            self.__property.property
-                        }
-                        \(mock.memberModifiers)var property: String {
-                            get async {
-                                await self.__property.get()
-                            }
+                    )
+                    \(mock.memberModifiers)var _property: MockReadOnlyAsyncProperty<String> {
+                        self.__property.property
+                    }
+                    \(mock.memberModifiers)var property: String {
+                        get async {
+                            await self.__property.get()
                         }
                     }
-                    """
+                }
+                """
             )
         }
     }
@@ -175,24 +175,24 @@ final class Mocked_ReadOnlyPropertyTests: XCTestCase {
                 }
                 """,
                 generates: """
-                    \(mock.modifiers)class DependencyMock: Dependency {
-                    \(mock.defaultInit)
-                        private let __property = MockReadOnlyAsyncProperty<String>.makeProperty(
-                            exposedPropertyDescription: MockImplementationDescription(
-                                type: DependencyMock.self,
-                                member: "_property"
-                            )
+                \(mock.modifiers)class DependencyMock: Dependency {
+                \(mock.defaultInit)
+                    private let __property = MockReadOnlyAsyncProperty<String>.makeProperty(
+                        exposedPropertyDescription: MockImplementationDescription(
+                            type: DependencyMock.self,
+                            member: "_property"
                         )
-                        \(mock.memberModifiers)var _property: MockReadOnlyAsyncProperty<String> {
-                            self.__property.property
-                        }
-                        \(mock.memberModifiers)var property: String {
-                            get async {
-                                await self.__property.get()
-                            }
+                    )
+                    \(mock.memberModifiers)var _property: MockReadOnlyAsyncProperty<String> {
+                        self.__property.property
+                    }
+                    \(mock.memberModifiers)var property: String {
+                        get async {
+                            await self.__property.get()
                         }
                     }
-                    """
+                }
+                """
             )
         }
     }
@@ -208,24 +208,24 @@ final class Mocked_ReadOnlyPropertyTests: XCTestCase {
                 }
                 """,
                 generates: """
-                    \(mock.modifiers)class DependencyMock: Dependency {
-                    \(mock.defaultInit)
-                        private let __property = MockReadOnlyThrowingProperty<String>.makeProperty(
-                            exposedPropertyDescription: MockImplementationDescription(
-                                type: DependencyMock.self,
-                                member: "_property"
-                            )
+                \(mock.modifiers)class DependencyMock: Dependency {
+                \(mock.defaultInit)
+                    private let __property = MockReadOnlyThrowingProperty<String>.makeProperty(
+                        exposedPropertyDescription: MockImplementationDescription(
+                            type: DependencyMock.self,
+                            member: "_property"
                         )
-                        \(mock.memberModifiers)var _property: MockReadOnlyThrowingProperty<String> {
-                            self.__property.property
-                        }
-                        \(mock.memberModifiers)var property: String {
-                            get throws {
-                                try self.__property.get()
-                            }
+                    )
+                    \(mock.memberModifiers)var _property: MockReadOnlyThrowingProperty<String> {
+                        self.__property.property
+                    }
+                    \(mock.memberModifiers)var property: String {
+                        get throws {
+                            try self.__property.get()
                         }
                     }
-                    """
+                }
+                """
             )
         }
     }
@@ -239,24 +239,24 @@ final class Mocked_ReadOnlyPropertyTests: XCTestCase {
                 }
                 """,
                 generates: """
-                    \(mock.modifiers)class DependencyMock: Dependency {
-                    \(mock.defaultInit)
-                        private let __property = MockReadOnlyThrowingProperty<String>.makeProperty(
-                            exposedPropertyDescription: MockImplementationDescription(
-                                type: DependencyMock.self,
-                                member: "_property"
-                            )
+                \(mock.modifiers)class DependencyMock: Dependency {
+                \(mock.defaultInit)
+                    private let __property = MockReadOnlyThrowingProperty<String>.makeProperty(
+                        exposedPropertyDescription: MockImplementationDescription(
+                            type: DependencyMock.self,
+                            member: "_property"
                         )
-                        \(mock.memberModifiers)var _property: MockReadOnlyThrowingProperty<String> {
-                            self.__property.property
-                        }
-                        \(mock.memberModifiers)var property: String {
-                            get throws {
-                                try self.__property.get()
-                            }
+                    )
+                    \(mock.memberModifiers)var _property: MockReadOnlyThrowingProperty<String> {
+                        self.__property.property
+                    }
+                    \(mock.memberModifiers)var property: String {
+                        get throws {
+                            try self.__property.get()
                         }
                     }
-                    """
+                }
+                """
             )
         }
     }
@@ -270,24 +270,24 @@ final class Mocked_ReadOnlyPropertyTests: XCTestCase {
                 }
                 """,
                 generates: """
-                    \(mock.modifiers)class DependencyMock: Dependency {
-                    \(mock.defaultInit)
-                        private let __property = MockReadOnlyThrowingProperty<String>.makeProperty(
-                            exposedPropertyDescription: MockImplementationDescription(
-                                type: DependencyMock.self,
-                                member: "_property"
-                            )
+                \(mock.modifiers)class DependencyMock: Dependency {
+                \(mock.defaultInit)
+                    private let __property = MockReadOnlyThrowingProperty<String>.makeProperty(
+                        exposedPropertyDescription: MockImplementationDescription(
+                            type: DependencyMock.self,
+                            member: "_property"
                         )
-                        \(mock.memberModifiers)var _property: MockReadOnlyThrowingProperty<String> {
-                            self.__property.property
-                        }
-                        \(mock.memberModifiers)var property: String {
-                            get throws {
-                                try self.__property.get()
-                            }
+                    )
+                    \(mock.memberModifiers)var _property: MockReadOnlyThrowingProperty<String> {
+                        self.__property.property
+                    }
+                    \(mock.memberModifiers)var property: String {
+                        get throws {
+                            try self.__property.get()
                         }
                     }
-                    """
+                }
+                """
             )
         }
     }
@@ -303,25 +303,25 @@ final class Mocked_ReadOnlyPropertyTests: XCTestCase {
                 }
                 """,
                 generates: """
-                    \(mock.modifiers)class DependencyMock: Dependency {
-                    \(mock.defaultInit)
-                        private let __property = MockReadOnlyAsyncThrowingProperty<String>.makeProperty(
-                            exposedPropertyDescription: MockImplementationDescription(
-                                type: DependencyMock.self,
-                                member: "_property"
-                            )
+                \(mock.modifiers)class DependencyMock: Dependency {
+                \(mock.defaultInit)
+                    private let __property = MockReadOnlyAsyncThrowingProperty<String>.makeProperty(
+                        exposedPropertyDescription: MockImplementationDescription(
+                            type: DependencyMock.self,
+                            member: "_property"
                         )
-                        \(mock.memberModifiers)\
-                    var _property: MockReadOnlyAsyncThrowingProperty<String> {
-                            self.__property.property
-                        }
-                        \(mock.memberModifiers)var property: String {
-                            get async throws {
-                                try await self.__property.get()
-                            }
+                    )
+                    \(mock.memberModifiers)\
+                var _property: MockReadOnlyAsyncThrowingProperty<String> {
+                        self.__property.property
+                    }
+                    \(mock.memberModifiers)var property: String {
+                        get async throws {
+                            try await self.__property.get()
                         }
                     }
-                    """
+                }
+                """
             )
         }
     }
@@ -335,25 +335,25 @@ final class Mocked_ReadOnlyPropertyTests: XCTestCase {
                 }
                 """,
                 generates: """
-                    \(mock.modifiers)class DependencyMock: Dependency {
-                    \(mock.defaultInit)
-                        private let __property = MockReadOnlyAsyncThrowingProperty<String>.makeProperty(
-                            exposedPropertyDescription: MockImplementationDescription(
-                                type: DependencyMock.self,
-                                member: "_property"
-                            )
+                \(mock.modifiers)class DependencyMock: Dependency {
+                \(mock.defaultInit)
+                    private let __property = MockReadOnlyAsyncThrowingProperty<String>.makeProperty(
+                        exposedPropertyDescription: MockImplementationDescription(
+                            type: DependencyMock.self,
+                            member: "_property"
                         )
-                        \(mock.memberModifiers)\
-                    var _property: MockReadOnlyAsyncThrowingProperty<String> {
-                            self.__property.property
-                        }
-                        \(mock.memberModifiers)var property: String {
-                            get async throws {
-                                try await self.__property.get()
-                            }
+                    )
+                    \(mock.memberModifiers)\
+                var _property: MockReadOnlyAsyncThrowingProperty<String> {
+                        self.__property.property
+                    }
+                    \(mock.memberModifiers)var property: String {
+                        get async throws {
+                            try await self.__property.get()
                         }
                     }
-                    """
+                }
+                """
             )
         }
     }
@@ -367,25 +367,25 @@ final class Mocked_ReadOnlyPropertyTests: XCTestCase {
                 }
                 """,
                 generates: """
-                    \(mock.modifiers)class DependencyMock: Dependency {
-                    \(mock.defaultInit)
-                        private let __property = MockReadOnlyAsyncThrowingProperty<String>.makeProperty(
-                            exposedPropertyDescription: MockImplementationDescription(
-                                type: DependencyMock.self,
-                                member: "_property"
-                            )
+                \(mock.modifiers)class DependencyMock: Dependency {
+                \(mock.defaultInit)
+                    private let __property = MockReadOnlyAsyncThrowingProperty<String>.makeProperty(
+                        exposedPropertyDescription: MockImplementationDescription(
+                            type: DependencyMock.self,
+                            member: "_property"
                         )
-                        \(mock.memberModifiers)\
-                    var _property: MockReadOnlyAsyncThrowingProperty<String> {
-                            self.__property.property
-                        }
-                        \(mock.memberModifiers)var property: String {
-                            get async throws {
-                                try await self.__property.get()
-                            }
+                    )
+                    \(mock.memberModifiers)\
+                var _property: MockReadOnlyAsyncThrowingProperty<String> {
+                        self.__property.property
+                    }
+                    \(mock.memberModifiers)var property: String {
+                        get async throws {
+                            try await self.__property.get()
                         }
                     }
-                    """
+                }
+                """
             )
         }
     }

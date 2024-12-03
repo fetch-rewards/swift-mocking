@@ -22,10 +22,10 @@ final class Mocked_AccessLevelTests: XCTestCase {
                 \(interface.accessLevel) protocol Dependency {}
                 """,
                 generates: """
-                    \(mock.modifiers)class DependencyMock: Dependency {
-                    \(mock.defaultInit)
-                    }
-                    """
+                \(mock.modifiers)class DependencyMock: Dependency {
+                \(mock.defaultInit)
+                }
+                """
             )
         }
     }

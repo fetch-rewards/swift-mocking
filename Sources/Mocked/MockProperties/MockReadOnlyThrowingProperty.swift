@@ -89,7 +89,8 @@ public final class MockReadOnlyThrowingProperty<Value> {
 // MARK: - Sendable
 
 extension MockReadOnlyThrowingProperty: Sendable
-where Value: Sendable {
+    where Value: Sendable
+{
 
     // MARK: Factories
 

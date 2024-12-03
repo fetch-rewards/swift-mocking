@@ -55,8 +55,9 @@ extension MockReturningAsyncMethodWithoutParameters {
 
 // MARK: - Sendable
 
-extension MockReturningAsyncMethodWithoutParameters.Implementation 
-where ReturnValue: Sendable {
+extension MockReturningAsyncMethodWithoutParameters.Implementation
+    where ReturnValue: Sendable
+{
 
     // MARK: Constructors
 

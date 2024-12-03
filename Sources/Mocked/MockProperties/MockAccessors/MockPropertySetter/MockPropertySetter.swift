@@ -54,4 +54,4 @@ public final class MockPropertySetter<Value> {
 // MARK: - Sendable
 
 extension MockPropertySetter: Sendable
-where Value: Sendable {}
+    where Value: Sendable {}

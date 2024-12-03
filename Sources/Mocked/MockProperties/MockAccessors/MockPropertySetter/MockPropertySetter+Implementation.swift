@@ -43,7 +43,8 @@ extension MockPropertySetter {
 // MARK: - Sendable
 
 extension MockPropertySetter.Implementation
-where Value: Sendable {
+    where Value: Sendable
+{
 
     // MARK: Constructors
 

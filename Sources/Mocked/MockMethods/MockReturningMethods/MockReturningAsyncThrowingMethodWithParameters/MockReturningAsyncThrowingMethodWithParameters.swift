@@ -149,7 +149,8 @@ public final class MockReturningAsyncThrowingMethodWithParameters<
 // MARK: - Sendable
 
 extension MockReturningAsyncThrowingMethodWithParameters: Sendable
-where Arguments: Sendable, ReturnValue: Sendable {
+    where Arguments: Sendable, ReturnValue: Sendable
+{
 
     // MARK: Factories
 
