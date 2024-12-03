@@ -66,6 +66,15 @@ public final class MockPropertyAsyncGetter<Value> {
 
         return value
     }
+
+    // MARK: Reset
+
+    /// Resets the getter's implementation and invocation records.
+    func reset() {
+        self.implementation = .unimplemented
+        self.callCount = .zero
+        self.returnedValues.removeAll()
+    }
 }
 
 // MARK: - Sendable

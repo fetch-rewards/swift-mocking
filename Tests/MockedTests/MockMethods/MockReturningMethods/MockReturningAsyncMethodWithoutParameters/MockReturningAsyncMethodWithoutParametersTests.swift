@@ -18,7 +18,7 @@ final class MockReturningAsyncMethodWithoutParametersTests: XCTestCase {
     // MARK: Implementation Tests
 
     func testImplementationDefaultValue() async {
-        let (sut, _) = self.sut()
+        let (sut, _, _) = self.sut()
 
         guard case .unimplemented = sut.implementation else {
             XCTFail("Expected implementation to equal .unimplemented")
@@ -29,7 +29,7 @@ final class MockReturningAsyncMethodWithoutParametersTests: XCTestCase {
     // MARK: Call Count Tests
 
     func testCallCount() async {
-        let (sut, invoke) = self.sut()
+        let (sut, invoke, reset) = self.sut()
 
         XCTAssertEqual(sut.callCount, .zero)
 
@@ -37,13 +37,16 @@ final class MockReturningAsyncMethodWithoutParametersTests: XCTestCase {
 
         _ = await invoke()
         XCTAssertEqual(sut.callCount, 1)
+
+        reset()
+        XCTAssertEqual(sut.callCount, .zero)
     }
 
     // MARK: Returned Values Tests
 
     func testReturnedValues() async {
-        let (sut, invoke) = self.sut()
-        
+        let (sut, invoke, reset) = self.sut()
+
         XCTAssertEqual(sut.returnedValues, [])
 
         sut.implementation = .returns(5)
@@ -55,12 +58,15 @@ final class MockReturningAsyncMethodWithoutParametersTests: XCTestCase {
 
         _ = await invoke()
         XCTAssertEqual(sut.returnedValues, [5, 10])
+
+        reset()
+        XCTAssertTrue(sut.returnedValues.isEmpty)
     }
 
     // MARK: Last Returned Value Tests
 
     func testLastReturnedValue() async {
-        let (sut, invoke) = self.sut()
+        let (sut, invoke, reset) = self.sut()
 
         XCTAssertNil(sut.lastReturnedValue)
 
@@ -73,6 +79,9 @@ final class MockReturningAsyncMethodWithoutParametersTests: XCTestCase {
 
         _ = await invoke()
         XCTAssertEqual(sut.lastReturnedValue, 10)
+
+        reset()
+        XCTAssertNil(sut.lastReturnedValue)
     }
 }
 
@@ -81,7 +90,8 @@ final class MockReturningAsyncMethodWithoutParametersTests: XCTestCase {
 extension MockReturningAsyncMethodWithoutParametersTests {
     private func sut() -> (
         method: SUT,
-        invoke: () async -> ReturnValue
+        invoke: () async -> ReturnValue,
+        reset: () -> Void
     ) {
         SUT.makeMethod(
             exposedMethodDescription: MockImplementationDescription(

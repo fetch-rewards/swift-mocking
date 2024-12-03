@@ -32,18 +32,40 @@ public final class MockReadOnlyAsyncProperty<Value> {
 
     // MARK: Factories
 
-    /// Creates a property and an async closure for invoking the property's
-    /// getter, returning them in a labeled tuple.
+    /// Creates a property, an async closure for invoking the property's getter,
+    /// and a closure for resetting the property's getter, returning them in a
+    /// labeled tuple.
+    ///
+    /// ```swift
+    /// private let __user = MockReadOnlyAsyncProperty<User>.makeProperty(
+    ///     exposedPropertyDescription: MockImplementationDescription(
+    ///         type: Self.self,
+    ///         member: "_user"
+    ///     )
+    /// )
+    ///
+    /// public var _user: MockReadOnlyAsyncProperty<User> {
+    ///     self.__user.property
+    /// }
+    ///
+    /// public var user: User {
+    ///     get async {
+    ///         await self.__user.get()
+    ///     }
+    /// }
+    /// ```
     ///
     /// - Parameter exposedPropertyDescription: The description of the mock's
     ///   exposed property.
-    /// - Returns: A tuple containing a property and an async closure for
-    ///   invoking the property's getter.
+    /// - Returns: A tuple containing a property, an async closure for invoking
+    ///   the property's getter, and a closure for resetting the property's
+    ///   getter.
     public static func makeProperty(
         exposedPropertyDescription: MockImplementationDescription
     ) -> (
         property: MockReadOnlyAsyncProperty,
-        get: () async -> Value
+        get: () async -> Value,
+        reset: () -> Void
     ) {
         let property = MockReadOnlyAsyncProperty(
             exposedPropertyDescription: exposedPropertyDescription
@@ -51,8 +73,16 @@ public final class MockReadOnlyAsyncProperty<Value> {
 
         return (
             property: property,
-            get: { await property.getter.get() }
+            get: { await property.getter.get() },
+            reset: { property.reset() }
         )
+    }
+
+    // MARK: Reset
+
+    /// Resets the property's getter.
+    private func reset() {
+        self.getter.reset()
     }
 }
 
@@ -63,18 +93,40 @@ where Value: Sendable {
 
     // MARK: Factories
 
-    /// Creates a property and an async closure for invoking the property's
-    /// getter, returning them in a labeled tuple.
+    /// Creates a property, an async closure for invoking the property's getter,
+    /// and a closure for resetting the property's getter, returning them in a
+    /// labeled tuple.
+    ///
+    /// ```swift
+    /// private let __user = MockReadOnlyAsyncProperty<User>.makeProperty(
+    ///     exposedPropertyDescription: MockImplementationDescription(
+    ///         type: Self.self,
+    ///         member: "_user"
+    ///     )
+    /// )
+    ///
+    /// public var _user: MockReadOnlyAsyncProperty<User> {
+    ///     self.__user.property
+    /// }
+    ///
+    /// public var user: User {
+    ///     get async {
+    ///         await self.__user.get()
+    ///     }
+    /// }
+    /// ```
     ///
     /// - Parameter exposedPropertyDescription: The description of the mock's
     ///   exposed property.
-    /// - Returns: A tuple containing a property and an async closure for
-    ///   invoking the property's getter.
+    /// - Returns: A tuple containing a property, an async closure for invoking
+    ///   the property's getter, and a closure for resetting the property's
+    ///   getter.
     public static func makeProperty(
         exposedPropertyDescription: MockImplementationDescription
     ) -> (
         property: MockReadOnlyAsyncProperty,
-        get: @Sendable () async -> Value
+        get: @Sendable () async -> Value,
+        reset: @Sendable () -> Void
     ) {
         let property = MockReadOnlyAsyncProperty(
             exposedPropertyDescription: exposedPropertyDescription
@@ -82,7 +134,8 @@ where Value: Sendable {
 
         return (
             property: property,
-            get: { await property.getter.get() }
+            get: { await property.getter.get() },
+            reset: { property.reset() }
         )
     }
 }

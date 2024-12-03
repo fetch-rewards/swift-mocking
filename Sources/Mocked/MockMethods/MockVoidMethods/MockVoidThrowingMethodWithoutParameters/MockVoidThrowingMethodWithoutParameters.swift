@@ -38,8 +38,8 @@ public final class MockVoidThrowingMethodWithoutParameters: Sendable {
 
     // MARK: Factories
 
-    /// Creates a method and a throwing closure for invoking the method,
-    /// returning them in a labeled tuple.
+    /// Creates a method, a throwing closure for invoking the method, and a
+    /// closure for resetting the method, returning them in a labeled tuple.
     ///
     /// ```swift
     /// private let __logOut = MockVoidThrowingMethodWithoutParameters.makeMethod()
@@ -53,18 +53,20 @@ public final class MockVoidThrowingMethodWithoutParameters: Sendable {
     /// }
     /// ```
     ///
-    /// - Returns: A tuple containing a method and a throwing closure for
-    ///   invoking the method.
+    /// - Returns: A tuple containing a method, a throwing closure for invoking
+    ///   the method, and a closure for resetting the method.
     public static func makeMethod(
     ) -> (
         method: MockVoidThrowingMethodWithoutParameters,
-        invoke: @Sendable () throws -> Void
+        invoke: @Sendable () throws -> Void,
+        reset: @Sendable () -> Void
     ) {
         let method = MockVoidThrowingMethodWithoutParameters()
 
         return (
             method: method,
-            invoke: { try method.invoke() }
+            invoke: { try method.invoke() },
+            reset: { method.reset() }
         )
     }
 
@@ -84,5 +86,14 @@ public final class MockVoidThrowingMethodWithoutParameters: Sendable {
             self.thrownErrors.append(error)
             throw error
         }
+    }
+
+    // MARK: Reset
+
+    /// Resets the method's implementation and invocation records.
+    private func reset() {
+        self.implementation = .unimplemented
+        self.callCount = .zero
+        self.thrownErrors.removeAll()
     }
 }

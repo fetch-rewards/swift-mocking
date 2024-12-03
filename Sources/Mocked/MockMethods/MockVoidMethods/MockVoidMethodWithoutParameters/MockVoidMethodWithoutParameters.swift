@@ -29,8 +29,8 @@ public final class MockVoidMethodWithoutParameters: Sendable {
 
     // MARK: Factories
 
-    /// Creates a method and a closure for invoking the method, returning them
-    /// in a labeled tuple.
+    /// Creates a method, a closure for invoking the method, and a closure for
+    /// resetting the method, returning them in a labeled tuple.
     ///
     /// ```swift
     /// private let __logOut = MockVoidMethodWithoutParameters.makeMethod()
@@ -44,18 +44,20 @@ public final class MockVoidMethodWithoutParameters: Sendable {
     /// }
     /// ```
     ///
-    /// - Returns: A tuple containing a method and a closure for invoking the
-    ///   method.
+    /// - Returns: A tuple containing a method, a closure for invoking the
+    ///   method, and a closure for resetting the method.
     public static func makeMethod(
     ) -> (
         method: MockVoidMethodWithoutParameters,
-        invoke: @Sendable () -> Void
+        invoke: @Sendable () -> Void,
+        reset: @Sendable () -> Void
     ) {
         let method = MockVoidMethodWithoutParameters()
 
         return (
             method: method,
-            invoke: { method.invoke() }
+            invoke: { method.invoke() },
+            reset: { method.reset() }
         )
     }
 
@@ -65,5 +67,13 @@ public final class MockVoidMethodWithoutParameters: Sendable {
     private func invoke() {
         self.callCount += 1
         self.implementation()
+    }
+
+    // MARK: Reset
+
+    /// Resets the method's implementation and invocation records.
+    private func reset() {
+        self.implementation = .unimplemented
+        self.callCount = .zero
     }
 }

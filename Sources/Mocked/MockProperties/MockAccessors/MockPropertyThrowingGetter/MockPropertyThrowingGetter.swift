@@ -71,6 +71,15 @@ public final class MockPropertyThrowingGetter<Value> {
 
         return try value.get()
     }
+
+    // MARK: Reset
+
+    /// Resets the getter's implementation and invocation records.
+    func reset() {
+        self.implementation = .unimplemented
+        self.callCount = .zero
+        self.returnedValues.removeAll()
+    }
 }
 
 // MARK: - Sendable

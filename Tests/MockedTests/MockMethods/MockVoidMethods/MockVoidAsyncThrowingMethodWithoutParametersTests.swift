@@ -17,7 +17,7 @@ final class MockVoidAsyncThrowingMethodWithoutParametersTests: XCTestCase {
     // MARK: Implementation Tests
 
     func testImplementationDefaultValue() async {
-        let (sut, _) = SUT.makeMethod()
+        let (sut, _, _) = SUT.makeMethod()
 
         guard case .unimplemented = sut.implementation else {
             XCTFail("Expected implementation to equal .unimplemented")
@@ -28,7 +28,7 @@ final class MockVoidAsyncThrowingMethodWithoutParametersTests: XCTestCase {
     // MARK: Call Count Tests
 
     func testCallCount() async throws {
-        let (sut, invoke) = SUT.makeMethod()
+        let (sut, invoke, reset) = SUT.makeMethod()
 
         XCTAssertEqual(sut.callCount, .zero)
 
@@ -47,12 +47,15 @@ final class MockVoidAsyncThrowingMethodWithoutParametersTests: XCTestCase {
         }
 
         XCTAssertEqual(sut.callCount, 2)
+
+        reset()
+        XCTAssertEqual(sut.callCount, .zero)
     }
 
     // MARK: Thrown Errors Tests
 
     func testThrownErrors() async throws {
-        let (sut, invoke) = SUT.makeMethod()
+        let (sut, invoke, reset) = SUT.makeMethod()
 
         XCTAssertTrue(sut.thrownErrors.isEmpty)
 
@@ -92,12 +95,15 @@ final class MockVoidAsyncThrowingMethodWithoutParametersTests: XCTestCase {
         } catch {
             XCTFail("Expected \(error) to equal URLError(.badServerResponse)")
         }
+
+        reset()
+        XCTAssertTrue(sut.thrownErrors.isEmpty)
     }
 
     // MARK: Last Thrown Error Tests
 
     func testLastThrownError() async throws {
-        let (sut, invoke) = SUT.makeMethod()
+        let (sut, invoke, reset) = SUT.makeMethod()
 
         XCTAssertNil(sut.lastThrownError)
 
@@ -133,5 +139,8 @@ final class MockVoidAsyncThrowingMethodWithoutParametersTests: XCTestCase {
         } catch {
             XCTFail("Expected \(error) to equal URLError(.badServerResponse)")
         }
+
+        reset()
+        XCTAssertNil(sut.lastThrownError)
     }
 }

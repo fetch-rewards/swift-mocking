@@ -38,8 +38,8 @@ public final class MockVoidAsyncMethodWithParameters<Arguments> {
 
     // MARK: Factories
 
-    /// Creates a method and an async closure for invoking the method, returning
-    /// them in a labeled tuple.
+    /// Creates a method, an async closure for invoking the method, and a
+    /// closure for resetting the method, returning them in a labeled tuple.
     ///
     /// ```swift
     /// private let __logIn = MockVoidAsyncMethodWithParameters<(String, String)>.makeMethod()
@@ -53,18 +53,20 @@ public final class MockVoidAsyncMethodWithParameters<Arguments> {
     /// }
     /// ```
     ///
-    /// - Returns: A tuple containing a method and an async closure for invoking
-    ///   the method.
+    /// - Returns: A tuple containing a method, an async closure for invoking
+    ///   the method, and a closure for resetting the method.
     public static func makeMethod(
     ) -> (
         method: MockVoidAsyncMethodWithParameters,
-        invoke: (Arguments) async -> Void
+        invoke: (Arguments) async -> Void,
+        reset: () -> Void
     ) {
         let method = MockVoidAsyncMethodWithParameters()
 
         return (
             method: method,
-            invoke: { await method.invoke($0) }
+            invoke: { await method.invoke($0) },
+            reset: { method.reset() }
         )
     }
 
@@ -79,6 +81,15 @@ public final class MockVoidAsyncMethodWithParameters<Arguments> {
         self.invocations.append(arguments)
         await self.implementation(arguments: arguments)
     }
+
+    // MARK: Reset
+
+    /// Resets the method's implementation and invocation records.
+    private func reset() {
+        self.implementation = .unimplemented
+        self.callCount = .zero
+        self.invocations.removeAll()
+    }
 }
 
 // MARK: - Sendable
@@ -88,8 +99,8 @@ where Arguments: Sendable {
 
     // MARK: Factories
 
-    /// Creates a method and an async closure for invoking the method, returning
-    /// them in a labeled tuple.
+    /// Creates a method, an async closure for invoking the method, and a
+    /// closure for resetting the method, returning them in a labeled tuple.
     ///
     /// ```swift
     /// private let __logIn = MockVoidAsyncMethodWithParameters<(String, String)>.makeMethod()
@@ -103,18 +114,20 @@ where Arguments: Sendable {
     /// }
     /// ```
     ///
-    /// - Returns: A tuple containing a method and an async closure for invoking
-    ///   the method.
+    /// - Returns: A tuple containing a method, an async closure for invoking
+    ///   the method, and a closure for resetting the method.
     public static func makeMethod(
     ) -> (
         method: MockVoidAsyncMethodWithParameters,
-        invoke: @Sendable (Arguments) async -> Void
+        invoke: @Sendable (Arguments) async -> Void,
+        reset: @Sendable () -> Void
     ) {
         let method = MockVoidAsyncMethodWithParameters()
 
         return (
             method: method,
-            invoke: { await method.invoke($0) }
+            invoke: { await method.invoke($0) },
+            reset: { method.reset() }
         )
     }
 }

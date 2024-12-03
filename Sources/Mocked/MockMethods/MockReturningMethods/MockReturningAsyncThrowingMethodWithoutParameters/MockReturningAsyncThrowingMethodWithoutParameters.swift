@@ -50,8 +50,9 @@ public final class MockReturningAsyncThrowingMethodWithoutParameters<ReturnValue
 
     // MARK: Factories
 
-    /// Creates a method and an async, throwing closure for invoking the method,
-    /// returning them in a labeled tuple.
+    /// Creates a method, an async, throwing closure for invoking the method,
+    /// and a closure for resetting the method, returning them in a labeled
+    /// tuple.
     ///
     /// ```swift
     /// private let __users = MockReturningAsyncThrowingMethodWithoutParameters<[User]>.makeMethod(
@@ -72,13 +73,14 @@ public final class MockReturningAsyncThrowingMethodWithoutParameters<ReturnValue
     ///
     /// - Parameter exposedMethodDescription: The description of the mock's
     ///   exposed method.
-    /// - Returns: A tuple containing a method and an async, throwing closure
-    ///   for invoking the method.
+    /// - Returns: A tuple containing a method, an async, throwing closure for
+    ///   invoking the method, and a closure for resetting the method.
     public static func makeMethod(
         exposedMethodDescription: MockImplementationDescription
     ) -> (
         method: MockReturningAsyncThrowingMethodWithoutParameters,
-        invoke: () async throws -> ReturnValue
+        invoke: () async throws -> ReturnValue,
+        reset: () -> Void
     ) {
         let method = MockReturningAsyncThrowingMethodWithoutParameters(
             exposedMethodDescription: exposedMethodDescription
@@ -86,7 +88,8 @@ public final class MockReturningAsyncThrowingMethodWithoutParameters<ReturnValue
 
         return (
             method: method,
-            invoke: { try await method.invoke() }
+            invoke: { try await method.invoke() },
+            reset: { method.reset() }
         )
     }
 
@@ -113,6 +116,15 @@ public final class MockReturningAsyncThrowingMethodWithoutParameters<ReturnValue
 
         return try returnValue.get()
     }
+
+    // MARK: Reset
+
+    /// Resets the method's implementation and invocation records.
+    private func reset() {
+        self.implementation = .unimplemented
+        self.callCount = .zero
+        self.returnedValues.removeAll()
+    }
 }
 
 // MARK: - Sendable
@@ -122,8 +134,9 @@ where ReturnValue: Sendable {
 
     // MARK: Factories
 
-    /// Creates a method and an async, throwing closure for invoking the method,
-    /// returning them in a labeled tuple.
+    /// Creates a method, an async, throwing closure for invoking the method,
+    /// and a closure for resetting the method, returning them in a labeled
+    /// tuple.
     ///
     /// ```swift
     /// private let __users = MockReturningAsyncThrowingMethodWithoutParameters<[User]>.makeMethod(
@@ -144,13 +157,14 @@ where ReturnValue: Sendable {
     ///
     /// - Parameter exposedMethodDescription: The description of the mock's
     ///   exposed method.
-    /// - Returns: A tuple containing a method and an async, throwing closure
-    ///   for invoking the method.
+    /// - Returns: A tuple containing a method, an async, throwing closure for
+    ///   invoking the method, and a closure for resetting the method.
     public static func makeMethod(
         exposedMethodDescription: MockImplementationDescription
     ) -> (
         method: MockReturningAsyncThrowingMethodWithoutParameters,
-        invoke: @Sendable () async throws -> ReturnValue
+        invoke: @Sendable () async throws -> ReturnValue,
+        reset: @Sendable () -> Void
     ) {
         let method = MockReturningAsyncThrowingMethodWithoutParameters(
             exposedMethodDescription: exposedMethodDescription
@@ -158,7 +172,8 @@ where ReturnValue: Sendable {
 
         return (
             method: method,
-            invoke: { try await method.invoke() }
+            invoke: { try await method.invoke() },
+            reset: { method.reset() }
         )
     }
 }

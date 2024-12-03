@@ -29,7 +29,7 @@ func assertMocked(
     _ interface: String,
     generates mock: String,
     diagnostics: [DiagnosticSpec] = [],
-    file: StaticString = #file,
+    file: StaticString = #filePath,
     line: UInt = #line
 ) {
     assertMacroExpansion(
