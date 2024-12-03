@@ -198,17 +198,30 @@ extension MockedMacro {
         from protocolDeclaration: ProtocolDeclSyntax
     ) throws -> MemberBlockSyntax {
         let accessLevel = protocolDeclaration.minimumConformingAccessLevel
+        // FIXME: Replace with protocolDeclaration.initializerDeclarations once added to SwiftSyntaxSugar.
+        let initializerDeclarations = protocolDeclaration.memberBlock.members.compactMap { member in
+            member.decl.as(InitializerDeclSyntax.self)
+        }
         let propertyDeclarations = protocolDeclaration.variableDeclarations
         let methodDeclarations = protocolDeclaration.functionDeclarations
 
         var members: [any DeclSyntaxProtocol] = []
         var backingOverrideDeclarations: [VariableDeclSyntax] = []
 
-        let initializerDeclaration = self.mockDefaultInitializerDeclaration(
+        let defaultInitializerDeclaration = self.mockDefaultInitializerDeclaration(
             with: accessLevel
         )
 
-        members.append(initializerDeclaration)
+        members.append(defaultInitializerDeclaration)
+
+        for initializerDeclaration in initializerDeclarations {
+            let initializerConformanceDeclaration = try self.mockInitializerConformanceDeclaration(
+                with: accessLevel,
+                from: initializerDeclaration
+            )
+
+            members.append(initializerConformanceDeclaration)
+        }
 
         for propertyDeclaration in propertyDeclarations {
             for binding in propertyDeclaration.bindings {
@@ -299,6 +312,34 @@ extension MockedMacro {
                 )
             )
         ) {}
+    }
+
+    /// Returns an initializer conformance declaration to apply to the mock,
+    /// generated from the provided protocol initializer and marked with the
+    /// provided access level.
+    ///
+    /// - Parameters:
+    ///   - accessLevel: The access level to apply to the initializer
+    ///     conformance declaration.
+    ///   - initializerDeclaration: The protocol's initializer declaration.
+    /// - Returns: An initializer conformance declaration to apply to the mock.
+    private static func mockInitializerConformanceDeclaration(
+        with accessLevel: AccessLevelSyntax,
+        from initializerDeclaration: InitializerDeclSyntax
+    ) throws -> InitializerDeclSyntax {
+        try initializerDeclaration
+            .trimmed
+            // FIXME: Replace with withAccessLevel once added to SwiftSyntaxSugar.
+            .with(\.modifiers) { modifiers in
+                if accessLevel != .internal {
+                    accessLevel.modifier
+                }
+
+                for modifier in modifiers where !modifier.isAccessLevel {
+                    modifier
+                }
+            }
+            .with(\.body) {}
     }
 
     // MARK: Properties
