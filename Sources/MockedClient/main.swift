@@ -26,7 +26,20 @@ public protocol Playground {}
 @Mocked
 public protocol Initializers {
     init(parameter: Int)
+    init(parameters: Int...)
     init(parameter1: Int, parameter2: Int)
+}
+
+// MARK: Variadic Parameters
+
+/// A protocol for verifying Mocked's handling of variadic parameters.
+///
+/// - Important: Please only use this protocol for permanent verification of
+///   Mocked's handling of variadic parameters. For temporary testing of
+///   Mocked's expansion, use the ``Playground`` protocol.
+@Mocked
+public protocol VariadicParameters {
+    func method(parameters: Int...)
 }
 
 // MARK: Static Members
