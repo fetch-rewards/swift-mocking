@@ -6,22 +6,25 @@
 //
 
 #if canImport(MockedMacros)
-import MockedMacros
-import XCTest
+import Testing
+@testable import MockedMacros
 
-final class MockedErrorTests: XCTestCase {
+struct MockedErrorTests {
+
+    // MARK: Typealiases
+
+    typealias SUT = MockedError
 
     // MARK: Description Tests
 
-    func testDescription() {
-        for error in MockedError.allCases {
-            let expectedDescription = switch error {
-            case .canOnlyBeAppliedToProtocols:
-                "@Mocked can only be applied to protocols"
-            }
-
-            XCTAssertEqual(error.description, expectedDescription)
+    @Test(arguments: SUT.allCases)
+    func description(sut: SUT) {
+        let expectedDescription = switch sut {
+        case .canOnlyBeAppliedToProtocols:
+            "@Mocked can only be applied to protocols"
         }
+
+        #expect(sut.description == expectedDescription)
     }
 }
 #endif

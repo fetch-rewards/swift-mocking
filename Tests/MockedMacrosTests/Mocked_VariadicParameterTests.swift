@@ -6,39 +6,40 @@
 //
 
 #if canImport(MockedMacros)
-import MockedMacros
-import SwiftSyntaxMacros
-import SwiftSyntaxMacrosTestSupport
-import XCTest
+import SwiftSyntaxMacrosGenericTestSupport
+import Testing
+@testable import MockedMacros
 
-final class Mocked_VariadicParameterTests: XCTestCase {
+struct Mocked_VariadicParameterTests {
 
     // MARK: Variadic Parameter Tests
 
-    func testVariadicParameters() {
-        testMocked { interface, mock in
-            assertMocked(
-                """
-                \(interface.accessLevel) protocol Dependency {
-                    func method(strings: String..., integers: Int...)
+    @Test(arguments: testConfigurations)
+    func variadicParameters(
+        interface: InterfaceConfiguration,
+        mock: MockConfiguration
+    ) {
+        assertMocked(
+            """
+            \(interface.accessLevel) protocol Dependency {
+                func method(strings: String..., integers: Int...)
+            }
+            """,
+            generates: """
+            \(mock.modifiers)class DependencyMock: Dependency {
+            \(mock.defaultInit)
+                private let __method = MockVoidMethodWithParameters<(strings: [String], \
+            integers: [Int])>.makeMethod()
+                \(mock.memberModifiers)var _method: MockVoidMethodWithParameters<\
+            (strings: [String], integers: [Int])> {
+                    self.__method.method
                 }
-                """,
-                generates: """
-                \(mock.modifiers)class DependencyMock: Dependency {
-                \(mock.defaultInit)
-                    private let __method = MockVoidMethodWithParameters<(strings: [String], \
-                integers: [Int])>.makeMethod()
-                    \(mock.memberModifiers)var _method: MockVoidMethodWithParameters<\
-                (strings: [String], integers: [Int])> {
-                        self.__method.method
-                    }
-                    \(mock.memberModifiers)func method(strings: String..., integers: Int...) {
-                        self.__method.invoke((strings, integers))
-                    }
+                \(mock.memberModifiers)func method(strings: String..., integers: Int...) {
+                    self.__method.invoke((strings, integers))
                 }
-                """
-            )
-        }
+            }
+            """
+        )
     }
 }
 #endif

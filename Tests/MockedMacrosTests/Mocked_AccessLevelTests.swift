@@ -6,28 +6,29 @@
 //
 
 #if canImport(MockedMacros)
-import MockedMacros
-import SwiftSyntaxMacros
-import SwiftSyntaxMacrosTestSupport
-import XCTest
+import SwiftSyntaxMacrosGenericTestSupport
+import Testing
+@testable import MockedMacros
 
-final class Mocked_AccessLevelTests: XCTestCase {
+struct Mocked_AccessLevelTests {
 
     // MARK: Access Level Tests
 
-    func testProtocolAccessLevels() {
-        testMocked { interface, mock in
-            assertMocked(
-                """
-                \(interface.accessLevel) protocol Dependency {}
-                """,
-                generates: """
-                \(mock.modifiers)class DependencyMock: Dependency {
-                \(mock.defaultInit)
-                }
-                """
-            )
-        }
+    @Test(arguments: testConfigurations)
+    func protocolAccessLevels(
+        interface: InterfaceConfiguration,
+        mock: MockConfiguration
+    ) {
+        assertMocked(
+            """
+            \(interface.accessLevel) protocol Dependency {}
+            """,
+            generates: """
+            \(mock.modifiers)class DependencyMock: Dependency {
+            \(mock.defaultInit)
+            }
+            """
+        )
     }
 }
 #endif
