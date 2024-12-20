@@ -38,6 +38,7 @@ final class Mocked_InitializerTests: XCTestCase {
                 """
                 \(interface.accessLevel) protocol Dependency {
                     init(parameter: Int)
+                    init(parameters: Int...)
                     init(parameter1: Int, parameter2: Int)
                 }
                 """,
@@ -45,6 +46,8 @@ final class Mocked_InitializerTests: XCTestCase {
                 \(mock.modifiers)class DependencyMock: Dependency {
                 \(mock.defaultInit)
                     \(mock.memberModifiers)init(parameter: Int) {
+                    }
+                    \(mock.memberModifiers)init(parameters: Int...) {
                     }
                     \(mock.memberModifiers)init(parameter1: Int, parameter2: Int) {
                     }
