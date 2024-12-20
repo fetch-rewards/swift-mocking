@@ -39,7 +39,7 @@ public protocol Initializers {
 ///   Mocked's expansion, use the ``Playground`` protocol.
 @Mocked
 public protocol VariadicParameters {
-    func method(parameters: Int...)
+    func method(strings: String..., integers: Int...)
 }
 
 // MARK: Static Members
