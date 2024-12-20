@@ -198,10 +198,7 @@ extension MockedMacro {
         from protocolDeclaration: ProtocolDeclSyntax
     ) throws -> MemberBlockSyntax {
         let accessLevel = protocolDeclaration.minimumConformingAccessLevel
-        // FIXME: Replace with protocolDeclaration.initializerDeclarations once added to SwiftSyntaxSugar.
-        let initializerDeclarations = protocolDeclaration.memberBlock.members.compactMap { member in
-            member.decl.as(InitializerDeclSyntax.self)
-        }
+        let initializerDeclarations = protocolDeclaration.initializerDeclarations
         let propertyDeclarations = protocolDeclaration.variableDeclarations
         let methodDeclarations = protocolDeclaration.functionDeclarations
 
@@ -331,16 +328,7 @@ extension MockedMacro {
     ) throws -> InitializerDeclSyntax {
         try initializerDeclaration
             .trimmed
-            // FIXME: Replace with withAccessLevel once added to SwiftSyntaxSugar.
-            .with(\.modifiers) { modifiers in
-                if accessLevel != .internal {
-                    accessLevel.modifier
-                }
-
-                for modifier in modifiers where !modifier.isAccessLevel {
-                    modifier
-                }
-            }
+            .withAccessLevel(accessLevel)
             .with(\.body) {}
     }
 
