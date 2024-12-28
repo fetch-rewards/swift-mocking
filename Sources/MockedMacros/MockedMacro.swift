@@ -559,6 +559,8 @@ extension MockedMacro {
     ) {
         let mockName = self.mockName(from: protocolDeclaration)
         let methodName = methodDeclaration.name
+        let methodGenericParameterClause = methodDeclaration.genericParameterClause
+        let methodGenericParameters = methodGenericParameterClause?.parameters
         let methodSignature = methodDeclaration.signature
         let methodParameters = methodSignature.parameterClause.parameters
 
@@ -566,8 +568,13 @@ extension MockedMacro {
         var backingGenericArguments: [String] = []
 
         if let returnClause = methodSignature.returnClause {
+            let returnType = self.mockMethodOverrideDeclarationType(
+                returnClause.type,
+                typeErasedIfNecessaryUsing: methodGenericParameters
+            )
+
             backingType = "MockReturning"
-            backingGenericArguments.append(returnClause.type.trimmedDescription)
+            backingGenericArguments.append(returnType.trimmedDescription)
         } else {
             backingType = "MockVoid"
         }
@@ -583,6 +590,16 @@ extension MockedMacro {
         backingType += "Method"
 
         if let arguments = methodParameters.toTupleTypeSyntax() {
+            let elements = arguments.elements.map { element in
+                let elementType = self.mockMethodOverrideDeclarationType(
+                    element.type,
+                    typeErasedIfNecessaryUsing: methodGenericParameters
+                )
+
+                return element.with(\.type, elementType.trimmed)
+            }
+            let arguments = arguments.with(\.elements, TupleTypeElementListSyntax(elements))
+
             backingType += "WithParameters"
             backingGenericArguments.insert(arguments.trimmedDescription, at: .zero)
         } else {
@@ -645,6 +662,161 @@ extension MockedMacro {
                 }
             )
         )
+    }
+
+    /// Returns a copy of the provided `type` to use in a mock's method override
+    /// declaration, type-erased if necessary based on the provided
+    /// `genericParameters` pulled from the method conformance declaration being
+    /// backed by the override declaration.
+    ///
+    /// If a mock's method conformance declaration contains generic parameters,
+    /// those generic parameters can only be used within the scope of the mock's
+    /// method conformance declaration. They cannot be used to specialize the
+    /// method override declarations that are backing the conformance
+    /// declaration as they are only scoped to the conformance declaration.
+    ///
+    /// For a type syntax that contains nested types, this method recursively
+    /// calls itself on each nested type syntax until all nested types within
+    /// the syntax tree are type-erased (if necessary).
+    ///
+    /// - Parameters:
+    ///   - type: The type with which to specialize the mock's method override
+    ///     declaration.
+    ///   - genericParameters: The generic parameters pulled from the method
+    ///     conformance declaration being backed by the method override
+    ///     declaration.
+    /// - Returns: A copy of the provided `type` to use in a mock's method
+    ///   override declaration, type-erased if necessary based on the provided
+    ///   `genericParameters` pulled from the method conformance declaration
+    ///   being backed by the override declaration.
+    private static func mockMethodOverrideDeclarationType(
+        _ type: any TypeSyntaxProtocol,
+        typeErasedIfNecessaryUsing genericParameters: GenericParameterListSyntax?
+    ) -> TypeSyntax {
+        let type = TypeSyntax(type)
+
+        guard let genericParameters else {
+            return type
+        }
+
+        /// Returns a copy of the provided `syntax`, type-erased if necessary
+        /// at the provided `keyPath`.
+        ///
+        /// This function recursively calls the encompassing method with the
+        /// type syntax located at the provided `keyPath` in the provided
+        /// `syntax`.
+        ///
+        /// - Parameters:
+        ///   - syntax: The syntax that contains the type.
+        ///   - keyPath: The key path at which the type is located in the
+        ///     provided `syntax`.
+        /// - Returns: A copy of the provided `syntax`, type-erased if necessary
+        ///   at the provided `keyPath`.
+        func syntax<Syntax: SyntaxProtocol>(
+            _ syntax: Syntax,
+            typeErasedIfNecessaryAt keyPath: WritableKeyPath<Syntax, TypeSyntax>
+        ) -> Syntax {
+            syntax
+                .with(
+                    keyPath,
+                    self.mockMethodOverrideDeclarationType(
+                        syntax[keyPath: keyPath],
+                        typeErasedIfNecessaryUsing: genericParameters
+                    )
+                )
+        }
+
+        /// Returns a Boolean value indicating whether the `genericParameters`
+        /// provided to the encompassing method contains the provided `type`.
+        ///
+        /// - Parameter type: The type 
+        /// - Returns: A Boolean value indicating whether the `genericParameters`
+        ///   provided to the encompassing method contains the provided `type`.
+        func genericParametersContains(_ type: IdentifierTypeSyntax) -> Bool {
+            genericParameters.contains { genericParameter in
+                genericParameter.name.trimmed.tokenKind == type.name.trimmed.tokenKind
+            }
+        }
+
+        let newType: any TypeSyntaxProtocol = switch type.as(TypeSyntaxEnum.self) {
+        case let .arrayType(type):
+            syntax(type, typeErasedIfNecessaryAt: \.element)
+        case let .attributedType(type):
+            syntax(type, typeErasedIfNecessaryAt: \.baseType)
+        case let .classRestrictionType(type):
+            type
+        case let .compositionType(type):
+            type.with(
+                \.elements,
+                 CompositionTypeElementListSyntax {
+                     for element in type.elements {
+                         syntax(element, typeErasedIfNecessaryAt: \.type)
+                     }
+                 }
+            )
+        case let .dictionaryType(type):
+            syntax(type, typeErasedIfNecessaryAt: \.value)
+
+        case let .functionType(type):
+            syntax(type, typeErasedIfNecessaryAt: \.returnClause.type)
+                .with(
+                    \.parameters,
+                     TupleTypeElementListSyntax {
+                         for parameter in type.parameters {
+                             syntax(parameter, typeErasedIfNecessaryAt: \.type)
+                         }
+                     }
+                )
+        case let .identifierType(type) where genericParametersContains(type):
+            TypeSyntax(describing: Any.self)
+        case let .identifierType(type):
+            if let genericArgumentClause = type.genericArgumentClause {
+                type.with(
+                    \.genericArgumentClause,
+                     genericArgumentClause.with(
+                        \.arguments,
+                         GenericArgumentListSyntax {
+                             for argument in genericArgumentClause.arguments {
+                                 syntax(argument, typeErasedIfNecessaryAt: \.argument)
+                             }
+                         }
+                     )
+                )
+            } else {
+                type
+            }
+        case let .implicitlyUnwrappedOptionalType(type):
+            syntax(type, typeErasedIfNecessaryAt: \.wrappedType)
+        case let .memberType(type):
+            syntax(type, typeErasedIfNecessaryAt: \.baseType)
+        case let .metatypeType(type):
+            syntax(type, typeErasedIfNecessaryAt: \.baseType)
+        case let .missingType(type):
+            type
+        case let .namedOpaqueReturnType(type):
+            syntax(type, typeErasedIfNecessaryAt: \.type)
+        case let .optionalType(type):
+            syntax(type, typeErasedIfNecessaryAt: \.wrappedType)
+        case let .packElementType(type):
+            syntax(type, typeErasedIfNecessaryAt: \.pack)
+        case let .packExpansionType(type):
+            syntax(type, typeErasedIfNecessaryAt: \.repetitionPattern)
+        case let .someOrAnyType(type):
+            syntax(type, typeErasedIfNecessaryAt: \.constraint)
+        case let .suppressedType(type):
+            syntax(type, typeErasedIfNecessaryAt: \.type)
+        case let .tupleType(type):
+            type.with(
+                \.elements,
+                 TupleTypeElementListSyntax {
+                     for element in type.elements {
+                         syntax(element, typeErasedIfNecessaryAt: \.type)
+                     }
+                 }
+            )
+        }
+
+        return TypeSyntax(newType)
     }
 
     /// Returns a method conformance declaration to apply to the mock, generated

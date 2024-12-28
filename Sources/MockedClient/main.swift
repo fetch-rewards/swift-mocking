@@ -42,6 +42,40 @@ public protocol VariadicParameters {
     func method(strings: String..., integers: Int...)
 }
 
+// MARK: Generic Methods
+
+/// A protocol for verifying Mocked's handling of generic methods.
+///
+/// - Important: Please only use this protocol for permanent verification of
+///   Mocked's handling of generic methods. For temporary testing of Mocked's
+///   expansion, use the ``Playground`` protocol.
+@Mocked
+public protocol GenericMethods {
+    func genericMethodWithArrayType<Element>(
+        array: [Element]
+    ) -> [Element]
+
+    func genericMethodWithAttributedType<Value>(
+        value: inout Value
+    )
+
+    func genericMethodWithDictionaryType<Value>(
+        dictionary: Dictionary<String, Value>
+    ) -> [String: Value]
+
+    func genericMethodWithGenericIdentifierType<Value>(
+        value: Optional<Value>
+    ) -> Optional<Value>
+
+    func genericMethodWithIdentifierType<Value>(
+        value: Value
+    ) -> Value
+
+    func genericMethodWithMetatypeType<Value>(
+        valueType: Value.Type
+    ) -> Value.Type
+}
+
 // MARK: Static Members
 
 /// A protocol for verifying Mocked's handling of static properties and methods.
