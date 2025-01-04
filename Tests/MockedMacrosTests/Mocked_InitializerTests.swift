@@ -6,55 +6,58 @@
 //
 
 #if canImport(MockedMacros)
-import MockedMacros
-import SwiftSyntaxMacros
-import SwiftSyntaxMacrosTestSupport
-import XCTest
+import SwiftSyntaxMacrosGenericTestSupport
+import Testing
+@testable import MockedMacros
 
-final class Mocked_InitializerTests: XCTestCase {
+struct Mocked_InitializerTests {
 
     // MARK: Default Init Tests
 
-    func testDefaultInit() {
-        testMocked { interface, mock in
-            assertMocked(
-                """
-                \(interface.accessLevel) protocol Dependency {}
-                """,
-                generates: """
-                \(mock.modifiers)class DependencyMock: Dependency {
-                \(mock.defaultInit)
-                }
-                """
-            )
-        }
+    @Test(arguments: testConfigurations)
+    func defaultInit(
+        interface: InterfaceConfiguration,
+        mock: MockConfiguration
+    ) {
+        assertMocked(
+            """
+            \(interface.accessLevel) protocol Dependency {}
+            """,
+            generates: """
+            \(mock.modifiers)class DependencyMock: Dependency {
+            \(mock.defaultInit)
+            }
+            """
+        )
     }
 
     // MARK: Init Conformance Tests
 
-    func testInitConformance() {
-        testMocked { interface, mock in
-            assertMocked(
-                """
-                \(interface.accessLevel) protocol Dependency {
-                    init(parameter: Int)
-                    init(parameters: Int...)
-                    init(parameter1: Int, parameter2: Int)
+    @Test(arguments: testConfigurations)
+    func initConformance(
+        interface: InterfaceConfiguration,
+        mock: MockConfiguration
+    ) {
+        assertMocked(
+            """
+            \(interface.accessLevel) protocol Dependency {
+                init(parameter: Int)
+                init(parameters: Int...)
+                init(parameter1: Int, parameter2: Int)
+            }
+            """,
+            generates: """
+            \(mock.modifiers)class DependencyMock: Dependency {
+            \(mock.defaultInit)
+                \(mock.memberModifiers)init(parameter: Int) {
                 }
-                """,
-                generates: """
-                \(mock.modifiers)class DependencyMock: Dependency {
-                \(mock.defaultInit)
-                    \(mock.memberModifiers)init(parameter: Int) {
-                    }
-                    \(mock.memberModifiers)init(parameters: Int...) {
-                    }
-                    \(mock.memberModifiers)init(parameter1: Int, parameter2: Int) {
-                    }
+                \(mock.memberModifiers)init(parameters: Int...) {
                 }
-                """
-            )
-        }
+                \(mock.memberModifiers)init(parameter1: Int, parameter2: Int) {
+                }
+            }
+            """
+        )
     }
 }
 #endif

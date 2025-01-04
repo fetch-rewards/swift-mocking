@@ -6,8 +6,8 @@
 //
 
 #if canImport(MockedMacros)
-import MockedMacros
 import SwiftSyntaxSugar
+@testable import MockedMacros
 
 struct InterfaceConfiguration {
 

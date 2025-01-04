@@ -6,94 +6,103 @@
 //
 
 #if canImport(MockedMacros)
-import MockedMacros
-import SwiftSyntaxMacros
-import SwiftSyntaxMacrosTestSupport
-import XCTest
+import SwiftSyntaxMacrosGenericTestSupport
+import Testing
+@testable import MockedMacros
 
-final class Mocked_InheritanceTests: XCTestCase {
+struct Mocked_InheritanceTests {
 
     // MARK: Unconstrained Tests
 
-    func testUnconstrainedProtocol() {
-        testMocked { interface, mock in
-            assertMocked(
-                """
-                \(interface.accessLevel) protocol Dependency {}
-                """,
-                generates: """
-                \(mock.modifiers)class DependencyMock: Dependency {
-                \(mock.defaultInit)
-                }
-                """
-            )
-        }
+    @Test(arguments: testConfigurations)
+    func unconstrainedProtocol(
+        interface: InterfaceConfiguration,
+        mock: MockConfiguration
+    ) {
+        assertMocked(
+            """
+            \(interface.accessLevel) protocol Dependency {}
+            """,
+            generates: """
+            \(mock.modifiers)class DependencyMock: Dependency {
+            \(mock.defaultInit)
+            }
+            """
+        )
     }
 
     // MARK: Actor Constrained Tests
 
-    func testActorConstrainedProtocol() {
-        testMocked { interface, mock in
-            assertMocked(
-                """
-                \(interface.accessLevel) protocol Dependency: Actor {}
-                """,
-                generates: """
-                \(mock.modifiers)actor DependencyMock: Dependency {
-                \(mock.defaultInit)
-                }
-                """
-            )
-        }
+    @Test(arguments: testConfigurations)
+    func actorConstrainedProtocol(
+        interface: InterfaceConfiguration,
+        mock: MockConfiguration
+    ) {
+        assertMocked(
+            """
+            \(interface.accessLevel) protocol Dependency: Actor {}
+            """,
+            generates: """
+            \(mock.modifiers)actor DependencyMock: Dependency {
+            \(mock.defaultInit)
+            }
+            """
+        )
     }
 
     // MARK: Class Constrained Tests
 
-    func testClassConstrainedProtocol() {
-        testMocked { interface, mock in
-            assertMocked(
-                """
-                \(interface.accessLevel) protocol Dependency: AnyObject {}
-                """,
-                generates: """
-                \(mock.modifiers)class DependencyMock: Dependency {
-                \(mock.defaultInit)
-                }
-                """
-            )
-        }
+    @Test(arguments: testConfigurations)
+    func classConstrainedProtocol(
+        interface: InterfaceConfiguration,
+        mock: MockConfiguration
+    ) {
+        assertMocked(
+            """
+            \(interface.accessLevel) protocol Dependency: AnyObject {}
+            """,
+            generates: """
+            \(mock.modifiers)class DependencyMock: Dependency {
+            \(mock.defaultInit)
+            }
+            """
+        )
     }
 
     // MARK: Actor & Class Constrained Tests
 
-    func testActorAndClassConstrainedProtocol() {
-        testMocked { interface, mock in
-            assertMocked(
-                """
-                \(interface.accessLevel) protocol Dependency: Actor, AnyObject {}
-                """,
-                generates: """
-                \(mock.modifiers)actor DependencyMock: Dependency {
-                \(mock.defaultInit)
-                }
-                """
-            )
-        }
+    @Test(arguments: testConfigurations)
+    func actorAndClassConstrainedProtocol(
+        interface: InterfaceConfiguration,
+        mock: MockConfiguration
+    ) {
+        assertMocked(
+            """
+            \(interface.accessLevel) protocol Dependency: Actor, AnyObject {}
+            """,
+            generates: """
+            \(mock.modifiers)actor DependencyMock: Dependency {
+            \(mock.defaultInit)
+            }
+            """
+        )
     }
 
-    func testClassAndActorConstrainedProtocol() {
-        testMocked { interface, mock in
-            assertMocked(
-                """
-                \(interface.accessLevel) protocol Dependency: AnyObject, Actor {}
-                """,
-                generates: """
-                \(mock.modifiers)actor DependencyMock: Dependency {
-                \(mock.defaultInit)
-                }
-                """
-            )
-        }
+    @Test(arguments: testConfigurations)
+    func classAndActorConstrainedProtocol(
+        interface: InterfaceConfiguration,
+        mock: MockConfiguration
+    ) {
+        assertMocked(
+            """
+            \(interface.accessLevel) protocol Dependency: AnyObject, Actor {}
+            """,
+            generates: """
+            \(mock.modifiers)actor DependencyMock: Dependency {
+            \(mock.defaultInit)
+            }
+            """
+        )
     }
 }
 #endif
