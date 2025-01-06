@@ -251,7 +251,8 @@ extension MockedMacro {
             )
             let methodConformanceDeclaration = try self.mockMethodConformanceDeclaration(
                 with: accessLevel,
-                for: methodDeclaration
+                for: methodDeclaration,
+                didTypeEraseOverrideDeclarationsReturnType: methodOverrideDeclarations.didTypeEraseReturnType
             )
 
             backingOverrideDeclarations.append(
@@ -262,8 +263,8 @@ extension MockedMacro {
             members.append(methodConformanceDeclaration)
         }
 
-        if let resetMockedStaticMembersMethodDeclaration = self
-            .resetMockedStaticMembersMethodDeclaration(
+        if let resetMockedStaticMembersMethodDeclaration =
+            self.resetMockedStaticMembersMethodDeclaration(
                 backingOverrideDeclarations: backingOverrideDeclarations,
                 protocolDeclaration: protocolDeclaration
             )
@@ -555,7 +556,8 @@ extension MockedMacro {
         in protocolDeclaration: ProtocolDeclSyntax
     ) -> (
         backingMethod: VariableDeclSyntax,
-        exposedMethod: VariableDeclSyntax
+        exposedMethod: VariableDeclSyntax,
+        didTypeEraseReturnType: Bool
     ) {
         let mockName = self.mockName(from: protocolDeclaration)
         let methodName = methodDeclaration.name
@@ -566,15 +568,17 @@ extension MockedMacro {
 
         var backingType: String
         var backingGenericArguments: [String] = []
+        var didTypeEraseReturnType = false
 
         if let returnClause = methodSignature.returnClause {
-            let returnType = self.mockMethodOverrideDeclarationType(
+            let (returnType, didTypeErase) = self.mockMethodOverrideDeclarationType(
                 returnClause.type,
                 typeErasedIfNecessaryUsing: methodGenericParameters
             )
 
             backingType = "MockReturning"
             backingGenericArguments.append(returnType.trimmedDescription)
+            didTypeEraseReturnType = didTypeErase
         } else {
             backingType = "MockVoid"
         }
@@ -591,7 +595,7 @@ extension MockedMacro {
 
         if let arguments = methodParameters.toTupleTypeSyntax() {
             let elements = arguments.elements.map { element in
-                let elementType = self.mockMethodOverrideDeclarationType(
+                let (elementType, _) = self.mockMethodOverrideDeclarationType(
                     element.type,
                     typeErasedIfNecessaryUsing: methodGenericParameters
                 )
@@ -660,14 +664,15 @@ extension MockedMacro {
                         )
                     )
                 }
-            )
+            ),
+            didTypeEraseReturnType: didTypeEraseReturnType
         )
     }
 
     /// Returns a copy of the provided `type` to use in a mock's method override
     /// declaration, type-erased if necessary based on the provided
-    /// `genericParameters` pulled from the method conformance declaration being
-    /// backed by the override declaration.
+    /// `genericParameters` pulled from the method conformance declaration that
+    /// is being backed by the override declaration.
     ///
     /// If a mock's method conformance declaration contains generic parameters,
     /// those generic parameters can only be used within the scope of the mock's
@@ -683,140 +688,483 @@ extension MockedMacro {
     ///   - type: The type with which to specialize the mock's method override
     ///     declaration.
     ///   - genericParameters: The generic parameters pulled from the method
-    ///     conformance declaration being backed by the method override
+    ///     conformance declaration that is being backed by the method override
     ///     declaration.
+    ///   - typeErasedType: The type-erased type to use to type-erase the
+    ///     provided `type`. The default value is `Any.self`.
     /// - Returns: A copy of the provided `type` to use in a mock's method
     ///   override declaration, type-erased if necessary based on the provided
     ///   `genericParameters` pulled from the method conformance declaration
-    ///   being backed by the override declaration.
-    private static func mockMethodOverrideDeclarationType(
+    ///   that is being backed by the override declaration.
+    private static func mockMethodOverrideDeclarationType<TypeErasedType>(
         _ type: any TypeSyntaxProtocol,
-        typeErasedIfNecessaryUsing genericParameters: GenericParameterListSyntax?
-    ) -> TypeSyntax {
+        typeErasedIfNecessaryUsing genericParameters: GenericParameterListSyntax?,
+        typeErasedType: TypeErasedType.Type = Any.self
+    ) -> (
+        newType: TypeSyntax,
+        didTypeErase: Bool
+    ) {
         let type = TypeSyntax(type)
+        let result: (newType: any TypeSyntaxProtocol, didTypeErase: Bool)
 
-        guard let genericParameters else {
-            return type
-        }
-
-        /// Returns a copy of the provided `syntax`, type-erased if necessary
-        /// at the provided `keyPath`.
-        ///
-        /// This function recursively calls the encompassing method with the
-        /// type syntax located at the provided `keyPath` in the provided
-        /// `syntax`.
-        ///
-        /// - Parameters:
-        ///   - syntax: The syntax that contains the type.
-        ///   - keyPath: The key path at which the type is located in the
-        ///     provided `syntax`.
-        /// - Returns: A copy of the provided `syntax`, type-erased if necessary
-        ///   at the provided `keyPath`.
-        func syntax<Syntax: SyntaxProtocol>(
-            _ syntax: Syntax,
-            typeErasedIfNecessaryAt keyPath: WritableKeyPath<Syntax, TypeSyntax>
-        ) -> Syntax {
-            syntax
-                .with(
-                    keyPath,
-                    self.mockMethodOverrideDeclarationType(
-                        syntax[keyPath: keyPath],
-                        typeErasedIfNecessaryUsing: genericParameters
-                    )
-                )
-        }
-
-        /// Returns a Boolean value indicating whether the `genericParameters`
-        /// provided to the encompassing method contains the provided `type`.
-        ///
-        /// - Parameter type: The type 
-        /// - Returns: A Boolean value indicating whether the `genericParameters`
-        ///   provided to the encompassing method contains the provided `type`.
-        func genericParametersContains(_ type: IdentifierTypeSyntax) -> Bool {
-            genericParameters.contains { genericParameter in
-                genericParameter.name.trimmed.tokenKind == type.name.trimmed.tokenKind
-            }
-        }
-
-        let newType: any TypeSyntaxProtocol = switch type.as(TypeSyntaxEnum.self) {
+        switch type.as(TypeSyntaxEnum.self) {
         case let .arrayType(type):
-            syntax(type, typeErasedIfNecessaryAt: \.element)
-        case let .attributedType(type):
-            syntax(type, typeErasedIfNecessaryAt: \.baseType)
-        case let .classRestrictionType(type):
-            type
-        case let .compositionType(type):
-            type.with(
-                \.elements,
-                 CompositionTypeElementListSyntax {
-                     for element in type.elements {
-                         syntax(element, typeErasedIfNecessaryAt: \.type)
-                     }
-                 }
+            result = self.syntax(
+                type,
+                typeErasedAt: \.element,
+                ifTypeIsContainedIn: genericParameters
             )
-        case let .dictionaryType(type):
-            syntax(type, typeErasedIfNecessaryAt: \.value)
+        case let .attributedType(type):
+            result = self.syntax(
+                type,
+                typeErasedAt: \.baseType,
+                ifTypeIsContainedIn: genericParameters
+            )
+        case let .classRestrictionType(type):
+            result = (newType: type, didTypeErase: false)
+        case let .compositionType(type):
+            result = self.syntax(
+                type,
+                withElementsInCollectionAt: \.elements,
+                typeErasedAt: \.type,
+                ifTypeIsContainedIn: genericParameters
+            )
+        case var .dictionaryType(type):
+            let didTypeEraseKey, didTypeEraseValue: Bool
 
-        case let .functionType(type):
-            syntax(type, typeErasedIfNecessaryAt: \.returnClause.type)
-                .with(
-                    \.parameters,
-                     TupleTypeElementListSyntax {
-                         for parameter in type.parameters {
-                             syntax(parameter, typeErasedIfNecessaryAt: \.type)
-                         }
-                     }
-                )
-        case let .identifierType(type) where genericParametersContains(type):
-            TypeSyntax(describing: Any.self)
+            (type, didTypeEraseKey) = self.syntax(
+                type,
+                typeErasedAt: \.key,
+                ifTypeIsContainedIn: genericParameters,
+                typeErasedType: AnyHashable.self
+            )
+            (type, didTypeEraseValue) = self.syntax(
+                type,
+                typeErasedAt: \.value,
+                ifTypeIsContainedIn: genericParameters
+            )
+
+            result = (
+                newType: type,
+                didTypeErase: didTypeEraseKey || didTypeEraseValue
+            )
+        case var .functionType(type):
+            let didTypeEraseParameters, didTypeEraseReturnValue: Bool
+
+            (type, didTypeEraseParameters) = self.syntax(
+                type,
+                withElementsInCollectionAt: \.parameters,
+                typeErasedAt: \.type,
+                ifTypeIsContainedIn: genericParameters
+            )
+            (type, didTypeEraseReturnValue) = self.syntax(
+                type,
+                typeErasedAt: \.returnClause.type,
+                ifTypeIsContainedIn: genericParameters
+            )
+
+            result = (
+                newType: type,
+                didTypeErase: didTypeEraseParameters || didTypeEraseReturnValue
+            )
         case let .identifierType(type):
-            if let genericArgumentClause = type.genericArgumentClause {
-                type.with(
-                    \.genericArgumentClause,
-                     genericArgumentClause.with(
-                        \.arguments,
-                         GenericArgumentListSyntax {
-                             for argument in genericArgumentClause.arguments {
-                                 syntax(argument, typeErasedIfNecessaryAt: \.argument)
-                             }
-                         }
-                     )
+            if let genericParameter = genericParameters?.first(where: { genericParameter in
+                genericParameter.name.tokenKind == type.name.tokenKind
+            }) {
+                let newType: any TypeSyntaxProtocol
+
+                if typeErasedType == Any.self, let inheritedType = genericParameter.inheritedType {
+                    let anySpecifier = TokenSyntax(
+                        .keyword(.any),
+                        trailingTrivia: .space,
+                        presence: .present
+                    )
+
+                    newType = SomeOrAnyTypeSyntax(
+                        someOrAnySpecifier: anySpecifier,
+                        constraint: inheritedType
+                    )
+                } else {
+                    newType = TypeSyntax(describing: typeErasedType)
+                }
+
+                result = (newType: newType, didTypeErase: true)
+            } else {
+                result = self.type(
+                    type,
+                    typeErasedIfAnyArgumentsIn: \.genericArgumentClause,
+                    areContainedIn: genericParameters,
+                    typeErasedType: typeErasedType
                 )
+            }
+        case let .implicitlyUnwrappedOptionalType(type):
+            result = self.syntax(
+                type,
+                typeErasedAt: \.wrappedType,
+                ifTypeIsContainedIn: genericParameters
+            )
+        case let .memberType(type) where type.name.tokenKind == .keyword(.self):
+            result = self.syntax(
+                type,
+                typeErasedAt: \.baseType,
+                ifTypeIsContainedIn: genericParameters
+            )
+        case let .memberType(type):
+            result = self.type(
+                type,
+                typeErasedIfAnyArgumentsIn: \.genericArgumentClause,
+                areContainedIn: genericParameters,
+                typeErasedType: typeErasedType
+            )
+        case let .metatypeType(type):
+            result = self.syntax(
+                type,
+                typeErasedAt: \.baseType,
+                ifTypeIsContainedIn: genericParameters
+            )
+        case let .missingType(type):
+            result = (newType: type, didTypeErase: false)
+        case let .namedOpaqueReturnType(type):
+            result = self.syntax(
+                type,
+                typeErasedAt: \.type,
+                ifTypeIsContainedIn: genericParameters
+            )
+        case let .optionalType(type):
+            result = self.syntax(
+                type,
+                typeErasedAt: \.wrappedType,
+                ifTypeIsContainedIn: genericParameters
+            )
+        case let .packElementType(type):
+            result = self.syntax(
+                type,
+                typeErasedAt: \.pack,
+                ifTypeIsContainedIn: genericParameters
+            )
+        case let .packExpansionType(type):
+            result = self.syntax(
+                type,
+                typeErasedAt: \.repetitionPattern,
+                ifTypeIsContainedIn: genericParameters
+            )
+        case let .someOrAnyType(type):
+            let anySpecifier = TokenSyntax(
+                .keyword(.any),
+                trailingTrivia: .space,
+                presence: .present
+            )
+
+            result = self.syntax(
+                type.with(\.someOrAnySpecifier, anySpecifier),
+                typeErasedAt: \.constraint,
+                ifTypeIsContainedIn: genericParameters
+            )
+        case let .suppressedType(type):
+            result = self.syntax(
+                type,
+                typeErasedAt: \.type,
+                ifTypeIsContainedIn: genericParameters
+            )
+        case let .tupleType(type):
+            result = self.syntax(
+                type,
+                withElementsInCollectionAt: \.elements,
+                typeErasedAt: \.type,
+                ifTypeIsContainedIn: genericParameters
+            )
+        }
+
+        let newType = TypeSyntax(result.newType)
+
+        return (newType, result.didTypeErase)
+    }
+
+    /// Returns a tuple containing a copy of the provided `syntax`, type-erased
+    /// at the provided `typeKeyPath` if the type is contained in the provided
+    /// `genericParameters`, and a Boolean value indicating whether the `syntax`
+    /// was type-erased at the provided `typeKeyPath`.
+    ///
+    /// - Parameters:
+    ///   - syntax: The syntax that contains the type to type-erase.
+    ///   - typeKeyPath: The key path at which the type is located in the
+    ///     provided `syntax`.
+    ///   - genericParameters: The generic parameters which, depending on
+    ///     whether they contain the type at the provided `typeKeyPath`,
+    ///     determine whether the type gets type-erased.
+    ///   - typeErasedType: The type-erased type to use to type-erase the type
+    ///     at the provided `typeKeyPath`. The default value is `Any.self`.
+    /// - Returns: A tuple containing a copy of the provided `syntax`, type-
+    ///   erased at the provided `typeKeyPath` if the type is contained in the
+    ///   provided `genericParameters`, and a Boolean value indicating whether
+    ///   the `syntax` was type-erased at the provided `typeKeyPath`.
+    private static func syntax<Syntax: SyntaxProtocol, TypeErasedType>(
+        _ syntax: Syntax,
+        typeErasedAt typeKeyPath: WritableKeyPath<Syntax, TypeSyntax>,
+        ifTypeIsContainedIn genericParameters: GenericParameterListSyntax?,
+        typeErasedType: TypeErasedType.Type = Any.self
+    ) -> (Syntax, Bool) {
+        let (type, didTypeErase) = self.mockMethodOverrideDeclarationType(
+            syntax[keyPath: typeKeyPath],
+            typeErasedIfNecessaryUsing: genericParameters,
+            typeErasedType: typeErasedType
+        )
+        let newSyntax = syntax.with(typeKeyPath, type)
+
+        return (newSyntax, didTypeErase)
+    }
+
+    /// Returns a tuple containing a copy of the provided `syntax`, with the
+    /// elements in the collection at the provided `collectionKeyPath` type-
+    /// erased at the provided `typeKeyPath` if the type is contained in the
+    /// provided `genericParameters`, and a Boolean value indicating whether any
+    /// of the collection's elements were type-erased.
+    ///
+    /// If a type is contained in the provided `genericParameters`, this method
+    /// erases that type to `Any`.
+    ///
+    /// - Parameters:
+    ///   - syntax: The syntax that contains the collection.
+    ///   - collectionKeyPath: The key path at which the collection is located
+    ///     in the provided `syntax`.
+    ///   - typeKeyPath: The key path at which the type is located in an element
+    ///     in the syntax's collection.
+    ///   - genericParameters: The generic parameters which, depending on
+    ///     whether they contain an element's type, determine whether that
+    ///     element gets type-erased.
+    /// - Returns: A tuple containing a copy of the provided `syntax`, with the
+    ///   elements in the collection at the provided `collectionKeyPath` type-
+    ///   erased at the provided `typeKeyPath` if the type is contained in the
+    ///   provided `genericParameters`, and a Boolean value indicating whether
+    ///   any of the collection's elements were type-erased.
+    private static func syntax<Syntax: SyntaxProtocol, Collection: SyntaxCollection>(
+        _ syntax: Syntax,
+        withElementsInCollectionAt collectionKeyPath: WritableKeyPath<Syntax, Collection>,
+        typeErasedAt typeKeyPath: WritableKeyPath<Collection.Element, TypeSyntax>,
+        ifTypeIsContainedIn genericParameters: GenericParameterListSyntax?
+    ) -> (Syntax, Bool) {
+        self.syntax(
+            syntax,
+            withElementsInCollectionAt: collectionKeyPath,
+            typeErasedAt: typeKeyPath,
+            ifTypeIsContainedIn: genericParameters
+        ) { _ in
+            Any.self
+        }
+    }
+
+    /// Returns a tuple containing a copy of the provided `syntax`, with the
+    /// elements in the collection at the provided `collectionKeyPath` type-
+    /// erased at the provided `typeKeyPath` if the type is contained in the
+    /// provided `genericParameters`, and a Boolean value indicating whether any
+    /// of the collection's elements were type-erased.
+    ///
+    /// If a type is contained in the provided `genericParameters`, this method
+    /// uses the provided `typeErasedType` closure to request the type-erased
+    /// type to use to erase the type.
+    ///
+    /// - Parameters:
+    ///   - syntax: The syntax that contains the collection.
+    ///   - collectionKeyPath: The key path at which the collection is located
+    ///     in the provided `syntax`.
+    ///   - typeKeyPath: The key path at which the type is located in an element
+    ///     in the syntax's collection.
+    ///   - genericParameters: The generic parameters which, depending on
+    ///     whether they contain an element's type, determine whether that
+    ///     element gets type-erased.
+    ///   - typeErasedType: A closure that takes the index of an element in the
+    ///     collection and returns the type-erased type to use to type-erase the
+    ///     element.
+    /// - Returns: A tuple containing a copy of the provided `syntax`, with the
+    ///   elements in the collection at the provided `collectionKeyPath` type-
+    ///   erased at the provided `typeKeyPath` if the type is contained in the
+    ///   provided `genericParameters`, and a Boolean value indicating whether
+    ///   any of the collection's elements were type-erased.
+    private static func syntax<Syntax: SyntaxProtocol, Collection: SyntaxCollection>(
+        _ syntax: Syntax,
+        withElementsInCollectionAt collectionKeyPath: WritableKeyPath<Syntax, Collection>,
+        typeErasedAt typeKeyPath: WritableKeyPath<Collection.Element, TypeSyntax>,
+        ifTypeIsContainedIn genericParameters: GenericParameterListSyntax?,
+        typeErasedType: (Int) -> Any.Type
+    ) -> (Syntax, Bool) {
+        var newElements: [Collection.Element] = []
+        var didTypeErase = false
+
+        for (index, element) in syntax[keyPath: collectionKeyPath].enumerated() {
+            let (newElement, didTypeEraseElement) = self.syntax(
+                element,
+                typeErasedAt: typeKeyPath,
+                ifTypeIsContainedIn: genericParameters,
+                typeErasedType: typeErasedType(index)
+            )
+
+            newElements.append(newElement)
+            didTypeErase = didTypeErase || didTypeEraseElement
+        }
+
+        let newCollection = Collection(newElements)
+        let newSyntax = syntax.with(collectionKeyPath, newCollection)
+
+        return (newSyntax, didTypeErase)
+    }
+
+    /// Returns a tuple containing a copy of the provided type, type-erased if
+    /// any arguments in the type's generic argument clause at the provided
+    /// `genericArgumentClauseKeyPath` are contained in the provided
+    /// `genericParameters`, and a Boolean value indicating whether the type or
+    /// any of its generic arguments were type-erased.
+    ///
+    /// For some generic Swift types, such as `Array`, `Dictionary`, `Optional`,
+    /// and `Set`, this method type-erases the generic arguments in the type's
+    /// generic argument clause to maintain some level of type-safety. For other
+    /// generic types, this method type-erases the entire type to the provided
+    /// `typeErasedType`.
+    ///
+    /// - Parameters:
+    ///   - type: The type syntax to type-erase.
+    ///   - genericArgumentClauseKeyPath: The key path at which the generic
+    ///     argument clause is located in the provided `type`.
+    ///   - genericParameters: The generic parameters which, depending on
+    ///     whether they contain a generic argument from the type's generic
+    ///     argument clause, determine whether that generic argument or the type
+    ///     gets type-erased.
+    ///   - typeErasedType: The type-erased type to use to type-erase the type.
+    /// - Returns: A tuple containing a copy of the provided type, type-erased
+    ///   if any arguments in the type's generic argument clause at the provided
+    ///   `genericArgumentClauseKeyPath` are contained in the provided
+    ///   `genericParameters`, and a Boolean value indicating whether the type
+    ///   or any of its generic arguments were type-erased.
+    private static func type<Syntax: TypeSyntaxProtocol, TypeErasedType>(
+        _ type: Syntax,
+        typeErasedIfAnyArgumentsIn genericArgumentClauseKeyPath: KeyPath<
+            Syntax,
+            GenericArgumentClauseSyntax?
+        >,
+        areContainedIn genericParameters: GenericParameterListSyntax?,
+        typeErasedType: TypeErasedType.Type
+    ) -> (
+        newType: any TypeSyntaxProtocol,
+        didTypeErase: Bool
+    ) {
+        guard let genericArgumentClause = type[keyPath: genericArgumentClauseKeyPath] else {
+            return (newType: type, didTypeErase: false)
+        }
+
+        switch TypeSyntax(type).as(TypeSyntaxEnum.self) {
+        case let .identifierType(type) where self.identifierType(
+            type,
+            isNamed: "Optional", "Array"
+        ):
+            let (newGenericArgumentClause, didTypeErase) = self.syntax(
+                genericArgumentClause,
+                withElementsInCollectionAt: \.arguments,
+                typeErasedAt: \.argument,
+                ifTypeIsContainedIn: genericParameters
+            )
+            let newType = type.with(\.genericArgumentClause, newGenericArgumentClause)
+
+            return (newType, didTypeErase)
+        case let .identifierType(type) where self.identifierType(
+            type,
+            isNamed: "Set", "Dictionary"
+        ):
+            let (newGenericArgumentClause, didTypeErase) = self.syntax(
+                genericArgumentClause,
+                withElementsInCollectionAt: \.arguments,
+                typeErasedAt: \.argument,
+                ifTypeIsContainedIn: genericParameters
+            ) { index in
+                index == .zero ? AnyHashable.self : Any.self
+            }
+            let newType = type.with(\.genericArgumentClause, newGenericArgumentClause)
+
+            return (newType, didTypeErase)
+        case let .memberType(type) where self.memberType(
+            type,
+            isNamed: "Optional", "Array",
+            withBaseTypeNamed: "Swift"
+        ):
+            let (newGenericArgumentClause, didTypeErase) = self.syntax(
+                genericArgumentClause,
+                withElementsInCollectionAt: \.arguments,
+                typeErasedAt: \.argument,
+                ifTypeIsContainedIn: genericParameters
+            )
+            let newType = type.with(\.genericArgumentClause, newGenericArgumentClause)
+
+            return (newType, didTypeErase)
+        case let .memberType(type) where self.memberType(
+            type,
+            isNamed: "Set", "Dictionary",
+            withBaseTypeNamed: "Swift"
+        ):
+            let (newGenericArgumentClause, didTypeErase) = self.syntax(
+                genericArgumentClause,
+                withElementsInCollectionAt: \.arguments,
+                typeErasedAt: \.argument,
+                ifTypeIsContainedIn: genericParameters
+            ) { index in
+                index == .zero ? AnyHashable.self : Any.self
+            }
+            let newType = type.with(\.genericArgumentClause, newGenericArgumentClause)
+
+            return (newType, didTypeErase)
+        default:
+            let (_, didTypeErase) = self.syntax(
+                genericArgumentClause,
+                withElementsInCollectionAt: \.arguments,
+                typeErasedAt: \.argument,
+                ifTypeIsContainedIn: genericParameters
+            )
+
+            let newType: any TypeSyntaxProtocol = if didTypeErase {
+                TypeSyntax(describing: typeErasedType)
             } else {
                 type
             }
-        case let .implicitlyUnwrappedOptionalType(type):
-            syntax(type, typeErasedIfNecessaryAt: \.wrappedType)
-        case let .memberType(type):
-            syntax(type, typeErasedIfNecessaryAt: \.baseType)
-        case let .metatypeType(type):
-            syntax(type, typeErasedIfNecessaryAt: \.baseType)
-        case let .missingType(type):
-            type
-        case let .namedOpaqueReturnType(type):
-            syntax(type, typeErasedIfNecessaryAt: \.type)
-        case let .optionalType(type):
-            syntax(type, typeErasedIfNecessaryAt: \.wrappedType)
-        case let .packElementType(type):
-            syntax(type, typeErasedIfNecessaryAt: \.pack)
-        case let .packExpansionType(type):
-            syntax(type, typeErasedIfNecessaryAt: \.repetitionPattern)
-        case let .someOrAnyType(type):
-            syntax(type, typeErasedIfNecessaryAt: \.constraint)
-        case let .suppressedType(type):
-            syntax(type, typeErasedIfNecessaryAt: \.type)
-        case let .tupleType(type):
-            type.with(
-                \.elements,
-                 TupleTypeElementListSyntax {
-                     for element in type.elements {
-                         syntax(element, typeErasedIfNecessaryAt: \.type)
-                     }
-                 }
-            )
+
+            return (newType, didTypeErase)
+        }
+    }
+
+    /// Returns a Boolean value indicating whether the provided identifier
+    /// type's name matches any of the provided `names`.
+    ///
+    /// - Parameters:
+    ///   - type: An identifier type.
+    ///   - names: The names to compare to the provided `type`'s name.
+    /// - Returns: A Boolean value indicating whether the provided identifier
+    ///   type's name matches any of the provided `names`.
+    private static func identifierType(
+        _ type: IdentifierTypeSyntax,
+        isNamed names: String...
+    ) -> Bool {
+        names.contains { type.name.tokenKind == .identifier($0) }
+    }
+
+    /// Returns a Boolean value indicating whether the provided member type's
+    /// name matches any of the provided `names` and base type's name matches
+    /// the provided `baseTypeName`.
+    ///
+    /// - Parameters:
+    ///   - type: A member type.
+    ///   - names: The names to compare to the provided `type`'s name.
+    ///   - baseTypeName: The name to compare to the provided `type`'s base
+    ///     type's name.
+    /// - Returns: A Boolean value indicating whether the provided member type's
+    ///   name matches any of the provided `names` and base type's name matches
+    ///   the provided `baseTypeName`.
+    private static func memberType(
+        _ type: MemberTypeSyntax,
+        isNamed names: String...,
+        withBaseTypeNamed baseTypeName: String
+    ) -> Bool {
+        guard let baseType = type.baseType.as(IdentifierTypeSyntax.self) else {
+            return false
         }
 
-        return TypeSyntax(newType)
+        return baseType.name.tokenKind == .identifier(baseTypeName)
+            && names.contains { type.name.tokenKind == .identifier($0) }
     }
 
     /// Returns a method conformance declaration to apply to the mock, generated
@@ -828,10 +1176,14 @@ extension MockedMacro {
     ///     declaration.
     ///   - methodDeclaration: A method from the protocol to which the mock must
     ///     conform.
+    ///   - didTypeEraseOverrideDeclarationsReturnType: A Boolean value
+    ///     indicating whether the override declarations' return type had to be
+    ///     type-erased.
     /// - Returns: A method conformance declaration to apply to the mock.
     private static func mockMethodConformanceDeclaration(
         with accessLevel: AccessLevelSyntax,
-        for methodDeclaration: FunctionDeclSyntax
+        for methodDeclaration: FunctionDeclSyntax,
+        didTypeEraseOverrideDeclarationsReturnType: Bool
     ) throws -> FunctionDeclSyntax {
         let methodName = methodDeclaration.name.trimmed
         let invocationArguments = methodDeclaration.parameterVariableNames
@@ -853,7 +1205,7 @@ extension MockedMacro {
             backingImplementationInvocation += "()"
         } else {
             let joinedInvocationArguments = invocationArguments
-                .map(\.text)
+                .map(\.trimmed.text)
                 .joined(separator: ", ")
 
             backingImplementationInvocation += "((\(joinedInvocationArguments)))"
@@ -877,7 +1229,27 @@ extension MockedMacro {
                 }
             }
             .with(\.body) {
-                CodeBlockItemSyntax(stringLiteral: backingImplementationInvocation)
+                if
+                    didTypeEraseOverrideDeclarationsReturnType,
+                    let returnType = methodDeclaration.signature.returnClause?.type.trimmed
+                {
+                    """
+                    guard 
+                        let value = \(raw: backingImplementationInvocation) as? \(returnType) 
+                    else {
+                        fatalError(
+                            \"""
+                            Unable to cast value returned by \\
+                            self._\(methodName) \\
+                            to expected return type \(returnType).
+                            \"""
+                        )
+                    }
+                    """
+                    "return value"
+                } else {
+                    "\(raw: backingImplementationInvocation)"
+                }
             }
     }
 
