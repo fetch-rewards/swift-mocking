@@ -1094,9 +1094,9 @@ extension MockedMacro {
         }
 
         switch TypeSyntax(type).as(TypeSyntaxEnum.self) {
-        case let .identifierType(type) where self.identifierType(
+        case let .identifierType(type) where self.isIdentifierType(
             type,
-            isNamed: "Optional", "Array"
+            named: "Optional", "Array"
         ):
             let (newGenericArgumentClause, didTypeErase) = self.syntax(
                 genericArgumentClause,
@@ -1108,9 +1108,9 @@ extension MockedMacro {
             let newType = type.with(\.genericArgumentClause, newGenericArgumentClause)
 
             return (newType, didTypeErase)
-        case let .identifierType(type) where self.identifierType(
+        case let .identifierType(type) where self.isIdentifierType(
             type,
-            isNamed: "Set", "Dictionary"
+            named: "Set", "Dictionary"
         ):
             let (newGenericArgumentClause, didTypeErase) = self.syntax(
                 genericArgumentClause,
@@ -1124,9 +1124,9 @@ extension MockedMacro {
             let newType = type.with(\.genericArgumentClause, newGenericArgumentClause)
 
             return (newType, didTypeErase)
-        case let .memberType(type) where self.memberType(
+        case let .memberType(type) where self.isMemberType(
             type,
-            isNamed: "Optional", "Array",
+            named: "Optional", "Array",
             withBaseTypeNamed: "Swift"
         ):
             let (newGenericArgumentClause, didTypeErase) = self.syntax(
@@ -1139,9 +1139,9 @@ extension MockedMacro {
             let newType = type.with(\.genericArgumentClause, newGenericArgumentClause)
 
             return (newType, didTypeErase)
-        case let .memberType(type) where self.memberType(
+        case let .memberType(type) where self.isMemberType(
             type,
-            isNamed: "Set", "Dictionary",
+            named: "Set", "Dictionary",
             withBaseTypeNamed: "Swift"
         ):
             let (newGenericArgumentClause, didTypeErase) = self.syntax(
@@ -1183,9 +1183,9 @@ extension MockedMacro {
     ///   - names: The names to compare to the provided `type`'s name.
     /// - Returns: A Boolean value indicating whether the provided identifier
     ///   type's name matches any of the provided `names`.
-    private static func identifierType(
+    private static func isIdentifierType(
         _ type: IdentifierTypeSyntax,
-        isNamed names: String...
+        named names: String...
     ) -> Bool {
         names.contains { type.name.tokenKind == .identifier($0) }
     }
@@ -1202,9 +1202,9 @@ extension MockedMacro {
     /// - Returns: A Boolean value indicating whether the provided member type's
     ///   name matches any of the provided `names` and base type's name matches
     ///   the provided `baseTypeName`.
-    private static func memberType(
+    private static func isMemberType(
         _ type: MemberTypeSyntax,
-        isNamed names: String...,
+        named names: String...,
         withBaseTypeNamed baseTypeName: String
     ) -> Bool {
         guard let baseType = type.baseType.as(IdentifierTypeSyntax.self) else {
