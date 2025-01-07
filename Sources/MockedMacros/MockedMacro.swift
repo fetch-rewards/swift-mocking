@@ -565,6 +565,7 @@ extension MockedMacro {
         let methodGenericParameters = methodGenericParameterClause?.parameters
         let methodSignature = methodDeclaration.signature
         let methodParameters = methodSignature.parameterClause.parameters
+        let methodGenericWhereClause = methodDeclaration.genericWhereClause
 
         var backingType: String
         var backingGenericArguments: [String] = []
@@ -573,7 +574,8 @@ extension MockedMacro {
         if let returnClause = methodSignature.returnClause {
             let (returnType, didTypeErase) = self.mockMethodOverrideDeclarationType(
                 returnClause.type,
-                typeErasedIfNecessaryUsing: methodGenericParameters
+                typeErasedIfNecessaryUsing: methodGenericParameters,
+                typeConstrainedBy: methodGenericWhereClause
             )
 
             backingType = "MockReturning"
@@ -597,7 +599,8 @@ extension MockedMacro {
             let elements = arguments.elements.map { element in
                 let (elementType, _) = self.mockMethodOverrideDeclarationType(
                     element.type,
-                    typeErasedIfNecessaryUsing: methodGenericParameters
+                    typeErasedIfNecessaryUsing: methodGenericParameters,
+                    typeConstrainedBy: methodGenericWhereClause
                 )
 
                 return element.with(\.type, elementType.trimmed)
@@ -670,15 +673,10 @@ extension MockedMacro {
     }
 
     /// Returns a copy of the provided `type` to use in a mock's method override
-    /// declaration, type-erased if necessary based on the provided
-    /// `genericParameters` pulled from the method conformance declaration that
-    /// is being backed by the override declaration.
-    ///
-    /// If a mock's method conformance declaration contains generic parameters,
-    /// those generic parameters can only be used within the scope of the mock's
-    /// method conformance declaration. They cannot be used to specialize the
-    /// method override declarations that are backing the conformance
-    /// declaration as they are only scoped to the conformance declaration.
+    /// declaration, type-erased if necessary using the provided
+    /// `genericParameters` and `genericWhereClause` pulled from the method
+    /// conformance declaration that is being backed by the override
+    /// declaration.
     ///
     /// For a type syntax that contains nested types, this method recursively
     /// calls itself on each nested type syntax until all nested types within
@@ -690,15 +688,20 @@ extension MockedMacro {
     ///   - genericParameters: The generic parameters pulled from the method
     ///     conformance declaration that is being backed by the method override
     ///     declaration.
+    ///   - genericWhereClause: The generic where clause pulled from the method
+    ///     conformance declaration that is being backed by the method override
+    ///     declaration.
     ///   - typeErasedType: The type-erased type to use to type-erase the
     ///     provided `type`. The default value is `Any.self`.
     /// - Returns: A copy of the provided `type` to use in a mock's method
-    ///   override declaration, type-erased if necessary based on the provided
-    ///   `genericParameters` pulled from the method conformance declaration
-    ///   that is being backed by the override declaration.
+    ///   override declaration, type-erased if necessary using the provided
+    ///   `genericParameters` and `genericWhereClause` pulled from the method
+    ///   conformance declaration that is being backed by the override
+    ///   declaration.
     private static func mockMethodOverrideDeclarationType<TypeErasedType>(
         _ type: any TypeSyntaxProtocol,
         typeErasedIfNecessaryUsing genericParameters: GenericParameterListSyntax?,
+        typeConstrainedBy genericWhereClause: GenericWhereClauseSyntax?,
         typeErasedType: TypeErasedType.Type = Any.self
     ) -> (
         newType: TypeSyntax,
@@ -712,13 +715,15 @@ extension MockedMacro {
             result = self.syntax(
                 type,
                 typeErasedAt: \.element,
-                ifTypeIsContainedIn: genericParameters
+                ifTypeIsContainedIn: genericParameters,
+                typeConstrainedBy: genericWhereClause
             )
         case let .attributedType(type):
             result = self.syntax(
                 type,
                 typeErasedAt: \.baseType,
-                ifTypeIsContainedIn: genericParameters
+                ifTypeIsContainedIn: genericParameters,
+                typeConstrainedBy: genericWhereClause
             )
         case let .classRestrictionType(type):
             result = (newType: type, didTypeErase: false)
@@ -727,7 +732,8 @@ extension MockedMacro {
                 type,
                 withElementsInCollectionAt: \.elements,
                 typeErasedAt: \.type,
-                ifTypeIsContainedIn: genericParameters
+                ifTypeIsContainedIn: genericParameters,
+                typeConstrainedBy: genericWhereClause
             )
         case var .dictionaryType(type):
             let didTypeEraseKey, didTypeEraseValue: Bool
@@ -736,12 +742,14 @@ extension MockedMacro {
                 type,
                 typeErasedAt: \.key,
                 ifTypeIsContainedIn: genericParameters,
+                typeConstrainedBy: genericWhereClause,
                 typeErasedType: AnyHashable.self
             )
             (type, didTypeEraseValue) = self.syntax(
                 type,
                 typeErasedAt: \.value,
-                ifTypeIsContainedIn: genericParameters
+                ifTypeIsContainedIn: genericParameters,
+                typeConstrainedBy: genericWhereClause
             )
 
             result = (
@@ -755,12 +763,14 @@ extension MockedMacro {
                 type,
                 withElementsInCollectionAt: \.parameters,
                 typeErasedAt: \.type,
-                ifTypeIsContainedIn: genericParameters
+                ifTypeIsContainedIn: genericParameters,
+                typeConstrainedBy: genericWhereClause
             )
             (type, didTypeEraseReturnValue) = self.syntax(
                 type,
                 typeErasedAt: \.returnClause.type,
-                ifTypeIsContainedIn: genericParameters
+                ifTypeIsContainedIn: genericParameters,
+                typeConstrainedBy: genericWhereClause
             )
 
             result = (
@@ -773,7 +783,13 @@ extension MockedMacro {
             }) {
                 let newType: any TypeSyntaxProtocol
 
-                if typeErasedType == Any.self, let inheritedType = genericParameter.inheritedType {
+                if
+                    typeErasedType == Any.self,
+                    let inheritedType = self.inheritedType(
+                        for: genericParameter,
+                        typeConstrainedBy: genericWhereClause
+                    )
+                {
                     let anySpecifier = TokenSyntax(
                         .keyword(.any),
                         trailingTrivia: .space,
@@ -794,6 +810,7 @@ extension MockedMacro {
                     type,
                     typeErasedIfAnyArgumentsIn: \.genericArgumentClause,
                     areContainedIn: genericParameters,
+                    typeConstrainedBy: genericWhereClause,
                     typeErasedType: typeErasedType
                 )
             }
@@ -801,26 +818,30 @@ extension MockedMacro {
             result = self.syntax(
                 type,
                 typeErasedAt: \.wrappedType,
-                ifTypeIsContainedIn: genericParameters
+                ifTypeIsContainedIn: genericParameters,
+                typeConstrainedBy: genericWhereClause
             )
         case let .memberType(type) where type.name.tokenKind == .keyword(.self):
             result = self.syntax(
                 type,
                 typeErasedAt: \.baseType,
-                ifTypeIsContainedIn: genericParameters
+                ifTypeIsContainedIn: genericParameters,
+                typeConstrainedBy: genericWhereClause
             )
         case let .memberType(type):
             result = self.type(
                 type,
                 typeErasedIfAnyArgumentsIn: \.genericArgumentClause,
                 areContainedIn: genericParameters,
+                typeConstrainedBy: genericWhereClause,
                 typeErasedType: typeErasedType
             )
         case let .metatypeType(type):
             result = self.syntax(
                 type,
                 typeErasedAt: \.baseType,
-                ifTypeIsContainedIn: genericParameters
+                ifTypeIsContainedIn: genericParameters,
+                typeConstrainedBy: genericWhereClause
             )
         case let .missingType(type):
             result = (newType: type, didTypeErase: false)
@@ -828,25 +849,29 @@ extension MockedMacro {
             result = self.syntax(
                 type,
                 typeErasedAt: \.type,
-                ifTypeIsContainedIn: genericParameters
+                ifTypeIsContainedIn: genericParameters,
+                typeConstrainedBy: genericWhereClause
             )
         case let .optionalType(type):
             result = self.syntax(
                 type,
                 typeErasedAt: \.wrappedType,
-                ifTypeIsContainedIn: genericParameters
+                ifTypeIsContainedIn: genericParameters,
+                typeConstrainedBy: genericWhereClause
             )
         case let .packElementType(type):
             result = self.syntax(
                 type,
                 typeErasedAt: \.pack,
-                ifTypeIsContainedIn: genericParameters
+                ifTypeIsContainedIn: genericParameters,
+                typeConstrainedBy: genericWhereClause
             )
         case let .packExpansionType(type):
             result = self.syntax(
                 type,
                 typeErasedAt: \.repetitionPattern,
-                ifTypeIsContainedIn: genericParameters
+                ifTypeIsContainedIn: genericParameters,
+                typeConstrainedBy: genericWhereClause
             )
         case let .someOrAnyType(type):
             let anySpecifier = TokenSyntax(
@@ -858,20 +883,23 @@ extension MockedMacro {
             result = self.syntax(
                 type.with(\.someOrAnySpecifier, anySpecifier),
                 typeErasedAt: \.constraint,
-                ifTypeIsContainedIn: genericParameters
+                ifTypeIsContainedIn: genericParameters,
+                typeConstrainedBy: genericWhereClause
             )
         case let .suppressedType(type):
             result = self.syntax(
                 type,
                 typeErasedAt: \.type,
-                ifTypeIsContainedIn: genericParameters
+                ifTypeIsContainedIn: genericParameters,
+                typeConstrainedBy: genericWhereClause
             )
         case let .tupleType(type):
             result = self.syntax(
                 type,
                 withElementsInCollectionAt: \.elements,
                 typeErasedAt: \.type,
-                ifTypeIsContainedIn: genericParameters
+                ifTypeIsContainedIn: genericParameters,
+                typeConstrainedBy: genericWhereClause
             )
         }
 
@@ -892,6 +920,8 @@ extension MockedMacro {
     ///   - genericParameters: The generic parameters which, depending on
     ///     whether they contain the type at the provided `typeKeyPath`,
     ///     determine whether the type gets type-erased.
+    ///   - genericWhereClause: The generic where clause from which to parse
+    ///     conformance requirements for the provided `genericParameters`.
     ///   - typeErasedType: The type-erased type to use to type-erase the type
     ///     at the provided `typeKeyPath`. The default value is `Any.self`.
     /// - Returns: A tuple containing a copy of the provided `syntax`, type-
@@ -902,11 +932,13 @@ extension MockedMacro {
         _ syntax: Syntax,
         typeErasedAt typeKeyPath: WritableKeyPath<Syntax, TypeSyntax>,
         ifTypeIsContainedIn genericParameters: GenericParameterListSyntax?,
+        typeConstrainedBy genericWhereClause: GenericWhereClauseSyntax?,
         typeErasedType: TypeErasedType.Type = Any.self
     ) -> (Syntax, Bool) {
         let (type, didTypeErase) = self.mockMethodOverrideDeclarationType(
             syntax[keyPath: typeKeyPath],
             typeErasedIfNecessaryUsing: genericParameters,
+            typeConstrainedBy: genericWhereClause,
             typeErasedType: typeErasedType
         )
         let newSyntax = syntax.with(typeKeyPath, type)
@@ -932,6 +964,8 @@ extension MockedMacro {
     ///   - genericParameters: The generic parameters which, depending on
     ///     whether they contain an element's type, determine whether that
     ///     element gets type-erased.
+    ///   - genericWhereClause: The generic where clause from which to parse
+    ///     conformance requirements for the provided `genericParameters`.
     /// - Returns: A tuple containing a copy of the provided `syntax`, with the
     ///   elements in the collection at the provided `collectionKeyPath` type-
     ///   erased at the provided `typeKeyPath` if the type is contained in the
@@ -941,13 +975,15 @@ extension MockedMacro {
         _ syntax: Syntax,
         withElementsInCollectionAt collectionKeyPath: WritableKeyPath<Syntax, Collection>,
         typeErasedAt typeKeyPath: WritableKeyPath<Collection.Element, TypeSyntax>,
-        ifTypeIsContainedIn genericParameters: GenericParameterListSyntax?
+        ifTypeIsContainedIn genericParameters: GenericParameterListSyntax?,
+        typeConstrainedBy genericWhereClause: GenericWhereClauseSyntax?
     ) -> (Syntax, Bool) {
         self.syntax(
             syntax,
             withElementsInCollectionAt: collectionKeyPath,
             typeErasedAt: typeKeyPath,
-            ifTypeIsContainedIn: genericParameters
+            ifTypeIsContainedIn: genericParameters,
+            typeConstrainedBy: genericWhereClause
         ) { _ in
             Any.self
         }
@@ -972,6 +1008,8 @@ extension MockedMacro {
     ///   - genericParameters: The generic parameters which, depending on
     ///     whether they contain an element's type, determine whether that
     ///     element gets type-erased.
+    ///   - genericWhereClause: The generic where clause from which to parse
+    ///     conformance requirements for the provided `genericParameters`.
     ///   - typeErasedType: A closure that takes the index of an element in the
     ///     collection and returns the type-erased type to use to type-erase the
     ///     element.
@@ -985,6 +1023,7 @@ extension MockedMacro {
         withElementsInCollectionAt collectionKeyPath: WritableKeyPath<Syntax, Collection>,
         typeErasedAt typeKeyPath: WritableKeyPath<Collection.Element, TypeSyntax>,
         ifTypeIsContainedIn genericParameters: GenericParameterListSyntax?,
+        typeConstrainedBy genericWhereClause: GenericWhereClauseSyntax?,
         typeErasedType: (Int) -> Any.Type
     ) -> (Syntax, Bool) {
         var newElements: [Collection.Element] = []
@@ -995,6 +1034,7 @@ extension MockedMacro {
                 element,
                 typeErasedAt: typeKeyPath,
                 ifTypeIsContainedIn: genericParameters,
+                typeConstrainedBy: genericWhereClause,
                 typeErasedType: typeErasedType(index)
             )
 
@@ -1028,6 +1068,8 @@ extension MockedMacro {
     ///     whether they contain a generic argument from the type's generic
     ///     argument clause, determine whether that generic argument or the type
     ///     gets type-erased.
+    ///   - genericWhereClause: The generic where clause from which to parse
+    ///     conformance requirements for the provided `genericParameters`.
     ///   - typeErasedType: The type-erased type to use to type-erase the type.
     /// - Returns: A tuple containing a copy of the provided type, type-erased
     ///   if any arguments in the type's generic argument clause at the provided
@@ -1041,6 +1083,7 @@ extension MockedMacro {
             GenericArgumentClauseSyntax?
         >,
         areContainedIn genericParameters: GenericParameterListSyntax?,
+        typeConstrainedBy genericWhereClause: GenericWhereClauseSyntax?,
         typeErasedType: TypeErasedType.Type
     ) -> (
         newType: any TypeSyntaxProtocol,
@@ -1059,7 +1102,8 @@ extension MockedMacro {
                 genericArgumentClause,
                 withElementsInCollectionAt: \.arguments,
                 typeErasedAt: \.argument,
-                ifTypeIsContainedIn: genericParameters
+                ifTypeIsContainedIn: genericParameters,
+                typeConstrainedBy: genericWhereClause
             )
             let newType = type.with(\.genericArgumentClause, newGenericArgumentClause)
 
@@ -1072,7 +1116,8 @@ extension MockedMacro {
                 genericArgumentClause,
                 withElementsInCollectionAt: \.arguments,
                 typeErasedAt: \.argument,
-                ifTypeIsContainedIn: genericParameters
+                ifTypeIsContainedIn: genericParameters,
+                typeConstrainedBy: genericWhereClause
             ) { index in
                 index == .zero ? AnyHashable.self : Any.self
             }
@@ -1088,7 +1133,8 @@ extension MockedMacro {
                 genericArgumentClause,
                 withElementsInCollectionAt: \.arguments,
                 typeErasedAt: \.argument,
-                ifTypeIsContainedIn: genericParameters
+                ifTypeIsContainedIn: genericParameters,
+                typeConstrainedBy: genericWhereClause
             )
             let newType = type.with(\.genericArgumentClause, newGenericArgumentClause)
 
@@ -1102,7 +1148,8 @@ extension MockedMacro {
                 genericArgumentClause,
                 withElementsInCollectionAt: \.arguments,
                 typeErasedAt: \.argument,
-                ifTypeIsContainedIn: genericParameters
+                ifTypeIsContainedIn: genericParameters,
+                typeConstrainedBy: genericWhereClause
             ) { index in
                 index == .zero ? AnyHashable.self : Any.self
             }
@@ -1114,7 +1161,8 @@ extension MockedMacro {
                 genericArgumentClause,
                 withElementsInCollectionAt: \.arguments,
                 typeErasedAt: \.argument,
-                ifTypeIsContainedIn: genericParameters
+                ifTypeIsContainedIn: genericParameters,
+                typeConstrainedBy: genericWhereClause
             )
 
             let newType: any TypeSyntaxProtocol = if didTypeErase {
@@ -1165,6 +1213,74 @@ extension MockedMacro {
 
         return baseType.name.tokenKind == .identifier(baseTypeName)
             && names.contains { type.name.tokenKind == .identifier($0) }
+    }
+
+    /// Returns an inherited type for the provided `genericParameter`, composed
+    /// using the `genericParameter`'s inherited type and any conformance
+    /// requirements for that `genericParameter` contained in the provided
+    /// `genericWhereClause`.
+    ///
+    /// - Parameters:
+    ///   - genericParameter: The generic parameter for which to compose the
+    ///     inherited type.
+    ///   - genericWhereClause: The generic where clause from which to parse
+    ///     conformance requirements for the provided `genericParameter`.
+    /// - Returns: An inherited type for the provided `genericParameter`,
+    ///   composed using the `genericParameter`'s inherited type and any
+    ///   conformance requirements for that `genericParameter` contained in the
+    ///   provided `genericWhereClause`.
+    private static func inheritedType(
+        for genericParameter: GenericParameterSyntax,
+        typeConstrainedBy genericWhereClause: GenericWhereClauseSyntax?
+    ) -> (any TypeSyntaxProtocol)? {
+        let genericParameterInheritedType = genericParameter.inheritedType
+        let genericWhereClauseInheritedTypes: [any TypeSyntaxProtocol]? =
+            genericWhereClause?.requirements.compactMap { requirement in
+                guard
+                    case let .conformanceRequirement(requirement) = requirement.requirement,
+                    let leftIdentifierType = requirement.leftType.as(IdentifierTypeSyntax.self),
+                    leftIdentifierType.name.tokenKind == genericParameter.name.tokenKind
+                else {
+                    return nil
+                }
+
+                return requirement.rightType.with(\.trailingTrivia, .space)
+            }
+
+        guard
+            let genericWhereClauseInheritedTypes,
+            !genericWhereClauseInheritedTypes.isEmpty
+        else {
+            return genericParameterInheritedType
+        }
+
+        var inheritedTypeElements: [CompositionTypeElementSyntax] = []
+
+        if let genericParameterInheritedType {
+            inheritedTypeElements.append(
+                CompositionTypeElementSyntax(
+                    type: genericParameterInheritedType.with(\.trailingTrivia, .space),
+                    ampersand: .prefixAmpersandToken(),
+                    trailingTrivia: .space
+                )
+            )
+        }
+
+        for (index, inheritedType) in genericWhereClauseInheritedTypes.enumerated() {
+            let isLastElement = index == genericWhereClauseInheritedTypes.count - 1
+
+            inheritedTypeElements.append(
+                CompositionTypeElementSyntax(
+                    type: inheritedType,
+                    ampersand: isLastElement ? nil : .prefixAmpersandToken(),
+                    trailingTrivia: isLastElement ? nil : .space
+                )
+            )
+        }
+
+        return CompositionTypeSyntax(
+            elements: CompositionTypeElementListSyntax(inheritedTypeElements)
+        )
     }
 
     /// Returns a method conformance declaration to apply to the mock, generated
