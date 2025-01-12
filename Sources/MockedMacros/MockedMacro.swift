@@ -821,13 +821,6 @@ extension MockedMacro {
                 ifTypeIsContainedIn: genericParameters,
                 typeConstrainedBy: genericWhereClause
             )
-        case let .memberType(type) where type.name.tokenKind == .keyword(.self):
-            result = self.syntax(
-                type,
-                typeErasedAt: \.baseType,
-                ifTypeIsContainedIn: genericParameters,
-                typeConstrainedBy: genericWhereClause
-            )
         case let .memberType(type):
             result = self.type(
                 type,
@@ -836,7 +829,17 @@ extension MockedMacro {
                 typeConstrainedBy: genericWhereClause,
                 typeErasedType: typeErasedType
             )
-        case let .metatypeType(type):
+        case var .metatypeType(type):
+            if
+                let tupleType = type.baseType.as(TupleTypeSyntax.self),
+                tupleType.elements.count == 1,
+                let firstElement = tupleType.elements.first,
+                let someOrAnyType = firstElement.type.as(SomeOrAnyTypeSyntax.self),
+                someOrAnyType.someOrAnySpecifier.tokenKind == .keyword(.some)
+            {
+                type = type.with(\.baseType, TypeSyntax(someOrAnyType))
+            }
+
             result = self.syntax(
                 type,
                 typeErasedAt: \.baseType,
@@ -852,7 +855,13 @@ extension MockedMacro {
                 ifTypeIsContainedIn: genericParameters,
                 typeConstrainedBy: genericWhereClause
             )
-        case let .optionalType(type):
+        case var .optionalType(type):
+            let tupleType = TupleTypeSyntax(elements: [
+                TupleTypeElementSyntax(type: type.wrappedType),
+            ])
+
+            type = type.with(\.wrappedType, TypeSyntax(tupleType))
+
             result = self.syntax(
                 type,
                 typeErasedAt: \.wrappedType,
@@ -873,15 +882,29 @@ extension MockedMacro {
                 ifTypeIsContainedIn: genericParameters,
                 typeConstrainedBy: genericWhereClause
             )
-        case let .someOrAnyType(type):
+        case var .someOrAnyType(type):
             let anySpecifier = TokenSyntax(
                 .keyword(.any),
                 trailingTrivia: .space,
                 presence: .present
             )
 
+            let constraint: any TypeSyntaxProtocol = if
+                let compositionType = type.constraint.as(CompositionTypeSyntax.self),
+                compositionType.elements.count > 1
+            {
+                TupleTypeSyntax(elements: [
+                    TupleTypeElementSyntax(type: compositionType),
+                ])
+            } else {
+                type.constraint
+            }
+
+            type = type
+                .with(\.someOrAnySpecifier, anySpecifier)
+                .with(\.constraint, TypeSyntax(constraint))
             result = self.syntax(
-                type.with(\.someOrAnySpecifier, anySpecifier),
+                type,
                 typeErasedAt: \.constraint,
                 ifTypeIsContainedIn: genericParameters,
                 typeConstrainedBy: genericWhereClause
@@ -1233,8 +1256,8 @@ extension MockedMacro {
         for genericParameter: GenericParameterSyntax,
         typeConstrainedBy genericWhereClause: GenericWhereClauseSyntax?
     ) -> (any TypeSyntaxProtocol)? {
-        let genericParameterInheritedType = genericParameter.inheritedType
-        let genericWhereClauseInheritedTypes: [any TypeSyntaxProtocol]? =
+        let genericParameterInheritedType = genericParameter.inheritedType?.trimmed
+        let genericWhereClauseInheritedTypes: [TypeSyntax]? =
             genericWhereClause?.requirements.compactMap { requirement in
                 guard
                     case let .conformanceRequirement(requirement) = requirement.requirement,
@@ -1244,43 +1267,59 @@ extension MockedMacro {
                     return nil
                 }
 
-                return requirement.rightType.with(\.trailingTrivia, .space)
+                return requirement.rightType
             }
 
-        guard
+        let inheritedType: (any TypeSyntaxProtocol)?
+
+        if
             let genericWhereClauseInheritedTypes,
             !genericWhereClauseInheritedTypes.isEmpty
+        {
+            var inheritedTypeElements: [CompositionTypeElementSyntax] = []
+
+            if let genericParameterInheritedType {
+                inheritedTypeElements.append(
+                    CompositionTypeElementSyntax(
+                        type: genericParameterInheritedType.with(\.trailingTrivia, .space),
+                        ampersand: .prefixAmpersandToken(),
+                        trailingTrivia: .space
+                    )
+                )
+            }
+
+            for (index, type) in genericWhereClauseInheritedTypes.enumerated() {
+                let isLastElement = index == genericWhereClauseInheritedTypes.count - 1
+                let type = isLastElement
+                    ? type.trimmed
+                    : type.with(\.trailingTrivia, .space)
+
+                inheritedTypeElements.append(
+                    CompositionTypeElementSyntax(
+                        type: type,
+                        ampersand: isLastElement ? nil : .prefixAmpersandToken(),
+                        trailingTrivia: isLastElement ? nil : .space
+                    )
+                )
+            }
+
+            inheritedType = CompositionTypeSyntax(
+                elements: CompositionTypeElementListSyntax(inheritedTypeElements)
+            )
+        } else {
+            inheritedType = genericParameterInheritedType
+        }
+
+        guard
+            let inheritedCompositionType = inheritedType?.as(CompositionTypeSyntax.self),
+            inheritedCompositionType.elements.count > 1
         else {
-            return genericParameterInheritedType
+            return inheritedType
         }
 
-        var inheritedTypeElements: [CompositionTypeElementSyntax] = []
-
-        if let genericParameterInheritedType {
-            inheritedTypeElements.append(
-                CompositionTypeElementSyntax(
-                    type: genericParameterInheritedType.with(\.trailingTrivia, .space),
-                    ampersand: .prefixAmpersandToken(),
-                    trailingTrivia: .space
-                )
-            )
-        }
-
-        for (index, inheritedType) in genericWhereClauseInheritedTypes.enumerated() {
-            let isLastElement = index == genericWhereClauseInheritedTypes.count - 1
-
-            inheritedTypeElements.append(
-                CompositionTypeElementSyntax(
-                    type: inheritedType,
-                    ampersand: isLastElement ? nil : .prefixAmpersandToken(),
-                    trailingTrivia: isLastElement ? nil : .space
-                )
-            )
-        }
-
-        return CompositionTypeSyntax(
-            elements: CompositionTypeElementListSyntax(inheritedTypeElements)
-        )
+        return TupleTypeSyntax(elements: [
+            TupleTypeElementSyntax(type: inheritedCompositionType),
+        ])
     }
 
     /// Returns a method conformance declaration to apply to the mock, generated
