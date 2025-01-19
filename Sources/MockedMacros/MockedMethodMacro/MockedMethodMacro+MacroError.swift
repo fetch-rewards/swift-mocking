@@ -16,7 +16,7 @@ extension MockedMethodMacro {
 
         /// An error indicating that the `@MockedMethod` macro can only be
         /// applied to method declarations.
-        case canOnlyBeAppliedToMethods
+        case canOnlyBeAppliedToMethodDeclarations
 
         /// An error indicating that the `@MockedMethod` macro was unable to
         /// parse the provided `mockName` argument.
@@ -31,8 +31,8 @@ extension MockedMethodMacro {
         /// The description of the error.
         var description: String {
             switch self {
-            case .canOnlyBeAppliedToMethods:
-                "@MockedMethod can only be applied to methods."
+            case .canOnlyBeAppliedToMethodDeclarations:
+                "@MockedMethod can only be applied to method declarations"
             case .unableToParseMockNameArgument:
                 "@MockedMethod was unable to parse `mockName` argument."
             case .unableToParseIsMockAnActorArgument:

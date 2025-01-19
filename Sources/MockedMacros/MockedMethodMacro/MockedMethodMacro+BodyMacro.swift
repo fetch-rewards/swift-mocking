@@ -20,7 +20,7 @@ extension MockedMethodMacro: BodyMacro {
         in context: some MacroExpansionContext
     ) throws -> [CodeBlockItemSyntax] {
         guard let methodDeclaration = declaration.as(FunctionDeclSyntax.self) else {
-            throw MacroError.canOnlyBeAppliedToMethods
+            throw MacroError.canOnlyBeAppliedToMethodDeclarations
         }
 
         let methodName = methodDeclaration.name.trimmed

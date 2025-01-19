@@ -20,7 +20,7 @@ extension MockedMethodMacro: PeerMacro {
         in context: some MacroExpansionContext
     ) throws -> [DeclSyntax] {
         guard let methodDeclaration = declaration.as(FunctionDeclSyntax.self) else {
-            throw MacroError.canOnlyBeAppliedToMethods
+            throw MacroError.canOnlyBeAppliedToMethodDeclarations
         }
 
         let macroArguments = try MacroArguments(node: node)
