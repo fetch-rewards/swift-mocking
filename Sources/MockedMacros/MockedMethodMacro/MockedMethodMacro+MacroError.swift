@@ -5,7 +5,7 @@
 //  Created by Gray Campbell on 1/15/25.
 //
 
-import SwiftSyntax
+import Foundation
 
 extension MockedMethodMacro {
 
