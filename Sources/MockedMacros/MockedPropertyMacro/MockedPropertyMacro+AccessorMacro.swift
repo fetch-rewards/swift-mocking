@@ -41,14 +41,12 @@ extension MockedPropertyMacro: AccessorMacro {
         let propertyBindingName = propertyBindingPattern.identifier
         let macroArguments = try MacroArguments(node: node)
 
-        var accessors: [AccessorDeclSyntax] = []
-
-        if let getAccessor = self.getAccessor(
-            propertyType: macroArguments.propertyType,
-            propertyBindingName: propertyBindingName
-        ) {
-            accessors.append(getAccessor)
-        }
+        var accessors: [AccessorDeclSyntax] = [
+            self.getAccessor(
+                propertyType: macroArguments.propertyType,
+                propertyBindingName: propertyBindingName
+            )
+        ]
 
         if let setAccessor = self.setAccessor(
             propertyType: macroArguments.propertyType,
@@ -62,10 +60,18 @@ extension MockedPropertyMacro: AccessorMacro {
 
     // MARK: Get Accessor
 
+    /// Returns a `get` accessor for a property with the provided `propertyType`
+    /// and `propertyBindingName`.
+    ///
+    /// - Parameters:
+    ///   - propertyType: The type of property specified in the macro arguments.
+    ///   - propertyBindingName: The name of the property binding.
+    /// - Returns: A `get` accessor for a property with the provided
+    ///   `propertyType` and `propertyBindingName`.
     private static func getAccessor(
         propertyType: MockedPropertyType,
         propertyBindingName: TokenSyntax
-    ) -> AccessorDeclSyntax? {
+    ) -> AccessorDeclSyntax {
         var asyncSpecifier: TokenSyntax?
         var throwsClause: ThrowsClauseSyntax?
         var getterInvocationExpression: any ExprSyntaxProtocol
@@ -125,6 +131,14 @@ extension MockedPropertyMacro: AccessorMacro {
 
     // MARK: Set Accessor
 
+    /// Returns a `set` accessor for a property with the provided `propertyType`
+    /// and `propertyBindingName`, if applicable.
+    ///
+    /// - Parameters:
+    ///   - propertyType: The type of property specified in the macro arguments.
+    ///   - propertyBindingName: The name of the property binding.
+    /// - Returns: A `set` accessor for a property with the provided
+    ///   `propertyType` and `propertyBindingName`, if applicable.
     private static func setAccessor(
         propertyType: MockedPropertyType,
         propertyBindingName: TokenSyntax
@@ -159,25 +173,5 @@ extension MockedPropertyMacro: AccessorMacro {
                 )
             }
         }
-    }
-
-    // MARK: Modifiers
-
-    private static func modifier(
-        for accessorDeclaration: AccessorDeclSyntax
-    ) -> DeclModifierSyntax? {
-        let excludedTokenKinds: [TokenKind] = [
-            .keyword(.mutating),
-            .keyword(.nonmutating),
-        ]
-
-        guard
-            let modifier = accessorDeclaration.modifier,
-            !excludedTokenKinds.contains(modifier.name.tokenKind)
-        else {
-            return nil
-        }
-
-        return modifier
     }
 }
