@@ -278,10 +278,10 @@ extension MockedPropertyMacro: PeerMacro {
         var name = "Mock"
 
         switch propertyType {
-        case let .readOnly(asyncEffectSpecifier, throwsEffectSpecifier):
+        case let .readOnly(asyncSpecifier, throwsSpecifier):
             name += "ReadOnly"
 
-            switch (asyncEffectSpecifier, throwsEffectSpecifier) {
+            switch (asyncSpecifier, throwsSpecifier) {
             case (.async, .none):
                 name += "Async"
             case (.async, .some):
