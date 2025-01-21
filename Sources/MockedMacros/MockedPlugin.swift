@@ -12,6 +12,7 @@ import SwiftSyntaxMacros
 struct MockedPlugin: CompilerPlugin {
     let providingMacros: [any Macro.Type] = [
         MockedMacro.self,
+        MockedMembersMacro.self,
         MockedMethodMacro.self,
         MockablePropertyMacro.self,
         MockedPropertyMacro.self,
