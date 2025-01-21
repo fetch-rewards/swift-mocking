@@ -96,11 +96,11 @@ extension MockedMembersMacro: MemberAttributeMacro {
                 leftParen: .leftParenToken(),
                 arguments: .argumentList(
                     LabeledExprListSyntax {
-                        self.labeledArgument(
-                            propertyTypeArgumentExpression: propertyTypeArgumentExpression
+                        self.propertyTypeArgument(
+                            expression: propertyTypeArgumentExpression
                         )
-                        self.labeledArgument(mockName: mockName)
-                        self.labeledArgument(isMockAnActor: isMockAnActor)
+                        self.mockNameArgument(mockName: mockName)
+                        self.isMockAnActorArgument(isMockAnActor: isMockAnActor)
                     }
                 ),
                 rightParen: .rightParenToken(),
@@ -131,8 +131,8 @@ extension MockedMembersMacro: MemberAttributeMacro {
                 leftParen: .leftParenToken(),
                 arguments: .argumentList(
                     LabeledExprListSyntax {
-                        self.labeledArgument(mockName: mockName)
-                        self.labeledArgument(isMockAnActor: isMockAnActor)
+                        self.mockNameArgument(mockName: mockName)
+                        self.isMockAnActorArgument(isMockAnActor: isMockAnActor)
                     }
                 ),
                 rightParen: .rightParenToken(),
@@ -143,16 +143,24 @@ extension MockedMembersMacro: MemberAttributeMacro {
 
     // MARK: Macro Arguments
 
-    private static func labeledArgument(
-        propertyTypeArgumentExpression: some ExprSyntaxProtocol
+    /// Returns a `propertyType` argument with the provided `expression`.
+    ///
+    /// - Parameter expression: The expression to use in the argument.
+    /// - Returns: A `propertyType` argument with the provided `expression`.
+    private static func propertyTypeArgument(
+        expression: some ExprSyntaxProtocol
     ) -> LabeledExprSyntax {
         LabeledExprSyntax(
             leadingTrivia: .newline.appending(.tab),
-            expression: propertyTypeArgumentExpression
+            expression: expression
         )
     }
 
-    private static func labeledArgument(
+    /// Returns a `mockName` argument with the provided `mockName`.
+    ///
+    /// - Parameter mockName: The mock name to use in the argument.
+    /// - Returns: A `mockName` argument with the provided `mockName`.
+    private static func mockNameArgument(
         mockName: TokenSyntax
     ) -> LabeledExprSyntax {
         LabeledExprSyntax(
@@ -168,7 +176,13 @@ extension MockedMembersMacro: MemberAttributeMacro {
         )
     }
 
-    private static func labeledArgument(
+    /// Returns an `isMockAnActor` argument with the provided `isMockAnActor`
+    /// Boolean value.
+    ///
+    /// - Parameter isMockAnActor: The Boolean value to use in the argument.
+    /// - Returns: An `isMockAnActor` argument with the provided `isMockAnActor`
+    ///   Boolean value.
+    private static func isMockAnActorArgument(
         isMockAnActor: Bool
     ) -> LabeledExprSyntax {
         LabeledExprSyntax(
