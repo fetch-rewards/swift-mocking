@@ -19,6 +19,9 @@ public struct MockablePropertyMacro: AccessorMacro {
         providingAccessorsOf declaration: some DeclSyntaxProtocol,
         in context: some MacroExpansionContext
     ) throws -> [AccessorDeclSyntax] {
+        // The @MockableProperty macro is used only as a marker to provide
+        // information for the @MockedMembers macro and therefore does not
+        // produce an expansion.
         []
     }
 }
