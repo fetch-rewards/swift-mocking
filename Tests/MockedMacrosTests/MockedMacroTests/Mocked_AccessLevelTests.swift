@@ -6,7 +6,6 @@
 //
 
 #if canImport(MockedMacros)
-import SwiftSyntaxMacrosGenericTestSupport
 import Testing
 @testable import MockedMacros
 
@@ -14,9 +13,9 @@ struct Mocked_AccessLevelTests {
 
     // MARK: Access Level Tests
 
-    @Test(arguments: testConfigurations)
+    @Test(arguments: mockedTestConfigurations)
     func protocolAccessLevels(
-        interface: InterfaceConfiguration,
+        interface: MockInterfaceConfiguration,
         mock: MockConfiguration
     ) {
         assertMocked(
@@ -24,6 +23,7 @@ struct Mocked_AccessLevelTests {
             \(interface.accessLevel) protocol Dependency {}
             """,
             generates: """
+            @MockedMembers
             \(mock.modifiers)class DependencyMock: Dependency {
             \(mock.defaultInit)
             }

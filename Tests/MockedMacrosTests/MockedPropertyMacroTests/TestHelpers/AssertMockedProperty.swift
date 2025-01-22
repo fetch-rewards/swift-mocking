@@ -1,30 +1,20 @@
 //
-//  AssertMocked.swift
+//  AssertMockedProperty.swift
 //  MockedMacrosTests
 //
-//  Created by Gray Campbell on 11/4/23.
+//  Created by Gray Campbell on 1/22/25.
 //
 
-// Macro implementations build for the host, so the corresponding module is not
-// available when cross-compiling. Cross-compiled tests may still make use of
-// the macro itself in end-to-end tests.
 #if canImport(MockedMacros)
 import SwiftSyntaxMacroExpansion
 import SwiftSyntaxMacrosGenericTestSupport
-import SwiftSyntaxSugar
 import Testing
 @testable import MockedMacros
 
-let testConfigurations = AccessLevelSyntax.allCases.map { accessLevel in
-    (
-        InterfaceConfiguration(accessLevel: accessLevel),
-        MockConfiguration(interfaceAccessLevel: accessLevel)
-    )
-}
-
-func assertMocked(
-    _ interface: String,
-    generates mock: String,
+func assertMockedProperty(
+    _ property: String,
+    ofType propertyType: String,
+    generates expandedSource: String,
     diagnostics: [DiagnosticSpec] = [],
     applyFixIts: [String]? = nil,
     fixedSource: String? = nil,
@@ -35,16 +25,18 @@ func assertMocked(
 ) {
     assertMacroExpansion(
         """
-        @Mocked
-        \(interface)
+        @MockedProperty(
+            \(propertyType),
+            mockName: "DependencyMock",
+            isMockAnActor: false
+        )
+        \(property)
         """,
-        expandedSource: """
-        \(interface)
-
-        \(mock)
-        """,
+        expandedSource: expandedSource,
         diagnostics: diagnostics,
-        macroSpecs: ["Mocked": MacroSpec(type: MockedMacro.self)],
+        macroSpecs: [
+            "MockedProperty": MacroSpec(type: MockedPropertyMacro.self),
+        ],
         applyFixIts: applyFixIts,
         fixedSource: fixedSource,
         failureHandler: { testFailure in

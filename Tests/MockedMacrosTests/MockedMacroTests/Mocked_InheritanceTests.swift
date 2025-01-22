@@ -6,7 +6,6 @@
 //
 
 #if canImport(MockedMacros)
-import SwiftSyntaxMacrosGenericTestSupport
 import Testing
 @testable import MockedMacros
 
@@ -14,9 +13,9 @@ struct Mocked_InheritanceTests {
 
     // MARK: Unconstrained Tests
 
-    @Test(arguments: testConfigurations)
+    @Test(arguments: mockedTestConfigurations)
     func unconstrainedProtocol(
-        interface: InterfaceConfiguration,
+        interface: MockInterfaceConfiguration,
         mock: MockConfiguration
     ) {
         assertMocked(
@@ -24,6 +23,7 @@ struct Mocked_InheritanceTests {
             \(interface.accessLevel) protocol Dependency {}
             """,
             generates: """
+            @MockedMembers
             \(mock.modifiers)class DependencyMock: Dependency {
             \(mock.defaultInit)
             }
@@ -33,9 +33,9 @@ struct Mocked_InheritanceTests {
 
     // MARK: Actor Constrained Tests
 
-    @Test(arguments: testConfigurations)
+    @Test(arguments: mockedTestConfigurations)
     func actorConstrainedProtocol(
-        interface: InterfaceConfiguration,
+        interface: MockInterfaceConfiguration,
         mock: MockConfiguration
     ) {
         assertMocked(
@@ -43,6 +43,7 @@ struct Mocked_InheritanceTests {
             \(interface.accessLevel) protocol Dependency: Actor {}
             """,
             generates: """
+            @MockedMembers
             \(mock.modifiers)actor DependencyMock: Dependency {
             \(mock.defaultInit)
             }
@@ -52,9 +53,9 @@ struct Mocked_InheritanceTests {
 
     // MARK: Class Constrained Tests
 
-    @Test(arguments: testConfigurations)
+    @Test(arguments: mockedTestConfigurations)
     func classConstrainedProtocol(
-        interface: InterfaceConfiguration,
+        interface: MockInterfaceConfiguration,
         mock: MockConfiguration
     ) {
         assertMocked(
@@ -62,6 +63,7 @@ struct Mocked_InheritanceTests {
             \(interface.accessLevel) protocol Dependency: AnyObject {}
             """,
             generates: """
+            @MockedMembers
             \(mock.modifiers)class DependencyMock: Dependency {
             \(mock.defaultInit)
             }
@@ -71,9 +73,9 @@ struct Mocked_InheritanceTests {
 
     // MARK: Actor & Class Constrained Tests
 
-    @Test(arguments: testConfigurations)
+    @Test(arguments: mockedTestConfigurations)
     func actorAndClassConstrainedProtocol(
-        interface: InterfaceConfiguration,
+        interface: MockInterfaceConfiguration,
         mock: MockConfiguration
     ) {
         assertMocked(
@@ -81,6 +83,7 @@ struct Mocked_InheritanceTests {
             \(interface.accessLevel) protocol Dependency: Actor, AnyObject {}
             """,
             generates: """
+            @MockedMembers
             \(mock.modifiers)actor DependencyMock: Dependency {
             \(mock.defaultInit)
             }
@@ -88,9 +91,9 @@ struct Mocked_InheritanceTests {
         )
     }
 
-    @Test(arguments: testConfigurations)
+    @Test(arguments: mockedTestConfigurations)
     func classAndActorConstrainedProtocol(
-        interface: InterfaceConfiguration,
+        interface: MockInterfaceConfiguration,
         mock: MockConfiguration
     ) {
         assertMocked(
@@ -98,6 +101,7 @@ struct Mocked_InheritanceTests {
             \(interface.accessLevel) protocol Dependency: AnyObject, Actor {}
             """,
             generates: """
+            @MockedMembers
             \(mock.modifiers)actor DependencyMock: Dependency {
             \(mock.defaultInit)
             }

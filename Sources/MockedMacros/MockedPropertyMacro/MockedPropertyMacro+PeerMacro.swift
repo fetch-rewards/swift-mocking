@@ -299,7 +299,11 @@ extension MockedPropertyMacro: PeerMacro {
 
         let genericArgumentClause = propertyBinding.typeAnnotation.map { typeAnnotation in
             GenericArgumentClauseSyntax {
-                GenericArgumentSyntax(argument: typeAnnotation.type.trimmed)
+                GenericArgumentSyntax(
+                    leadingTrivia: .newline.appending(.tab),
+                    argument: typeAnnotation.type.trimmed,
+                    trailingTrivia: .newline
+                )
             }
         }
 

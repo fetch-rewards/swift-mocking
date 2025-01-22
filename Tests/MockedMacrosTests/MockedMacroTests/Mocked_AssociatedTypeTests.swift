@@ -6,7 +6,6 @@
 //
 
 #if canImport(MockedMacros)
-import SwiftSyntaxMacrosGenericTestSupport
 import Testing
 @testable import MockedMacros
 
@@ -14,9 +13,9 @@ struct Mocked_AssociatedTypeTests {
 
     // MARK: Associated Type Inheritance Tests
 
-    @Test(arguments: testConfigurations)
+    @Test(arguments: mockedTestConfigurations)
     func protocolAssociatedTypeInheritanceWithOneInheritedType(
-        interface: InterfaceConfiguration,
+        interface: MockInterfaceConfiguration,
         mock: MockConfiguration
     ) {
         assertMocked(
@@ -27,6 +26,7 @@ struct Mocked_AssociatedTypeTests {
             }
             """,
             generates: """
+            @MockedMembers
             \(mock.modifiers)\
             class DependencyMock<A: Hashable, B: Identifiable>: Dependency {
             \(mock.defaultInit)
@@ -35,9 +35,9 @@ struct Mocked_AssociatedTypeTests {
         )
     }
 
-    @Test(arguments: testConfigurations)
+    @Test(arguments: mockedTestConfigurations)
     func protocolAssociatedTypeInheritanceWithMultipleInheritedTypes(
-        interface: InterfaceConfiguration,
+        interface: MockInterfaceConfiguration,
         mock: MockConfiguration
     ) {
         assertMocked(
@@ -48,6 +48,7 @@ struct Mocked_AssociatedTypeTests {
             }
             """,
             generates: """
+            @MockedMembers
             \(mock.modifiers)\
             class DependencyMock\
             <A: Hashable & Identifiable, B: Comparable & Equatable & RawRepresentable>\
@@ -60,9 +61,9 @@ struct Mocked_AssociatedTypeTests {
 
     // MARK: Associated Type Generic Where Clauses Tests
 
-    @Test(arguments: testConfigurations)
+    @Test(arguments: mockedTestConfigurations)
     func protocolAssociatedTypeGenericWhereClauses(
-        interface: InterfaceConfiguration,
+        interface: MockInterfaceConfiguration,
         mock: MockConfiguration
     ) {
         assertMocked(
@@ -75,6 +76,7 @@ struct Mocked_AssociatedTypeTests {
             }
             """,
             generates: """
+            @MockedMembers
             \(mock.modifiers)\
             class DependencyMock\
             <A: Comparable, B: BidirectionalCollection, C: RandomAccessCollection>\

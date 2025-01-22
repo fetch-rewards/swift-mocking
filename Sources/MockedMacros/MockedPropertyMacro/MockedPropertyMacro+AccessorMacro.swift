@@ -147,11 +147,8 @@ extension MockedPropertyMacro: AccessorMacro {
             return nil
         }
 
-        let setterParameterName: TokenSyntax = "newValue"
-
         return AccessorDeclSyntax(
-            accessorSpecifier: .keyword(.set),
-            parameters: AccessorParametersSyntax(name: setterParameterName)
+            accessorSpecifier: .keyword(.set)
         ) {
             FunctionCallExprSyntax(
                 calledExpression: MemberAccessExprSyntax(
@@ -167,9 +164,7 @@ extension MockedPropertyMacro: AccessorMacro {
                 rightParen: .rightParenToken()
             ) {
                 LabeledExprSyntax(
-                    expression: DeclReferenceExprSyntax(
-                        baseName: setterParameterName
-                    )
+                    expression: DeclReferenceExprSyntax(baseName: "newValue")
                 )
             }
         }

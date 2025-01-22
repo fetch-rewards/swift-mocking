@@ -6,7 +6,6 @@
 //
 
 #if canImport(MockedMacros)
-import SwiftSyntaxMacrosGenericTestSupport
 import Testing
 @testable import MockedMacros
 
@@ -14,9 +13,9 @@ struct Mocked_InitializerTests {
 
     // MARK: Default Init Tests
 
-    @Test(arguments: testConfigurations)
+    @Test(arguments: mockedTestConfigurations)
     func defaultInit(
-        interface: InterfaceConfiguration,
+        interface: MockInterfaceConfiguration,
         mock: MockConfiguration
     ) {
         assertMocked(
@@ -24,6 +23,7 @@ struct Mocked_InitializerTests {
             \(interface.accessLevel) protocol Dependency {}
             """,
             generates: """
+            @MockedMembers
             \(mock.modifiers)class DependencyMock: Dependency {
             \(mock.defaultInit)
             }
@@ -33,9 +33,9 @@ struct Mocked_InitializerTests {
 
     // MARK: Init Conformance Tests
 
-    @Test(arguments: testConfigurations)
+    @Test(arguments: mockedTestConfigurations)
     func initConformance(
-        interface: InterfaceConfiguration,
+        interface: MockInterfaceConfiguration,
         mock: MockConfiguration
     ) {
         assertMocked(
@@ -47,6 +47,7 @@ struct Mocked_InitializerTests {
             }
             """,
             generates: """
+            @MockedMembers
             \(mock.modifiers)class DependencyMock: Dependency {
             \(mock.defaultInit)
                 \(mock.memberModifiers)init(parameter: Int) {

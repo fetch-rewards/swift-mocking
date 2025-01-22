@@ -1,5 +1,5 @@
 //
-//  MockedErrorTests.swift
+//  MockedMacro_MacroErrorTests.swift
 //  MockedMacrosTests
 //
 //  Created by Gray Campbell on 11/4/23.
@@ -9,11 +9,11 @@
 import Testing
 @testable import MockedMacros
 
-struct MockedErrorTests {
+struct MockedMacro_MacroErrorTests {
 
     // MARK: Typealiases
 
-    typealias SUT = MockedError
+    typealias SUT = MockedMacro.MacroError
 
     // MARK: Description Tests
 
@@ -21,7 +21,9 @@ struct MockedErrorTests {
     func description(sut: SUT) {
         let expectedDescription = switch sut {
         case .canOnlyBeAppliedToProtocols:
-            "@Mocked can only be applied to protocols"
+            "@Mocked can only be applied to protocols."
+        case .unableToParsePropertyBindingName:
+            "@Mocked was unable to parse a property binding name."
         }
 
         #expect(sut.description == expectedDescription)
