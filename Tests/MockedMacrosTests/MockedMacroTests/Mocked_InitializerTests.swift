@@ -15,7 +15,7 @@ struct Mocked_InitializerTests {
 
     @Test(arguments: mockedTestConfigurations)
     func defaultInit(
-        interface: MockInterfaceConfiguration,
+        interface: InterfaceConfiguration,
         mock: MockConfiguration
     ) {
         assertMocked(
@@ -35,7 +35,7 @@ struct Mocked_InitializerTests {
 
     @Test(arguments: mockedTestConfigurations)
     func initConformance(
-        interface: MockInterfaceConfiguration,
+        interface: InterfaceConfiguration,
         mock: MockConfiguration
     ) {
         assertMocked(

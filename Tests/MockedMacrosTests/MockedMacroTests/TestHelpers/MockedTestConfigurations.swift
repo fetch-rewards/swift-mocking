@@ -8,10 +8,10 @@
 #if canImport(MockedMacros)
 import SwiftSyntaxSugar
 
-var mockedTestConfigurations: [(MockInterfaceConfiguration, MockConfiguration)] {
+var mockedTestConfigurations: [(InterfaceConfiguration, MockConfiguration)] {
     AccessLevelSyntax.allCases.map { accessLevel in
         (
-            MockInterfaceConfiguration(accessLevel: accessLevel),
+            InterfaceConfiguration(accessLevel: accessLevel),
             MockConfiguration(interfaceAccessLevel: accessLevel)
         )
     }

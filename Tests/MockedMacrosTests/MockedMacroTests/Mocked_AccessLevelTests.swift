@@ -15,7 +15,7 @@ struct Mocked_AccessLevelTests {
 
     @Test(arguments: mockedTestConfigurations)
     func protocolAccessLevels(
-        interface: MockInterfaceConfiguration,
+        interface: InterfaceConfiguration,
         mock: MockConfiguration
     ) {
         assertMocked(

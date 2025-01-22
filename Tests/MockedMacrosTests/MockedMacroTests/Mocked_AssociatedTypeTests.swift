@@ -15,7 +15,7 @@ struct Mocked_AssociatedTypeTests {
 
     @Test(arguments: mockedTestConfigurations)
     func protocolAssociatedTypeInheritanceWithOneInheritedType(
-        interface: MockInterfaceConfiguration,
+        interface: InterfaceConfiguration,
         mock: MockConfiguration
     ) {
         assertMocked(
@@ -37,7 +37,7 @@ struct Mocked_AssociatedTypeTests {
 
     @Test(arguments: mockedTestConfigurations)
     func protocolAssociatedTypeInheritanceWithMultipleInheritedTypes(
-        interface: MockInterfaceConfiguration,
+        interface: InterfaceConfiguration,
         mock: MockConfiguration
     ) {
         assertMocked(
@@ -63,7 +63,7 @@ struct Mocked_AssociatedTypeTests {
 
     @Test(arguments: mockedTestConfigurations)
     func protocolAssociatedTypeGenericWhereClauses(
-        interface: MockInterfaceConfiguration,
+        interface: InterfaceConfiguration,
         mock: MockConfiguration
     ) {
         assertMocked(

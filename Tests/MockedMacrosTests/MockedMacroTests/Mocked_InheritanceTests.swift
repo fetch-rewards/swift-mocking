@@ -15,7 +15,7 @@ struct Mocked_InheritanceTests {
 
     @Test(arguments: mockedTestConfigurations)
     func unconstrainedProtocol(
-        interface: MockInterfaceConfiguration,
+        interface: InterfaceConfiguration,
         mock: MockConfiguration
     ) {
         assertMocked(
@@ -35,7 +35,7 @@ struct Mocked_InheritanceTests {
 
     @Test(arguments: mockedTestConfigurations)
     func actorConstrainedProtocol(
-        interface: MockInterfaceConfiguration,
+        interface: InterfaceConfiguration,
         mock: MockConfiguration
     ) {
         assertMocked(
@@ -55,7 +55,7 @@ struct Mocked_InheritanceTests {
 
     @Test(arguments: mockedTestConfigurations)
     func classConstrainedProtocol(
-        interface: MockInterfaceConfiguration,
+        interface: InterfaceConfiguration,
         mock: MockConfiguration
     ) {
         assertMocked(
@@ -75,7 +75,7 @@ struct Mocked_InheritanceTests {
 
     @Test(arguments: mockedTestConfigurations)
     func actorAndClassConstrainedProtocol(
-        interface: MockInterfaceConfiguration,
+        interface: InterfaceConfiguration,
         mock: MockConfiguration
     ) {
         assertMocked(
@@ -93,7 +93,7 @@ struct Mocked_InheritanceTests {
 
     @Test(arguments: mockedTestConfigurations)
     func classAndActorConstrainedProtocol(
-        interface: MockInterfaceConfiguration,
+        interface: InterfaceConfiguration,
         mock: MockConfiguration
     ) {
         assertMocked(
