@@ -10,7 +10,8 @@
 @attached(body)
 public macro MockedMethod(
     mockName: String,
-    isMockAnActor: Bool
+    isMockAnActor: Bool,
+    mockMethodName: String? = nil
 ) = #externalMacro(
     module: "MockedMacros",
     type: "MockedMethodMacro"
