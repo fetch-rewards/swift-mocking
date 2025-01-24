@@ -89,7 +89,7 @@ extension MockedMethodMacro: PeerMacro {
                 calledExpression: MemberAccessExprSyntax(
                     base: typeReference,
                     period: .periodToken(),
-                    name: .identifier("makeMethod")
+                    name: "makeMethod"
                 ),
                 leftParen: .leftParenToken(),
                 rightParen: .rightParenToken()
@@ -101,9 +101,7 @@ extension MockedMethodMacro: PeerMacro {
                         colon: .colonToken(),
                         expression: FunctionCallExprSyntax(
                             calledExpression: DeclReferenceExprSyntax(
-                                baseName: .identifier(
-                                    "MockImplementationDescription"
-                                )
+                                baseName: "MockImplementationDescription"
                             ),
                             leftParen: .leftParenToken(),
                             rightParen: .rightParenToken(),
