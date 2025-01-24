@@ -29,7 +29,6 @@ struct Mocked_AssociatedTypeTests {
             @MockedMembers
             \(mock.modifiers)\
             class DependencyMock<A: Hashable, B: Identifiable>: Dependency {
-            \(mock.defaultInit)
             }
             """
         )
@@ -50,10 +49,10 @@ struct Mocked_AssociatedTypeTests {
             generates: """
             @MockedMembers
             \(mock.modifiers)\
-            class DependencyMock\
-            <A: Hashable & Identifiable, B: Comparable & Equatable & RawRepresentable>\
-            : Dependency {
-            \(mock.defaultInit)
+            class DependencyMock<\
+            A: Hashable & Identifiable, \
+            B: Comparable & Equatable & RawRepresentable\
+            >: Dependency {
             }
             """
         )
@@ -78,11 +77,14 @@ struct Mocked_AssociatedTypeTests {
             generates: """
             @MockedMembers
             \(mock.modifiers)\
-            class DependencyMock\
-            <A: Comparable, B: BidirectionalCollection, C: RandomAccessCollection>\
-            : Dependency where A: Hashable, B.Element: Equatable, \
-            B.Element: Identifiable, C.Element == String {
-            \(mock.defaultInit)
+            class DependencyMock<\
+            A: Comparable, \
+            B: BidirectionalCollection, \
+            C: RandomAccessCollection\
+            >: Dependency where \
+            A: Hashable, \
+            B.Element: Equatable, B.Element: Identifiable, \
+            C.Element == String {
             }
             """
         )
