@@ -2,12 +2,11 @@
 //  InterfaceConfiguration.swift
 //  MockedMacrosTests
 //
-//  Created by Gray Campbell on 11/4/23.
+//  Created by Gray Campbell on 1/21/25.
 //
 
 #if canImport(MockedMacros)
 import SwiftSyntaxSugar
-@testable import MockedMacros
 
 struct InterfaceConfiguration {
 
