@@ -24,7 +24,7 @@ extension MockedMembersMacro: MemberMacro {
         if let classDeclaration = declaration.as(ClassDeclSyntax.self) {
             accessLevel = classDeclaration.accessLevel
         } else if let actorDeclaration = declaration.as(ActorDeclSyntax.self) {
-            accessLevel = actorDeclaration.modifiers.accessLevel
+            accessLevel = actorDeclaration.accessLevel
         } else {
             throw MacroError.canOnlyBeAppliedToClassesAndActors
         }
