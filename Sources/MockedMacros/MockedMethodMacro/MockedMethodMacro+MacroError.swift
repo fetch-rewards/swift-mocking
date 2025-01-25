@@ -34,10 +34,6 @@ extension MockedMethodMacro {
         /// parse the provided `mockMethodName` argument.
         case unableToParseMockMethodName
 
-        /// An error indicating that the `@MockedMethod` macro was passed more
-        /// arguments than expected.
-        case tooManyArguments
-
         // MARK: Properties
 
         /// The description of the error.
@@ -48,13 +44,11 @@ extension MockedMethodMacro {
             case .noArguments:
                 "@MockedMethod was not passed any arguments."
             case .unableToParseMockNameArgument:
-                "@MockedMethod was unable to parse `mockName` argument."
+                "@MockedMethod was unable to parse the provided `mockName` argument."
             case .unableToParseIsMockAnActorArgument:
-                "@MockedMethod was unable to parse `isMockAnActor` argument."
+                "@MockedMethod was unable to parse the provided `isMockAnActor` argument."
             case .unableToParseMockMethodName:
-                "@MockedMethod was unable to parse `mockMethodName` argument."
-            case .tooManyArguments:
-                "@MockedMethod was passed too many arguments."
+                "@MockedMethod was unable to parse the provided `mockMethodName` argument."
             }
         }
     }
