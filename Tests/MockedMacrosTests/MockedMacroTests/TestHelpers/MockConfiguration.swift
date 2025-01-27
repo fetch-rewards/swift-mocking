@@ -15,7 +15,6 @@ struct MockConfiguration {
     let accessLevel: AccessLevelSyntax
     let modifiers: String
     let memberModifiers: String
-    let defaultInit: String
 
     // MARK: Initializers
 
@@ -42,10 +41,6 @@ struct MockConfiguration {
         self.accessLevel = accessLevel
         self.modifiers = modifiers
         self.memberModifiers = memberModifiers
-        self.defaultInit = """
-            \(memberModifiers)init() {
-            }
-        """
     }
 }
 #endif

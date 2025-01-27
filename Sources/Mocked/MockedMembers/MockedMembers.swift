@@ -23,6 +23,8 @@
 /// expands to:
 /// ```swift
 /// public final class DependencyMock: Dependency {
+///     public init() {}
+///
 ///     @MockableProperty(.readWrite)
 ///     @MockedProperty(
 ///         .readWrite,
@@ -39,7 +41,7 @@
 /// }
 /// ```
 @attached(memberAttribute)
-@attached(member, names: named(resetMockedStaticMembers))
+@attached(member, names: named(init), named(resetMockedStaticMembers))
 public macro MockedMembers() = #externalMacro(
     module: "MockedMacros",
     type: "MockedMembersMacro"

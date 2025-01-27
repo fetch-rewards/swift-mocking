@@ -25,7 +25,6 @@ struct Mocked_AccessLevelTests {
             generates: """
             @MockedMembers
             \(mock.modifiers)class DependencyMock: Dependency {
-            \(mock.defaultInit)
             }
             """
         )

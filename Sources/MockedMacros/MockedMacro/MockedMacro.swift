@@ -207,10 +207,6 @@ extension MockedMacro {
         let accessLevel = protocolDeclaration.minimumConformingAccessLevel
 
         return try MemberBlockSyntax {
-            self.mockDefaultInitializerDeclaration(
-                with: accessLevel
-            )
-
             for initializerDeclaration in protocolDeclaration.initializerDeclarations {
                 try self.mockInitializerConformanceDeclaration(
                     with: accessLevel,
@@ -239,39 +235,6 @@ extension MockedMacro {
     }
 
     // MARK: Initializers
-
-    /// Returns a default initializer to apply to the mock, with no parameters
-    /// and an empty body.
-    ///
-    /// ```swift
-    /// @Mocked
-    /// public protocol Dependency {}
-    ///
-    /// public final class DependencyMock: Dependency {
-    ///     public init() {}
-    /// }
-    /// ```
-    ///
-    /// - Parameter accessLevel: The access level to apply to the initializer
-    ///   declaration.
-    /// - Returns: A default initializer to apply to the mock, with no
-    ///   parameters and an empty body.
-    private static func mockDefaultInitializerDeclaration(
-        with accessLevel: AccessLevelSyntax
-    ) -> InitializerDeclSyntax {
-        InitializerDeclSyntax(
-            modifiers: DeclModifierListSyntax {
-                if accessLevel != .internal {
-                    accessLevel.modifier
-                }
-            },
-            signature: FunctionSignatureSyntax(
-                parameterClause: FunctionParameterClauseSyntax(
-                    parameters: FunctionParameterListSyntax()
-                )
-            )
-        ) {}
-    }
 
     /// Returns an initializer conformance declaration to apply to the mock,
     /// generated from the provided protocol initializer and marked with the

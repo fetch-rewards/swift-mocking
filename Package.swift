@@ -25,7 +25,7 @@ let package = Package(
     dependencies: [
         .package(
             url: "git@github.com:fetch-rewards/swift-locking.git",
-            revision: "67eab93299902744b8c04e3475e174b3452c3b84"
+            revision: "9abacac4ba8fd779501e2e232146951f148181af"
         ),
         .package(
             url: "https://github.com/apple/swift-syntax.git",
@@ -33,7 +33,7 @@ let package = Package(
         ),
         .package(
             url: "git@github.com:fetch-rewards/SwiftSyntaxSugar.git",
-            revision: "3a5739eccceb1fcc1362f667748f7a16e8ddda51"
+            revision: "54c294b9198d8a8abb7a228b933386ac726591e0"
         ),
         .package(
             url: "https://github.com/pointfreeco/xctest-dynamic-overlay",

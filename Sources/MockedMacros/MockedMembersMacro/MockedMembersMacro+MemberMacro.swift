@@ -19,16 +19,58 @@ extension MockedMembersMacro: MemberMacro {
         providingMembersOf declaration: some DeclGroupSyntax,
         in context: some MacroExpansionContext
     ) throws -> [DeclSyntax] {
-        guard
-            let resetMockedStaticMembersMethodDeclaration =
-                self.resetMockedStaticMembersMethodDeclaration(for: declaration)
-        else {
-            return []
+        let accessLevel: AccessLevelSyntax
+
+        if let classDeclaration = declaration.as(ClassDeclSyntax.self) {
+            accessLevel = classDeclaration.accessLevel
+        } else if let actorDeclaration = declaration.as(ActorDeclSyntax.self) {
+            accessLevel = actorDeclaration.accessLevel
+        } else {
+            throw MacroError.canOnlyBeAppliedToClassesAndActors
         }
 
-        return [
-            DeclSyntax(resetMockedStaticMembersMethodDeclaration),
+        let defaultInitializerDeclaration = self.defaultInitializerDeclaration(
+            with: accessLevel
+        )
+
+        var members: [DeclSyntax] = [
+            DeclSyntax(defaultInitializerDeclaration),
         ]
+
+        if
+            let resetMockedStaticMembersMethodDeclaration =
+                self.resetMockedStaticMembersMethodDeclaration(for: declaration)
+        {
+            members.append(
+                DeclSyntax(resetMockedStaticMembersMethodDeclaration)
+            )
+        }
+
+        return members
+    }
+
+    // MARK: Default Initializer
+
+    /// Returns a default initializer with no parameters and an empty body.
+    ///
+    /// - Parameter accessLevel: The access level to apply to the initializer
+    ///   declaration.
+    /// - Returns: A default initializer with no parameters and an empty body.
+    private static func defaultInitializerDeclaration(
+        with accessLevel: AccessLevelSyntax
+    ) -> InitializerDeclSyntax {
+        InitializerDeclSyntax(
+            modifiers: DeclModifierListSyntax {
+                if accessLevel != .internal {
+                    accessLevel.modifier
+                }
+            },
+            signature: FunctionSignatureSyntax(
+                parameterClause: FunctionParameterClauseSyntax(
+                    parameters: FunctionParameterListSyntax()
+                )
+            )
+        ) {}
     }
 
     // MARK: Reset Static Members Method

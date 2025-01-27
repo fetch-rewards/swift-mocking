@@ -25,7 +25,6 @@ struct Mocked_InitializerTests {
             generates: """
             @MockedMembers
             \(mock.modifiers)class DependencyMock: Dependency {
-            \(mock.defaultInit)
             }
             """
         )
@@ -49,7 +48,6 @@ struct Mocked_InitializerTests {
             generates: """
             @MockedMembers
             \(mock.modifiers)class DependencyMock: Dependency {
-            \(mock.defaultInit)
                 \(mock.memberModifiers)init(parameter: Int) {
                 }
                 \(mock.memberModifiers)init(parameters: Int...) {

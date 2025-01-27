@@ -25,7 +25,6 @@ struct Mocked_InheritanceTests {
             generates: """
             @MockedMembers
             \(mock.modifiers)class DependencyMock: Dependency {
-            \(mock.defaultInit)
             }
             """
         )
@@ -45,7 +44,6 @@ struct Mocked_InheritanceTests {
             generates: """
             @MockedMembers
             \(mock.modifiers)actor DependencyMock: Dependency {
-            \(mock.defaultInit)
             }
             """
         )
@@ -65,7 +63,6 @@ struct Mocked_InheritanceTests {
             generates: """
             @MockedMembers
             \(mock.modifiers)class DependencyMock: Dependency {
-            \(mock.defaultInit)
             }
             """
         )
@@ -85,7 +82,6 @@ struct Mocked_InheritanceTests {
             generates: """
             @MockedMembers
             \(mock.modifiers)actor DependencyMock: Dependency {
-            \(mock.defaultInit)
             }
             """
         )
@@ -103,7 +99,6 @@ struct Mocked_InheritanceTests {
             generates: """
             @MockedMembers
             \(mock.modifiers)actor DependencyMock: Dependency {
-            \(mock.defaultInit)
             }
             """
         )
