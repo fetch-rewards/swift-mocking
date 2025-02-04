@@ -208,7 +208,7 @@ public final class DependencyMock: Dependency {
     }
 }
 ```
-This is useful for tearing down static state between test cases.
+This method is useful for tearing down static state between test cases.
 
 ## Features
 `swift-mocking` is Swift 6 compatible, fully concurrency-safe, and generates mocks that can handle:
