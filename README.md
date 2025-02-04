@@ -17,6 +17,52 @@ To add `swift-mocking` to a Swift package manifest file:
   .product(name: "Mocked", package: "swift-mocking")
   ```
 
+## Usage
+
+`swift-mocking` contains several Swift macros: `@Mocked`, `@MockedMembers`, `@MockableProperty`, and `@MockableMethod`. 
+It also contains two internal, underscored macros: `@_MockedProperty` and `@_MockedMethod` which are not meant to be used directly.
+
+### `@Mocked`
+`@Mocked` is an attached, peer macro that generates a mock class from a protocol declaration.
+```swift
+@Mocked
+protocol Dependency {}
+
+// Generates:
+
+@MockedMembers
+final class DependencyMock: Dependency {}
+```
+
+The generated mock is marked with the access level required to conform to the protocol:
+`public` for `public`, implicit `internal` for both implicit and explicit `internal`,
+and `fileprivate` for both `fileprivate` and `private`.
+
+`@Mocked` also supports protocols that conform to `Actor`:
+```swift
+@Mocked protocol Dependency: Actor {}
+
+// Generates:
+
+@MockedMembers
+final actor DependencyMock: Dependency {}
+```
+
+When `@Mocked` is applied to a protocol that defines associated types, the resulting mock class 
+uses those associated types as its generic parameters in order to fulfill the protocol requirements:
+```swift
+@Mocked
+protocol Dependency {
+    associatedtype Key: Hashable
+    associatedtype Value: Equatable
+}
+
+// Generates:
+
+@MockedMembers
+final class DependencyMock<Key: Hashable, Value: Equatable>: Dependency {}
+```
+
 ## Features
 `swift-mocking` is Swift 6 compatible, fully concurrency-safe, and generates mocks that can handle:
 - [x] Any access level
