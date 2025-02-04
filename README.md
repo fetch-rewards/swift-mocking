@@ -5,7 +5,12 @@
 - [Installation](#installation)
 - [Usage](#usage)
   - [`@Mocked`](#mocked)
+    - [Access Levels](#access-levels)
+    - [Actor Conformance](#actor-conformance)
+    - [Associated Types](#associated-types)
+    - [Members](#members)
   - [`@MockedMembers`](#mockedmembers)
+    - [Static Members](#static-members) 
 - [Features](#features)
 - [License](#license)
 
@@ -30,7 +35,7 @@ To add `swift-mocking` to a Swift package manifest file:
 It also contains two internal, underscored macros: `@_MockedProperty` and `@_MockedMethod` which are not meant to be used directly.
 
 ### `@Mocked`
-`@Mocked` is an attached, peer macro that generates a mock class from a protocol declaration.
+`@Mocked` is an attached, peer macro that generates a mock class from a protocol declaration:
 ```swift
 @Mocked
 protocol Dependency {}
@@ -41,13 +46,16 @@ protocol Dependency {}
 final class DependencyMock: Dependency {}
 ```
 
+#### Access Levels
 The generated mock is marked with the access level required to conform to the protocol:
 `public` for `public`, implicit `internal` for both implicit and explicit `internal`,
 and `fileprivate` for both `fileprivate` and `private`.
 
+#### Actor Conformance
 `@Mocked` also supports protocols that conform to `Actor`:
 ```swift
-@Mocked protocol Dependency: Actor {}
+@Mocked
+protocol Dependency: Actor {}
 
 // Generates:
 
@@ -55,6 +63,7 @@ and `fileprivate` for both `fileprivate` and `private`.
 final actor DependencyMock: Dependency {}
 ```
 
+#### Associated Types
 When `@Mocked` is applied to a protocol that defines associated types, the resulting mock class 
 uses those associated types as its generic parameters in order to fulfill the protocol requirements:
 ```swift
@@ -70,9 +79,10 @@ protocol Dependency {
 final class DependencyMock<Key: Hashable, Value: Equatable>: Dependency {}
 ```
 
+#### Members
 In addition to the `@MockedMembers` macro that gets applied to the mock declaration, 
 `@Mocked` also utilizes the `@MockableProperty` and `@MockableMethod` macros when defining 
-properties required by the mocked protocol:
+the mock's members:
 ```swift
 @Mocked
 protocol Dependency {
@@ -103,19 +113,18 @@ final class DependencyMock: Dependency {
     var readWriteProperty: String
 }
 ```
-
 Because `@MockedMembers` cannot look outward at the protocol declaration to determine whether, for example,
 a property is read-only or read-write, `@Mocked` uses `@MockableProperty` and `@MockableMethod` to provide
-information about each member to `@MockedMembers`. 
-`@MockedMembers` then applies the `@_MockedProperty` and `@_MockedMethod` macros to those members, generating 
-backing properties that can be used to override those members' implementations.
+information about each member to `@MockedMembers`. `@MockedMembers` then applies the `@_MockedProperty` and 
+`@_MockedMethod` macros to those members, generating backing properties that can be used to override those 
+members' implementations.
 
 ### `@MockedMembers`
 Just like with `@MockedMembers`, `@Mocked` also cannot look outward. This presents a problem when the protocol you 
 are trying to mock conforms to another protocol. Because `@Mocked` cannot see the other protocol's declaration, it 
 is unable to generate conformances to the requirements from that protocol. In this instance, you will need to write 
-the mock declaration yourself, along with the declarations for the properties and methods required by the protocol. 
-Then, using `@MockedMembers`, `@MockableProperty`, and `@MockableMethod`, you can generate the mock's backing properties.
+the mock declaration yourself, along with the declarations for the properties and methods required by the protocol.
+Then, using `@MockedMembers`, `@MockableProperty`, and `@MockableMethod`, you can generate the mock's backing properties:
 ```swift
 protocol Dependency: SomeProtocol {
     var propertyFromDependency: String { get }
@@ -130,6 +139,76 @@ final class DependencyMock: Dependency {
     var propertyFromSomeProtocol: String
 }
 ```
+
+#### Static Members
+When a mock contains static members, `@MockedMembers` generates a static method named `resetMockedStaticMembers`
+that can be used to reset the backing properties for those static members:
+```swift
+@MockedMembers
+public final class DependencyMock: Dependency {
+    @MockableProperty(.readOnly(.async))
+    public static var staticReadOnlyAsyncProperty: Int
+
+    @MockableProperty(.readOnly(.async, .throws))
+    public static var staticReadOnlyAsyncThrowingProperty: Int
+
+    @MockableProperty(.readOnly)
+    public static var staticReadOnlyProperty: Int
+
+    @MockableProperty(.readOnly(.throws))
+    public static var staticReadOnlyThrowingProperty: Int
+
+    @MockableProperty(.readWrite)
+    public static var staticReadWriteProperty: Int
+
+    public static func staticReturningAsyncMethodWithoutParameters() async -> Int
+    public static func staticReturningAsyncMethodWithParameters(parameter: Int) async -> Int
+    public static func staticReturningAsyncThrowingMethodWithoutParameters() async throws -> Int
+    public static func staticReturningAsyncThrowingMethodWithParameters(parameter: Int) async throws -> Int
+    public static func staticReturningMethodWithoutParameters() -> Int
+    public static func staticReturningMethodWithParameters(parameter: Int) -> Int
+    public static func staticReturningThrowingMethodWithoutParameters() throws -> Int
+    public static func staticReturningThrowingMethodWithParameters(parameter: Int) throws -> Int
+
+    public static func staticVoidAsyncMethodWithoutParameters() async
+    public static func staticVoidAsyncMethodWithParameters(parameter: Int) async
+    public static func staticVoidAsyncThrowingMethodWithoutParameters() async throws
+    public static func staticVoidAsyncThrowingMethodWithParameters(parameter: Int) async throws
+    public static func staticVoidMethodWithoutParameters()
+    public static func staticVoidMethodWithParameters(parameter: Int)
+    public static func staticVoidThrowingMethodWithoutParameters() throws
+    public static func staticVoidThrowingMethodWithParameters(parameter: Int) throws
+
+    // Generates:
+
+    /// Resets the implementations and invocation records of the mock's 
+    /// static properties and methods.
+    public static func resetMockedStaticMembers() {
+        self.__staticReadOnlyAsyncProperty.reset()
+        self.__staticReadOnlyAsyncThrowingProperty.reset()
+        self.__staticReadOnlyProperty.reset()
+        self.__staticReadOnlyThrowingProperty.reset()
+        self.__staticReadWriteProperty.reset()
+        self.__staticReturningAsyncMethodWithoutParameters.reset()
+        self.__staticReturningAsyncMethodWithParameters.reset()
+        self.__staticReturningAsyncThrowingMethodWithoutParameters.reset()
+        self.__staticReturningAsyncThrowingMethodWithParameters.reset()
+        self.__staticReturningMethodWithoutParameters.reset()
+        self.__staticReturningMethodWithParameters.reset()
+        self.__staticReturningThrowingMethodWithoutParameters.reset()
+        self.__staticReturningThrowingMethodWithParameters.reset()
+        self.__staticVoidAsyncMethodWithoutParameters.reset()
+        self.__staticVoidAsyncMethodWithParameters.reset()
+        self.__staticVoidAsyncThrowingMethodWithoutParameters.reset()
+        self.__staticVoidAsyncThrowingMethodWithParameters.reset()
+        self.__staticVoidMethodWithoutParameters.reset()
+        self.__staticVoidMethodWithParameters.reset()
+        self.__staticVoidThrowingMethodWithoutParameters.reset()
+        self.__staticVoidThrowingMethodWithParameters.reset()
+    }
+}
+```
+This is useful for tearing down static state between test cases.
 
 ## Features
 `swift-mocking` is Swift 6 compatible, fully concurrency-safe, and generates mocks that can handle:
