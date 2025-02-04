@@ -103,6 +103,29 @@ information about each member to `@MockedMembers`.
 `@MockedMembers` then applies the `@_MockedProperty` and `@_MockedMethod` macros to those members, generating 
 backing properties that can be used to override those members' implementations.
 
+### `@MockedMembers`
+Just like with `@MockedMembers`, `@Mocked` cannot look outward. This presents a problem when the protocol you are 
+trying to mock conforms to another protocol. Because `@Mocked` cannot see the other protocol's declaration, it is 
+unable to generate conformance to the requirements from that protocol. In this instance, you will need to write the 
+mock declaration yourself, along with the declarations for the properties and methods required by the protocol. Then,
+using `@MockedMembers`, `@MockableProperty`, and `@MockableMethod`, you can generate the mock's backing properties.
+```swift
+protocol Dependency: SomeProtocol {
+    var propertyFromDependency: String { get }
+}
+
+// Generates:
+
+@MockedMembers
+final class DependencyMock: Dependency {
+    @MockableProperty(.readOnly)
+    var propertyFromDependency: String
+
+    @MockableProperty(.readWrite)
+    var propertyFromSomeProtocol: String
+}
+```
+
 ## Features
 `swift-mocking` is Swift 6 compatible, fully concurrency-safe, and generates mocks that can handle:
 - [x] Any access level
