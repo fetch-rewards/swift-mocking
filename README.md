@@ -63,6 +63,46 @@ protocol Dependency {
 final class DependencyMock<Key: Hashable, Value: Equatable>: Dependency {}
 ```
 
+In addition to the `@MockedMembers` macro that gets applied to the mock declaration, 
+`@Mocked` also utilizes the `@MockableProperty` and `@MockableMethod` macros when defining 
+properties required by the mocked protocol:
+```swift
+@Mocked
+protocol Dependency {
+    var readOnlyProperty: String { get }
+    var readOnlyAsyncProperty: String { get async }
+    var readOnlyThrowingProperty: String { get throws }
+    var readOnlyAsyncThrowingProperty: String { get async throws }
+    var readWriteProperty: String { get set }
+}
+
+// Generates:
+
+@MockedMembers
+final class DependencyMock: Dependency {
+    @MockableProperty(.readOnly)
+    var readOnlyProperty: String
+
+    @MockableProperty(.readOnly(.async))
+    var readOnlyAsyncProperty: String
+
+    @MockableProperty(.readOnly(.throws))
+    var readOnlyThrowingProperty: String
+
+    @MockableProperty(.readOnly(.async, .throws))
+    var readOnlyAsyncThrowingProperty: String
+
+    @MockableProperty(.readWrite)
+    var readWriteProperty: String
+}
+```
+
+Because `@MockedMembers` cannot look outward at the protocol declaration to determine whether, for example,
+a property is read-only or read-write, `@Mocked` uses `@MockableProperty` and `@MockableMethod` to provide
+information about each member to `@MockedMembers`. 
+`@MockedMembers` then applies the `@_MockedProperty` and `@_MockedMethod` macros to those members, generating 
+backing properties that can be used to override those members' implementations.
+
 ## Features
 `swift-mocking` is Swift 6 compatible, fully concurrency-safe, and generates mocks that can handle:
 - [x] Any access level
