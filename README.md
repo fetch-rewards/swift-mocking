@@ -2,6 +2,13 @@
 
 `swift-mocking` is a collection of Swift macros used to generate mock dependencies.
 
+- [Installation](#installation)
+- [Usage](#usage)
+  - [`@Mocked`](#mocked)
+  - [`@MockedMembers`](#mockedmembers)
+- [Features](#features)
+- [License](#license)
+
 ## Installation
 
 To add `swift-mocking` to a Swift package manifest file:
