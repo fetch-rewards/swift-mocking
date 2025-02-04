@@ -106,7 +106,7 @@ backing properties that can be used to override those members' implementations.
 ### `@MockedMembers`
 Just like with `@MockedMembers`, `@Mocked` also cannot look outward. This presents a problem when the protocol you 
 are trying to mock conforms to another protocol. Because `@Mocked` cannot see the other protocol's declaration, it 
-is unable to generate conformance to the requirements from that protocol. In this instance, you will need to write 
+is unable to generate conformances to the requirements from that protocol. In this instance, you will need to write 
 the mock declaration yourself, along with the declarations for the properties and methods required by the protocol. 
 Then, using `@MockedMembers`, `@MockableProperty`, and `@MockableMethod`, you can generate the mock's backing properties.
 ```swift
