@@ -114,8 +114,6 @@ protocol Dependency: SomeProtocol {
     var propertyFromDependency: String { get }
 }
 
-// Generates:
-
 @MockedMembers
 final class DependencyMock: Dependency {
     @MockableProperty(.readOnly)
