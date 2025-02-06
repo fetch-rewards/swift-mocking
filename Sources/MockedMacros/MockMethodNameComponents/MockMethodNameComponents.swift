@@ -249,7 +249,7 @@ extension MockMethodNameComponents {
             self.capitalizedDescription(of: type)
         case let .metatypeType(type):
             self.capitalizedDescription(of: type)
-        case .missingType:
+        case let .missingType(type):
             self.capitalizedDescription(of: type)
         case let .namedOpaqueReturnType(type):
             self.capitalizedDescription(of: type)
@@ -371,8 +371,6 @@ extension MockMethodNameComponents {
             of: type.returnClause
         ) {
             description += returnClauseDescription
-        } else {
-            description = "Void" + description
         }
 
         return description
@@ -552,8 +550,13 @@ extension MockMethodNameComponents {
     private static func capitalizedDescription(
         of type: NamedOpaqueReturnTypeSyntax
     ) -> String {
-        // TODO: Description of type
-        ""
+        let genericParameters = type.genericParameterClause.parameters
+        let genericParametersDescription = genericParameters.reduce("") { result, genericParameter in
+            result + Self.capitalizedDescription(of: genericParameter)
+        }
+        let typeDescription = Self.capitalizedDescription(of: type.type)
+
+        return genericParametersDescription + typeDescription
     }
 
     /// Returns a capitalized description of the provided `type`.
