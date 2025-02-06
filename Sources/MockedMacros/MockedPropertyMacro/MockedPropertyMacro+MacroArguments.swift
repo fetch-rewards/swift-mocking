@@ -21,7 +21,7 @@ extension MockedPropertyMacro {
         let propertyType: MockedPropertyType
 
         /// The name of the mock.
-        let mockName: TokenSyntax
+        let mockName: String
 
         /// A Boolean value indicating whether the mock is an actor.
         let isMockAnActor: Bool
@@ -55,10 +55,7 @@ extension MockedPropertyMacro {
                 let mockName = argument(1)?
                     .expression
                     .as(StringLiteralExprSyntax.self)?
-                    .segments
-                    .first?
-                    .as(StringSegmentSyntax.self)?
-                    .content
+                    .representedLiteralValue
             else {
                 throw MacroError.unableToParseMockNameArgument
             }

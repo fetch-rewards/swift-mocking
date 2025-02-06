@@ -19,6 +19,7 @@ struct MockedMethod_GenericMethod_OptionalTypeTests {
             """
             func method<Value>(parameter: Value?) -> Value?
             """,
+            named: "method",
             generates: """
             func method<Value>(parameter: Value?) -> Value? {
                 guard
@@ -62,6 +63,7 @@ struct MockedMethod_GenericMethod_OptionalTypeTests {
             func method<Value: Equatable>(parameter: Value?) -> Value? \
             where Value: Sendable, Value: Comparable & Hashable
             """,
+            named: "method",
             generates: """
             func method<Value: Equatable>(parameter: Value?) -> Value? \
             where Value: Sendable, Value: Comparable & Hashable {

@@ -19,6 +19,7 @@ struct MockedMethod_GenericMethod_IdentifierTypeTests {
             """
             func method<Value>(parameter: Array<Value>) -> Array<Value>
             """,
+            named: "method",
             generates: """
             func method<Value>(parameter: Array<Value>) -> Array<Value> {
                 guard
@@ -62,6 +63,7 @@ struct MockedMethod_GenericMethod_IdentifierTypeTests {
             func method<Value: Equatable>(parameter: Array<Value>) -> Array<Value> \
             where Value: Sendable, Value: Comparable & Hashable
             """,
+            named: "method",
             generates: """
             func method<Value: Equatable>(parameter: Array<Value>) -> Array<Value> \
             where Value: Sendable, Value: Comparable & Hashable {
@@ -108,6 +110,7 @@ struct MockedMethod_GenericMethod_IdentifierTypeTests {
             func method<Key, Value>(parameter: Dictionary<Key, Value>) \
             -> Dictionary<Key, Value>
             """,
+            named: "method",
             generates: """
             func method<Key, Value>(parameter: Dictionary<Key, Value>) \
             -> Dictionary<Key, Value> {
@@ -153,6 +156,7 @@ struct MockedMethod_GenericMethod_IdentifierTypeTests {
             (parameter: Dictionary<Key, Value>) -> Dictionary<Key, Value> \
             where Key: Sendable, Value: Comparable & Hashable
             """,
+            named: "method",
             generates: """
             func method<Key: Hashable, Value: Equatable>\
             (parameter: Dictionary<Key, Value>) -> Dictionary<Key, Value> \
@@ -199,6 +203,7 @@ struct MockedMethod_GenericMethod_IdentifierTypeTests {
             """
             func method<Value>(parameter: Optional<Value>) -> Optional<Value>
             """,
+            named: "method",
             generates: """
             func method<Value>(parameter: Optional<Value>) -> Optional<Value> {
                 guard
@@ -242,6 +247,7 @@ struct MockedMethod_GenericMethod_IdentifierTypeTests {
             func method<Value: Equatable>(parameter: Optional<Value>) \
             -> Optional<Value> where Value: Sendable, Value: Comparable & Hashable
             """,
+            named: "method",
             generates: """
             func method<Value: Equatable>(parameter: Optional<Value>) \
             -> Optional<Value> where Value: Sendable, Value: Comparable & Hashable {
@@ -287,6 +293,7 @@ struct MockedMethod_GenericMethod_IdentifierTypeTests {
             """
             func method<Value>(parameter: Set<Value>) -> Set<Value>
             """,
+            named: "method",
             generates: """
             func method<Value>(parameter: Set<Value>) -> Set<Value> {
                 guard
@@ -330,6 +337,7 @@ struct MockedMethod_GenericMethod_IdentifierTypeTests {
             func method<Value: Equatable>(parameter: Set<Value>) -> Set<Value> \
             where Value: Sendable, Value: Comparable & Hashable
             """,
+            named: "method",
             generates: """
             func method<Value: Equatable>(parameter: Set<Value>) -> Set<Value> \
             where Value: Sendable, Value: Comparable & Hashable {

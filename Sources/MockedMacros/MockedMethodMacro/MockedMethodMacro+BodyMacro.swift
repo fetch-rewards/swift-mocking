@@ -23,7 +23,8 @@ extension MockedMethodMacro: BodyMacro {
             throw MacroError.canOnlyBeAppliedToMethodDeclarations
         }
 
-        let methodName = methodDeclaration.name.trimmed
+        let macroArguments = try MacroArguments(node: node)
+        let methodName = macroArguments.mockMethodName
         let methodGenericParameterClause = methodDeclaration.genericParameterClause
         let methodGenericParameters = methodGenericParameterClause?.parameters
         let methodGenericWhereClause = methodDeclaration.genericWhereClause
@@ -74,7 +75,7 @@ extension MockedMethodMacro: BodyMacro {
                 fatalError(
                     \"""
                     Unable to cast value returned by \\
-                    self._\(methodName) \\
+                    self._\(raw: methodName) \\
                     to expected return type \(returnType).
                     \"""
                 )

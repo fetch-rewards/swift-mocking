@@ -19,6 +19,7 @@ struct Mocked_GenericMethod_DictionaryTypeTests {
             """
             func method<Key, Value>(parameter: [Key: Value]) -> [Key: Value]
             """,
+            named: "method",
             generates: """
             func method<Key, Value>(parameter: [Key: Value]) -> [Key: Value] {
                 guard
@@ -62,6 +63,7 @@ struct Mocked_GenericMethod_DictionaryTypeTests {
             func method<Key: Hashable, Value: Equatable>(parameter: [Key: Value]) \
             -> [Key: Value] where Key: Sendable, Value: Comparable & Hashable
             """,
+            named: "method",
             generates: """
             func method<Key: Hashable, Value: Equatable>(parameter: [Key: Value]) \
             -> [Key: Value] where Key: Sendable, Value: Comparable & Hashable {

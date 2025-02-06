@@ -19,6 +19,7 @@ struct MockedMethod_VariadicParameterTests {
             """
             func method(strings: String..., integers: Int...)
             """,
+            named: "method",
             generates: """
             func method(strings: String..., integers: Int...) {
                 self.__method.invoke((strings, integers))

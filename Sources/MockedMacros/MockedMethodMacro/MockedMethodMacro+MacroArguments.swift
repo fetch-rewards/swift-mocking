@@ -18,13 +18,13 @@ extension MockedMethodMacro {
         // MARK: Properties
 
         /// The name of the mock.
-        let mockName: TokenSyntax
+        let mockName: String
 
         /// A Boolean value indicating whether the mock is an actor.
         let isMockAnActor: Bool
 
         /// The name to use for the mock method.
-        let mockMethodName: TokenSyntax?
+        let mockMethodName: String
 
         // MARK: Initializers
 
@@ -49,10 +49,7 @@ extension MockedMethodMacro {
                 let mockName = argument(0)?
                     .expression
                     .as(StringLiteralExprSyntax.self)?
-                    .segments
-                    .first?
-                    .as(StringSegmentSyntax.self)?
-                    .content
+                    .representedLiteralValue
             else {
                 throw MacroError.unableToParseMockNameArgument
             }
@@ -71,23 +68,16 @@ extension MockedMethodMacro {
 
             self.isMockAnActor = isMockAnActorTokenKind == .keyword(.true)
 
-            if let mockMethodArgument = argument(2) {
-                guard
-                    let mockMethodName = mockMethodArgument
-                        .expression
-                        .as(StringLiteralExprSyntax.self)?
-                        .segments
-                        .first?
-                        .as(StringSegmentSyntax.self)?
-                        .content
-                else {
-                    throw MacroError.unableToParseMockMethodName
-                }
-
-                self.mockMethodName = mockMethodName
-            } else {
-                self.mockMethodName = nil
+            guard
+                let mockMethodName = argument(2)?
+                    .expression
+                    .as(StringLiteralExprSyntax.self)?
+                    .representedLiteralValue
+            else {
+                throw MacroError.unableToParseMockMethodName
             }
+
+            self.mockMethodName = mockMethodName
         }
     }
 }

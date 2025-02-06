@@ -18,6 +18,10 @@ extension MockedMembersMacro {
         /// applied to class and actor declarations.
         case canOnlyBeAppliedToClassesAndActors
 
+        /// An error indicating that the `@MockedMembers` macro was unable to
+        /// determine a property's property type.
+        case unableToDeterminePropertyType
+
         // MARK: Properties
 
         /// The description of the error.
@@ -25,6 +29,8 @@ extension MockedMembersMacro {
             switch self {
             case .canOnlyBeAppliedToClassesAndActors:
                 "@MockedMembers can only be applied to classes and actors."
+            case .unableToDeterminePropertyType:
+                "@MockedMembers was unable to determine a property's property type."
             }
         }
     }

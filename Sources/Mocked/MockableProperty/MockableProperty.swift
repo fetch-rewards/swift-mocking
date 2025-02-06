@@ -7,8 +7,8 @@
 
 /// A macro that marks a property as being mockable.
 ///
-/// This macro should only be used in conjunction with the `@MockedMembers`
-/// macro.
+/// This macro does not itself produce an expansion and is intended to be used
+/// in conjunction with the `@MockedMembers` macro:
 /// ```swift
 /// @MockedMembers
 /// final class DependencyMock: Dependency {
@@ -16,6 +16,8 @@
 ///     var count: Int
 /// }
 /// ```
+///
+/// - Parameter propertyType: The type of property being mocked.
 @attached(accessor)
 public macro MockableProperty(_ propertyType: MockedPropertyType) = #externalMacro(
     module: "MockedMacros",

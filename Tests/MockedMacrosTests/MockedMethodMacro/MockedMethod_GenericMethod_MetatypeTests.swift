@@ -19,6 +19,7 @@ struct MockedMethod_GenericMethod_MetatypeTests {
             """
             func method<Value>(parameter: Value.Type) -> Value.Type
             """,
+            named: "method",
             generates: """
             func method<Value>(parameter: Value.Type) -> Value.Type {
                 guard
@@ -62,6 +63,7 @@ struct MockedMethod_GenericMethod_MetatypeTests {
             func method<Value: Equatable>(parameter: Value.Type) -> Value.Type \
             where Value: Sendable, Value: Comparable & Hashable
             """,
+            named: "method",
             generates: """
             func method<Value: Equatable>(parameter: Value.Type) -> Value.Type \
             where Value: Sendable, Value: Comparable & Hashable {
@@ -107,6 +109,7 @@ struct MockedMethod_GenericMethod_MetatypeTests {
             """
             func method(parameter: (some Equatable).Type)
             """,
+            named: "method",
             generates: """
             func method(parameter: (some Equatable).Type) {
                 self.__method.invoke((parameter))
@@ -131,6 +134,7 @@ struct MockedMethod_GenericMethod_MetatypeTests {
             """
             func method(parameter: (some Equatable & Sendable & Comparable).Type)
             """,
+            named: "method",
             generates: """
             func method(parameter: (some Equatable & Sendable & Comparable).Type) {
                 self.__method.invoke((parameter))

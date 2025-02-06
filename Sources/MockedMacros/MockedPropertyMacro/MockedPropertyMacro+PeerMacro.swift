@@ -138,7 +138,9 @@ extension MockedPropertyMacro: PeerMacro {
                                 colon: .colonToken(),
                                 expression: MemberAccessExprSyntax(
                                     base: DeclReferenceExprSyntax(
-                                        baseName: macroArguments.mockName
+                                        baseName: .identifier(
+                                            macroArguments.mockName
+                                        )
                                     ),
                                     period: .periodToken(),
                                     name: .keyword(.self)

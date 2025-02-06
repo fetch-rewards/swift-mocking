@@ -1,8 +1,8 @@
 //
-//  MockedMembersMacro+MockMethodNameComponent+Constructors.swift
+//  MockMethodNameComponents.swift
 //  MockedMacros
 //
-//  Created by Gray Campbell on 1/29/25.
+//  Created by Gray Campbell on 1/25/25.
 //
 
 #if compiler(>=5.8)
@@ -10,93 +10,197 @@
 #endif
 import SwiftSyntax
 
-extension MockedMembersMacro.MockMethodNameComponent {
+/// A mock method's name components.
+struct MockMethodNameComponents {
 
-    // MARK: Constructors
+    // MARK: Properties
 
-    /// Returns a `methodName` component parsed from the provided
-    /// `methodDeclaration`.
+    /// The name components in order of when they get added to the mock method's
+    /// full name.
+    private let components: [MockMethodNameComponent]
+
+    /// The full name derived from the name components.
+    var fullName: String {
+        self.name(to: self.components.endIndex - 1)
+    }
+
+    // MARK: Initializers
+
+    /// Creates name components from the provided `methodDeclaration`.
     ///
     /// - Parameter methodDeclaration: The method declaration from which to
-    ///   parse the `methodName` component.
-    /// - Returns: A `methodName` component parsed from the provided
-    ///   `methodDeclaration`.
-    static func name(
-        from methodDeclaration: FunctionDeclSyntax
-    ) -> Self {
-        Self(
-            id: .methodName,
-            order: .zero,
-            value: methodDeclaration.name.trimmedDescription
-        )
-    }
+    ///   parse name components.
+    init(methodDeclaration: FunctionDeclSyntax) {
+        let signature = methodDeclaration.signature
+        let parameters = signature.parameterClause.parameters
 
-    /// Returns a `parameterName` component parsed from the provided `parameter`
-    /// at the provided `index`.
-    ///
-    /// - Parameters:
-    ///   - parameter: The method parameter from which to parse the
-    ///     `parameterName` component.
-    ///   - index: The index of the parameter in the method's parameter clause.
-    /// - Returns: A `parameterName` component parsed from the provided
-    ///   `parameter` at the provided `index`.
-    static func name(
-        from parameter: FunctionParameterSyntax,
-        at index: Int
-    ) -> Self {
-        var value = self.capitalizedDescription(of: parameter.firstName)
+        var components: [MockMethodNameComponent] = [
+            MockMethodNameComponent(
+                id: .methodName,
+                value: methodDeclaration.name.trimmedDescription,
+                insertionIndex: .zero
+            )
+        ]
 
-        if let secondName = parameter.secondName {
-            value += self.capitalizedDescription(of: secondName)
+        for (index, parameter) in parameters.enumerated() {
+            var value = Self.capitalizedDescription(of: parameter.firstName)
+
+            if let secondName = parameter.secondName {
+                value += Self.capitalizedDescription(of: secondName)
+            }
+
+            components.append(
+                MockMethodNameComponent(
+                    id: .parameterName(index),
+                    value: value,
+                    insertionIndex: index + 1
+                )
+            )
         }
 
-        return Self(
-            id: .parameterName(index),
-            order: index + 1,
-            value: value
-        )
-    }
-
-    /// Returns a `parameterType` component parsed from the provided `parameter`
-    /// at the provided `index`.
-    ///
-    /// - Parameters:
-    ///   - parameter: The method parameter from which to parse the
-    ///     `parameterType` component.
-    ///   - index: The index of the parameter in the method's parameter clause.
-    /// - Returns: A `parameterType` component parsed from the provided
-    ///   `parameter` at the provided `index`.
-    static func type(
-        from parameter: FunctionParameterSyntax,
-        at index: Int
-    ) -> Self {
-        Self(
-            id: .parameterType(index),
-            order: index + (index + 2),
-            value: self.capitalizedDescription(of: parameter.type)
-        )
-    }
-
-    /// Returns a `returnType` component parsed from the provided `signature`,
-    /// or `nil` if there isn't one.
-    ///
-    /// - Parameter signature: The method signature from which to parse the
-    ///   `returnType` component.
-    /// - Returns: A `returnType` component parsed from the provided
-    ///   `signature`, or `nil` if there isn't one.
-    static func returnType(
-        from signature: FunctionSignatureSyntax
-    ) -> Self? {
-        // FIXME: Also return nil if return type is explicit Void or ()
-        guard let returnClause = signature.returnClause else {
-            return nil
+        if
+            let returnClause = signature.returnClause,
+            let returnClauseDescription = Self.capitalizedDescription(of: returnClause)
+        {
+            components.append(
+                MockMethodNameComponent(
+                    id: .returnType,
+                    value: returnClauseDescription,
+                    insertionIndex: components.endIndex
+                )
+            )
         }
 
-        return Self(
-            id: .returnType,
-            order: signature.parameterClause.parameters.count + 1,
-            value: "Returning" + self.capitalizedDescription(of: returnClause.type)
-        )
+        for (index, parameter) in parameters.enumerated() {
+            let parameterNameDescription = Self.capitalizedDescription(
+                of: parameter.secondName ?? parameter.firstName
+            )
+            var parameterTypeDescription = Self.capitalizedDescription(
+                of: parameter.type
+            )
+
+            if parameterTypeDescription == parameterNameDescription {
+                parameterTypeDescription = ""
+            }
+
+            components.append(
+                MockMethodNameComponent(
+                    id: .parameterType(index),
+                    value: parameterTypeDescription,
+                    insertionIndex: index + (index + 2)
+                )
+            )
+        }
+
+        if let effectSpecifiers = signature.effectSpecifiers {
+            if let asyncSpecifier = effectSpecifiers.asyncSpecifier {
+                components.append(
+                    MockMethodNameComponent(
+                        id: .asyncSpecifier,
+                        value: Self.capitalizedDescription(of: asyncSpecifier),
+                        insertionIndex: components.endIndex
+                    )
+                )
+            }
+
+            if let throwsSpecifier = effectSpecifiers.throwsClause?.throwsSpecifier {
+                components.append(
+                    MockMethodNameComponent(
+                        id: .throwsSpecifier,
+                        value: Self.capitalizedDescription(of: throwsSpecifier),
+                        insertionIndex: components.endIndex
+                    )
+                )
+            }
+        }
+
+        var genericRequirementIndex: Int = .zero
+        var genericRequirementDescriptionPrefix = "Where"
+        let appendGenericRequirementDescription: (String) -> Void = { description in
+            components.append(
+                MockMethodNameComponent(
+                    id: .genericRequirement(genericRequirementIndex),
+                    value: genericRequirementDescriptionPrefix + description,
+                    insertionIndex: components.endIndex
+                )
+            )
+            genericRequirementIndex += 1
+            genericRequirementDescriptionPrefix = ""
+        }
+
+        if let genericParameterClause = methodDeclaration.genericParameterClause {
+            for genericParameter in genericParameterClause.parameters {
+                if genericParameter.inheritedType != nil {
+                    appendGenericRequirementDescription(
+                        Self.capitalizedDescription(of: genericParameter)
+                    )
+                }
+            }
+        }
+
+        if let genericWhereClause = methodDeclaration.genericWhereClause {
+            for genericRequirement in genericWhereClause.requirements {
+                let genericRequirementDescription = switch genericRequirement.requirement {
+                case let .conformanceRequirement(requirement):
+                    Self.capitalizedDescription(of: requirement)
+                case let .layoutRequirement(requirement):
+                    Self.capitalizedDescription(of: requirement)
+                case let .sameTypeRequirement(requirement):
+                    Self.capitalizedDescription(of: requirement)
+                }
+
+                appendGenericRequirementDescription(genericRequirementDescription)
+            }
+        }
+
+        self.components = components
+    }
+
+    // MARK: Name
+
+    /// Returns the name derived from the name components up to and including
+    /// the component at the provided `index`.
+    ///
+    /// If the provided `index` is out-of-bounds, this method clamps it to a
+    /// valid range of indices.
+    ///
+    /// - Parameter index: The index of the last name component to include in
+    ///   the returned name.
+    /// - Returns: The name derived from the name components up to and including
+    ///   the component at the provided `index`.
+    func name(to index: Int) -> String {
+        let clampedIndex = max(.zero, min(index, self.components.endIndex - 1))
+        let components = self.components[.zero...clampedIndex]
+
+        let values = components.reduce(into: [String]()) { result, component in
+            result.insert(component.value, at: component.insertionIndex)
+        }
+
+        return values.joined()
+    }
+}
+
+// MARK: - Helpers
+
+extension MockMethodNameComponents {
+
+    // MARK: Is Void
+
+    /// Returns a Boolean value indicating whether the provided `type` is `Void`
+    /// or `()`.
+    ///
+    /// - Parameter type: A type syntax.
+    /// - Returns: A Boolean value indicating whether the provided `type` is
+    ///   `Void` or `()`.
+    private static func isVoidType(_ type: TypeSyntax) -> Bool {
+        switch type.as(TypeSyntaxEnum.self) {
+        case let .identifierType(type):
+            type.name.tokenKind == .identifier("Void")
+        case let .tupleType(type):
+            type.elements.isEmpty
+        default:
+            false
+        }
     }
 
     // MARK: Capitalized Description
@@ -146,22 +250,19 @@ extension MockedMembersMacro.MockMethodNameComponent {
         case let .metatypeType(type):
             self.capitalizedDescription(of: type)
         case .missingType:
-            "Missing"
+            self.capitalizedDescription(of: type)
         case let .namedOpaqueReturnType(type):
-            // TODO: Description of type
-            ""
+            self.capitalizedDescription(of: type)
         case let .optionalType(type):
             self.capitalizedDescription(of: type)
         case let .packElementType(type):
-            // TODO: Description of type
-            ""
+            self.capitalizedDescription(of: type)
         case let .packExpansionType(type):
-            // TODO: Description of type
-            ""
+            self.capitalizedDescription(of: type)
         case let .someOrAnyType(type):
             self.capitalizedDescription(of: type)
         case let .suppressedType(type):
-            self.capitalizedDescription(of: type.type)
+            self.capitalizedDescription(of: type)
         case let .tupleType(type):
             self.capitalizedDescription(of: type)
         }
@@ -220,6 +321,20 @@ extension MockedMembersMacro.MockMethodNameComponent {
         }
     }
 
+    /// Returns a capitalized description of the provided `requirement`.
+    ///
+    /// - Parameter type: The conformance requirement syntax to describe.
+    ///
+    /// - Returns: A capitalized description of the provided `requirement`.
+    private static func capitalizedDescription(
+        of requirement: ConformanceRequirementSyntax
+    ) -> String {
+        let leftTypeDescription = self.capitalizedDescription(of: requirement.leftType)
+        let rightTypeDescription = self.capitalizedDescription(of: requirement.rightType)
+
+        return leftTypeDescription + rightTypeDescription
+    }
+
     /// Returns a capitalized description of the provided `type`.
     ///
     /// - Parameter type: The dictionary type syntax to describe.
@@ -252,25 +367,12 @@ extension MockedMembersMacro.MockMethodNameComponent {
             description += "With" + parametersDescription
         }
 
-        let isVoid: (TypeSyntax) -> Bool = { type in
-            switch type.as(TypeSyntaxEnum.self) {
-            case let .identifierType(type):
-                type.name.tokenKind == .identifier("Void")
-            case let .tupleType(type):
-                type.elements.isEmpty
-            default:
-                false
-            }
-        }
-
-        if isVoid(type.returnClause.type) {
-            description = "Void" + description
+        if let returnClauseDescription = self.capitalizedDescription(
+            of: type.returnClause
+        ) {
+            description += returnClauseDescription
         } else {
-            let returnTypeDescription = self.capitalizedDescription(
-                of: type.returnClause.type
-            )
-
-            description += "Returning" + returnTypeDescription
+            description = "Void" + description
         }
 
         return description
@@ -299,6 +401,23 @@ extension MockedMembersMacro.MockMethodNameComponent {
         return genericArgumentClause.arguments.reduce("") { result, argument in
             result + self.capitalizedDescription(of: argument.argument)
         }
+    }
+
+    /// Returns a capitalized description of the provided `genericParameter`.
+    ///
+    /// - Parameter genericParameter: The generic parameter syntax to describe.
+    ///
+    /// - Returns: A capitalized description of the provided `genericParameter`.
+    private static func capitalizedDescription(
+        of genericParameter: GenericParameterSyntax
+    ) -> String {
+        let nameDescription = self.capitalizedDescription(of: genericParameter.name)
+
+        guard let inheritedType = genericParameter.inheritedType else {
+            return nameDescription
+        }
+
+        return nameDescription + self.capitalizedDescription(of: inheritedType)
     }
 
     /// Returns a capitalized description of the provided `type`.
@@ -343,6 +462,22 @@ extension MockedMembersMacro.MockMethodNameComponent {
         of type: ImplicitlyUnwrappedOptionalTypeSyntax
     ) -> String {
         "Optional" + self.capitalizedDescription(of: type.wrappedType)
+    }
+
+    /// Returns a capitalized description of the provided `requirement`.
+    ///
+    /// - Parameter type: The layout requirement syntax to describe.
+    ///
+    /// - Returns: A capitalized description of the provided `requirement`.
+    private static func capitalizedDescription(
+        of requirement: LayoutRequirementSyntax
+    ) -> String {
+        let typeDescription = self.capitalizedDescription(of: requirement.type)
+        let layoutSpecifierDescription = self.capitalizedDescription(
+            of: requirement.layoutSpecifier
+        )
+
+        return typeDescription + layoutSpecifierDescription
     }
 
     /// Returns a capitalized description of the provided `type`.
@@ -400,6 +535,29 @@ extension MockedMembersMacro.MockMethodNameComponent {
 
     /// Returns a capitalized description of the provided `type`.
     ///
+    /// - Parameter type: The missing type syntax to describe.
+    ///
+    /// - Returns: A capitalized description of the provided `type`.
+    private static func capitalizedDescription(
+        of type: MissingTypeSyntax
+    ) -> String {
+        "Missing"
+    }
+
+    /// Returns a capitalized description of the provided `type`.
+    ///
+    /// - Parameter type: The named opaque return type syntax to describe.
+    ///
+    /// - Returns: A capitalized description of the provided `type`.
+    private static func capitalizedDescription(
+        of type: NamedOpaqueReturnTypeSyntax
+    ) -> String {
+        // TODO: Description of type
+        ""
+    }
+
+    /// Returns a capitalized description of the provided `type`.
+    ///
     /// - Parameter type: The optional type syntax to describe.
     ///
     /// - Returns: A capitalized description of the provided `type`.
@@ -407,6 +565,67 @@ extension MockedMembersMacro.MockMethodNameComponent {
         of type: OptionalTypeSyntax
     ) -> String {
         "Optional" + self.capitalizedDescription(of: type.wrappedType)
+    }
+
+    /// Returns a capitalized description of the provided `type`.
+    ///
+    /// - Parameter type: The pack element type syntax to describe.
+    ///
+    /// - Returns: A capitalized description of the provided `type`.
+    private static func capitalizedDescription(
+        of type: PackElementTypeSyntax
+    ) -> String {
+        let eachKeywordDescription = self.capitalizedDescription(of: type.eachKeyword)
+        let packDescription = self.capitalizedDescription(of: type.pack)
+
+        return eachKeywordDescription + packDescription
+    }
+
+    /// Returns a capitalized description of the provided `type`.
+    ///
+    /// - Parameter type: The pack expansion type syntax to describe.
+    ///
+    /// - Returns: A capitalized description of the provided `type`.
+    private static func capitalizedDescription(
+        of type: PackExpansionTypeSyntax
+    ) -> String {
+        let repeatKeywordDescription = self.capitalizedDescription(of: type.repeatKeyword)
+        let repetitionPatternDescription = self.capitalizedDescription(
+            of: type.repetitionPattern
+        )
+
+        return repeatKeywordDescription + repetitionPatternDescription
+    }
+
+    /// Returns a capitalized description of the provided `returnClause`, or
+    /// `nil` if the return type is `Void` or `()`.
+    ///
+    /// - Parameter type: The return clause syntax to describe.
+    ///
+    /// - Returns: A capitalized description of the provided `returnClause`, or
+    ///   `nil` if the return type is `Void` or `()`.
+    private static func capitalizedDescription(
+        of returnClause: ReturnClauseSyntax
+    ) -> String? {
+        guard !self.isVoidType(returnClause.type) else {
+            return nil
+        }
+
+        return "Returning" + self.capitalizedDescription(of: returnClause.type)
+    }
+
+    /// Returns a capitalized description of the provided `requirement`.
+    ///
+    /// - Parameter type: The same-type requirement syntax to describe.
+    ///
+    /// - Returns: A capitalized description of the provided `requirement`.
+    private static func capitalizedDescription(
+        of requirement: SameTypeRequirementSyntax
+    ) -> String {
+        let leftTypeDescription = self.capitalizedDescription(of: requirement.leftType)
+        let rightTypeDescription = self.capitalizedDescription(of: requirement.rightType)
+
+        return leftTypeDescription + rightTypeDescription
     }
 
     /// Returns a capitalized description of the provided `type`.
@@ -421,6 +640,17 @@ extension MockedMembersMacro.MockMethodNameComponent {
         let constraintDescription = self.capitalizedDescription(of: type.constraint)
 
         return specifierDescription + constraintDescription
+    }
+
+    /// Returns a capitalized description of the provided `type`.
+    ///
+    /// - Parameter type: The suppressed type syntax to describe.
+    ///
+    /// - Returns: A capitalized description of the provided `type`.
+    private static func capitalizedDescription(
+        of type: SuppressedTypeSyntax
+    ) -> String {
+        "Non" + self.capitalizedDescription(of: type.type)
     }
 
     /// Returns a capitalized description of the provided `type`.

@@ -20,6 +20,7 @@ struct MockedMethod_GenericMethod_FunctionTypeTests {
             func method<Value>(parameter: @escaping (String) -> Value) \
             -> (String) -> Value
             """,
+            named: "method",
             generates: """
             func method<Value>(parameter: @escaping (String) -> Value) \
             -> (String) -> Value {
@@ -64,6 +65,7 @@ struct MockedMethod_GenericMethod_FunctionTypeTests {
             func method<Value: Sendable>(parameter: @escaping (String) -> Value) \
             -> (String) -> Value where Value: Equatable
             """,
+            named: "method",
             generates: """
             func method<Value: Sendable>(parameter: @escaping (String) -> Value) \
             -> (String) -> Value where Value: Equatable {

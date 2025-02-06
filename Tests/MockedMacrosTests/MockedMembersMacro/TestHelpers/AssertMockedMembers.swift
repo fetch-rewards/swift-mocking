@@ -1,8 +1,8 @@
 //
-//  AssertMockedMethod.swift
+//  AssertMockedMembers.swift
 //  MockedMacrosTests
 //
-//  Created by Gray Campbell on 1/21/25.
+//  Created by Gray Campbell on 2/2/25.
 //
 
 #if canImport(MockedMacros)
@@ -11,10 +11,9 @@ import SwiftSyntaxMacrosGenericTestSupport
 import Testing
 @testable import MockedMacros
 
-func assertMockedMethod(
-    _ method: String,
-    named mockMethodName: String,
-    generates expandedSource: String,
+func assertMockedMembers(
+    _ mock: String,
+    generates expandedMock: String,
     diagnostics: [DiagnosticSpec] = [],
     applyFixIts: [String]? = nil,
     fixedSource: String? = nil,
@@ -25,17 +24,13 @@ func assertMockedMethod(
 ) {
     assertMacroExpansion(
         """
-        @_MockedMethod(
-            mockName: "DependencyMock",
-            isMockAnActor: false,
-            mockMethodName: "\(mockMethodName)"
-        )
-        \(method)
+        @MockedMembers
+        \(mock)
         """,
-        expandedSource: expandedSource,
+        expandedSource: expandedMock,
         diagnostics: diagnostics,
         macroSpecs: [
-            "_MockedMethod": MacroSpec(type: MockedMethodMacro.self),
+            "MockedMembers": MacroSpec(type: MockedMembersMacro.self),
         ],
         applyFixIts: applyFixIts,
         fixedSource: fixedSource,

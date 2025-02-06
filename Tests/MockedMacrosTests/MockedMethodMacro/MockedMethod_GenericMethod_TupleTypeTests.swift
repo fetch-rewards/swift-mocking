@@ -20,6 +20,7 @@ struct MockedMethod_GenericMethod_TupleTypeTests {
             func method<Value1, Value2>(parameter: (Value1, Value2)) \
             -> (Value1, Value2)
             """,
+            named: "method",
             generates: """
             func method<Value1, Value2>(parameter: (Value1, Value2)) \
             -> (Value1, Value2) {
@@ -65,6 +66,7 @@ struct MockedMethod_GenericMethod_TupleTypeTests {
             (parameter: (Value1, Value2)) -> (Value1, Value2) \
             where Value1: Sendable, Value2: Comparable
             """,
+            named: "method",
             generates: """
             func method<Value1: Equatable, Value2: Hashable>\
             (parameter: (Value1, Value2)) -> (Value1, Value2) \
