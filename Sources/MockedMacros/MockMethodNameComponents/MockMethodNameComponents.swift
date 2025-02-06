@@ -346,7 +346,7 @@ extension MockMethodNameComponents {
         let keyDescription = self.capitalizedDescription(of: type.key)
         let valueDescription = self.capitalizedDescription(of: type.value)
 
-        return "DictionaryOf" + valueDescription + "KeyedBy" + keyDescription
+        return "DictionaryOf" + keyDescription + "To" + valueDescription
     }
 
     /// Returns a capitalized description of the provided `type`.
