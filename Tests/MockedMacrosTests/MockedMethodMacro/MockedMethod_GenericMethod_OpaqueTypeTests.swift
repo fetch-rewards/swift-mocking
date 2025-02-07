@@ -19,6 +19,7 @@ struct MockedMethod_GenericMethod_OpaqueTypeTests {
             """
             func method(parameter: some Equatable)
             """,
+            named: "method",
             generates: """
             func method(parameter: some Equatable) {
                 self.__method.invoke((parameter))
@@ -43,6 +44,7 @@ struct MockedMethod_GenericMethod_OpaqueTypeTests {
             """
             func method(parameter: some Equatable & Sendable & Comparable)
             """,
+            named: "method",
             generates: """
             func method(parameter: some Equatable & Sendable & Comparable) {
                 self.__method.invoke((parameter))

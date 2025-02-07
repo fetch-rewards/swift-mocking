@@ -19,6 +19,7 @@ struct MockedMethod_GenericMethod_MemberTypeTests {
             """
             func method<Value>(parameter: Swift.Array<Value>) -> Swift.Array<Value>
             """,
+            named: "method",
             generates: """
             func method<Value>(parameter: Swift.Array<Value>) -> Swift.Array<Value> {
                 guard
@@ -62,6 +63,7 @@ struct MockedMethod_GenericMethod_MemberTypeTests {
             func method<Value: Equatable>(parameter: Swift.Array<Value>) \
             -> Swift.Array<Value> where Value: Sendable, Value: Comparable & Hashable
             """,
+            named: "method",
             generates: """
             func method<Value: Equatable>(parameter: Swift.Array<Value>) \
             -> Swift.Array<Value> where Value: Sendable, Value: Comparable & Hashable {
@@ -108,6 +110,7 @@ struct MockedMethod_GenericMethod_MemberTypeTests {
             func method<Key, Value>(parameter: Swift.Dictionary<Key, Value>) \
             -> Swift.Dictionary<Key, Value>
             """,
+            named: "method",
             generates: """
             func method<Key, Value>(parameter: Swift.Dictionary<Key, Value>) \
             -> Swift.Dictionary<Key, Value> {
@@ -154,6 +157,7 @@ struct MockedMethod_GenericMethod_MemberTypeTests {
             (parameter: Swift.Dictionary<Key, Value>) -> Swift.Dictionary<Key, Value> \
             where Key: Sendable, Value: Comparable & Hashable
             """,
+            named: "method",
             generates: """
             func method<Key: Hashable, Value: Equatable>\
             (parameter: Swift.Dictionary<Key, Value>) -> Swift.Dictionary<Key, Value> \
@@ -201,6 +205,7 @@ struct MockedMethod_GenericMethod_MemberTypeTests {
             func method<Value>(parameter: Swift.Optional<Value>) \
             -> Swift.Optional<Value>
             """,
+            named: "method",
             generates: """
             func method<Value>(parameter: Swift.Optional<Value>) \
             -> Swift.Optional<Value> {
@@ -246,6 +251,7 @@ struct MockedMethod_GenericMethod_MemberTypeTests {
             func method<Value: Equatable>(parameter: Swift.Optional<Value>) \
             -> Swift.Optional<Value> where Value: Sendable, Value: Comparable & Hashable
             """,
+            named: "method",
             generates: """
             func method<Value: Equatable>(parameter: Swift.Optional<Value>) \
             -> Swift.Optional<Value> where Value: Sendable, Value: Comparable & Hashable {
@@ -292,6 +298,7 @@ struct MockedMethod_GenericMethod_MemberTypeTests {
             """
             func method<Value>(parameter: Swift.Set<Value>) -> Swift.Set<Value>
             """,
+            named: "method",
             generates: """
             func method<Value>(parameter: Swift.Set<Value>) -> Swift.Set<Value> {
                 guard
@@ -335,6 +342,7 @@ struct MockedMethod_GenericMethod_MemberTypeTests {
             func method<Value: Equatable>(parameter: Swift.Set<Value>) \
             -> Swift.Set<Value> where Value: Sendable, Value: Comparable & Hashable
             """,
+            named: "method",
             generates: """
             func method<Value: Equatable>(parameter: Swift.Set<Value>) \
             -> Swift.Set<Value> where Value: Sendable, Value: Comparable & Hashable {

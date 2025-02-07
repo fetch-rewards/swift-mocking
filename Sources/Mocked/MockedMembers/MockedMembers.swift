@@ -5,10 +5,9 @@
 //  Created by Gray Campbell on 1/15/25.
 //
 
-/// A macro that adds the ``MockedProperty(_:mockName:isMockAnActor:)`` to all
-/// property declarations that are marked with ``MockableProperty(_:)`` and the
-/// ``MockedMethod(mockName:isMockAnActor:)`` macro to all method declarations
-/// inside the declaration to which it's attached.
+/// A macro that adds the `@_MockedProperty` macro to all property declarations
+/// that are marked with ``MockableProperty(_:)`` and the `@_MockedMethod` macro
+/// to all method declarations inside the declaration to which it's attached.
 ///
 /// For example:
 /// ```swift
@@ -35,7 +34,8 @@
 ///
 ///     @MockedMethod(
 ///         mockName: "DependencyMock",
-///         isMockAnActor: false
+///         isMockAnActor: false,
+///         mockMethodName: "method"
 ///     )
 ///     public func method()
 /// }

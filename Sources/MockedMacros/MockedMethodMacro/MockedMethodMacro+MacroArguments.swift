@@ -18,10 +18,13 @@ extension MockedMethodMacro {
         // MARK: Properties
 
         /// The name of the mock.
-        let mockName: TokenSyntax
+        let mockName: String
 
         /// A Boolean value indicating whether the mock is an actor.
         let isMockAnActor: Bool
+
+        /// The name to use for the mock method.
+        let mockMethodName: String
 
         // MARK: Initializers
 
@@ -29,24 +32,32 @@ extension MockedMethodMacro {
         ///
         /// - Parameter node: The node representing the macro.
         init(node: AttributeSyntax) throws {
-            let arguments = node.arguments?.as(LabeledExprListSyntax.self)
+            guard
+                let arguments = node.arguments?.as(LabeledExprListSyntax.self),
+                arguments.count > .zero
+            else {
+                throw MacroError.noArguments
+            }
+
+            let argument: (Int) -> LabeledExprSyntax? = { index in
+                let argumentIndex = arguments.index(at: index)
+
+                return arguments.count > index ? arguments[argumentIndex] : nil
+            }
 
             guard
-                let mockName = arguments?
-                    .first?
+                let mockName = argument(0)?
                     .expression
                     .as(StringLiteralExprSyntax.self)?
-                    .segments
-                    .first?
-                    .as(StringSegmentSyntax.self)?
-                    .content
+                    .representedLiteralValue
             else {
                 throw MacroError.unableToParseMockNameArgument
             }
 
+            self.mockName = mockName
+
             guard
-                let isMockAnActorTokenKind = arguments?
-                    .last?
+                let isMockAnActorTokenKind = argument(1)?
                     .expression
                     .as(BooleanLiteralExprSyntax.self)?
                     .literal
@@ -55,8 +66,18 @@ extension MockedMethodMacro {
                 throw MacroError.unableToParseIsMockAnActorArgument
             }
 
-            self.mockName = mockName
             self.isMockAnActor = isMockAnActorTokenKind == .keyword(.true)
+
+            guard
+                let mockMethodName = argument(2)?
+                    .expression
+                    .as(StringLiteralExprSyntax.self)?
+                    .representedLiteralValue
+            else {
+                throw MacroError.unableToParseMockMethodName
+            }
+
+            self.mockMethodName = mockMethodName
         }
     }
 }

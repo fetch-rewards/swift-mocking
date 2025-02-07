@@ -1,34 +1,37 @@
 //
-//  MockedMethod_GenericMethod_ArrayTypeTests.swift
+//  MockedMethod_GenericMethod_TupleTypeTests.swift
 //  MockedMacrosTests
 //
-//  Created by Gray Campbell on 1/8/25.
+//  Created by Gray Campbell on 1/11/25.
 //
 
 #if canImport(MockedMacros)
 import Testing
 @testable import MockedMacros
 
-struct MockedMethod_GenericMethod_ArrayTypeTests {
+struct MockedMethod_GenericMethod_TupleTypeTests {
 
-    // MARK: Array Type Tests
+    // MARK: Tuple Type Tests
 
     @Test
-    func genericMethodWithArrayTypeAndUnconstrainedGenericParameter() {
+    func genericMethodWithTupleTypeAndUnconstrainedGenericParameters() {
         assertMockedMethod(
             """
-            func method<Value>(parameter: [Value]) -> [Value]
+            func method<Value1, Value2>(parameter: (Value1, Value2)) \
+            -> (Value1, Value2)
             """,
+            named: "method",
             generates: """
-            func method<Value>(parameter: [Value]) -> [Value] {
+            func method<Value1, Value2>(parameter: (Value1, Value2)) \
+            -> (Value1, Value2) {
                 guard
-                    let value = self.__method.invoke((parameter)) as? [Value]
+                    let value = self.__method.invoke((parameter)) as? (Value1, Value2)
                 else {
                     fatalError(
                         \"""
                         Unable to cast value returned by \\
                         self._method \\
-                        to expected return type [Value].
+                        to expected return type (Value1, Value2).
                         \"""
                     )
                 }
@@ -36,8 +39,8 @@ struct MockedMethod_GenericMethod_ArrayTypeTests {
             }
             
             private let __method = MockReturningMethodWithParameters<
-            \t([Any]),
-            \t[Any]
+            \t((Any, Any)),
+            \t(Any, Any)
             >.makeMethod(
                 exposedMethodDescription: MockImplementationDescription(
                     type: DependencyMock.self,
@@ -46,8 +49,8 @@ struct MockedMethod_GenericMethod_ArrayTypeTests {
             )
             
             var _method: MockReturningMethodWithParameters<
-            \t([Any]),
-            \t[Any]
+            \t((Any, Any)),
+            \t(Any, Any)
             > {
                 self.__method.method
             }
@@ -56,23 +59,26 @@ struct MockedMethod_GenericMethod_ArrayTypeTests {
     }
 
     @Test
-    func genericMethodWithArrayTypeAndConstrainedGenericParameter() {
+    func genericMethodWithTupleTypeAndConstrainedGenericParameters() {
         assertMockedMethod(
             """
-            func method<Value: Equatable>(parameter: [Value]) -> [Value] \
-            where Value: Sendable, Value: Comparable & Hashable
+            func method<Value1: Equatable, Value2: Hashable>\
+            (parameter: (Value1, Value2)) -> (Value1, Value2) \
+            where Value1: Sendable, Value2: Comparable
             """,
+            named: "method",
             generates: """
-            func method<Value: Equatable>(parameter: [Value]) -> [Value] \
-            where Value: Sendable, Value: Comparable & Hashable {
+            func method<Value1: Equatable, Value2: Hashable>\
+            (parameter: (Value1, Value2)) -> (Value1, Value2) \
+            where Value1: Sendable, Value2: Comparable {
                 guard
-                    let value = self.__method.invoke((parameter)) as? [Value]
+                    let value = self.__method.invoke((parameter)) as? (Value1, Value2)
                 else {
                     fatalError(
                         \"""
                         Unable to cast value returned by \\
                         self._method \\
-                        to expected return type [Value].
+                        to expected return type (Value1, Value2).
                         \"""
                     )
                 }
@@ -80,8 +86,8 @@ struct MockedMethod_GenericMethod_ArrayTypeTests {
             }
             
             private let __method = MockReturningMethodWithParameters<
-            \t([any (Equatable & Sendable & Comparable & Hashable)]),
-            \t[any (Equatable & Sendable & Comparable & Hashable)]
+            \t((any (Equatable & Sendable), any (Hashable & Comparable))),
+            \t(any (Equatable & Sendable), any (Hashable & Comparable))
             >.makeMethod(
                 exposedMethodDescription: MockImplementationDescription(
                     type: DependencyMock.self,
@@ -90,8 +96,8 @@ struct MockedMethod_GenericMethod_ArrayTypeTests {
             )
             
             var _method: MockReturningMethodWithParameters<
-            \t([any (Equatable & Sendable & Comparable & Hashable)]),
-            \t[any (Equatable & Sendable & Comparable & Hashable)]
+            \t((any (Equatable & Sendable), any (Hashable & Comparable))),
+            \t(any (Equatable & Sendable), any (Hashable & Comparable))
             > {
                 self.__method.method
             }

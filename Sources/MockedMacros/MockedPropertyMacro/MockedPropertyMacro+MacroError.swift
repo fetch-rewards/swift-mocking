@@ -19,7 +19,7 @@ extension MockedPropertyMacro {
         case canOnlyBeAppliedToPropertyDeclarations
 
         /// An error indicating that the `@MockedProperty` macro can only be
-        /// applied to a single-binding property declaration.
+        /// applied to single-binding property declarations.
         case canOnlyBeAppliedToSingleBindingPropertyDeclarations
 
         /// An error indicating that the `@MockedProperty` macro was not passed
@@ -38,10 +38,6 @@ extension MockedPropertyMacro {
         /// parse the provided `isMockAnActor` argument.
         case unableToParseIsMockAnActorArgument
 
-        /// An error indicating that the `@MockedProperty` macro was passed more
-        /// arguments than expected.
-        case tooManyArguments
-
         /// An error indicating that the `@MockedProperty` macro was unable to
         /// parse the property binding's name.
         case unableToParsePropertyBindingName
@@ -58,13 +54,11 @@ extension MockedPropertyMacro {
             case .noArguments:
                 "@MockedProperty was not passed any arguments."
             case .unableToParsePropertyTypeArgument:
-                "@MockedProperty was unable to parse `propertyType` argument."
+                "@MockedProperty was unable to parse the provided `propertyType` argument."
             case .unableToParseMockNameArgument:
-                "@MockedProperty was unable to parse `mockName` argument."
+                "@MockedProperty was unable to parse the provided `mockName` argument."
             case .unableToParseIsMockAnActorArgument:
-                "@MockedProperty was unable to parse `isMockAnActor` argument."
-            case .tooManyArguments:
-                "@MockedProperty was passed too many arguments."
+                "@MockedProperty was unable to parse the provided `isMockAnActor` argument."
             case .unableToParsePropertyBindingName:
                 "@MockedProperty was unable to parse the property binding's name."
             }

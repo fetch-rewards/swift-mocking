@@ -19,6 +19,7 @@ struct MockedMethod_GenericMethod_AttributedTypeTests {
             """
             func method<Value>(parameter: inout Value)
             """,
+            named: "method",
             generates: """
             func method<Value>(parameter: inout Value) {
                 self.__method.invoke((parameter))
@@ -44,6 +45,7 @@ struct MockedMethod_GenericMethod_AttributedTypeTests {
             func method<Value: Equatable>(parameter: inout Value) \
             where Value: Sendable, Value: Comparable & Hashable
             """,
+            named: "method",
             generates: """
             func method<Value: Equatable>(parameter: inout Value) \
             where Value: Sendable, Value: Comparable & Hashable {

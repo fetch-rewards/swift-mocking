@@ -62,13 +62,12 @@ extension MockedMethodMacro: PeerMacro {
         methodDeclaration: FunctionDeclSyntax,
         overrideDeclarationType: IdentifierTypeSyntax
     ) -> VariableDeclSyntax {
-        let methodName = methodDeclaration.name.trimmed
+        let name = macroArguments.mockMethodName
         let modifiers = self.overrideDeclarationModifiers(
             from: methodDeclaration.modifiers,
             with: AccessLevelSyntax.private,
             isMockAnActor: macroArguments.isMockAnActor
         )
-        let name = IdentifierPatternSyntax(identifier: "__\(methodName)")
         let typeReference: any ExprSyntaxProtocol
 
         if let genericArgumentClause = overrideDeclarationType.genericArgumentClause {
@@ -112,7 +111,9 @@ extension MockedMethodMacro: PeerMacro {
                                     colon: .colonToken(),
                                     expression: MemberAccessExprSyntax(
                                         base: DeclReferenceExprSyntax(
-                                            baseName: macroArguments.mockName
+                                            baseName: .identifier(
+                                                macroArguments.mockName
+                                            )
                                         ),
                                         period: .periodToken(),
                                         name: .keyword(.self)
@@ -125,7 +126,7 @@ extension MockedMethodMacro: PeerMacro {
                                     colon: .colonToken(),
                                     expression: StringLiteralExprSyntax(
                                         openingQuote: .stringQuoteToken(),
-                                        content: "_\(methodName)",
+                                        content: "_\(name)",
                                         closingQuote: .stringQuoteToken()
                                     ),
                                     trailingTrivia: .newline
@@ -141,7 +142,9 @@ extension MockedMethodMacro: PeerMacro {
         return VariableDeclSyntax(
             modifiers: modifiers,
             .let,
-            name: PatternSyntax(name),
+            name: PatternSyntax(
+                IdentifierPatternSyntax(identifier: "__\(raw: name)")
+            ),
             initializer: initializer
         )
     }
@@ -162,19 +165,19 @@ extension MockedMethodMacro: PeerMacro {
         methodDeclaration: FunctionDeclSyntax,
         overrideDeclarationType: IdentifierTypeSyntax
     ) -> VariableDeclSyntax {
-        let methodName = methodDeclaration.name.trimmed
+        let name = macroArguments.mockMethodName
         let modifiers = self.overrideDeclarationModifiers(
             from: methodDeclaration.modifiers,
             with: methodDeclaration.accessLevel,
             isMockAnActor: macroArguments.isMockAnActor
         )
         let binding = PatternBindingSyntax(
-            pattern: IdentifierPatternSyntax(identifier: "_\(methodName)"),
+            pattern: IdentifierPatternSyntax(identifier: "_\(raw: name)"),
             typeAnnotation: TypeAnnotationSyntax(type: overrideDeclarationType),
             accessorBlock: AccessorBlockSyntax(
                 accessors: .getter(
                     CodeBlockItemListSyntax {
-                        "self.__\(methodName).method"
+                        "self.__\(raw: name).method"
                     }
                 )
             )

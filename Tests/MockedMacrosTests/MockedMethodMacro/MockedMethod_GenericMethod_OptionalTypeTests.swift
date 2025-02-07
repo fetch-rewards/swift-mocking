@@ -1,36 +1,35 @@
 //
-//  MockedMethod_GenericMethod_TupleTypeTests.swift
+//  MockedMethod_GenericMethod_OptionalTypeTests.swift
 //  MockedMacrosTests
 //
-//  Created by Gray Campbell on 1/11/25.
+//  Created by Gray Campbell on 1/12/25.
 //
 
 #if canImport(MockedMacros)
 import Testing
 @testable import MockedMacros
 
-struct MockedMethod_GenericMethod_TupleTypeTests {
+struct MockedMethod_GenericMethod_OptionalTypeTests {
 
-    // MARK: Tuple Type Tests
+    // MARK: Optional Type Tests
 
     @Test
-    func genericMethodWithTupleTypeAndUnconstrainedGenericParameters() {
+    func genericMethodWithOptionalTypeAndUnconstrainedGenericParameter() {
         assertMockedMethod(
             """
-            func method<Value1, Value2>(parameter: (Value1, Value2)) \
-            -> (Value1, Value2)
+            func method<Value>(parameter: Value?) -> Value?
             """,
+            named: "method",
             generates: """
-            func method<Value1, Value2>(parameter: (Value1, Value2)) \
-            -> (Value1, Value2) {
+            func method<Value>(parameter: Value?) -> Value? {
                 guard
-                    let value = self.__method.invoke((parameter)) as? (Value1, Value2)
+                    let value = self.__method.invoke((parameter)) as? Value?
                 else {
                     fatalError(
                         \"""
                         Unable to cast value returned by \\
                         self._method \\
-                        to expected return type (Value1, Value2).
+                        to expected return type Value?.
                         \"""
                     )
                 }
@@ -38,8 +37,8 @@ struct MockedMethod_GenericMethod_TupleTypeTests {
             }
             
             private let __method = MockReturningMethodWithParameters<
-            \t((Any, Any)),
-            \t(Any, Any)
+            \t((Any)?),
+            \t(Any)?
             >.makeMethod(
                 exposedMethodDescription: MockImplementationDescription(
                     type: DependencyMock.self,
@@ -48,8 +47,8 @@ struct MockedMethod_GenericMethod_TupleTypeTests {
             )
             
             var _method: MockReturningMethodWithParameters<
-            \t((Any, Any)),
-            \t(Any, Any)
+            \t((Any)?),
+            \t(Any)?
             > {
                 self.__method.method
             }
@@ -58,25 +57,24 @@ struct MockedMethod_GenericMethod_TupleTypeTests {
     }
 
     @Test
-    func genericMethodWithTupleTypeAndConstrainedGenericParameters() {
+    func genericMethodWithOptionalTypeAndConstrainedGenericParameter() {
         assertMockedMethod(
             """
-            func method<Value1: Equatable, Value2: Hashable>\
-            (parameter: (Value1, Value2)) -> (Value1, Value2) \
-            where Value1: Sendable, Value2: Comparable
+            func method<Value: Equatable>(parameter: Value?) -> Value? \
+            where Value: Sendable, Value: Comparable & Hashable
             """,
+            named: "method",
             generates: """
-            func method<Value1: Equatable, Value2: Hashable>\
-            (parameter: (Value1, Value2)) -> (Value1, Value2) \
-            where Value1: Sendable, Value2: Comparable {
+            func method<Value: Equatable>(parameter: Value?) -> Value? \
+            where Value: Sendable, Value: Comparable & Hashable {
                 guard
-                    let value = self.__method.invoke((parameter)) as? (Value1, Value2)
+                    let value = self.__method.invoke((parameter)) as? Value?
                 else {
                     fatalError(
                         \"""
                         Unable to cast value returned by \\
                         self._method \\
-                        to expected return type (Value1, Value2).
+                        to expected return type Value?.
                         \"""
                     )
                 }
@@ -84,8 +82,8 @@ struct MockedMethod_GenericMethod_TupleTypeTests {
             }
             
             private let __method = MockReturningMethodWithParameters<
-            \t((any (Equatable & Sendable), any (Hashable & Comparable))),
-            \t(any (Equatable & Sendable), any (Hashable & Comparable))
+            \t((any (Equatable & Sendable & Comparable & Hashable))?),
+            \t(any (Equatable & Sendable & Comparable & Hashable))?
             >.makeMethod(
                 exposedMethodDescription: MockImplementationDescription(
                     type: DependencyMock.self,
@@ -94,8 +92,8 @@ struct MockedMethod_GenericMethod_TupleTypeTests {
             )
             
             var _method: MockReturningMethodWithParameters<
-            \t((any (Equatable & Sendable), any (Hashable & Comparable))),
-            \t(any (Equatable & Sendable), any (Hashable & Comparable))
+            \t((any (Equatable & Sendable & Comparable & Hashable))?),
+            \t(any (Equatable & Sendable & Comparable & Hashable))?
             > {
                 self.__method.method
             }

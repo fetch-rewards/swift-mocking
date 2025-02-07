@@ -1,5 +1,5 @@
 //
-//  MockedMethod_GenericMethod_FunctionTypeTests.swift
+//  MockedMethod_GenericMethod_DictionaryTypeTests.swift
 //  MockedMacrosTests
 //
 //  Created by Gray Campbell on 1/11/25.
@@ -9,28 +9,27 @@
 import Testing
 @testable import MockedMacros
 
-struct MockedMethod_GenericMethod_FunctionTypeTests {
+struct Mocked_GenericMethod_DictionaryTypeTests {
 
-    // MARK: Function Type Tests
+    // MARK: Dictionary Type Tests
 
     @Test
-    func genericMethodWithFunctionTypeAndUnconstrainedGenericParameters() {
+    func genericMethodWithDictionaryTypeAndUnconstrainedGenericParameters() {
         assertMockedMethod(
             """
-            func method<Value>(parameter: @escaping (String) -> Value) \
-            -> (String) -> Value
+            func method<Key, Value>(parameter: [Key: Value]) -> [Key: Value]
             """,
+            named: "method",
             generates: """
-            func method<Value>(parameter: @escaping (String) -> Value) \
-            -> (String) -> Value {
+            func method<Key, Value>(parameter: [Key: Value]) -> [Key: Value] {
                 guard
-                    let value = self.__method.invoke((parameter)) as? (String) -> Value
+                    let value = self.__method.invoke((parameter)) as? [Key: Value]
                 else {
                     fatalError(
                         \"""
                         Unable to cast value returned by \\
                         self._method \\
-                        to expected return type (String) -> Value.
+                        to expected return type [Key: Value].
                         \"""
                     )
                 }
@@ -38,8 +37,8 @@ struct MockedMethod_GenericMethod_FunctionTypeTests {
             }
             
             private let __method = MockReturningMethodWithParameters<
-            \t((String) -> Any),
-            \t(String) -> Any
+            \t([AnyHashable: Any]),
+            \t[AnyHashable: Any]
             >.makeMethod(
                 exposedMethodDescription: MockImplementationDescription(
                     type: DependencyMock.self,
@@ -48,8 +47,8 @@ struct MockedMethod_GenericMethod_FunctionTypeTests {
             )
             
             var _method: MockReturningMethodWithParameters<
-            \t((String) -> Any),
-            \t(String) -> Any
+            \t([AnyHashable: Any]),
+            \t[AnyHashable: Any]
             > {
                 self.__method.method
             }
@@ -58,23 +57,24 @@ struct MockedMethod_GenericMethod_FunctionTypeTests {
     }
 
     @Test
-    func genericMethodWithFunctionTypeAndConstrainedGenericParameters() {
+    func genericMethodWithDictionaryTypeAndConstrainedGenericParameters() {
         assertMockedMethod(
             """
-            func method<Value: Sendable>(parameter: @escaping (String) -> Value) \
-            -> (String) -> Value where Value: Equatable
+            func method<Key: Hashable, Value: Equatable>(parameter: [Key: Value]) \
+            -> [Key: Value] where Key: Sendable, Value: Comparable & Hashable
             """,
+            named: "method",
             generates: """
-            func method<Value: Sendable>(parameter: @escaping (String) -> Value) \
-            -> (String) -> Value where Value: Equatable {
+            func method<Key: Hashable, Value: Equatable>(parameter: [Key: Value]) \
+            -> [Key: Value] where Key: Sendable, Value: Comparable & Hashable {
                 guard
-                    let value = self.__method.invoke((parameter)) as? (String) -> Value
+                    let value = self.__method.invoke((parameter)) as? [Key: Value]
                 else {
                     fatalError(
                         \"""
                         Unable to cast value returned by \\
                         self._method \\
-                        to expected return type (String) -> Value.
+                        to expected return type [Key: Value].
                         \"""
                     )
                 }
@@ -82,8 +82,8 @@ struct MockedMethod_GenericMethod_FunctionTypeTests {
             }
             
             private let __method = MockReturningMethodWithParameters<
-            \t((String) -> any (Sendable & Equatable)),
-            \t(String) -> any (Sendable & Equatable)
+            \t([AnyHashable: any (Equatable & Comparable & Hashable)]),
+            \t[AnyHashable: any (Equatable & Comparable & Hashable)]
             >.makeMethod(
                 exposedMethodDescription: MockImplementationDescription(
                     type: DependencyMock.self,
@@ -92,8 +92,8 @@ struct MockedMethod_GenericMethod_FunctionTypeTests {
             )
             
             var _method: MockReturningMethodWithParameters<
-            \t((String) -> any (Sendable & Equatable)),
-            \t(String) -> any (Sendable & Equatable)
+            \t([AnyHashable: any (Equatable & Comparable & Hashable)]),
+            \t[AnyHashable: any (Equatable & Comparable & Hashable)]
             > {
                 self.__method.method
             }
