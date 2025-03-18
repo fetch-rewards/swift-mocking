@@ -8,7 +8,8 @@
 import Foundation
 import Locked
 
-/// The implementation details and invocation records for a property's getter.
+/// A mock property getter that contains implementation details and invocation
+/// records for a property getter.
 public final class MockPropertyGetter<Value> {
 
     // MARK: Properties
@@ -39,7 +40,8 @@ public final class MockPropertyGetter<Value> {
 
     // MARK: Initializers
 
-    /// Creates a property getter.
+    /// Creates a mock property getter that contains implementation details and
+    /// invocation records for a property getter.
     ///
     /// - Parameter exposedPropertyDescription: The description of the mock's
     ///   exposed property.
@@ -49,17 +51,17 @@ public final class MockPropertyGetter<Value> {
 
     // MARK: Get
 
-    /// Records the invocation of the getter and invokes ``implementation``.
+    /// Records the invocation of the getter and invokes
+    /// ``implementation-swift.property``.
     ///
-    /// - Returns: A value, if ``implementation`` is
-    ///   ``Implementation-swift.enum/uncheckedReturns(_:)-swift.enum.case`` or
-    ///   ``Implementation-swift.enum/uncheckedReturns(_:)-swift.type.method``.
+    /// - Returns: A value, if ``implementation-swift.property`` returns a
+    ///   value.
     func get() -> Value {
         self.callCount += 1
 
-        let value = self.implementation(
-            description: self.exposedPropertyDescription
-        )
+        guard let value = self.implementation() else {
+            fatalError("Unimplemented: \(self.exposedPropertyDescription)")
+        }
 
         self.returnedValues.append(value)
 
@@ -78,5 +80,4 @@ public final class MockPropertyGetter<Value> {
 
 // MARK: - Sendable
 
-extension MockPropertyGetter: Sendable
-    where Value: Sendable {}
+extension MockPropertyGetter: Sendable where Value: Sendable {}

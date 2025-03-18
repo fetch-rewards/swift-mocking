@@ -8,8 +8,8 @@
 import Foundation
 import Locked
 
-/// The implementation details and invocation records for a mock's read-only,
-/// throwing property.
+/// A mock property that contains implementation details and invocation records
+/// for a read-only, throwing property.
 public final class MockReadOnlyThrowingProperty<Value> {
 
     // MARK: Properties
@@ -20,7 +20,8 @@ public final class MockReadOnlyThrowingProperty<Value> {
 
     // MARK: Initializers
 
-    /// Creates a read-only, throwing property.
+    /// Creates a mock property that contains implementation details and
+    /// invocation records for a read-only, throwing property.
     ///
     /// - Parameter exposedPropertyDescription: The description of the mock's
     ///   exposed property.
@@ -32,9 +33,9 @@ public final class MockReadOnlyThrowingProperty<Value> {
 
     // MARK: Factories
 
-    /// Creates a property, a throwing closure for invoking the property's
-    /// getter, and a closure for resetting the property's getter, returning
-    /// them in a labeled tuple.
+    /// Creates a mock property, a throwing closure for invoking the mock
+    /// property's getter, and a closure for resetting the mock property's
+    /// getter, returning them in a labeled tuple.
     ///
     /// ```swift
     /// private let __user = MockReadOnlyThrowingProperty<User>.makeProperty(
@@ -57,9 +58,9 @@ public final class MockReadOnlyThrowingProperty<Value> {
     ///
     /// - Parameter exposedPropertyDescription: The description of the mock's
     ///   exposed property.
-    /// - Returns: A tuple containing a property, a throwing closure for
-    ///   invoking the property's getter, and a closure for resetting the
-    ///   property's getter.
+    /// - Returns: A tuple containing a mock property, a throwing closure for
+    ///   invoking the mock property's getter, and a closure for resetting the
+    ///   mock property's getter.
     public static func makeProperty(
         exposedPropertyDescription: MockImplementationDescription
     ) -> (
@@ -73,8 +74,8 @@ public final class MockReadOnlyThrowingProperty<Value> {
 
         return (
             property: property,
-            get: { try property.getter.get() },
-            reset: { property.reset() }
+            get: property.getter.get,
+            reset: property.reset
         )
     }
 
@@ -88,15 +89,13 @@ public final class MockReadOnlyThrowingProperty<Value> {
 
 // MARK: - Sendable
 
-extension MockReadOnlyThrowingProperty: Sendable
-    where Value: Sendable
-{
+extension MockReadOnlyThrowingProperty: Sendable where Value: Sendable {
 
     // MARK: Factories
 
-    /// Creates a property, a throwing closure for invoking the property's
-    /// getter, and a closure for resetting the property's getter, returning
-    /// them in a labeled tuple.
+    /// Creates a mock property, a throwing closure for invoking the mock
+    /// property's getter, and a closure for resetting the mock property's
+    /// getter, returning them in a labeled tuple.
     ///
     /// ```swift
     /// private let __user = MockReadOnlyThrowingProperty<User>.makeProperty(
@@ -119,9 +118,9 @@ extension MockReadOnlyThrowingProperty: Sendable
     ///
     /// - Parameter exposedPropertyDescription: The description of the mock's
     ///   exposed property.
-    /// - Returns: A tuple containing a property, a throwing closure for
-    ///   invoking the property's getter, and a closure for resetting the
-    ///   property's getter.
+    /// - Returns: A tuple containing a mock property, a throwing closure for
+    ///   invoking the mock property's getter, and a closure for resetting the
+    ///   mock property's getter.
     public static func makeProperty(
         exposedPropertyDescription: MockImplementationDescription
     ) -> (
@@ -135,8 +134,8 @@ extension MockReadOnlyThrowingProperty: Sendable
 
         return (
             property: property,
-            get: { try property.getter.get() },
-            reset: { property.reset() }
+            get: property.getter.get,
+            reset: property.reset
         )
     }
 }

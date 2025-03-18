@@ -213,11 +213,7 @@ extension MockMethodNameComponents {
     private static func capitalizedDescription(
         of token: TokenSyntax
     ) -> String {
-        let value = token.trimmedDescription
-        let firstCharacter = value.prefix(1).capitalized
-        let remainingCharacters = value.dropFirst()
-
-        return String(firstCharacter) + String(remainingCharacters)
+        token.trimmedDescription.withFirstCharacterCapitalized()
     }
 
     /// Returns a capitalized description of the provided `type`.

@@ -6,69 +6,61 @@
 //
 
 import Foundation
-import XCTestDynamicOverlay
 
 extension MockPropertyAsyncGetter {
 
-    /// An implementation for a mock's async property getter.
+    /// An implementation for an async mock property getter.
     public enum Implementation: @unchecked Sendable {
 
         // MARK: Cases
 
-        /// Triggers a test failure when invoked.
+        /// Triggers a fatal error when invoked.
         case unimplemented
 
-        /// Returns a value when invoked.
-        case uncheckedReturns(() async -> Value)
+        /// Invokes the provided closure when invoked.
+        ///
+        /// - Parameter closure: The closure to invoke.
+        case uncheckedInvokes(_ closure: () async -> Value)
 
         // MARK: Constructors
 
-        /// Returns a value when invoked.
+        /// Returns the provided value when invoked.
+        ///
+        /// - Parameter value: The value to return.
         public static func uncheckedReturns(_ value: Value) -> Self {
-            .uncheckedReturns { value }
+            .uncheckedInvokes { value }
+        }
+
+        /// Invokes the provided closure when invoked.
+        ///
+        /// - Parameter closure: The closure to invoke.
+        public static func invokes(
+            _ closure: @Sendable @escaping () async -> Value
+        ) -> Self where Value: Sendable {
+            .uncheckedInvokes(closure)
+        }
+
+        /// Returns the provided value when invoked.
+        ///
+        /// - Parameter value: The value to return.
+        public static func returns(
+            _ value: Value
+        ) -> Self where Value: Sendable {
+            .invokes { value }
         }
 
         // MARK: Call As Function
 
-        /// Invokes the implementation, triggering a test failure if the
-        /// implementation is ``unimplemented`` or returning a value if the
-        /// implementation is ``uncheckedReturns(_:)-swift.enum.case`` or
-        /// ``uncheckedReturns(_:)-swift.type.method``.
+        /// Invokes the implementation.
         ///
-        /// - Parameter description: The implementation's description.
-        /// - Returns: A value, if the implementation is
-        ///   ``uncheckedReturns(_:)-swift.enum.case`` or
-        ///   ``uncheckedReturns(_:)-swift.type.method``.
-        func callAsFunction(
-            description: MockImplementationDescription
-        ) async -> Value {
+        /// - Returns: A value, if the implementation returns a value.
+        func callAsFunction() async -> Value? {
             switch self {
             case .unimplemented:
-                XCTestDynamicOverlay.unimplemented("\(description)")
-            case let .uncheckedReturns(value):
-                await value()
+                nil
+            case let .uncheckedInvokes(closure):
+                await closure()
             }
         }
-    }
-}
-
-// MARK: - Sendable
-
-extension MockPropertyAsyncGetter.Implementation
-    where Value: Sendable
-{
-
-    // MARK: Constructors
-
-    /// Returns a value when invoked.
-    public static func returns(
-        _ value: @Sendable @escaping () async -> Value
-    ) -> Self {
-        .uncheckedReturns(value)
-    }
-
-    /// Returns a value when invoked.
-    public static func returns(_ value: Value) -> Self {
-        .uncheckedReturns { value }
     }
 }

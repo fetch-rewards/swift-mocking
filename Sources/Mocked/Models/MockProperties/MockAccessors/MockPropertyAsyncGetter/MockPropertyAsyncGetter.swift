@@ -8,8 +8,8 @@
 import Foundation
 import Locked
 
-/// The implementation details and invocation records for a property's async
-/// getter.
+/// A mock property getter that contains implementation details and invocation
+/// records for an async property getter.
 public final class MockPropertyAsyncGetter<Value> {
 
     // MARK: Properties
@@ -40,7 +40,8 @@ public final class MockPropertyAsyncGetter<Value> {
 
     // MARK: Initializers
 
-    /// Creates an async property getter.
+    /// Creates a mock property getter that contains implementation details and
+    /// invocation records for an async property getter.
     ///
     /// - Parameter exposedPropertyDescription: The description of the mock's
     ///   exposed property.
@@ -50,17 +51,17 @@ public final class MockPropertyAsyncGetter<Value> {
 
     // MARK: Get
 
-    /// Records the invocation of the getter and invokes ``implementation``.
+    /// Records the invocation of the getter and invokes
+    /// ``implementation-swift.property``.
     ///
-    /// - Returns: A value, if ``implementation`` is
-    ///   ``Implementation-swift.enum/uncheckedReturns(_:)-swift.enum.case`` or
-    ///   ``Implementation-swift.enum/uncheckedReturns(_:)-swift.type.method``.
+    /// - Returns: A value, if ``implementation-swift.property`` returns a
+    ///   value.
     func get() async -> Value {
         self.callCount += 1
 
-        let value = await self.implementation(
-            description: self.exposedPropertyDescription
-        )
+        guard let value = await self.implementation() else {
+            fatalError("Unimplemented: \(self.exposedPropertyDescription)")
+        }
 
         self.returnedValues.append(value)
 
@@ -79,5 +80,4 @@ public final class MockPropertyAsyncGetter<Value> {
 
 // MARK: - Sendable
 
-extension MockPropertyAsyncGetter: Sendable
-    where Value: Sendable {}
+extension MockPropertyAsyncGetter: Sendable where Value: Sendable {}

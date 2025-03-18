@@ -6,11 +6,10 @@
 //
 
 import Foundation
-import XCTestDynamicOverlay
 
 extension MockPropertySetter {
 
-    /// An implementation for a mock's property setter.
+    /// An implementation for a mock property setter.
     public enum Implementation: @unchecked Sendable {
 
         // MARK: Cases
@@ -18,18 +17,29 @@ extension MockPropertySetter {
         /// Does nothing when invoked.
         case unimplemented
 
-        /// Invokes a closure when invoked.
-        case uncheckedInvokes((Value) -> Void)
+        /// Invokes the provided closure when invoked.
+        ///
+        /// - Parameter closure: The closure to invoke.
+        case uncheckedInvokes(_ closure: (Value) -> Void)
+
+        // MARK: Constructors
+
+        /// Invokes the provided closure when invoked.
+        ///
+        /// - Parameter closure: The closure to invoke.
+        public static func invokes(
+            _ closure: @Sendable @escaping (Value) -> Void
+        ) -> Self where Value: Sendable {
+            .uncheckedInvokes(closure)
+        }
 
         // MARK: Call As Function
 
-        /// Invokes the implementation, doing nothing if the implementation is
-        /// ``unimplemented`` or invoking a closure if the implementation is
-        /// ``uncheckedInvokes(_:)``.
+        /// Invokes the implementation.
         ///
         /// - Parameter value: The value with which to invoke the
         ///   implementation.
-        func callAsFunction(value: Value) {
+        func callAsFunction(_ value: Value) {
             switch self {
             case .unimplemented:
                 return
@@ -37,21 +47,5 @@ extension MockPropertySetter {
                 closure(value)
             }
         }
-    }
-}
-
-// MARK: - Sendable
-
-extension MockPropertySetter.Implementation
-    where Value: Sendable
-{
-
-    // MARK: Constructors
-
-    /// Invokes a closure when invoked.
-    public static func invokes(
-        _ closure: @Sendable @escaping (Value) -> Void
-    ) -> Self {
-        .uncheckedInvokes(closure)
     }
 }

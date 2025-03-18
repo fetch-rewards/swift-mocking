@@ -17,11 +17,15 @@ public import Mocked
 ///   `main.swift`.
 @Mocked
 public protocol GenericMethodsWithAttributedTypes {
-    func genericMethodWithAttributedTypeAndUnconstrainedGenericParameter<Value>(
-        parameter: inout Value
+    func genericMethodWithAttributedTypesAndUnconstrainedGenericParameter<Value>(
+        inoutParameter: inout Value,
+        consumingParameter: consuming Value
     )
 
-    func genericMethodWithAttributedTypeAndConstrainedGenericParameter<Value: Equatable>(
-        parameter: inout Value
+    func genericMethodWithAttributedTypesAndConstrainedGenericParameter<
+        Value: Equatable
+    >(
+        inoutParameter: inout Value,
+        consumingParameter: consuming Value
     ) where Value: Sendable, Value: Comparable & Hashable
 }

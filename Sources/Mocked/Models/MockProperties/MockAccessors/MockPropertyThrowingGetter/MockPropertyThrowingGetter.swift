@@ -8,8 +8,8 @@
 import Foundation
 import Locked
 
-/// The implementation details and invocation records for a property's throwing
-/// getter.
+/// A mock property getter that contains implementation details and invocation
+/// records for a throwing property getter.
 public final class MockPropertyThrowingGetter<Value> {
 
     // MARK: Properties
@@ -40,7 +40,8 @@ public final class MockPropertyThrowingGetter<Value> {
 
     // MARK: Initializers
 
-    /// Creates a throwing property getter.
+    /// Creates a mock property getter that contains implementation details and
+    /// invocation records for a throwing property getter.
     ///
     /// - Parameter exposedPropertyDescription: The description of the mock's
     ///   exposed property.
@@ -50,21 +51,22 @@ public final class MockPropertyThrowingGetter<Value> {
 
     // MARK: Get
 
-    /// Records the invocation of the getter and invokes ``implementation``.
+    /// Records the invocation of the getter and invokes
+    /// ``implementation-swift.property``.
     ///
-    /// - Throws: An error, if ``implementation`` is
-    ///   ``Implementation-swift.enum/throws(_:)-swift.enum.case`` or
-    ///   ``Implementation-swift.enum/throws(_:)-swift.type.method``.
-    /// - Returns: A value, if ``implementation`` is
-    ///   ``Implementation-swift.enum/returns(_:)-swift.enum.case`` or
-    ///   ``Implementation-swift.enum/returns(_:)-swift.type.method``.
+    /// - Throws: An error, if ``implementation-swift.property`` throws an
+    ///   error.
+    /// - Returns: A value, if ``implementation-swift.property`` returns a
+    ///   value.
     func get() throws -> Value {
         self.callCount += 1
 
         let value = Result {
-            try self.implementation(
-                description: self.exposedPropertyDescription
-            )
+            guard let value = try self.implementation() else {
+                fatalError("Unimplemented: \(self.exposedPropertyDescription)")
+            }
+
+            return value
         }
 
         self.returnedValues.append(value)
@@ -84,5 +86,4 @@ public final class MockPropertyThrowingGetter<Value> {
 
 // MARK: - Sendable
 
-extension MockPropertyThrowingGetter: Sendable
-    where Value: Sendable {}
+extension MockPropertyThrowingGetter: Sendable where Value: Sendable {}

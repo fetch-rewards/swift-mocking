@@ -8,8 +8,8 @@
 import Foundation
 import Locked
 
-/// The implementation details and invocation records for a mock's read-write
-/// property.
+/// A mock property that contains implementation details and invocation records
+/// for a read-write property.
 public final class MockReadWriteProperty<Value> {
 
     // MARK: Properties
@@ -24,7 +24,8 @@ public final class MockReadWriteProperty<Value> {
 
     // MARK: Initializers
 
-    /// Creates a read-write property.
+    /// Creates a mock property that contains implementation details and
+    /// invocation records for a read-write property.
     ///
     /// - Parameter exposedPropertyDescription: The description of the mock's
     ///   exposed property.
@@ -36,9 +37,10 @@ public final class MockReadWriteProperty<Value> {
 
     // MARK: Factories
 
-    /// Creates a property, a closure for invoking the property's getter, a
-    /// closure for invoking the property's setter, and a closure for resetting
-    /// the property's getter and setter, returning them in a labeled tuple.
+    /// Creates a mock property, a closure for invoking the mock property's
+    /// getter, a closure for invoking the mock property's setter, and a closure
+    /// for resetting the mock property's getter and setter, returning them in a
+    /// labeled tuple.
     ///
     /// ```swift
     /// private let __user = MockReadWriteProperty<User>.makeProperty(
@@ -65,9 +67,10 @@ public final class MockReadWriteProperty<Value> {
     ///
     /// - Parameter exposedPropertyDescription: The description of the mock's
     ///   exposed property.
-    /// - Returns: A tuple containing a property, a closure for invoking the
-    ///   property's getter, a closure for invoking the property's setter, and a
-    ///   closure for resetting the property's getter and setter.
+    /// - Returns: A tuple containing a mock property, a closure for invoking
+    ///   the mock property's getter, a closure for invoking the mock property's
+    ///   setter, and a closure for resetting the mock property's getter and
+    ///   setter.
     public static func makeProperty(
         exposedPropertyDescription: MockImplementationDescription
     ) -> (
@@ -82,9 +85,9 @@ public final class MockReadWriteProperty<Value> {
 
         return (
             property: property,
-            get: { property.getter.get() },
-            set: { property.setter.set($0) },
-            reset: { property.reset() }
+            get: property.getter.get,
+            set: property.setter.set,
+            reset: property.reset
         )
     }
 
@@ -99,15 +102,14 @@ public final class MockReadWriteProperty<Value> {
 
 // MARK: - Sendable
 
-extension MockReadWriteProperty: Sendable
-    where Value: Sendable
-{
+extension MockReadWriteProperty: Sendable where Value: Sendable {
 
     // MARK: Factories
 
-    /// Creates a property, a closure for invoking the property's getter, a
-    /// closure for invoking the property's setter, and a closure for resetting
-    /// the property's getter and setter, returning them in a labeled tuple.
+    /// Creates a mock property, a closure for invoking the mock property's
+    /// getter, a closure for invoking the mock property's setter, and a closure
+    /// for resetting the mock property's getter and setter, returning them in a
+    /// labeled tuple.
     ///
     /// ```swift
     /// private let __user = MockReadWriteProperty<User>.makeProperty(
@@ -134,9 +136,10 @@ extension MockReadWriteProperty: Sendable
     ///
     /// - Parameter exposedPropertyDescription: The description of the mock's
     ///   exposed property.
-    /// - Returns: A tuple containing a property, a closure for invoking the
-    ///   property's getter, a closure for invoking the property's setter, and a
-    ///   closure for resetting the property's getter and setter.
+    /// - Returns: A tuple containing a mock property, a closure for invoking
+    ///   the mock property's getter, a closure for invoking the mock property's
+    ///   setter, and a closure for resetting the mock property's getter and
+    ///   setter.
     public static func makeProperty(
         exposedPropertyDescription: MockImplementationDescription
     ) -> (
@@ -151,9 +154,9 @@ extension MockReadWriteProperty: Sendable
 
         return (
             property: property,
-            get: { property.getter.get() },
-            set: { property.setter.set($0) },
-            reset: { property.reset() }
+            get: property.getter.get,
+            set: property.setter.set,
+            reset: property.reset
         )
     }
 }

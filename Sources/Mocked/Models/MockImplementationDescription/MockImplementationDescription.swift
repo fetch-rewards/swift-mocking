@@ -8,7 +8,7 @@
 import Foundation
 
 /// A mock implementation's description.
-public struct MockImplementationDescription: Sendable {
+public struct MockImplementationDescription: CustomDebugStringConvertible, Sendable {
 
     // MARK: Properties
 
@@ -17,6 +17,22 @@ public struct MockImplementationDescription: Sendable {
 
     /// The description of the mock's member.
     private let member: String
+
+    /// The description of the mock's implementation.
+    ///
+    /// ```swift
+    /// let implementationDescription = MockImplementationDescription(
+    ///     type: DependencyMock.self,
+    ///     member: "_user"
+    /// )
+    ///
+    /// print(implementationDescription.debugDescription) // "DependencyMock._user"
+    /// ```
+    ///
+    /// - Returns: The description of the mock's implementation.
+    public var debugDescription: String {
+        "\(self.type).\(self.member)"
+    }
 
     // MARK: Initializers
 
@@ -35,26 +51,5 @@ public struct MockImplementationDescription: Sendable {
     public init<Type>(type: Type.Type, member: String) {
         self.type = String(describing: type)
         self.member = member
-    }
-}
-
-// MARK: - CustomDebugStringConvertible
-
-extension MockImplementationDescription: CustomDebugStringConvertible {
-
-    /// The description of the mock's implementation.
-    ///
-    /// ```swift
-    /// let implementationDescription = MockImplementationDescription(
-    ///     type: DependencyMock.self,
-    ///     member: "_user"
-    /// )
-    ///
-    /// print(implementationDescription.debugDescription) // "DependencyMock._user"
-    /// ```
-    ///
-    /// - Returns: The description of the mock's implementation.
-    public var debugDescription: String {
-        "\(self.type).\(self.member)"
     }
 }

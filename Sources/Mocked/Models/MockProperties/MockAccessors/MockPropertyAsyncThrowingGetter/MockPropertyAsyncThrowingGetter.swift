@@ -8,8 +8,8 @@
 import Foundation
 import Locked
 
-/// The implementation details and invocation records for a property's async,
-/// throwing getter.
+/// A mock property getter that contains implementation details and invocation
+/// records for an async, throwing property getter.
 public final class MockPropertyAsyncThrowingGetter<Value> {
 
     // MARK: Properties
@@ -40,7 +40,8 @@ public final class MockPropertyAsyncThrowingGetter<Value> {
 
     // MARK: Initializers
 
-    /// Creates an async throwing property getter.
+    /// Creates a mock property getter that contains implementation details and
+    /// invocation records for an async, throwing property getter.
     ///
     /// - Parameter exposedPropertyDescription: The description of the mock's
     ///   exposed property.
@@ -50,21 +51,22 @@ public final class MockPropertyAsyncThrowingGetter<Value> {
 
     // MARK: Get
 
-    /// Records the invocation of the getter and invokes ``implementation``.
+    /// Records the invocation of the getter and invokes
+    /// ``implementation-swift.property``.
     ///
-    /// - Throws: An error, if ``implementation`` is
-    ///   ``Implementation-swift.enum/uncheckedThrows(_:)-swift.enum.case`` or
-    ///   ``Implementation-swift.enum/uncheckedThrows(_:)-swift.type.method``.
-    /// - Returns: A value, if ``implementation`` is
-    ///   ``Implementation-swift.enum/uncheckedReturns(_:)-swift.enum.case`` or
-    ///   ``Implementation-swift.enum/uncheckedReturns(_:)-swift.type.method``.
+    /// - Throws: An error, if ``implementation-swift.property`` throws an
+    ///   error.
+    /// - Returns: A value, if ``implementation-swift.property`` returns a
+    ///   value.
     func get() async throws -> Value {
         self.callCount += 1
 
         let value = await Result {
-            try await self.implementation(
-                description: self.exposedPropertyDescription
-            )
+            guard let value = try await self.implementation() else {
+                fatalError("Unimplemented: \(self.exposedPropertyDescription)")
+            }
+
+            return value
         }
 
         self.returnedValues.append(value)
@@ -84,5 +86,4 @@ public final class MockPropertyAsyncThrowingGetter<Value> {
 
 // MARK: - Sendable
 
-extension MockPropertyAsyncThrowingGetter: Sendable
-    where Value: Sendable {}
+extension MockPropertyAsyncThrowingGetter: Sendable where Value: Sendable {}

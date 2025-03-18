@@ -8,7 +8,8 @@
 import Foundation
 import Locked
 
-/// The implementation details and invocation records for a property's setter.
+/// A mock property setter that contains implementation details and invocation
+/// records for a property setter.
 public final class MockPropertySetter<Value> {
 
     // MARK: Properties
@@ -32,13 +33,14 @@ public final class MockPropertySetter<Value> {
 
     // MARK: Set
 
-    /// Records the invocation of the method and invokes ``implementation``.
+    /// Records the invocation of the method and invokes
+    /// ``implementation-swift.property``.
     ///
     /// - Parameter value: The value with which the setter is being invoked.
     func set(_ value: Value) {
         self.callCount += 1
         self.invocations.append(value)
-        self.implementation(value: value)
+        self.implementation(value)
     }
 
     // MARK: Reset
@@ -53,5 +55,4 @@ public final class MockPropertySetter<Value> {
 
 // MARK: - Sendable
 
-extension MockPropertySetter: Sendable
-    where Value: Sendable {}
+extension MockPropertySetter: Sendable where Value: Sendable {}
