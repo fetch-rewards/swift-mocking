@@ -54,7 +54,7 @@ extension MockReturningNonParameterizedAsyncThrowingMethod {
         public static func returns(
             _ value: ReturnValue
         ) -> Self where ReturnValue: Sendable {
-            .uncheckedReturns(value)
+            .uncheckedInvokes { value }
         }
 
         // MARK: Call As Function

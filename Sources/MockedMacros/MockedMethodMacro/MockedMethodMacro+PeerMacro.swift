@@ -385,7 +385,6 @@ extension MockedMethodMacro: PeerMacro {
                     )
                 ) {
                     self.implementationFunctionCallExpression(
-                        memberAccessName: "uncheckedInvokes",
                         closureParameterCount: closureType.parameters.count
                     ) {
                         "throw error"
@@ -408,7 +407,6 @@ extension MockedMethodMacro: PeerMacro {
                     parameterType: IdentifierTypeSyntax(name: "ReturnValue")
                 ) {
                     self.implementationFunctionCallExpression(
-                        memberAccessName: "uncheckedInvokes",
                         closureParameterCount: closureType.parameters.count
                     ) {
                         "value"
@@ -438,7 +436,11 @@ extension MockedMethodMacro: PeerMacro {
                         )
                     }
                 ) {
-                    ".uncheckedReturns(value)"
+                    self.implementationFunctionCallExpression(
+                        closureParameterCount: closureType.parameters.count
+                    ) {
+                        "value"
+                    }
                 }
             }
 
@@ -529,21 +531,17 @@ extension MockedMethodMacro: PeerMacro {
     /// Returns a function call expression for an implementation.
     ///
     /// - Parameters:
-    ///   - memberAccessName: The member name to use in the member access
-    ///     expression that serves as the function call expression's
-    ///     `calledExpression`.
     ///   - closureParameterCount: The number of parameters to apply to the
     ///     function call expression's trailing closure.
     ///   - closureStatementsBuilder: The closure statements to apply to the
     ///     function call expression's trailing closure.
     /// - Returns: A function call expression for an implementation.
     private static func implementationFunctionCallExpression(
-        memberAccessName: TokenSyntax,
         closureParameterCount: Int,
         @CodeBlockItemListBuilder closureStatementsBuilder: () -> CodeBlockItemListSyntax
     ) -> FunctionCallExprSyntax {
         FunctionCallExprSyntax(
-            calledExpression: MemberAccessExprSyntax(name: memberAccessName),
+            calledExpression: MemberAccessExprSyntax(name: "uncheckedInvokes"),
             arguments: [],
             trailingClosure: ClosureExprSyntax(
                 signature: ClosureSignatureSyntax(
