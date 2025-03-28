@@ -22,23 +22,97 @@ struct MockedMethod_GenericMethod_OptionalTypeTests {
             named: "method",
             generates: """
             func method<Value>(parameter: Value?) -> Value? {
+                self.__method.recordInput(
+                    (
+                        parameter
+                    )
+                )
+                let _invoke = self.__method.closure()
+                let returnValue = _invoke(
+                    parameter
+                )
                 guard
-                    let value = self.__method.invoke((parameter)) as? Value?
+                \tlet returnValue = returnValue as? Value?
                 else {
                     fatalError(
-                        \"""
-                        Unable to cast value returned by \\
-                        self._method \\
-                        to expected return type Value?.
-                        \"""
+                    \t\"""
+                    \tUnable to cast value returned by \\
+                    \tself._method \\
+                    \tto expected return type \\
+                    \tValue?.
+                    \t\"""
                     )
                 }
-                return value
+                self.__method.recordOutput(
+                    returnValue
+                )
+                return returnValue
             }
             
-            private let __method = MockReturningMethodWithParameters<
-            \t((Any)?),
-            \t(Any)?
+            /// An implementation for `DependencyMock._method`.
+            enum MethodImplementation<
+            \tArguments,
+            \tReturnValue
+            >: @unchecked Sendable, MockReturningParameterizedMethodImplementation {
+
+                /// The implementation's closure type.
+                typealias Closure = ((Any)?) -> ReturnValue
+
+                /// Triggers a fatal error when invoked.
+                case unimplemented
+
+                /// Invokes the provided closure when invoked.
+                ///
+                /// - Parameter closure: The closure to invoke.
+                case uncheckedInvokes(_ closure: Closure)
+
+                /// Invokes the provided closure when invoked.
+                ///
+                /// - Parameter closure: The closure to invoke.
+                static func invokes(
+                \t_ closure: @Sendable @escaping ((Any)?) -> ReturnValue
+                ) -> Self where Arguments: Sendable, ReturnValue: Sendable {
+                    .uncheckedInvokes(closure)
+                }
+            
+                /// Returns the provided value when invoked.
+                ///
+                /// - Parameter value: The value to return.
+                static func uncheckedReturns(
+                \t_ value: ReturnValue
+                ) -> Self {
+                    .uncheckedInvokes { _ in
+                        value
+                    }
+                }
+
+                /// Returns the provided value when invoked.
+                ///
+                /// - Parameter value: The value to return.
+                static func returns(
+                \t_ value: ReturnValue
+                ) -> Self where ReturnValue: Sendable {
+                    .uncheckedInvokes { _ in
+                        value
+                    }
+                }
+            
+                /// The implementation as a closure, or `nil` if unimplemented.
+                var _closure: Closure? {
+                    switch self {
+                    case .unimplemented:
+                        nil
+                    case let .uncheckedInvokes(closure):
+                        closure
+                    }
+                }
+            }
+            
+            private let __method = MockReturningParameterizedMethod<
+            \tMethodImplementation<
+            \t\t((Any)?),
+            \t\t(Any)?
+            \t>
             >.makeMethod(
                 exposedMethodDescription: MockImplementationDescription(
                     type: DependencyMock.self,
@@ -46,9 +120,11 @@ struct MockedMethod_GenericMethod_OptionalTypeTests {
                 )
             )
             
-            var _method: MockReturningMethodWithParameters<
-            \t((Any)?),
-            \t(Any)?
+            var _method: MockReturningParameterizedMethod<
+            \tMethodImplementation<
+            \t\t((Any)?),
+            \t\t(Any)?
+            \t>
             > {
                 self.__method.method
             }
@@ -67,23 +143,99 @@ struct MockedMethod_GenericMethod_OptionalTypeTests {
             generates: """
             func method<Value: Equatable>(parameter: Value?) -> Value? \
             where Value: Sendable, Value: Comparable & Hashable {
+                self.__method.recordInput(
+                    (
+                        parameter
+                    )
+                )
+                let _invoke = self.__method.closure()
+                let returnValue = _invoke(
+                    parameter
+                )
                 guard
-                    let value = self.__method.invoke((parameter)) as? Value?
+                \tlet returnValue = returnValue as? Value?
                 else {
                     fatalError(
-                        \"""
-                        Unable to cast value returned by \\
-                        self._method \\
-                        to expected return type Value?.
-                        \"""
+                    \t\"""
+                    \tUnable to cast value returned by \\
+                    \tself._method \\
+                    \tto expected return type \\
+                    \tValue?.
+                    \t\"""
                     )
                 }
-                return value
+                self.__method.recordOutput(
+                    returnValue
+                )
+                return returnValue
             }
             
-            private let __method = MockReturningMethodWithParameters<
-            \t((any (Equatable & Sendable & Comparable & Hashable))?),
-            \t(any (Equatable & Sendable & Comparable & Hashable))?
+            /// An implementation for `DependencyMock._method`.
+            enum MethodImplementation<
+            \tArguments,
+            \tReturnValue
+            >: @unchecked Sendable, MockReturningParameterizedMethodImplementation {
+
+                /// The implementation's closure type.
+                typealias Closure = \
+            ((any (Equatable & Sendable & Comparable & Hashable))?) -> ReturnValue
+
+                /// Triggers a fatal error when invoked.
+                case unimplemented
+
+                /// Invokes the provided closure when invoked.
+                ///
+                /// - Parameter closure: The closure to invoke.
+                case uncheckedInvokes(_ closure: Closure)
+
+                /// Invokes the provided closure when invoked.
+                ///
+                /// - Parameter closure: The closure to invoke.
+                static func invokes(
+                \t_ closure: @Sendable @escaping \
+            ((any (Equatable & Sendable & Comparable & Hashable))?) -> ReturnValue
+                ) -> Self where Arguments: Sendable, ReturnValue: Sendable {
+                    .uncheckedInvokes(closure)
+                }
+            
+                /// Returns the provided value when invoked.
+                ///
+                /// - Parameter value: The value to return.
+                static func uncheckedReturns(
+                \t_ value: ReturnValue
+                ) -> Self {
+                    .uncheckedInvokes { _ in
+                        value
+                    }
+                }
+
+                /// Returns the provided value when invoked.
+                ///
+                /// - Parameter value: The value to return.
+                static func returns(
+                \t_ value: ReturnValue
+                ) -> Self where ReturnValue: Sendable {
+                    .uncheckedInvokes { _ in
+                        value
+                    }
+                }
+            
+                /// The implementation as a closure, or `nil` if unimplemented.
+                var _closure: Closure? {
+                    switch self {
+                    case .unimplemented:
+                        nil
+                    case let .uncheckedInvokes(closure):
+                        closure
+                    }
+                }
+            }
+            
+            private let __method = MockReturningParameterizedMethod<
+            \tMethodImplementation<
+            \t\t((any (Equatable & Sendable & Comparable & Hashable))?),
+            \t\t(any (Equatable & Sendable & Comparable & Hashable))?
+            \t>
             >.makeMethod(
                 exposedMethodDescription: MockImplementationDescription(
                     type: DependencyMock.self,
@@ -91,9 +243,11 @@ struct MockedMethod_GenericMethod_OptionalTypeTests {
                 )
             )
             
-            var _method: MockReturningMethodWithParameters<
-            \t((any (Equatable & Sendable & Comparable & Hashable))?),
-            \t(any (Equatable & Sendable & Comparable & Hashable))?
+            var _method: MockReturningParameterizedMethod<
+            \tMethodImplementation<
+            \t\t((any (Equatable & Sendable & Comparable & Hashable))?),
+            \t\t(any (Equatable & Sendable & Comparable & Hashable))?
+            \t>
             > {
                 self.__method.method
             }

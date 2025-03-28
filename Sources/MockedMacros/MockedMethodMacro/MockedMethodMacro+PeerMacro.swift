@@ -342,6 +342,16 @@ extension MockedMethodMacro: PeerMacro {
                     baseType: closureType
                 ),
                 genericWhereClause: GenericWhereClauseSyntax {
+                    GenericRequirementSyntax(
+                        requirement: .conformanceRequirement(
+                            ConformanceRequirementSyntax(
+                                leftType: IdentifierTypeSyntax(name: "Arguments"),
+                                rightType: IdentifierTypeSyntax(name: "Sendable")
+                            )
+                        ),
+                        trailingComma: returnValueType == nil ? nil : .commaToken()
+                    )
+
                     if returnValueType != nil {
                         GenericRequirementSyntax(
                             requirement: .conformanceRequirement(
@@ -349,19 +359,9 @@ extension MockedMethodMacro: PeerMacro {
                                     leftType: IdentifierTypeSyntax(name: "ReturnValue"),
                                     rightType: IdentifierTypeSyntax(name: "Sendable")
                                 )
-                            ),
-                            trailingComma: .commaToken()
-                        )
-                    }
-
-                    GenericRequirementSyntax(
-                        requirement: .conformanceRequirement(
-                            ConformanceRequirementSyntax(
-                                leftType: IdentifierTypeSyntax(name: "Arguments"),
-                                rightType: IdentifierTypeSyntax(name: "Sendable")
                             )
                         )
-                    )
+                    }
                 }
             ) {
                 ".uncheckedInvokes(closure)"
@@ -834,12 +834,12 @@ extension MockedMethodMacro: PeerMacro {
                                 trailingComma: returnValueType == nil
                                     ? nil
                                     : .commaToken(),
-                                trailingTrivia: .newline
+                                trailingTrivia: .newline.appending(.tab)
                             )
 
                             if let returnValueType {
                                 GenericArgumentSyntax(
-                                    leadingTrivia: .tab.appending(.tab),
+                                    leadingTrivia: .tab,
                                     argument: returnValueType,
                                     trailingTrivia: .newline.appending(.tab)
                                 )
