@@ -13,7 +13,7 @@ import Testing
 
 func assertMocked(
     _ interface: String,
-    compilerFlag: String? = nil,
+    compilationCondition: String? = nil,
     generates mock: String,
     diagnostics: [DiagnosticSpec] = [],
     applyFixIts: [String]? = nil,
@@ -25,8 +25,8 @@ func assertMocked(
 ) {
     var arguments: [String] = []
 
-    if let compilerFlag {
-        arguments.append("compilerFlag: \"\(compilerFlag)\"")
+    if let compilationCondition {
+        arguments.append("compilationCondition: \"\(compilationCondition)\"")
     }
 
     var macro = "@Mocked"

@@ -17,10 +17,10 @@
 /// public final class DependencyMock: Dependency { ... }
 /// ```
 ///
-/// - Parameter compilerFlag: The compiler flag with which to wrap the generated
-///   mock.
+/// - Parameter compilationCondition: The compilation condition with which to
+///   wrap the generated mock.
 @attached(peer, names: suffixed(Mock))
-public macro Mocked(compilerFlag: String? = nil) = #externalMacro(
+public macro Mocked(compilationCondition: String? = nil) = #externalMacro(
     module: "MockedMacros",
     type: "MockedMacro"
 )

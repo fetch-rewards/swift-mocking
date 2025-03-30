@@ -51,7 +51,7 @@ public struct MockedMacro: PeerMacro {
             )
         )
 
-        guard let compilerFlag = macroArguments.compilerFlag else {
+        guard let compilationCondition = macroArguments.compilationCondition else {
             return [mockDeclaration]
         }
 
@@ -60,7 +60,7 @@ public struct MockedMacro: PeerMacro {
                 IfConfigClauseSyntax(
                     poundKeyword: .poundIfToken(),
                     condition: DeclReferenceExprSyntax(
-                        baseName: .identifier(compilerFlag)
+                        baseName: .identifier(compilationCondition)
                     ),
                     elements: .statements(
                         CodeBlockItemListSyntax {
