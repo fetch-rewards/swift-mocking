@@ -20,30 +20,41 @@ extension MockedMembersMacro: MemberMacro {
         in context: some MacroExpansionContext
     ) throws -> [DeclSyntax] {
         let accessLevel: AccessLevelSyntax
+        let existingMembers: MemberBlockItemListSyntax
 
         if let classDeclaration = declaration.as(ClassDeclSyntax.self) {
             accessLevel = classDeclaration.accessLevel
+            existingMembers = classDeclaration.memberBlock.members
         } else if let actorDeclaration = declaration.as(ActorDeclSyntax.self) {
             accessLevel = actorDeclaration.accessLevel
+            existingMembers = actorDeclaration.memberBlock.members
         } else {
             throw MacroError.canOnlyBeAppliedToClassesAndActors
         }
 
-        let defaultInitializerDeclaration = self.defaultInitializerDeclaration(
-            with: accessLevel
-        )
+        let hasEmptyInitializer = existingMembers.contains { member in
+            let initializerDeclaration = member.decl.as(InitializerDeclSyntax.self)
+            let initializerSignature = initializerDeclaration?.signature
+            let initializerParameters = initializerSignature?.parameterClause.parameters
 
-        var members: [DeclSyntax] = [
-            DeclSyntax(defaultInitializerDeclaration),
-        ]
+            return initializerParameters?.isEmpty == true
+        }
+
+        var members: [DeclSyntax] = []
+
+        if !hasEmptyInitializer {
+            let defaultInitializerDeclaration = self.defaultInitializerDeclaration(
+                with: accessLevel
+            )
+
+            members.append(DeclSyntax(defaultInitializerDeclaration))
+        }
 
         if
             let resetMockedStaticMembersMethodDeclaration =
                 self.resetMockedStaticMembersMethodDeclaration(for: declaration)
         {
-            members.append(
-                DeclSyntax(resetMockedStaticMembersMethodDeclaration)
-            )
+            members.append(DeclSyntax(resetMockedStaticMembersMethodDeclaration))
         }
 
         return members
