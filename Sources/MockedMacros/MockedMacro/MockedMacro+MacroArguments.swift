@@ -17,8 +17,8 @@ extension MockedMacro {
 
         // MARK: Properties
 
-        /// The compiler flag with which to wrap the generated mock.
-        let compilerFlag: String?
+        /// The compilation condition with which to wrap the generated mock.
+        let compilationCondition: String?
 
         // MARK: Initializers
 
@@ -37,7 +37,7 @@ extension MockedMacro {
                 return arguments.count > index ? arguments[argumentIndex] : nil
             }
 
-            self.compilerFlag = argument(0)?
+            self.compilationCondition = argument(0)?
                 .expression
                 .as(StringLiteralExprSyntax.self)?
                 .representedLiteralValue
