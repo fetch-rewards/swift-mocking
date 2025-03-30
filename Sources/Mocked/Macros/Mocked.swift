@@ -16,8 +16,11 @@
 /// ```swift
 /// public final class DependencyMock: Dependency { ... }
 /// ```
+///
+/// - Parameter compilerFlag: The compiler flag with which to wrap the generated
+///   mock.
 @attached(peer, names: suffixed(Mock))
-public macro Mocked() = #externalMacro(
+public macro Mocked(compilerFlag: String? = nil) = #externalMacro(
     module: "MockedMacros",
     type: "MockedMacro"
 )
