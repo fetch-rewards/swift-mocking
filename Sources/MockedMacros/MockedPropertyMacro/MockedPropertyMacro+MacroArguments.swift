@@ -12,7 +12,7 @@ import SwiftSyntaxSugar
 
 extension MockedPropertyMacro {
 
-    /// Arguments provided to `@MockedProperty`.
+    /// Arguments provided to `@_MockedProperty`.
     struct MacroArguments {
 
         // MARK: Properties

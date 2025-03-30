@@ -14,23 +14,23 @@ extension MockedMethodMacro {
 
         // MARK: Cases
 
-        /// An error indicating that the `@MockedMethod` macro can only be
+        /// An error indicating that the `@_MockedMethod` macro can only be
         /// applied to method declarations.
         case canOnlyBeAppliedToMethodDeclarations
 
-        /// An error indicating that the `@MockedMethod` macro was not passed
+        /// An error indicating that the `@_MockedMethod` macro was not passed
         /// any arguments.
         case noArguments
 
-        /// An error indicating that the `@MockedMethod` macro was unable to
+        /// An error indicating that the `@_MockedMethod` macro was unable to
         /// parse the provided `mockName` argument.
         case unableToParseMockNameArgument
 
-        /// An error indicating that the `@MockedMethod` macro was unable to
+        /// An error indicating that the `@_MockedMethod` macro was unable to
         /// parse the provided `isMockAnActor` argument.
         case unableToParseIsMockAnActorArgument
 
-        /// An error indicating that the `@MockedMethod` macro was unable to
+        /// An error indicating that the `@_MockedMethod` macro was unable to
         /// parse the provided `mockMethodName` argument.
         case unableToParseMockMethodName
 
@@ -40,15 +40,15 @@ extension MockedMethodMacro {
         var description: String {
             switch self {
             case .canOnlyBeAppliedToMethodDeclarations:
-                "@MockedMethod can only be applied to method declarations."
+                "@_MockedMethod can only be applied to method declarations."
             case .noArguments:
-                "@MockedMethod was not passed any arguments."
+                "@_MockedMethod was not passed any arguments."
             case .unableToParseMockNameArgument:
-                "@MockedMethod was unable to parse the provided `mockName` argument."
+                "@_MockedMethod was unable to parse the provided `mockName` argument."
             case .unableToParseIsMockAnActorArgument:
-                "@MockedMethod was unable to parse the provided `isMockAnActor` argument."
+                "@_MockedMethod was unable to parse the provided `isMockAnActor` argument."
             case .unableToParseMockMethodName:
-                "@MockedMethod was unable to parse the provided `mockMethodName` argument."
+                "@_MockedMethod was unable to parse the provided `mockMethodName` argument."
             }
         }
     }

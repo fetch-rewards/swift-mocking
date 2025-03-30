@@ -23,32 +23,55 @@ public struct MockedMacro: PeerMacro {
             throw MacroError.canOnlyBeAppliedToProtocols
         }
 
-        let mock = ClassDeclSyntax(
-            attributes: AttributeListSyntax {
-                AttributeSyntax(
-                    atSign: .atSignToken(),
-                    attributeName: IdentifierTypeSyntax(name: "MockedMembers"),
-                    trailingTrivia: .newline
-                )
-            },
-            modifiers: self.mockModifiers(from: protocolDeclaration),
-            classKeyword: .keyword(
-                protocolDeclaration.isActorConstrained ? .actor : .class
-            ),
-            name: self.mockName(from: protocolDeclaration),
-            genericParameterClause: self.mockGenericParameterClause(
-                from: protocolDeclaration
-            ),
-            inheritanceClause: self.mockInheritanceClause(
-                from: protocolDeclaration
-            ),
-            genericWhereClause: self.mockGenericWhereClause(
-                from: protocolDeclaration
-            ),
-            memberBlock: try self.mockMemberBlock(from: protocolDeclaration)
+        let macroArguments = MacroArguments(node: node)
+        let mockDeclaration = DeclSyntax(
+            ClassDeclSyntax(
+                attributes: AttributeListSyntax {
+                    AttributeSyntax(
+                        atSign: .atSignToken(),
+                        attributeName: IdentifierTypeSyntax(name: "MockedMembers"),
+                        trailingTrivia: .newline
+                    )
+                },
+                modifiers: self.mockModifiers(from: protocolDeclaration),
+                classKeyword: .keyword(
+                    protocolDeclaration.isActorConstrained ? .actor : .class
+                ),
+                name: self.mockName(from: protocolDeclaration),
+                genericParameterClause: self.mockGenericParameterClause(
+                    from: protocolDeclaration
+                ),
+                inheritanceClause: self.mockInheritanceClause(
+                    from: protocolDeclaration
+                ),
+                genericWhereClause: self.mockGenericWhereClause(
+                    from: protocolDeclaration
+                ),
+                memberBlock: try self.mockMemberBlock(from: protocolDeclaration)
+            )
         )
 
-        return [DeclSyntax(mock)]
+        guard let compilerFlag = macroArguments.compilerFlag else {
+            return [mockDeclaration]
+        }
+
+        let ifConfigDeclaration = IfConfigDeclSyntax(
+            clauses: IfConfigClauseListSyntax {
+                IfConfigClauseSyntax(
+                    poundKeyword: .poundIfToken(),
+                    condition: DeclReferenceExprSyntax(
+                        baseName: .identifier(compilerFlag)
+                    ),
+                    elements: .statements(
+                        CodeBlockItemListSyntax {
+                            CodeBlockItemSyntax(item: .decl(mockDeclaration))
+                        }
+                    )
+                )
+            }
+        )
+
+        return [DeclSyntax(ifConfigDeclaration)]
     }
 }
 
