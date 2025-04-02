@@ -35,20 +35,12 @@ let package = Package(
             url: "git@github.com:fetch-rewards/SwiftSyntaxSugar.git",
             revision: "0284c7bd20959bf069b7de56788756697a502ff2"
         ),
-        .package(
-            url: "https://github.com/pointfreeco/xctest-dynamic-overlay",
-            exact: "1.0.2"
-        ),
     ],
     targets: [
         .target(
             name: "Mocked",
             dependencies: [
                 "MockedMacros",
-                .product(
-                    name: "XCTestDynamicOverlay",
-                    package: "xctest-dynamic-overlay"
-                ),
                 .product(
                     name: "Locked",
                     package: "swift-locking"
