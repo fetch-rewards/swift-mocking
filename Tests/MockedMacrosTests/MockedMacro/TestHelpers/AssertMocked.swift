@@ -26,7 +26,7 @@ func assertMocked(
     var arguments: [String] = []
 
     if let compilationCondition {
-        arguments.append("compilationCondition: \"\(compilationCondition)\"")
+        arguments.append("compilationCondition: \(compilationCondition)")
     }
 
     var macro = "@Mocked"

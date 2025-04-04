@@ -23,9 +23,11 @@ struct Mocked_AccessLevelTests {
             \(interface.accessLevel) protocol Dependency {}
             """,
             generates: """
+            #if SWIFT_MOCKING_ENABLED
             @MockedMembers
             \(mock.modifiers)class DependencyMock: Dependency {
             }
+            #endif
             """
         )
     }

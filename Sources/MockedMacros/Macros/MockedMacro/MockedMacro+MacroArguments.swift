@@ -18,7 +18,7 @@ extension MockedMacro {
         // MARK: Properties
 
         /// The compilation condition with which to wrap the generated mock.
-        let compilationCondition: String?
+        let compilationCondition: MockCompilationCondition
 
         // MARK: Initializers
 
@@ -37,10 +37,15 @@ extension MockedMacro {
                 return arguments.count > index ? arguments[argumentIndex] : nil
             }
 
-            self.compilationCondition = argument(0)?
-                .expression
-                .as(StringLiteralExprSyntax.self)?
-                .representedLiteralValue
+            var compilationCondition: MockCompilationCondition?
+
+            if let compilationConditionArgument = argument(0) {
+                compilationCondition = MockCompilationCondition(
+                    argument: compilationConditionArgument
+                )
+            }
+
+            self.compilationCondition = compilationCondition ?? .swiftMockingEnabled
         }
     }
 }

@@ -20,7 +20,9 @@
 /// - Parameter compilationCondition: The compilation condition with which to
 ///   wrap the generated mock.
 @attached(peer, names: suffixed(Mock))
-public macro Mocked(compilationCondition: String? = nil) = #externalMacro(
+public macro Mocked(
+    compilationCondition: MockCompilationCondition = .swiftMockingEnabled
+) = #externalMacro(
     module: "MockedMacros",
     type: "MockedMacro"
 )

@@ -51,7 +51,7 @@ public struct MockedMacro: PeerMacro {
             )
         )
 
-        guard let compilationCondition = macroArguments.compilationCondition else {
+        guard let compilationCondition = macroArguments.compilationCondition.rawValue else {
             return [mockDeclaration]
         }
 

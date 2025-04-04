@@ -78,9 +78,9 @@ enum MockedPropertyType {
             throw ParsingError.unableToParsePropertyType
         }
 
-        let declName = memberAccessExpression.declName
+        let declarationNameTokenKind = memberAccessExpression.declName.baseName.tokenKind
 
-        if declName.baseName.tokenKind == .identifier("readOnly") {
+        if declarationNameTokenKind == .identifier("readOnly") {
             var asyncSpecifier: AsyncSpecifier?
             var throwsSpecifier: ThrowsSpecifier?
 
@@ -97,7 +97,7 @@ enum MockedPropertyType {
             }
 
             self = .readOnly(asyncSpecifier, throwsSpecifier)
-        } else if declName.baseName.tokenKind == .identifier("readWrite") {
+        } else if declarationNameTokenKind == .identifier("readWrite") {
             self = .readWrite
         } else {
             throw ParsingError.unableToParsePropertyType
