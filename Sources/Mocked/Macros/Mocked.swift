@@ -17,8 +17,8 @@
 /// public final class DependencyMock: Dependency { ... }
 /// ```
 ///
-/// - Parameter compilationCondition: The compilation condition with which to
-///   wrap the generated mock.
+/// - Parameter compilationCondition: The compilation condition to apply to the
+///   `#if` compiler directive used to wrap the generated mock.
 @attached(peer, names: suffixed(Mock))
 public macro Mocked(
     compilationCondition: MockCompilationCondition = .swiftMockingEnabled
