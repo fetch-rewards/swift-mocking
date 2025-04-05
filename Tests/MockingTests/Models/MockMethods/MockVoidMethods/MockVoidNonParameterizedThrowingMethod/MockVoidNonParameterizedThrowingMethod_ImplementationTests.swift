@@ -20,7 +20,7 @@ struct MockVoidNonParameterizedThrowingMethod_ImplementationTests {
 
     @Test
     func unimplemented() async throws {
-        try await confirmation(expectedCount: .zero) { confirmation in
+        try await confirmation(expectedCount: .zero) { _ in
             let sut: SUT = .unimplemented
 
             try sut()
