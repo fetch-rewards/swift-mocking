@@ -13,6 +13,7 @@
   - [`@MockedMembers`](#mockedmembers)
     - [Static Members](#static-members)
   - [`@MockableProperty`](#mockableproperty)
+  - [`@MockableMethod`](#mockablemethod)
 - [License](#license)
 
 ## Features
@@ -269,6 +270,30 @@ final class DependencyMock: Dependency {
     var readWriteProperty: String { get set }
 }
 ```
+
+### `@MockableMethod`
+Unlike `@MockableProperty`, `@MockableMethod` is not required when using `@MockedMembers` directly. 
+`@MockedMembers` can and will generate backing properties for method conformances within your mock 
+whether they are explicitly marked with `@MockableMethod` or not.
+
+That being said, there may be cases where you want or need to use `@MockableMethod`. While `@Mocked` 
+and `@MockedMembers` do an excellent job of dealing with name conflicts caused by method overloads, 
+there's always a possibility that a name conflict may arise between two backing properties. In this
+case, you can provide an explicit name for the method's backing property using `@MockableMethod`:
+```swift
+@MockedMembers
+final class DependencyMock: Dependency {
+    @MockableMethod(mockMethodName: "someUniqueName")
+    func methodWithNameConflict()
+}
+```
+
+In other cases, you may simply dislike the name that `@Mocked` or `@MockedMembers` generates for a 
+method's backing property and wish to give the backing property a different name.
+
+If you believe that `@Mocked` or `@MockedMembers` should have been able to resolve a name conflict,
+or if you think the name conflict resolution can be improved in any other way, please let us know by
+[opening an issue](https://github.com/fetch-rewards/swift-mocking/issues/new).
 
 ## License
 
