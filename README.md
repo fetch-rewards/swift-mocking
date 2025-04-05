@@ -27,13 +27,13 @@
 - [x] Instance members 
 - [x] Read-only properties, including those with getters marked with `async`, `throws`, `mutating`, etc.
 - [x] Read-write properties
-- [x] Variadic parameters
 - [x] Mutating methods
 - [x] Async methods
 - [x] Throwing methods
 - [x] Generic methods
 - [x] Method overloads
 - [x] Attributed types (`inout`, `consuming`, `sending`, etc.)
+- [x] Variadic parameters
 
 ## Installation
 
