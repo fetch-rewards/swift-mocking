@@ -48,7 +48,7 @@ struct MockedMethod_GenericMethod_MetatypeTests {
                 )
                 return returnValue
             }
-            
+
             /// An implementation for `DependencyMock._method`.
             enum MethodImplementation<
             \tArguments,
@@ -74,7 +74,7 @@ struct MockedMethod_GenericMethod_MetatypeTests {
                 ) -> Self where Arguments: Sendable, ReturnValue: Sendable {
                     .uncheckedInvokes(closure)
                 }
-            
+
                 /// Returns the provided value when invoked.
                 ///
                 /// - Parameter value: The value to return.
@@ -96,7 +96,7 @@ struct MockedMethod_GenericMethod_MetatypeTests {
                         value
                     }
                 }
-            
+
                 /// The implementation as a closure, or `nil` if unimplemented.
                 var _closure: Closure? {
                     switch self {
@@ -107,7 +107,7 @@ struct MockedMethod_GenericMethod_MetatypeTests {
                     }
                 }
             }
-            
+
             private let __method = MockReturningParameterizedMethod<
             \tMethodImplementation<
             \t\t(Any.Type),
@@ -119,7 +119,7 @@ struct MockedMethod_GenericMethod_MetatypeTests {
                     member: "_method"
                 )
             )
-            
+
             var _method: MockReturningParameterizedMethod<
             \tMethodImplementation<
             \t\t(Any.Type),
@@ -169,7 +169,7 @@ struct MockedMethod_GenericMethod_MetatypeTests {
                 )
                 return returnValue
             }
-            
+
             /// An implementation for `DependencyMock._method`.
             enum MethodImplementation<
             \tArguments,
@@ -197,7 +197,7 @@ struct MockedMethod_GenericMethod_MetatypeTests {
                 ) -> Self where Arguments: Sendable, ReturnValue: Sendable {
                     .uncheckedInvokes(closure)
                 }
-            
+
                 /// Returns the provided value when invoked.
                 ///
                 /// - Parameter value: The value to return.
@@ -219,7 +219,7 @@ struct MockedMethod_GenericMethod_MetatypeTests {
                         value
                     }
                 }
-            
+
                 /// The implementation as a closure, or `nil` if unimplemented.
                 var _closure: Closure? {
                     switch self {
@@ -230,7 +230,7 @@ struct MockedMethod_GenericMethod_MetatypeTests {
                     }
                 }
             }
-            
+
             private let __method = MockReturningParameterizedMethod<
             \tMethodImplementation<
             \t\t(any (Equatable & Sendable & Comparable & Hashable).Type),
@@ -242,7 +242,7 @@ struct MockedMethod_GenericMethod_MetatypeTests {
                     member: "_method"
                 )
             )
-            
+
             var _method: MockReturningParameterizedMethod<
             \tMethodImplementation<
             \t\t(any (Equatable & Sendable & Comparable & Hashable).Type),
@@ -276,7 +276,7 @@ struct MockedMethod_GenericMethod_MetatypeTests {
                     parameter
                 )
             }
-            
+
             /// An implementation for `DependencyMock._method`.
             enum MethodImplementation<
             \tArguments
@@ -301,7 +301,7 @@ struct MockedMethod_GenericMethod_MetatypeTests {
                 ) -> Self where Arguments: Sendable {
                     .uncheckedInvokes(closure)
                 }
-            
+
                 /// The implementation as a closure, or `nil` if unimplemented.
                 var _closure: Closure? {
                     switch self {
@@ -312,13 +312,13 @@ struct MockedMethod_GenericMethod_MetatypeTests {
                     }
                 }
             }
-            
+
             private let __method = MockVoidParameterizedMethod<
             \tMethodImplementation<
             \t\t(any Equatable.Type)
             \t>
             >.makeMethod()
-            
+
             var _method: MockVoidParameterizedMethod<
             \tMethodImplementation<
             \t\t(any Equatable.Type)
@@ -349,7 +349,7 @@ struct MockedMethod_GenericMethod_MetatypeTests {
                     parameter
                 )
             }
-            
+
             /// An implementation for `DependencyMock._method`.
             enum MethodImplementation<
             \tArguments
@@ -374,7 +374,7 @@ struct MockedMethod_GenericMethod_MetatypeTests {
                 ) -> Self where Arguments: Sendable {
                     .uncheckedInvokes(closure)
                 }
-            
+
                 /// The implementation as a closure, or `nil` if unimplemented.
                 var _closure: Closure? {
                     switch self {
@@ -385,13 +385,13 @@ struct MockedMethod_GenericMethod_MetatypeTests {
                     }
                 }
             }
-            
+
             private let __method = MockVoidParameterizedMethod<
             \tMethodImplementation<
             \t\t(any (Equatable & Sendable & Comparable).Type)
             \t>
             >.makeMethod()
-            
+
             var _method: MockVoidParameterizedMethod<
             \tMethodImplementation<
             \t\t(any (Equatable & Sendable & Comparable).Type)

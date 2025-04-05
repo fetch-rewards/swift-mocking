@@ -26,7 +26,7 @@ struct MockedProperty_ReadOnlyPropertyTests {
                     self.__property.get()
                 }
             }
-            
+
             private let __property = MockReadOnlyProperty<
             \tString
             >.makeProperty(
@@ -35,7 +35,7 @@ struct MockedProperty_ReadOnlyPropertyTests {
                     member: "_property"
                 )
             )
-            
+
             var _property: MockReadOnlyProperty<
             \tString
             > {
@@ -60,7 +60,7 @@ struct MockedProperty_ReadOnlyPropertyTests {
                     await self.__property.get()
                 }
             }
-            
+
             private let __property = MockReadOnlyAsyncProperty<
             \tString
             >.makeProperty(
@@ -69,7 +69,7 @@ struct MockedProperty_ReadOnlyPropertyTests {
                     member: "_property"
                 )
             )
-            
+
             var _property: MockReadOnlyAsyncProperty<
             \tString
             > {
@@ -94,7 +94,7 @@ struct MockedProperty_ReadOnlyPropertyTests {
                     try self.__property.get()
                 }
             }
-            
+
             private let __property = MockReadOnlyThrowingProperty<
             \tString
             >.makeProperty(
@@ -103,7 +103,7 @@ struct MockedProperty_ReadOnlyPropertyTests {
                     member: "_property"
                 )
             )
-            
+
             var _property: MockReadOnlyThrowingProperty<
             \tString
             > {
@@ -128,7 +128,7 @@ struct MockedProperty_ReadOnlyPropertyTests {
                     try await self.__property.get()
                 }
             }
-            
+
             private let __property = MockReadOnlyAsyncThrowingProperty<
             \tString
             >.makeProperty(
@@ -137,7 +137,7 @@ struct MockedProperty_ReadOnlyPropertyTests {
                     member: "_property"
                 )
             )
-            
+
             var _property: MockReadOnlyAsyncThrowingProperty<
             \tString
             > {

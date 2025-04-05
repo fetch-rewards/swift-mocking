@@ -36,7 +36,7 @@ struct MockedMembers_MethodOverloadsTests {
                 \tmockMethodName: "methodReturningString"
                 )
                 func method() -> String
-            
+
                 init() {
                 }
             }

@@ -22,7 +22,7 @@ struct MockedMembers_InitializerTests {
             """,
             generates: """
             final class Mock {
-            
+
                 init() {
                 }
             }
@@ -61,7 +61,7 @@ struct MockedMembers_InitializerTests {
             final class Mock {
                 init(parameter: Int) {
                 }
-            
+
                 init() {
                 }
             }

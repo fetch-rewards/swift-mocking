@@ -32,7 +32,7 @@ struct MockedMethod_GenericMethod_AttributedTypeTests {
                     parameter
                 )
             }
-            
+
             /// An implementation for `DependencyMock._method`.
             enum MethodImplementation<
             \tArguments
@@ -57,7 +57,7 @@ struct MockedMethod_GenericMethod_AttributedTypeTests {
                 ) -> Self where Arguments: Sendable {
                     .uncheckedInvokes(closure)
                 }
-            
+
                 /// The implementation as a closure, or `nil` if unimplemented.
                 var _closure: Closure? {
                     switch self {
@@ -68,13 +68,13 @@ struct MockedMethod_GenericMethod_AttributedTypeTests {
                     }
                 }
             }
-            
+
             private let __method = MockVoidParameterizedMethod<
             \tMethodImplementation<
             \t\t(Any)
             \t>
             >.makeMethod()
-            
+
             var _method: MockVoidParameterizedMethod<
             \tMethodImplementation<
             \t\t(Any)
@@ -107,7 +107,7 @@ struct MockedMethod_GenericMethod_AttributedTypeTests {
                     parameter
                 )
             }
-            
+
             /// An implementation for `DependencyMock._method`.
             enum MethodImplementation<
             \tArguments
@@ -134,7 +134,7 @@ struct MockedMethod_GenericMethod_AttributedTypeTests {
                 ) -> Self where Arguments: Sendable {
                     .uncheckedInvokes(closure)
                 }
-            
+
                 /// The implementation as a closure, or `nil` if unimplemented.
                 var _closure: Closure? {
                     switch self {
@@ -145,13 +145,13 @@ struct MockedMethod_GenericMethod_AttributedTypeTests {
                     }
                 }
             }
-            
+
             private let __method = MockVoidParameterizedMethod<
             \tMethodImplementation<
             \t\t(any (Equatable & Sendable & Comparable & Hashable))
             \t>
             >.makeMethod()
-            
+
             var _method: MockVoidParameterizedMethod<
             \tMethodImplementation<
             \t\t(any (Equatable & Sendable & Comparable & Hashable))

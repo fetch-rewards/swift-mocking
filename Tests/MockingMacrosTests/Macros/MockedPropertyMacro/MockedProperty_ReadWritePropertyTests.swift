@@ -29,7 +29,7 @@ struct MockedProperty_ReadWritePropertyTests {
                     self.__property.set(newValue)
                 }
             }
-            
+
             private let __property = MockReadWriteProperty<
             \tString
             >.makeProperty(
@@ -38,7 +38,7 @@ struct MockedProperty_ReadWritePropertyTests {
                     member: "_property"
                 )
             )
-            
+
             var _property: MockReadWriteProperty<
             \tString
             > {

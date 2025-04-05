@@ -13,7 +13,7 @@ import SwiftSyntaxSugar
 extension MockedPropertyMacro: AccessorMacro {
 
     // MARK: Expansion
-    
+
     public static func expansion(
         of node: AttributeSyntax,
         providingAccessorsOf declaration: some DeclSyntaxProtocol,

@@ -601,7 +601,7 @@ extension MockedMethodMacro: BodyMacro {
             guard case let .simpleTypeSpecifier(specifier) = specifier else {
                 return false
             }
-            
+
             return specifier.specifier.tokenKind == .keyword(specifierKeyword)
         }
     }
