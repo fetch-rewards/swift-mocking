@@ -39,7 +39,7 @@ struct MockMethodNameComponents {
                 id: .methodName,
                 value: methodDeclaration.name.trimmedDescription,
                 insertionIndex: .zero
-            )
+            ),
         ]
 
         for (index, parameter) in parameters.enumerated() {

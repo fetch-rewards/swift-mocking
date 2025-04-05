@@ -86,7 +86,7 @@ extension MockedMembersMacro: MemberAttributeMacro {
                 ),
                 rightParen: .rightParenToken(),
                 trailingTrivia: .newline
-            )
+            ),
         ]
     }
 
@@ -177,7 +177,7 @@ extension MockedMembersMacro: MemberAttributeMacro {
                 ),
                 rightParen: .rightParenToken(),
                 trailingTrivia: .newline
-            )
+            ),
         ]
     }
 

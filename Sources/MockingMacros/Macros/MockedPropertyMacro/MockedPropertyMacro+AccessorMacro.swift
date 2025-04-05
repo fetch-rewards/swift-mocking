@@ -45,7 +45,7 @@ extension MockedPropertyMacro: AccessorMacro {
             self.getAccessor(
                 propertyType: macroArguments.propertyType,
                 propertyBindingName: propertyBindingName
-            )
+            ),
         ]
 
         if let setAccessor = self.setAccessor(

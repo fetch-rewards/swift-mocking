@@ -388,7 +388,7 @@ extension MockedMacro {
                         rightParen: .rightParenToken(),
                         trailingTrivia: .newline
                     )
-                )
+                ),
             ]
         } else {
             []
