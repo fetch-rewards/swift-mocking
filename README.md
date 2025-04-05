@@ -124,11 +124,15 @@ members' implementations.
 Just like with `@MockedMembers`, `@Mocked` also cannot look outward. This presents a problem when the protocol you 
 are trying to mock conforms to another protocol. Because `@Mocked` cannot see the other protocol's declaration, it 
 is unable to generate conformances to the requirements of that protocol. In this instance, you will need to write 
-the mock declaration yourself, along with the declarations for the properties and methods required by the protocol.
-Then, using `@MockedMembers`, `@MockableProperty`, and `@MockableMethod`, you can generate the mock's backing properties:
+the mock declaration yourself, along with the declarations for the properties and methods required by the protocols.
+Luckily, using Xcode's [Fix-It](https://developer.apple.com/documentation/xcode/fixing-issues-in-your-code-as-you-type#Make-a-Fix-It-correction) 
+feature to add protocol conformances and `@MockedMembers`, `@MockableProperty`, and `@MockableMethod` to generate 
+backing properties, you can still easily create and maintain these mocks with minimal code.
 ```swift
 protocol Dependency: SomeProtocol {
     var propertyFromDependency: String { get }
+
+    func methodFromDependency()
 }
 
 @MockedMembers
@@ -138,6 +142,10 @@ final class DependencyMock: Dependency {
 
     @MockableProperty(.readWrite)
     var propertyFromSomeProtocol: String
+
+    func methodFromDependency()
+
+    func methodFromSomeProtocol()
 }
 ```
 
