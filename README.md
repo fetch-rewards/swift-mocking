@@ -31,7 +31,6 @@
 - [x] Generic methods
 - [x] Method overloads
 - [x] Attributed types (`inout`, `consuming`, `sending`, etc.)
-- [ ] Typed `throws`
 
 ## Installation
 
