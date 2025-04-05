@@ -243,7 +243,7 @@ This method is useful for tearing down static state between test cases.
 In instances where you are using `@MockedMembers` directly instead of using `@Mocked`, `@MockableProperty` 
 is required for `@MockedMembers` to be able to generate backing properties for the property conformances 
 within your mock:
-```
+```swift
 protocol Dependency {
     var readOnlyProperty: String { get }
     var readOnlyAsyncProperty: String { get }
