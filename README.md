@@ -20,13 +20,14 @@
 - [x] Associated types, including primary associated types
 - [x] Actor conformance
 - [x] Initializers
-- [x] Static and instance members 
-- [x] Read-only properties, including those with getters marked as `async`, `throws`, or `async throws`
+- [x] Static members
+- [x] Instance members 
+- [x] Read-only properties, including those with getters marked with `async`, `throws`, `mutating`, etc.
 - [x] Read-write properties
-- [x] Mutating members
 - [x] Variadic parameters
+- [x] Mutating methods
 - [x] Async methods
-- [x] Throwing methods   
+- [x] Throwing methods
 - [x] Generic methods
 - [x] Method overloads
 - [x] Attributed types (`inout`, `consuming`, `sending`, etc.)
