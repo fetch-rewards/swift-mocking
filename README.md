@@ -81,9 +81,11 @@ configurations for which you would like mocks to compile.
 To make use of this condition in a Swift Package, add the following `SwiftSetting` to your target's `swiftSettings`
 array:
 ```swift
-.define("SWIFT_MOCKING_ENABLED", <#build setting condition#>)
+.define("SWIFT_MOCKING_ENABLED", .when(configuration: .debug))
 ```
-
+> [!Note]
+> The `.debug` build configuration in a Swift Package applies to any Xcode project build configuration with a name
+> that begins with either "Debug" or "Development".
 
 #### Access Levels
 The generated mock is marked with the access level required to conform to the protocol:
