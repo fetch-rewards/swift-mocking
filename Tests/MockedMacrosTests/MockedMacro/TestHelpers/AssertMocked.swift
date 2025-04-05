@@ -13,6 +13,7 @@ import Testing
 
 func assertMocked(
     _ interface: String,
+    compilationCondition: String? = nil,
     generates mock: String,
     diagnostics: [DiagnosticSpec] = [],
     applyFixIts: [String]? = nil,
@@ -22,9 +23,21 @@ func assertMocked(
     line: UInt = #line,
     column: UInt = #column
 ) {
+    var arguments: [String] = []
+
+    if let compilationCondition {
+        arguments.append("compilationCondition: \(compilationCondition)")
+    }
+
+    var macro = "@Mocked"
+
+    if !arguments.isEmpty {
+        macro += "(" + arguments.joined(separator: ", ") + ")"
+    }
+
     assertMacroExpansion(
         """
-        @Mocked
+        \(macro)
         \(interface)
         """,
         expandedSource: """

@@ -14,31 +14,31 @@ extension MockedPropertyMacro {
 
         // MARK: Cases
 
-        /// An error indicating that the `@MockedProperty` macro can only be
+        /// An error indicating that the `@_MockedProperty` macro can only be
         /// applied to property declarations.
         case canOnlyBeAppliedToPropertyDeclarations
 
-        /// An error indicating that the `@MockedProperty` macro can only be
+        /// An error indicating that the `@_MockedProperty` macro can only be
         /// applied to single-binding property declarations.
         case canOnlyBeAppliedToSingleBindingPropertyDeclarations
 
-        /// An error indicating that the `@MockedProperty` macro was not passed
+        /// An error indicating that the `@_MockedProperty` macro was not passed
         /// any arguments.
         case noArguments
 
-        /// An error indicating that the `@MockedProperty` macro was unable to
+        /// An error indicating that the `@_MockedProperty` macro was unable to
         /// parse the provided `propertyType` argument.
         case unableToParsePropertyTypeArgument
 
-        /// An error indicating that the `@MockedProperty` macro was unable to
+        /// An error indicating that the `@_MockedProperty` macro was unable to
         /// parse the provided `mockName` argument.
         case unableToParseMockNameArgument
 
-        /// An error indicating that the `@MockedProperty` macro was unable to
+        /// An error indicating that the `@_MockedProperty` macro was unable to
         /// parse the provided `isMockAnActor` argument.
         case unableToParseIsMockAnActorArgument
 
-        /// An error indicating that the `@MockedProperty` macro was unable to
+        /// An error indicating that the `@_MockedProperty` macro was unable to
         /// parse the property binding's name.
         case unableToParsePropertyBindingName
 
@@ -48,19 +48,19 @@ extension MockedPropertyMacro {
         var description: String {
             switch self {
             case .canOnlyBeAppliedToPropertyDeclarations:
-                "@MockedProperty can only be applied to property declarations."
+                "@_MockedProperty can only be applied to property declarations."
             case .canOnlyBeAppliedToSingleBindingPropertyDeclarations:
-                "@MockedProperty can only be applied to single-binding property declarations."
+                "@_MockedProperty can only be applied to single-binding property declarations."
             case .noArguments:
-                "@MockedProperty was not passed any arguments."
+                "@_MockedProperty was not passed any arguments."
             case .unableToParsePropertyTypeArgument:
-                "@MockedProperty was unable to parse the provided `propertyType` argument."
+                "@_MockedProperty was unable to parse the provided `propertyType` argument."
             case .unableToParseMockNameArgument:
-                "@MockedProperty was unable to parse the provided `mockName` argument."
+                "@_MockedProperty was unable to parse the provided `mockName` argument."
             case .unableToParseIsMockAnActorArgument:
-                "@MockedProperty was unable to parse the provided `isMockAnActor` argument."
+                "@_MockedProperty was unable to parse the provided `isMockAnActor` argument."
             case .unableToParsePropertyBindingName:
-                "@MockedProperty was unable to parse the property binding's name."
+                "@_MockedProperty was unable to parse the property binding's name."
             }
         }
     }

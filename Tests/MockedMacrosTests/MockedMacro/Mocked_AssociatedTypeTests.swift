@@ -26,10 +26,12 @@ struct Mocked_AssociatedTypeTests {
             }
             """,
             generates: """
+            #if SWIFT_MOCKING_ENABLED
             @MockedMembers
             \(mock.modifiers)\
             class DependencyMock<A: Hashable, B: Identifiable>: Dependency {
             }
+            #endif
             """
         )
     }
@@ -47,6 +49,7 @@ struct Mocked_AssociatedTypeTests {
             }
             """,
             generates: """
+            #if SWIFT_MOCKING_ENABLED
             @MockedMembers
             \(mock.modifiers)\
             class DependencyMock<\
@@ -54,6 +57,7 @@ struct Mocked_AssociatedTypeTests {
             B: Comparable & Equatable & RawRepresentable\
             >: Dependency {
             }
+            #endif
             """
         )
     }
@@ -75,6 +79,7 @@ struct Mocked_AssociatedTypeTests {
             }
             """,
             generates: """
+            #if SWIFT_MOCKING_ENABLED
             @MockedMembers
             \(mock.modifiers)\
             class DependencyMock<\
@@ -86,6 +91,7 @@ struct Mocked_AssociatedTypeTests {
             B.Element: Equatable, B.Element: Identifiable, \
             C.Element == String {
             }
+            #endif
             """
         )
     }

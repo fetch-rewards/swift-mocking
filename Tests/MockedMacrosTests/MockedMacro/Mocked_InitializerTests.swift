@@ -23,9 +23,11 @@ struct Mocked_InitializerTests {
             \(interface.accessLevel) protocol Dependency {}
             """,
             generates: """
+            #if SWIFT_MOCKING_ENABLED
             @MockedMembers
             \(mock.modifiers)class DependencyMock: Dependency {
             }
+            #endif
             """
         )
     }
@@ -46,6 +48,7 @@ struct Mocked_InitializerTests {
             }
             """,
             generates: """
+            #if SWIFT_MOCKING_ENABLED
             @MockedMembers
             \(mock.modifiers)class DependencyMock: Dependency {
                 \(mock.memberModifiers)init(parameter: Int) {
@@ -55,6 +58,7 @@ struct Mocked_InitializerTests {
                 \(mock.memberModifiers)init(parameter1: Int, parameter2: Int) {
                 }
             }
+            #endif
             """
         )
     }

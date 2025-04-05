@@ -23,9 +23,11 @@ struct Mocked_InheritanceTests {
             \(interface.accessLevel) protocol Dependency {}
             """,
             generates: """
+            #if SWIFT_MOCKING_ENABLED
             @MockedMembers
             \(mock.modifiers)class DependencyMock: Dependency {
             }
+            #endif
             """
         )
     }
@@ -42,9 +44,11 @@ struct Mocked_InheritanceTests {
             \(interface.accessLevel) protocol Dependency: Actor {}
             """,
             generates: """
+            #if SWIFT_MOCKING_ENABLED
             @MockedMembers
             \(mock.modifiers)actor DependencyMock: Dependency {
             }
+            #endif
             """
         )
     }
@@ -61,9 +65,11 @@ struct Mocked_InheritanceTests {
             \(interface.accessLevel) protocol Dependency: AnyObject {}
             """,
             generates: """
+            #if SWIFT_MOCKING_ENABLED
             @MockedMembers
             \(mock.modifiers)class DependencyMock: Dependency {
             }
+            #endif
             """
         )
     }
@@ -80,9 +86,11 @@ struct Mocked_InheritanceTests {
             \(interface.accessLevel) protocol Dependency: Actor, AnyObject {}
             """,
             generates: """
+            #if SWIFT_MOCKING_ENABLED
             @MockedMembers
             \(mock.modifiers)actor DependencyMock: Dependency {
             }
+            #endif
             """
         )
     }
@@ -97,9 +105,11 @@ struct Mocked_InheritanceTests {
             \(interface.accessLevel) protocol Dependency: AnyObject, Actor {}
             """,
             generates: """
+            #if SWIFT_MOCKING_ENABLED
             @MockedMembers
             \(mock.modifiers)actor DependencyMock: Dependency {
             }
+            #endif
             """
         )
     }
