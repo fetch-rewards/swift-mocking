@@ -1,8 +1,8 @@
 //
 //  MockedMacro.swift
-//  MockingMacros
 //
-//  Created by Gray Campbell on 11/4/23.
+//  Created by Gray Campbell.
+//  Copyright © 2025 Fetch.
 //
 
 public import SwiftSyntax

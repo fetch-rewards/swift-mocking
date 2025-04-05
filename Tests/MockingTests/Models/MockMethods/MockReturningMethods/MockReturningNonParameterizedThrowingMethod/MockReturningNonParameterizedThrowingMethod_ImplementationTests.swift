@@ -1,8 +1,8 @@
 //
 //  MockReturningNonParameterizedThrowingMethod_ImplementationTests.swift
-//  MockingTests
 //
-//  Created by Gray Campbell on 7/18/24.
+//  Created by Gray Campbell.
+//  Copyright © 2025 Fetch.
 //
 
 import Foundation

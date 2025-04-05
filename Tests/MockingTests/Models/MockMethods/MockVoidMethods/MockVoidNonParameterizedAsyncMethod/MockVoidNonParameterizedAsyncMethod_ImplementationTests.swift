@@ -1,8 +1,8 @@
 //
 //  MockVoidNonParameterizedAsyncMethod_ImplementationTests.swift
-//  MockingTests
 //
-//  Created by Gray Campbell on 3/18/25.
+//  Created by Gray Campbell.
+//  Copyright © 2025 Fetch.
 //
 
 import Testing

@@ -1,8 +1,8 @@
 //
 //  MockableMethod.swift
-//  Mocking
 //
-//  Created by Gray Campbell on 2/2/25.
+//  Created by Gray Campbell.
+//  Copyright © 2025 Fetch.
 //
 
 /// A macro that marks a method as being mockable.

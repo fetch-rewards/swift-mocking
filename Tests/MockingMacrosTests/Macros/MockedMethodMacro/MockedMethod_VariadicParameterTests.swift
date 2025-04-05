@@ -1,8 +1,8 @@
 //
 //  MockedMethod_VariadicParameterTests.swift
-//  MockingMacrosTests
 //
-//  Created by Gray Campbell on 12/20/24.
+//  Created by Gray Campbell.
+//  Copyright © 2025 Fetch.
 //
 
 #if canImport(MockingMacros)

@@ -1,8 +1,8 @@
 //
 //  MockedMethod_GenericMethod_AttributedTypeTests.swift
-//  MockingMacrosTests
 //
-//  Created by Gray Campbell on 1/10/25.
+//  Created by Gray Campbell.
+//  Copyright © 2025 Fetch.
 //
 
 #if canImport(MockingMacros)

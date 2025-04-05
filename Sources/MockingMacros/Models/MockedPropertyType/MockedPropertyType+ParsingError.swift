@@ -1,8 +1,8 @@
 //
 //  MockedPropertyType+ParsingError.swift
-//  MockingMacros
 //
-//  Created by Gray Campbell on 1/19/25.
+//  Created by Gray Campbell.
+//  Copyright © 2025 Fetch.
 //
 
 import Foundation

@@ -1,8 +1,8 @@
 //
 //  MockedMembers.swift
-//  Mocking
 //
-//  Created by Gray Campbell on 1/15/25.
+//  Created by Gray Campbell.
+//  Copyright © 2025 Fetch.
 //
 
 /// A macro that adds the `@_MockedProperty` macro to all property declarations

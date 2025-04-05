@@ -1,8 +1,8 @@
 //
 //  MockedMethod.swift
-//  Mocking
 //
-//  Created by Gray Campbell on 1/14/25.
+//  Created by Gray Campbell.
+//  Copyright © 2025 Fetch.
 //
 
 /// A macro that produces a mocked method when attached to a method declaration.

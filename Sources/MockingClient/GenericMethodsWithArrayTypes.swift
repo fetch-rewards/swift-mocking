@@ -1,8 +1,8 @@
 //
 //  GenericMethodsWithArrayTypes.swift
-//  MockingClient
 //
-//  Created by Gray Campbell on 1/5/25.
+//  Created by Gray Campbell.
+//  Copyright © 2025 Fetch.
 //
 
 import Foundation

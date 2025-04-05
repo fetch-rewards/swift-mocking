@@ -1,8 +1,8 @@
 //
 //  MockPropertyGetter.swift
-//  Mocking
 //
-//  Created by Cole Campbell on 11/12/23.
+//  Created by Cole Campbell.
+//  Copyright © 2025 Fetch.
 //
 
 import Foundation

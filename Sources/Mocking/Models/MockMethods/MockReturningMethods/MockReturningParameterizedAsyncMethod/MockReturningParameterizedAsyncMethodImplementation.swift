@@ -1,8 +1,8 @@
 //
 //  MockReturningParameterizedAsyncMethodImplementation.swift
-//  Mocking
 //
-//  Created by Gray Campbell on 2/26/25.
+//  Created by Gray Campbell.
+//  Copyright © 2025 Fetch.
 //
 
 /// An implementation for a returning, parameterized, async mock method.
