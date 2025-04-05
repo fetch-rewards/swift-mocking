@@ -9,6 +9,9 @@
 ## Acronyms to auto-capitalize. Defaults to ID,URL,UUID.
 --acronyms ID,URL,UUID,API
 
+## Date format to use in file headers: system (default), iso, dmy, mdy, or custom.
+--dateformat mdy
+
 ## Change type with only static members to enum: always (default) or structs-only.
 --enumnamespaces structs-only
 
@@ -22,7 +25,7 @@
 --groupedextension "MARK: - %c"
 
 ## Header comments: strip, ignore, or the text you wish use.
---header ignore
+--header \n {file}\n\n Created by {author.name}.\n Copyright © {year} Fetch.\n
 
 ## #if indenting: indent (default), no-indent, or outdent.
 --ifdef no-indent
