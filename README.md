@@ -6,6 +6,7 @@
 - [Installation](#installation)
 - [Usage](#usage)
   - [`@Mocked`](#mocked)
+    - [Compilation Condition](#compilation-condition)
     - [Access Levels](#access-levels)
     - [Actor Conformance](#actor-conformance)
     - [Associated Types](#associated-types)
@@ -17,7 +18,7 @@
 - [License](#license)
 
 ## Features
-`swift-mocking` is Swift 6 compatible, fully concurrency-safe, and generates mocks that can handle:
+`swift-mocking` is Swift 6 compatible, fully concurrency-safe, and generates conditionally compiled mocks that can handle:
 - [x] Any access level
 - [x] Associated types, including primary associated types
 - [x] Actor conformance
@@ -64,9 +65,25 @@ protocol Dependency {}
 
 // Generates:
 
+#if SWIFT_MOCKING_ENABLED
 @MockedMembers
 final class DependencyMock: Dependency {}
+#endif
 ```
+
+#### Compilation Condition
+By default, `@Mocked` wraps the generated mock in an `#if` compiler directive with a `SWIFT_MOCKING_ENABLED`
+condition. 
+
+To make use of this condition in an Xcode project, add `SWIFT_MOCKING_ENABLED` as a compiler flag to the build 
+configurations for which you would like mocks to compile. 
+
+To make use of this condition in a Swift Package, add the following `SwiftSetting` to your target's `swiftSettings`
+array:
+```swift
+.define("SWIFT_MOCKING_ENABLED", <#build setting condition#>)
+```
+
 
 #### Access Levels
 The generated mock is marked with the access level required to conform to the protocol:
