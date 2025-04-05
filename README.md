@@ -2,6 +2,7 @@
 
 `swift-mocking` is a collection of Swift macros used to generate mock dependencies.
 
+- [Features](#features)
 - [Installation](#installation)
 - [Usage](#usage)
   - [`@Mocked`](#mocked)
@@ -11,8 +12,25 @@
     - [Members](#members)
   - [`@MockedMembers`](#mockedmembers)
     - [Static Members](#static-members) 
-- [Features](#features)
 - [License](#license)
+
+## Features
+`swift-mocking` is Swift 6 compatible, fully concurrency-safe, and generates mocks that can handle:
+- [x] Any access level
+- [x] Associated types, including primary associated types
+- [x] Actor conformance
+- [x] Initializers
+- [x] Static and instance members 
+- [x] Read-only properties, including those with getters marked as `async`, `throws`, or `async throws`
+- [x] Read-write properties
+- [x] Mutating members
+- [x] Variadic parameters
+- [x] Async methods
+- [x] Throwing methods   
+- [x] Generic methods
+- [x] Method overloads
+- [x] Attributed types (`inout`, `consuming`, `sending`, etc.)
+- [ ] Typed `throws`
 
 ## Installation
 
@@ -218,20 +236,6 @@ public final class DependencyMock: Dependency {
 }
 ```
 This method is useful for tearing down static state between test cases.
-
-## Features
-`swift-mocking` is Swift 6 compatible, fully concurrency-safe, and generates mocks that can handle:
-- [x] Any access level
-- [x] Associated types, including primary associated types
-- [x] Actor conformance
-- [x] Static and instance members
-- [x] Read-only properties, including those with getters marked as `async`, `throws`, or `async throws`
-- [x] Read-write properties
-- [x] Variadic parameters
-- [x] Generic methods
-- [x] Method overloads
-- [ ] Attributed types (`inout`, `consuming`, `sending`, etc.)
-- [ ] Typed `throws`
 
 ## License
 
