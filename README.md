@@ -11,7 +11,8 @@
     - [Associated Types](#associated-types)
     - [Members](#members)
   - [`@MockedMembers`](#mockedmembers)
-    - [Static Members](#static-members) 
+    - [Static Members](#static-members)
+  - [`@MockableProperty`](#mockableproperty)
 - [License](#license)
 
 ## Features
@@ -100,9 +101,8 @@ final class DependencyMock<Key: Hashable, Value: Equatable>: Dependency {}
 ```
 
 #### Members
-In addition to the `@MockedMembers` macro that gets applied to the mock declaration, 
-`@Mocked` also utilizes the `@MockableProperty` and `@MockableMethod` macros when defining 
-the mock's members:
+In addition to the `@MockedMembers` macro that gets applied to the mock declaration, `@Mocked` also 
+utilizes the `@MockableProperty` and `@MockableMethod` macros when defining the mock's members:
 ```swift
 @Mocked
 protocol Dependency {
@@ -237,6 +237,38 @@ public final class DependencyMock: Dependency {
 }
 ```
 This method is useful for tearing down static state between test cases.
+
+### `@MockableProperty`
+In instances where you are using `@MockedMembers` directly instead of using `@Mocked`, `@MockableProperty` 
+is required for `@MockedMembers` to be able to generate backing properties for the property conformances 
+within your mock:
+```
+protocol Dependency {
+    var readOnlyProperty: String { get }
+    var readOnlyAsyncProperty: String { get }
+    var readOnlyThrowingProperty: String { get }
+    var readOnlyAsyncThrowingProperty: String { get }
+    var readWriteProperty: String { get set }
+}
+
+@MockedMembers
+final class DependencyMock: Dependency {
+    @MockableProperty(.readOnly)
+    var readOnlyProperty: String { get }
+
+    @MockableProperty(.readOnly(.async))
+    var readOnlyAsyncProperty: String { get }
+
+    @MockableProperty(.readOnly(.throws))
+    var readOnlyThrowingProperty: String { get }
+
+    @MockableProperty(.readOnly(.async, .throws))
+    var readOnlyAsyncThrowingProperty: String { get }
+
+    @MockableProperty(.readWrite)
+    var readWriteProperty: String { get set }
+}
+```
 
 ## License
 
