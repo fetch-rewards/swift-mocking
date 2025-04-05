@@ -5,6 +5,8 @@
 //  Copyright © 2025 Fetch.
 //
 
+// swiftformat:disable typeSugar
+
 import Foundation
 public import Mocking
 
