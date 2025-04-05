@@ -32,7 +32,8 @@ To add `swift-mocking` to a Swift package manifest file:
 ## Usage
 
 `swift-mocking` contains several Swift macros: `@Mocked`, `@MockedMembers`, `@MockableProperty`, and `@MockableMethod`. 
-It also contains two internal, underscored macros: `@_MockedProperty` and `@_MockedMethod` which are not meant to be used directly.
+
+It also contains two internal, underscored macros (`@_MockedProperty` and `@_MockedMethod`) which are not meant to be used directly.
 
 ### `@Mocked`
 `@Mocked` is an attached, peer macro that generates a mock class from a protocol declaration:
@@ -64,8 +65,8 @@ final actor DependencyMock: Dependency {}
 ```
 
 #### Associated Types
-When `@Mocked` is applied to a protocol that defines associated types, the resulting mock class 
-uses those associated types as its generic parameters in order to fulfill the protocol requirements:
+When `@Mocked` is applied to a protocol that defines associated types, the resulting mock uses 
+those associated types as its generic parameters in order to fulfill the protocol requirements:
 ```swift
 @Mocked
 protocol Dependency {
