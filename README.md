@@ -19,6 +19,7 @@
 - [x] Any access level
 - [x] Associated types, including primary associated types
 - [x] Actor conformance
+- [x] Generic `where` clauses 
 - [x] Initializers
 - [x] Static members
 - [x] Instance members 
