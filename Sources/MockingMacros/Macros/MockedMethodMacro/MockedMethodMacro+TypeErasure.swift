@@ -30,11 +30,11 @@ extension MockedMethodMacro {
     ///     provided `type`. The default value is `Any.self`.
     /// - Returns: A copy of the provided `type`, type-erased if necessary using
     ///   the provided `genericParameters` and `genericWhereClause`.
-    static func type<TypeErasedType>(
+    static func type(
         _ type: any TypeSyntaxProtocol,
         typeErasedIfNecessaryUsing genericParameters: GenericParameterListSyntax?,
         typeConstrainedBy genericWhereClause: GenericWhereClauseSyntax?,
-        typeErasedType: TypeErasedType.Type = Any.self
+        typeErasedType: (some Any).Type = Any.self
     ) -> (
         newType: TypeSyntax,
         didTypeErase: Bool
@@ -283,12 +283,12 @@ extension MockedMethodMacro {
     ///   erased at the provided `typeKeyPath` if the type is contained in the
     ///   provided `genericParameters`, and a Boolean value indicating whether
     ///   the `syntax` was type-erased at the provided `typeKeyPath`.
-    private static func syntax<Syntax: SyntaxProtocol, TypeErasedType>(
+    private static func syntax<Syntax: SyntaxProtocol>(
         _ syntax: Syntax,
         typeErasedAt typeKeyPath: WritableKeyPath<Syntax, TypeSyntax>,
         ifTypeIsContainedIn genericParameters: GenericParameterListSyntax?,
         typeConstrainedBy genericWhereClause: GenericWhereClauseSyntax?,
-        typeErasedType: TypeErasedType.Type = Any.self
+        typeErasedType: (some Any).Type = Any.self
     ) -> (Syntax, Bool) {
         let (type, didTypeErase) = self.type(
             syntax[keyPath: typeKeyPath],
@@ -431,7 +431,7 @@ extension MockedMethodMacro {
     ///   `genericArgumentClauseKeyPath` are contained in the provided
     ///   `genericParameters`, and a Boolean value indicating whether the type
     ///   or any of its generic arguments were type-erased.
-    private static func type<Syntax: TypeSyntaxProtocol, TypeErasedType>(
+    private static func type<Syntax: TypeSyntaxProtocol>(
         _ type: Syntax,
         typeErasedIfAnyArgumentsIn genericArgumentClauseKeyPath: KeyPath<
             Syntax,
@@ -439,7 +439,7 @@ extension MockedMethodMacro {
         >,
         areContainedIn genericParameters: GenericParameterListSyntax?,
         typeConstrainedBy genericWhereClause: GenericWhereClauseSyntax?,
-        typeErasedType: TypeErasedType.Type
+        typeErasedType: (some Any).Type
     ) -> (
         newType: any TypeSyntaxProtocol,
         didTypeErase: Bool
