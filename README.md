@@ -117,8 +117,10 @@ protocol Dependency: Actor {}
 
 // Generates:
 
+#if SWIFT_MOCKING_ENABLED
 @MockedMembers
 final actor DependencyMock: Dependency {}
+#endif
 ```
 
 #### Associated Types
@@ -133,8 +135,10 @@ protocol Dependency {
 
 // Generates:
 
+#if SWIFT_MOCKING_ENABLED
 @MockedMembers
 final class DependencyMock<Key: Hashable, Value: Equatable>: Dependency {}
+#endif
 ```
 
 #### Members
@@ -152,6 +156,7 @@ protocol Dependency {
 
 // Generates:
 
+#if SWIFT_MOCKING_ENABLED
 @MockedMembers
 final class DependencyMock: Dependency {
     @MockableProperty(.readOnly)
@@ -169,6 +174,7 @@ final class DependencyMock: Dependency {
     @MockableProperty(.readWrite)
     var readWriteProperty: String
 }
+#endif
 ```
 Because `@MockedMembers` cannot look outward at the protocol declaration to determine whether, for example,
 a property is read-only or read-write, `@Mocked` uses `@MockableProperty` and `@MockableMethod` to provide
@@ -191,6 +197,7 @@ protocol Dependency: SomeProtocol {
     func methodFromDependency()
 }
 
+#if SWIFT_MOCKING_ENABLED
 @MockedMembers
 final class DependencyMock: Dependency {
     @MockableProperty(.readOnly)
@@ -203,6 +210,7 @@ final class DependencyMock: Dependency {
 
     func methodFromSomeProtocol()
 }
+#endif
 ```
 
 #### Static Members
@@ -288,6 +296,7 @@ protocol Dependency {
     var readWriteProperty: String { get set }
 }
 
+#if SWIFT_MOCKING_ENABLED
 @MockedMembers
 final class DependencyMock: Dependency {
     @MockableProperty(.readOnly)
@@ -305,6 +314,7 @@ final class DependencyMock: Dependency {
     @MockableProperty(.readWrite)
     var readWriteProperty: String { get set }
 }
+#endif
 ```
 
 ### `@MockableMethod`
