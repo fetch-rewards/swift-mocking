@@ -87,6 +87,23 @@ array:
 > The `.debug` build configuration in a Swift Package applies to any Xcode project build configuration with a name
 > that begins with either "Debug" or "Development".
 
+If you would like to specify a compilation condition other than `SWIFT_MOCKING_ENABLED`, you can explicitly provide
+one to the `@Mocked` macro:
+```swift
+/// The mock will not be wrapped in an `#if` compiler directive.
+@Mocked(compilationCondition: .none)
+protocol NoneCompilationCondition {}
+
+/// `#if DEBUG`
+@Mocked(compilationCondition: .debug)
+protocol DebugCompilationCondition {}
+
+/// `#if !RELEASE`
+@Mocked(compilationCondition: "!RELEASE")
+protocol CustomCompilationCondition {}
+```
+
+
 #### Access Levels
 The generated mock is marked with the access level required to conform to the protocol:
 `public` for `public`, implicit `internal` for both implicit and explicit `internal`,
