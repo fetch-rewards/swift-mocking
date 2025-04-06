@@ -5,6 +5,7 @@
 - [Features](#features)
 - [Installation](#installation)
 - [Usage](#usage)
+- [Macros](#macros)
   - [`@Mocked`](#mocked)
     - [Compilation Condition](#compilation-condition)
     - [Access Levels](#access-levels)
@@ -18,6 +19,7 @@
 - [License](#license)
 
 ## Features
+
 `swift-mocking` is Swift 6 compatible, fully concurrency-safe, and generates conditionally compiled mocks that can handle:
 - [x] Any access level
 - [x] Associated types, including primary associated types
@@ -53,11 +55,84 @@ To add `swift-mocking` to a Swift package manifest file:
 
 ## Usage
 
+Import `Mocked`:
+```swift
+import Mocked
+```
+
+Attach the `@Mocked` macro to your protocol:
+```swift
+@Mocked
+protocol Dependency {
+    var readOnlyProperty: Int { get }
+    var readOnlyThrowingProperty: Int { get throws }
+
+    var readWriteProperty: Int { get set }
+
+    func returningMethod() -> Int
+    func returningThrowingMethod() throws -> Int
+    func returningParameterizedMethod(x: Int, y: Int) -> Int
+
+    func voidMethod()
+    func voidThrowingMethod() throws
+    func voidParameterizedMethod(x: Int, y: Int)
+}
+```
+
+And that's it! You now have a sophisticated mock dependency that will be updated automatically any time you change 
+your protocol.
+
+Let's take a look at the mock that we've generated, stripping out some of the implementation details to highlight
+the mock's API:
+```swift
+final class DependencyMock: Dependency {
+    var readOnlyProperty: Int
+    var _readOnlyProperty: MockReadOnlyProperty<Int>
+
+    var readOnlyThrowingProperty: Int
+    var _readOnlyThrowingProperty: MockReadOnlyThrowingProperty<Int>
+
+    var readWriteProperty: Int
+    var _readWriteProperty: MockReadWriteProperty<Int>
+
+    func returningMethod() -> Int
+    var _returningMethod: MockReturningNonParameterizedMethod<Int>
+
+    func returningThrowingMethod() throws -> Int
+    var _returningThrowingMethod: MockReturningNonParameterizedThrowingMethod<Int>
+
+    func returningParameterizedMethod(x: Int, y: Int) -> Int
+    var _returningParameterizedMethod: MockReturningParameterizedMethod<...>
+
+    func voidMethod()
+    var _voidMethod: MockVoidNonParameterizedMethod
+
+    func voidThrowingMethod() throws
+    var _voidThrowingMethod: MockVoidNonParameterizedThrowingMethod
+
+    func voidParameterizedMethod(x: Int, y: Int)
+    var _voidParameterizedMethod: MockVoidParameterizedMethod<...>
+}
+```
+
+As you can see, each member of the generated mock is backed by a single, underscored property. These backing
+properties contain all the invocation records and implementation details of each member.
+
+> [!NOTE]
+> For mocking protocols that conform to other protocols, see [`@MockedMembers`](#mockedmembers).
+
+> [!IMPORTANT]
+> To ensure that your generated mocks are conditionally compiled to exclude them from production builds, see
+> [Compilation Condition](#compilation-condition).
+
+## Macros
+
 `swift-mocking` contains several Swift macros: `@Mocked`, `@MockedMembers`, `@MockableProperty`, and `@MockableMethod`. 
 
 It also contains two internal, underscored macros (`@_MockedProperty` and `@_MockedMethod`) which are not meant to be used directly.
 
 ### `@Mocked`
+
 `@Mocked` is an attached, peer macro that generates a mock class from a protocol declaration:
 ```swift
 @Mocked
@@ -72,8 +147,20 @@ final class DependencyMock: Dependency {}
 ```
 
 #### Compilation Condition
+
 By default, `@Mocked` wraps the generated mock in an `#if` compiler directive with a `SWIFT_MOCKING_ENABLED`
-condition. 
+condition:
+```swift
+@Mocked
+protocol Dependency {}
+
+// Generates:
+
+#if SWIFT_MOCKING_ENABLED
+@MockedMembers
+final class DependencyMock: Dependency {}
+#endif
+```
 
 To make use of this condition in an Xcode project, add `SWIFT_MOCKING_ENABLED` as a compiler flag to the build 
 configurations for which you would like mocks to compile. 
@@ -105,11 +192,13 @@ protocol CustomCompilationCondition {}
 
 
 #### Access Levels
+
 The generated mock is marked with the access level required to conform to the protocol:
 `public` for `public`, implicit `internal` for both implicit and explicit `internal`,
 and `fileprivate` for both `fileprivate` and `private`.
 
 #### Actor Conformance
+
 `@Mocked` also supports protocols that conform to `Actor`:
 ```swift
 @Mocked
@@ -124,6 +213,7 @@ final actor DependencyMock: Dependency {}
 ```
 
 #### Associated Types
+
 When `@Mocked` is applied to a protocol that defines associated types, the resulting mock uses 
 those associated types as its generic parameters in order to fulfill the protocol requirements:
 ```swift
@@ -142,16 +232,17 @@ final class DependencyMock<Key: Hashable, Value: Equatable>: Dependency {}
 ```
 
 #### Members
+
 In addition to the `@MockedMembers` macro that gets applied to the mock declaration, `@Mocked` also 
 utilizes the `@MockableProperty` and `@MockableMethod` macros when defining the mock's members:
 ```swift
 @Mocked
 protocol Dependency {
-    var readOnlyProperty: String { get }
-    var readOnlyAsyncProperty: String { get async }
-    var readOnlyThrowingProperty: String { get throws }
-    var readOnlyAsyncThrowingProperty: String { get async throws }
-    var readWriteProperty: String { get set }
+    var readOnlyProperty: Int { get }
+    var readOnlyAsyncProperty: Int { get async }
+    var readOnlyThrowingProperty: Int { get throws }
+    var readOnlyAsyncThrowingProperty: Int { get async throws }
+    var readWriteProperty: Int { get set }
 }
 
 // Generates:
@@ -160,19 +251,19 @@ protocol Dependency {
 @MockedMembers
 final class DependencyMock: Dependency {
     @MockableProperty(.readOnly)
-    var readOnlyProperty: String
+    var readOnlyProperty: Int
 
     @MockableProperty(.readOnly(.async))
-    var readOnlyAsyncProperty: String
+    var readOnlyAsyncProperty: Int
 
     @MockableProperty(.readOnly(.throws))
-    var readOnlyThrowingProperty: String
+    var readOnlyThrowingProperty: Int
 
     @MockableProperty(.readOnly(.async, .throws))
-    var readOnlyAsyncThrowingProperty: String
+    var readOnlyAsyncThrowingProperty: Int
 
     @MockableProperty(.readWrite)
-    var readWriteProperty: String
+    var readWriteProperty: Int
 }
 #endif
 ```
@@ -183,6 +274,7 @@ information about each member to `@MockedMembers`. `@MockedMembers` then applies
 members' implementations.
 
 ### `@MockedMembers`
+
 Just like with `@MockedMembers`, `@Mocked` also cannot look outward. This presents a problem when the protocol you 
 are trying to mock conforms to another protocol. Because `@Mocked` cannot see the other protocol's declaration, it 
 is unable to generate conformances to the requirements of that protocol. In this instance, you will need to write 
@@ -192,7 +284,7 @@ feature to add protocol conformances and `@MockedMembers`, `@MockableProperty`, 
 backing properties, you can still easily create and maintain these mocks with minimal code.
 ```swift
 protocol Dependency: SomeProtocol {
-    var propertyFromDependency: String { get }
+    var propertyFromDependency: Int { get }
 
     func methodFromDependency()
 }
@@ -201,10 +293,10 @@ protocol Dependency: SomeProtocol {
 @MockedMembers
 final class DependencyMock: Dependency {
     @MockableProperty(.readOnly)
-    var propertyFromDependency: String
+    var propertyFromDependency: Int
 
     @MockableProperty(.readWrite)
-    var propertyFromSomeProtocol: String
+    var propertyFromSomeProtocol: Int
 
     func methodFromDependency()
 
@@ -214,6 +306,7 @@ final class DependencyMock: Dependency {
 ```
 
 #### Static Members
+
 When a mock contains static members, `@MockedMembers` generates a static method named `resetMockedStaticMembers`
 that can be used to reset the backing properties for those static members:
 ```swift
@@ -241,40 +334,42 @@ public final class DependencyMock: Dependency {
 This method is useful for tearing down static state between test cases.
 
 ### `@MockableProperty`
+
 In instances where you are using `@MockedMembers` directly instead of using `@Mocked`, `@MockableProperty` 
 is required for `@MockedMembers` to be able to generate backing properties for the property conformances 
 within your mock:
 ```swift
 protocol Dependency {
-    var readOnlyProperty: String { get }
-    var readOnlyAsyncProperty: String { get }
-    var readOnlyThrowingProperty: String { get }
-    var readOnlyAsyncThrowingProperty: String { get }
-    var readWriteProperty: String { get set }
+    var readOnlyProperty: Int { get }
+    var readOnlyAsyncProperty: Int { get }
+    var readOnlyThrowingProperty: Int { get }
+    var readOnlyAsyncThrowingProperty: Int { get }
+    var readWriteProperty: Int { get set }
 }
 
 #if SWIFT_MOCKING_ENABLED
 @MockedMembers
 final class DependencyMock: Dependency {
     @MockableProperty(.readOnly)
-    var readOnlyProperty: String { get }
+    var readOnlyProperty: Int { get }
 
     @MockableProperty(.readOnly(.async))
-    var readOnlyAsyncProperty: String { get }
+    var readOnlyAsyncProperty: Int { get }
 
     @MockableProperty(.readOnly(.throws))
-    var readOnlyThrowingProperty: String { get }
+    var readOnlyThrowingProperty: Int { get }
 
     @MockableProperty(.readOnly(.async, .throws))
-    var readOnlyAsyncThrowingProperty: String { get }
+    var readOnlyAsyncThrowingProperty: Int { get }
 
     @MockableProperty(.readWrite)
-    var readWriteProperty: String { get set }
+    var readWriteProperty: Int { get set }
 }
 #endif
 ```
 
 ### `@MockableMethod`
+
 Unlike `@MockableProperty`, `@MockableMethod` is not required when using `@MockedMembers` directly. 
 `@MockedMembers` can and will generate backing properties for method conformances within your mock 
 whether they are explicitly marked with `@MockableMethod` or not.
