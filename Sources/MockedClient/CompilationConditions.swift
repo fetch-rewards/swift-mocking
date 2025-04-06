@@ -49,11 +49,21 @@ public protocol DebugCompilationCondition {}
 public protocol SwiftMockingEnabledCompilationCondition {}
 
 /// A protocol for verifying Mocked's handling of its `compilationCondition`
-/// argument with a custom compilation condition.
+/// argument with a `.custom` compilation condition.
 ///
 /// - Important: Please only use this protocol for permanent verification of
-///   Mocked's handling of its `compilationCondition` argument with a custom
+///   Mocked's handling of its `compilationCondition` argument with a `.custom`
 ///   compilation condition. For temporary testing of Mocked's expansion, use
 ///   the `Playground` protocol in `main.swift`.
 @Mocked(compilationCondition: .custom("!RELEASE"))
 public protocol CustomCompilationCondition {}
+
+/// A protocol for verifying Mocked's handling of its `compilationCondition`
+/// argument with a string literal compilation condition.
+///
+/// - Important: Please only use this protocol for permanent verification of
+///   Mocked's handling of its `compilationCondition` argument with a string
+///   literal compilation condition. For temporary testing of Mocked's
+///   expansion, use the `Playground` protocol in `main.swift`.
+@Mocked(compilationCondition: "!RELEASE")
+public protocol StringLiteralCompilationCondition {}
