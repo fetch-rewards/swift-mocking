@@ -225,9 +225,7 @@ public final class DependencyMock: Dependency {
     @MockableProperty(.readWrite)
     public static var staticReadWriteProperty: Int
 
-    public static func staticReturningMethod() -> Int
-
-    public static func staticVoidMethod()
+    public static func staticMethod()
 
     // Generates:
 
@@ -236,8 +234,7 @@ public final class DependencyMock: Dependency {
     public static func resetMockedStaticMembers() {
         self.__staticReadOnlyProperty.reset()
         self.__staticReadWriteProperty.reset()
-        self.__staticReturningMethod.reset()
-        self.__staticVoidMethod.reset()
+        self.__staticMethod.reset()
     }
 }
 ```
