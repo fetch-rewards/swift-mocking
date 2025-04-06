@@ -219,65 +219,25 @@ that can be used to reset the backing properties for those static members:
 ```swift
 @MockedMembers
 public final class DependencyMock: Dependency {
-    @MockableProperty(.readOnly(.async))
-    public static var staticReadOnlyAsyncProperty: Int
-
-    @MockableProperty(.readOnly(.async, .throws))
-    public static var staticReadOnlyAsyncThrowingProperty: Int
-
     @MockableProperty(.readOnly)
     public static var staticReadOnlyProperty: Int
-
-    @MockableProperty(.readOnly(.throws))
-    public static var staticReadOnlyThrowingProperty: Int
 
     @MockableProperty(.readWrite)
     public static var staticReadWriteProperty: Int
 
-    public static func staticReturningAsyncMethodWithoutParameters() async -> Int
-    public static func staticReturningAsyncMethodWithParameters(parameter: Int) async -> Int
-    public static func staticReturningAsyncThrowingMethodWithoutParameters() async throws -> Int
-    public static func staticReturningAsyncThrowingMethodWithParameters(parameter: Int) async throws -> Int
-    public static func staticReturningMethodWithoutParameters() -> Int
-    public static func staticReturningMethodWithParameters(parameter: Int) -> Int
-    public static func staticReturningThrowingMethodWithoutParameters() throws -> Int
-    public static func staticReturningThrowingMethodWithParameters(parameter: Int) throws -> Int
+    public static func staticReturningMethod() -> Int
 
-    public static func staticVoidAsyncMethodWithoutParameters() async
-    public static func staticVoidAsyncMethodWithParameters(parameter: Int) async
-    public static func staticVoidAsyncThrowingMethodWithoutParameters() async throws
-    public static func staticVoidAsyncThrowingMethodWithParameters(parameter: Int) async throws
-    public static func staticVoidMethodWithoutParameters()
-    public static func staticVoidMethodWithParameters(parameter: Int)
-    public static func staticVoidThrowingMethodWithoutParameters() throws
-    public static func staticVoidThrowingMethodWithParameters(parameter: Int) throws
+    public static func staticVoidMethod()
 
     // Generates:
 
     /// Resets the implementations and invocation records of the mock's 
     /// static properties and methods.
     public static func resetMockedStaticMembers() {
-        self.__staticReadOnlyAsyncProperty.reset()
-        self.__staticReadOnlyAsyncThrowingProperty.reset()
         self.__staticReadOnlyProperty.reset()
-        self.__staticReadOnlyThrowingProperty.reset()
         self.__staticReadWriteProperty.reset()
-        self.__staticReturningAsyncMethodWithoutParameters.reset()
-        self.__staticReturningAsyncMethodWithParameters.reset()
-        self.__staticReturningAsyncThrowingMethodWithoutParameters.reset()
-        self.__staticReturningAsyncThrowingMethodWithParameters.reset()
-        self.__staticReturningMethodWithoutParameters.reset()
-        self.__staticReturningMethodWithParameters.reset()
-        self.__staticReturningThrowingMethodWithoutParameters.reset()
-        self.__staticReturningThrowingMethodWithParameters.reset()
-        self.__staticVoidAsyncMethodWithoutParameters.reset()
-        self.__staticVoidAsyncMethodWithParameters.reset()
-        self.__staticVoidAsyncThrowingMethodWithoutParameters.reset()
-        self.__staticVoidAsyncThrowingMethodWithParameters.reset()
-        self.__staticVoidMethodWithoutParameters.reset()
-        self.__staticVoidMethodWithParameters.reset()
-        self.__staticVoidThrowingMethodWithoutParameters.reset()
-        self.__staticVoidThrowingMethodWithParameters.reset()
+        self.__staticReturningMethod.reset()
+        self.__staticVoidMethod.reset()
     }
 }
 ```
