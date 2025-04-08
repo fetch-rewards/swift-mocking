@@ -4,6 +4,7 @@
 
 - [Features](#features)
 - [Installation](#installation)
+- [Example](#example)
 - [Usage](#usage)
 - [Macros](#macros)
   - [`@Mocked`](#mocked)
@@ -37,6 +38,31 @@
 - [x] Method overloads
 - [x] Attributed types (`inout`, `consuming`, `sending`, etc.)
 - [x] Variadic parameters
+
+## Example
+
+```swift
+@Mocked
+protocol AuthService {
+    func logIn(email: String, password: String) async throws -> AuthToken
+}
+```
+
+```swift
+struct LogInViewModel_Tests {
+    @Test
+    func logInSuccess() async {
+        let authService = AuthServiceMock()
+        let viewModel = LogInViewModel(authService: authService)
+
+        await viewModel.logIn(email: "J.doe@EXAMPLE.com"
+    }
+
+    @Test
+    func logInFailure() async {
+    }
+}
+```
 
 ## Installation
 
