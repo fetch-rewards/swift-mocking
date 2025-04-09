@@ -16,7 +16,9 @@
   - [`@MockedMembers`](#mockedmembers)
     - [Static Members](#static-members)
   - [`@MockableProperty`](#mockableproperty)
+    - [`@MockableProperty` vs. `@_MockedProperty`](#mockableproperty-vs-_mockedproperty)
   - [`@MockableMethod`](#mockablemethod)
+    - [`@MockableMethod` vs. `@_MockedMethod`](#mockablemethod-vs-_mockedmethod)
 - [License](#license)
 
 ## Features
@@ -296,16 +298,20 @@ final class DependencyMock: Dependency {
 Because `@MockedMembers` cannot look outward at the protocol declaration to determine whether, for example,
 a property is read-only or read-write, `@Mocked` uses `@MockableProperty` and `@MockableMethod` to provide
 information about each member to `@MockedMembers`. `@MockedMembers` then applies the `@_MockedProperty` and 
-`@_MockedMethod` macros to those members, generating backing properties that can be used to override those 
-members' implementations.
+`@_MockedMethod` macros to those members, generating the mock's backing properties.
+
+> [!NOTE]
+> For an explanation of the distinction between `@MockableProperty` and `@_MockedProperty` and `@MockableMethod`
+> and `@_MockedMethod`, see [`@MockableProperty`](#mockableproperty) and [`@MockableMethod`](#mockablemethod),
+> respectively.
 
 ### `@MockedMembers`
 
-Just like `@MockedMembers`, `@Mocked` also cannot look outward. This presents a problem when the protocol you are 
-trying to mock inherits from another protocol. Because `@Mocked` cannot see the other protocol's declaration, it is 
-unable to generate conformances to the requirements of that protocol. In this instance, you will need to write the 
-mock declaration yourself, along with the declarations for the properties and methods required by the protocols.
-Luckily, using Xcode's [Fix-It](https://developer.apple.com/documentation/xcode/fixing-issues-in-your-code-as-you-type#Make-a-Fix-It-correction) 
+Like `@MockedMembers`, `@Mocked` also cannot look outward. This presents a problem when the protocol you are trying 
+to mock inherits from another protocol. Because `@Mocked` cannot see the other protocol's declaration, it is unable 
+to generate conformances to the requirements of that protocol. In this instance, you will need to write the mock 
+declaration yourself, along with the declarations for the properties and methods required by the protocols. Luckily, 
+using Xcode's [Fix-It](https://developer.apple.com/documentation/xcode/fixing-issues-in-your-code-as-you-type#Make-a-Fix-It-correction) 
 feature to add protocol conformances and `@MockedMembers`, `@MockableProperty`, and `@MockableMethod` to generate 
 backing properties, you can still easily create and maintain these mocks with minimal code.
 ```swift
@@ -394,13 +400,14 @@ final class DependencyMock: Dependency {
 #endif
 ```
 
-> [!NOTE]
-> `@MockableProperty` does not produce an expansion. It is simply a marker that exposes `propertyType`
-> (`.readOnly`, `.readWrite`, etc.) to `@MockedMembers`. `@MockedMembers` then forwards this information to
-> `@_MockedProperty` along with other parameters that `@MockedMembers` provides for us. `@_MockedProperty` then
-> generates the mock's backing properties. `@MockableProperty` exists so that the consumer has to provide as little
-> information as possible when manually applying `@MockedMembers`. The usage of the prefix `Mockable` is a deliberate
-> choice to semantically distinguish the macros that serve as markers from those that actually produce mocks.
+#### `@MockableProperty` vs. `@_MockedProperty`
+
+`@MockableProperty` does not produce an expansion. It is simply a marker that exposes `propertyType`
+(`.readOnly`, `.readWrite`, etc.) to `@MockedMembers`. `@MockedMembers` then forwards this information to
+`@_MockedProperty` along with other parameters that `@MockedMembers` provides for us. `@_MockedProperty` then
+generates the mock's backing properties. `@MockableProperty` exists so that the consumer has to provide as little
+information as possible when manually applying `@MockedMembers`. The usage of the prefix `Mockable` is a deliberate
+choice to semantically distinguish the macros that serve as markers from those that actually produce mocks.
 
 ### `@MockableMethod`
 
@@ -427,13 +434,14 @@ If you believe that `@Mocked` or `@MockedMembers` should have been able to resol
 or if you think the name conflict resolution logic can be improved in any way, please let us know by
 [opening an issue](https://github.com/fetch-rewards/swift-mocking/issues/new).
 
-> [!NOTE]
-> Just like `@MockableProperty`, `@MockableMethod` also does not produce an expansion. It is simply a marker that
-> exposes `mockMethodName` to `@MockedMembers`. `@MockedMembers` then forwards this information to `@_MockedMethod`
-> along with other parameters that `@MockedMembers` provides for us. `@_MockedMethod` then generates the mock's
-> backing properties. `@MockableMethod` exists so that the consumer has to provide as little information as possible
-> when manually applying `@MockedMembers`. The usage of the prefix `Mockable` is a deliberate choice to semantically
-> distinguish the macros that serve as markers from those that actually produce mocks.
+#### `@MockableMethod` vs. `@_MockedMethod`
+
+Like `@MockableProperty`, `@MockableMethod` also does not produce an expansion. It is simply a marker that exposes
+`mockMethodName` to `@MockedMembers`. `@MockedMembers` then forwards this information to `@_MockedMethod` along with
+other parameters that `@MockedMembers` provides for us. `@_MockedMethod` then generates the mock's backing properties.
+`@MockableMethod` exists so that the consumer has to provide as little information as possible when manually applying
+`@MockedMembers`. The usage of the prefix `Mockable` is a deliberate choice to semantically distinguish the macros
+that serve as markers from those that actually produce mocks.
 
 ## License
 
