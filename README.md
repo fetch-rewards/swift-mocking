@@ -145,7 +145,7 @@ As you can see, each member of the generated mock is backed by a single, undersc
 properties contain all the invocation records and implementation details of each member.
 
 > [!NOTE]
-> For mocking protocols that conform to other protocols, see [`@MockedMembers`](#mockedmembers).
+> For mocking protocols that inherit from other protocols, see [`@MockedMembers`](#mockedmembers).
 
 > [!IMPORTANT]
 > To ensure that your generated mocks are conditionally compiled to exclude them from production builds, see
@@ -302,7 +302,7 @@ members' implementations.
 ### `@MockedMembers`
 
 Just like with `@MockedMembers`, `@Mocked` also cannot look outward. This presents a problem when the protocol you 
-are trying to mock conforms to another protocol. Because `@Mocked` cannot see the other protocol's declaration, it 
+are trying to mock inherits from another protocol. Because `@Mocked` cannot see the other protocol's declaration, it 
 is unable to generate conformances to the requirements of that protocol. In this instance, you will need to write 
 the mock declaration yourself, along with the declarations for the properties and methods required by the protocols.
 Luckily, using Xcode's [Fix-It](https://developer.apple.com/documentation/xcode/fixing-issues-in-your-code-as-you-type#Make-a-Fix-It-correction) 
