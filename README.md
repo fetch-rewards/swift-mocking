@@ -298,12 +298,11 @@ final class DependencyMock: Dependency {
 Because `@MockedMembers` cannot look outward at the protocol declaration to determine whether, for example,
 a property is read-only or read-write, `@Mocked` uses `@MockableProperty` and `@MockableMethod` to provide
 information about each member to `@MockedMembers`. `@MockedMembers` then applies the `@_MockedProperty` and 
-`@_MockedMethod` macros to those members, generating the mock's backing properties.
+`@_MockedMethod` macros to those members, which in turn generate the mock's backing properties.
 
 > [!NOTE]
-> For an explanation of the distinction between `@MockableProperty` and `@_MockedProperty` and `@MockableMethod`
-> and `@_MockedMethod`, see [`@MockableProperty`](#mockableproperty) and [`@MockableMethod`](#mockablemethod),
-> respectively.
+> See [`@MockableProperty` vs. `@_MockedProperty`](#mockableproperty-vs-_mockedproperty) and
+> [`@MockableMethod` vs. `@_MockedMethod`](#mockablemethod-vs-_mockedmethod) for more information.
 
 ### `@MockedMembers`
 
