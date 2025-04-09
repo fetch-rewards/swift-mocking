@@ -45,23 +45,56 @@
 
 ```swift
 @Mocked
-protocol AuthService {
-    func logIn(email: String, password: String) async throws -> AuthToken
+protocol ContactSearchService {
+    func contacts(searchQuery: String, filters: Set<ContactSearchFilter>) async throws -> [Contact]
 }
 ```
 
 ```swift
-struct LogInViewModel_Tests {
+struct ContactSearchViewModelTests {
     @Test
-    func logInSuccess() async {
-        let authService = AuthServiceMock()
-        let viewModel = LogInViewModel(authService: authService)
+    func handleSearchQuerySuccess() async {
+        let contactSearchService = ContactSearchServiceMock()
+        let viewModel = ContactSearchViewModel(contactSearchService: contactSearchService)
+        let contacts = [Contact(id: "1", name: "John Appleseed")]
 
-        await viewModel.logIn(email: "J.doe@EXAMPLE.com"
+        // Set the dependency's implementation.
+        contactSearchService._contacts.implementation = .returns(contacts)
+
+        // Invoke the method being tested.
+        await viewModel.handleSearchQuery("   JoHN AppLESEED ", filters: [.favorites])
+
+        // Validate the number of times the dependency was called.
+        #expect(contactSearchService._contacts.callCount == 1)
+
+        // Validate the arguments passed to the dependency.
+        #expect(contactSearchService._contacts.lastInvocation.searchQuery == "john appleseed")
+        #expect(contactSearchService._contacts.lastInvocation.filters == [.favorites])
+
+        // Validate the view model's new state.
+        #expect(viewModel.state == .loaded(contacts))
     }
 
     @Test
-    func logInFailure() async {
+    func handleSearchQueryFailure() async {
+        let contactSearchService = ContactSearchServiceMock()
+        let viewModel = ContactSearchViewModel(contactSearchService: contactSearchService)
+
+        // Set the dependency's implementation.
+        contactSearchService._contacts.implementation = .throws(URLError(.badServerResponse))
+
+        // Invoke the method being tested.
+        await viewModel.handleSearchQuery("   JoHN AppLESEED ", filters: [.favorites])
+
+        // Validate the number of times the dependency was called.
+        #expect(contactSearchService._contacts.callCount == 1)
+
+        // Validate the arguments passed to the dependency.
+        #expect(contactSearchService._contacts.lastInvocation.searchQuery == "john appleseed")
+        #expect(contactSearchService._contacts.lastInvocation.filters == [.favorites])
+
+        // Validate the view model's new state.
+        #expect(viewModel.state == .failed)
     }
 }
 ```
