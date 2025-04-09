@@ -301,10 +301,10 @@ members' implementations.
 
 ### `@MockedMembers`
 
-Just like with `@MockedMembers`, `@Mocked` also cannot look outward. This presents a problem when the protocol you 
-are trying to mock inherits from another protocol. Because `@Mocked` cannot see the other protocol's declaration, it 
-is unable to generate conformances to the requirements of that protocol. In this instance, you will need to write 
-the mock declaration yourself, along with the declarations for the properties and methods required by the protocols.
+Just like `@MockedMembers`, `@Mocked` also cannot look outward. This presents a problem when the protocol you are 
+trying to mock inherits from another protocol. Because `@Mocked` cannot see the other protocol's declaration, it is 
+unable to generate conformances to the requirements of that protocol. In this instance, you will need to write the 
+mock declaration yourself, along with the declarations for the properties and methods required by the protocols.
 Luckily, using Xcode's [Fix-It](https://developer.apple.com/documentation/xcode/fixing-issues-in-your-code-as-you-type#Make-a-Fix-It-correction) 
 feature to add protocol conformances and `@MockedMembers`, `@MockableProperty`, and `@MockableMethod` to generate 
 backing properties, you can still easily create and maintain these mocks with minimal code.
@@ -428,7 +428,7 @@ or if you think the name conflict resolution logic can be improved in any way, p
 [opening an issue](https://github.com/fetch-rewards/swift-mocking/issues/new).
 
 > [!NOTE]
-> Just like with `@MockableProperty`, `@MockableMethod` does not produce an expansion. It is simply a marker that
+> Just like `@MockableProperty`, `@MockableMethod` also does not produce an expansion. It is simply a marker that
 > exposes `mockMethodName` to `@MockedMembers`. `@MockedMembers` then forwards this information to `@_MockedMethod`
 > along with other parameters that `@MockedMembers` provides for us. `@_MockedMethod` then generates the mock's
 > backing properties. `@MockableMethod` exists so that the consumer has to provide as little information as possible
