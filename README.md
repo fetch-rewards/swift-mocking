@@ -394,6 +394,14 @@ final class DependencyMock: Dependency {
 #endif
 ```
 
+> [!NOTE]
+> `@MockableProperty` does not produce an expansion. It is simply a marker that exposes `propertyType`
+> (`.readOnly`, `.readWrite`, etc.) to `@MockedMembers`. `@MockedMembers` then forwards this information to
+> `@_MockedProperty` along with other parameters that `@MockedMembers` provides for us. `@_MockedProperty` then
+> generates the mock's backing properties. `@MockableProperty` exists so that the consumer has to provide as little
+> information as possible when manually applying `@MockedMembers`. The usage of the prefix `Mockable` is a deliberate
+> choice to semantically distinguish the macros that serve as markers from those that actually produce mocks.
+
 ### `@MockableMethod`
 
 Unlike `@MockableProperty`, `@MockableMethod` is not required when using `@MockedMembers` directly. 
@@ -418,6 +426,14 @@ method's backing property and wish to give the backing property a different name
 If you believe that `@Mocked` or `@MockedMembers` should have been able to resolve a name conflict,
 or if you think the name conflict resolution logic can be improved in any way, please let us know by
 [opening an issue](https://github.com/fetch-rewards/swift-mocking/issues/new).
+
+> [!NOTE]
+> Just like with `@MockableProperty`, `@MockableMethod` does not produce an expansion. It is simply a marker that
+> exposes `mockMethodName` to `@MockedMembers`. `@MockedMembers` then forwards this information to `@_MockedMethod`
+> along with other parameters that `@MockedMembers` provides for us. `@_MockedMethod` then generates the mock's
+> backing properties. `@MockableMethod` exists so that the consumer has to provide as little information as possible
+> when manually applying `@MockedMembers`. The usage of the prefix `Mockable` is a deliberate choice to semantically
+> distinguish the macros that serve as markers from those that actually produce mocks.
 
 ## License
 
