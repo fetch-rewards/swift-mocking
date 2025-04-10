@@ -44,34 +44,34 @@
 
 ```swift
 @Mocked
-protocol ContactSearchService {
-    func contacts(searchQuery: String, filters: Set<ContactSearchFilter>) async throws -> [Contact]
+protocol WeatherService {
+    func currentWeather(latitude Double, longitude: Double) async throws -> CurrentWeather
 }
 ```
 
 ```swift
-struct ContactSearchViewModelTests {
+struct WeatherViewModelTests {
     @Test
-    func handleSearchQuerySuccess() async {
-        let contactSearchService = ContactSearchServiceMock()
-        let viewModel = ContactSearchViewModel(contactSearchService: contactSearchService)
-        let contacts = [Contact(id: "1", name: "John Appleseed")]
+    func loadCurrentWeather() async {
+        let weatherService = WeatherServiceMock()
+        let viewModel = WeatherViewModel(weatherService: weatherService)
+        let currentWeather = CurrentWeather(temperature: 75, description: "Sunny")
 
         // Set the dependency's implementation.
-        contactSearchService._contacts.implementation = .returns(contacts)
+        weatherService._currentWeather.implementation = .returns(currentWeather)
 
         // Invoke the method being tested.
-        await viewModel.handleSearchQuery("  JoHN AppLESEED  ", filters: [.favorites])
+        await viewModel.loadCurrentWeather(latitude: 37.3349, longitude: 122.0090)
 
         // Validate the number of times the dependency was called.
-        #expect(contactSearchService._contacts.callCount == 1)
+        #expect(weatherService._currentWeather.callCount == 1)
 
         // Validate the arguments passed to the dependency.
-        #expect(contactSearchService._contacts.lastInvocation.searchQuery == "john appleseed")
-        #expect(contactSearchService._contacts.lastInvocation.filters == [.favorites])
+        #expect(weatherService._currentWeather.lastInvocation.latitude == 37.3349)
+        #expect(weatherService._currentWeather.lastInvocation.longitude == 122.0090)
 
         // Validate the view model's new state.
-        #expect(viewModel.state == .loaded(contacts))
+        #expect(viewModel.state == .loaded(currentWeather))
     }
 }
 ```
