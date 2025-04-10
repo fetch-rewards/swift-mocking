@@ -62,7 +62,7 @@ struct ContactSearchViewModelTests {
         contactSearchService._contacts.implementation = .returns(contacts)
 
         // Invoke the method being tested.
-        await viewModel.handleSearchQuery("   JoHN AppLESEED ", filters: [.favorites])
+        await viewModel.handleSearchQuery("  JoHN AppLESEED  ", filters: [.favorites])
 
         // Validate the number of times the dependency was called.
         #expect(contactSearchService._contacts.callCount == 1)
