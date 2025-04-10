@@ -24,7 +24,7 @@ let package = Package(
     ],
     dependencies: [
         .package(
-            url: "git@github.com:fetch-rewards/swift-locking.git",
+            url: "git@github.com:fetch-rewards/swift-synchronization.git",
             revision: "0fb7f20b63d3e2be4eb5197f7211e862611adae3"
         ),
         .package(
@@ -43,7 +43,7 @@ let package = Package(
                 "MockedMacros",
                 .product(
                     name: "Locked",
-                    package: "swift-locking"
+                    package: "swift-synchronization"
                 ),
             ],
             swiftSettings: .default
