@@ -1,5 +1,5 @@
 name: Bug Report
-description: Report a bug or unexpected behavior in the Swift package
+description: Report a bug or unexpected behavior
 title: "[Bug] <brief description>"
 labels: [bug]
 assignees: []
@@ -8,22 +8,22 @@ body:
   - type: markdown
     attributes:
       value: |
-        ### 👋 Thanks for reporting a bug!
-        Please fill out the form below so we can help you faster.
+        ### Thanks for reporting a bug!
+        Please fill out the form below with as much detail as possible.
 
   - type: input
     id: swift_version
     attributes:
       label: Swift Version
-      placeholder: "e.g., 5.9"
+      placeholder: "e.g. 6.1"
     validations:
-      required: false
+      required: true
 
   - type: input
     id: package_version
     attributes:
       label: Package Version
-      placeholder: "e.g., 1.2.0 or main"
+      placeholder: "e.g. 1.2.0 or main"
     validations:
       required: true
 
@@ -31,7 +31,7 @@ body:
     id: description
     attributes:
       label: Bug Description
-      description: A clear and concise description of what the bug is.
+      description: A clear and concise description of the bug.
       placeholder: "What happened?"
     validations:
       required: true
@@ -41,10 +41,7 @@ body:
     attributes:
       label: Steps to Reproduce
       description: Describe the steps needed to reproduce the issue.
-      placeholder: |
-        1. Import the package
-        2. Call `someFunction()`
-        3. See crash or error
+      placeholder: "If describing an issue related to code, please provide an isolated code example that demonstrates the issue using as little code as possible."
     validations:
       required: true
 
