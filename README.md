@@ -119,7 +119,7 @@ your protocol.
 > To ensure that your generated mocks are conditionally compiled to exclude them from production builds, see
 > [Compilation Condition](#compilation-condition).
 
-Now let's take a look at the mock that we've generated, stripping out some of the implementation details to highlight
+Now let's take a look at the mock we've generated, stripping out some of the implementation details to highlight
 the mock's API:
 ```swift
 final class DependencyMock: Dependency {
