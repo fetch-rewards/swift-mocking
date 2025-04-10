@@ -184,9 +184,9 @@ constructors:
 // Invocation Records
 mock._method.callCount // Int
 mock._method.invocations // [(x: Int, y: Int)]
-mock._method.lastInvocation // (x: Int, y: Int)
+mock._method.lastInvocation // (x: Int, y: Int)?
 mock._method.returnedValues // [Result<Int, any Error>]
-mock._method.lastReturnedValue // Result<Int, any Error>
+mock._method.lastReturnedValue // Result<Int, any Error>?
 
 // Implementation Constructors
 mock._method.implementation = .invokes { _, _ in 5 }
