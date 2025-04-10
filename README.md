@@ -125,59 +125,14 @@ Attach the `@Mocked` macro to your protocol:
 ```swift
 @Mocked
 protocol Dependency {
-    var readOnlyProperty: Int { get }
-    var readOnlyThrowingProperty: Int { get throws }
+    var property: Int { get set }
 
-    var readWriteProperty: Int { get set }
-
-    func returningMethod() -> Int
-    func returningThrowingMethod() throws -> Int
-    func returningParameterizedMethod(x: Int, y: Int) -> Int
-
-    func voidMethod()
-    func voidThrowingMethod() throws
-    func voidParameterizedMethod(x: Int, y: Int)
+    func method(x: Int, y: Int) async throws -> Int
 }
 ```
 
 And that's it! You now have a sophisticated mock dependency that will be updated automatically any time you change 
 your protocol.
-
-Let's take a look at the mock that we've generated, stripping out some of the implementation details to highlight
-the mock's API:
-```swift
-final class DependencyMock: Dependency {
-    var readOnlyProperty: Int
-    var _readOnlyProperty: MockReadOnlyProperty<Int>
-
-    var readOnlyThrowingProperty: Int
-    var _readOnlyThrowingProperty: MockReadOnlyThrowingProperty<Int>
-
-    var readWriteProperty: Int
-    var _readWriteProperty: MockReadWriteProperty<Int>
-
-    func returningMethod() -> Int
-    var _returningMethod: MockReturningNonParameterizedMethod<Int>
-
-    func returningThrowingMethod() throws -> Int
-    var _returningThrowingMethod: MockReturningNonParameterizedThrowingMethod<Int>
-
-    func returningParameterizedMethod(x: Int, y: Int) -> Int
-    var _returningParameterizedMethod: MockReturningParameterizedMethod<...>
-
-    func voidMethod()
-    var _voidMethod: MockVoidNonParameterizedMethod
-
-    func voidThrowingMethod() throws
-    var _voidThrowingMethod: MockVoidNonParameterizedThrowingMethod
-
-    func voidParameterizedMethod(x: Int, y: Int)
-    var _voidParameterizedMethod: MockVoidParameterizedMethod<...>
-}
-```
-
-As you can see, each member of the generated mock is backed by a single, underscored property. These backing
-properties contain all the invocation records and implementation details of each member.
 
 > [!NOTE]
 > For mocking protocols that inherit from other protocols, see [`@MockedMembers`](#mockedmembers).
@@ -185,6 +140,70 @@ properties contain all the invocation records and implementation details of each
 > [!IMPORTANT]
 > To ensure that your generated mocks are conditionally compiled to exclude them from production builds, see
 > [Compilation Condition](#compilation-condition).
+
+Now let's take a look at the mock that we've generated, stripping out some of the implementation details to highlight
+the mock's API:
+```swift
+final class DependencyMock: Dependency {
+    var property: Int
+    var _property: MockReadWriteProperty<Int>
+
+    func method(x: Int, y: Int) async throws -> Int
+    var _method: MockReturningParameterizedAsyncThrowingMethod<...>
+}
+```
+
+Each member of the generated mock is backed by a single, underscored property. These backing properties contain 
+the invocation records and implementation details for each member. 
+
+For example, the backing property for `property` from the above mock would have the following structure and 
+implementation constructors:
+
+```swift
+// Invocation Records
+mock._property.getter.callCount // Int
+mock._property.getter.returnedValues // [Int]
+mock._property.getter.lastReturnedValue // Int?
+mock._property.setter.callCount // Int
+mock._property.setter.invocations // [Int]
+mock._property.setter.lastInvocation // Int?
+
+// Implementation Constructors
+mock._property.getter.implementation = .invokes { 5 }
+mock._property.getter.implementation = .uncheckedInvokes { 5 }
+mock._property.getter.implementation = .returns(5)
+mock._property.getter.implementation = .uncheckedReturns(5)
+mock._property.setter.implementation = .invokes { _ in }
+mock._property.setter.implementation = .uncheckedInvokes { _ in }
+```
+
+And the backing property for `method` from the above mock would have the following structure and implementation
+constructors:
+
+```swift
+// Invocation Records
+mock._method.callCount // Int
+mock._method.invocations // [(x: Int, y: Int)]
+mock._method.lastInvocation // (x: Int, y: Int)
+mock._method.returnedValues // [Result<Int, any Error>]
+mock._method.lastReturnedValue // Result<Int, any Error>
+
+// Implementation Constructors
+mock._method.implementation = .invokes { _, _ in 5 }
+mock._method.implementation = .uncheckedInvokes { _, _ in 5 }
+mock._method.implementation = .throws(URLError(.badServerResponse))
+mock._method.implementation = .returns(5)
+mock._method.implementation = .uncheckedReturns(5)
+```
+
+> [!NOTE]
+> Depending on the type of member being mocked, the backing property's structure and implementation constructors
+> may differ slightly from the examples above.
+
+> [!TIP]
+> Only use `unchecked` implementation constructors when dealing with non-sendable types. For sendable types, use
+> the checked version of each implementation constructor (e.g. `invokes` instead of `uncheckedInvokes` and `returns`
+> instead of `uncheckedReturns`).
 
 ## Macros
 
