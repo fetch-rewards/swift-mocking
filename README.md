@@ -53,22 +53,22 @@ protocol WeatherService {
 struct WeatherViewModelTests {
     @Test
     func loadCurrentWeather() async {
-        let weatherService = WeatherServiceMock()
-        let viewModel = WeatherViewModel(weatherService: weatherService)
+        let weatherServiceMock = WeatherServiceMock()
+        let viewModel = WeatherViewModel(weatherService: weatherServiceMock)
         let currentWeather = CurrentWeather(temperature: 75, description: "Sunny")
 
         // Set the dependency's implementation.
-        weatherService._currentWeather.implementation = .returns(currentWeather)
+        weatherServiceMock._currentWeather.implementation = .returns(currentWeather)
 
         // Invoke the method being tested.
         await viewModel.loadCurrentWeather(latitude: 37.3349, longitude: 122.0090)
 
         // Validate the number of times the dependency was called.
-        #expect(weatherService._currentWeather.callCount == 1)
+        #expect(weatherServiceMock._currentWeather.callCount == 1)
 
         // Validate the arguments passed to the dependency.
-        #expect(weatherService._currentWeather.lastInvocation?.latitude == 37.3349)
-        #expect(weatherService._currentWeather.lastInvocation?.longitude == 122.0090)
+        #expect(weatherServiceMock._currentWeather.lastInvocation?.latitude == 37.3349)
+        #expect(weatherServiceMock._currentWeather.lastInvocation?.longitude == 122.0090)
 
         // Validate the view model's new state.
         #expect(viewModel.state == .loaded(currentWeather))
