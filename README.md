@@ -16,9 +16,8 @@
   - [`@MockedMembers`](#mockedmembers)
     - [Static Members](#static-members)
   - [`@MockableProperty`](#mockableproperty)
-    - [`@MockableProperty` vs. `@_MockedProperty`](#mockableproperty-vs-_mockedproperty)
   - [`@MockableMethod`](#mockablemethod)
-    - [`@MockableMethod` vs. `@_MockedMethod`](#mockablemethod-vs-_mockedmethod)
+  - [`@Mockable` vs. `@_Mocked`](#mockable-vs-_mocked)
 - [License](#license)
 
 ## Features
@@ -331,8 +330,7 @@ information about each member to `@MockedMembers`. `@MockedMembers` then applies
 `@_MockedMethod` macros to those members, which then generate the mock's backing properties.
 
 > [!NOTE]
-> See [`@MockableProperty` vs. `@_MockedProperty`](#mockableproperty-vs-_mockedproperty) and
-> [`@MockableMethod` vs. `@_MockedMethod`](#mockablemethod-vs-_mockedmethod) for more information.
+> See [`@Mockable` vs. `@_Mocked`](#mockable-vs-_mocked) for more information.
 
 ### `@MockedMembers`
 
@@ -429,15 +427,6 @@ final class DependencyMock: Dependency {
 #endif
 ```
 
-#### `@MockableProperty` vs. `@_MockedProperty`
-
-`@MockableProperty` does not produce an expansion. It is simply a marker that exposes `propertyType`
-(`.readOnly`, `.readWrite`, etc.) to `@MockedMembers`. `@MockedMembers` then forwards this information to
-`@_MockedProperty` along with other parameters that `@MockedMembers` provides for us. `@_MockedProperty` then
-generates the mock's backing properties. `@MockableProperty` exists so that the consumer has to provide as little
-information as possible when manually applying `@MockedMembers`. The usage of the prefix `Mockable` is a deliberate
-choice to semantically distinguish the macros that serve as markers from those that actually produce mocks.
-
 ### `@MockableMethod`
 
 Unlike `@MockableProperty`, `@MockableMethod` is not required when using `@MockedMembers` directly. 
@@ -463,14 +452,15 @@ If you believe that `@Mocked` or `@MockedMembers` should have been able to resol
 or if you think the name conflict resolution logic can be improved in any way, please let us know by
 [opening an issue](https://github.com/fetch-rewards/swift-mocking/issues/new).
 
-#### `@MockableMethod` vs. `@_MockedMethod`
+### `@Mockable` vs. `@_Mocked`
 
-Like `@MockableProperty`, `@MockableMethod` also does not produce an expansion. It is simply a marker that exposes
-`mockMethodName` to `@MockedMembers`. `@MockedMembers` then forwards this information to `@_MockedMethod` along with
-other parameters that `@MockedMembers` provides for us. `@_MockedMethod` then generates the mock's backing properties.
-`@MockableMethod` exists so that the consumer has to provide as little information as possible when manually applying
-`@MockedMembers`. The usage of the prefix `Mockable` is a deliberate choice to semantically distinguish the macros
-that serve as markers from those that actually produce mocks.
+`@MockableProperty` and `@MockableMethod` do not produce expansions. They are simply markers that expose information
+to `@MockedMembers`. `@MockableProperty` exposes `propertyType` (`.readOnly`, `.readWrite`, etc.) and `@MockableMethod`
+exposes `mockMethodName`. `@MockedMembers` then forwards this information to `@_MockedProperty` and `@_MockedMethod` along 
+with other parameters that `@MockedMembers` provides for us. `@_MockedProperty` and `@_MockedMethod` then generate the mock's 
+backing properties. `@MockableProperty` and `@MockableMethod` exist so that the consumer has to provide as little information 
+as possible when manually applying `@MockedMembers`. The usage of the prefix `Mockable` is a deliberate choice to semantically 
+distinguish the macros that serve as markers from those that actually produce mocks.
 
 ## License
 
