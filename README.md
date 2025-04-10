@@ -74,28 +74,6 @@ struct ContactSearchViewModelTests {
         // Validate the view model's new state.
         #expect(viewModel.state == .loaded(contacts))
     }
-
-    @Test
-    func handleSearchQueryFailure() async {
-        let contactSearchService = ContactSearchServiceMock()
-        let viewModel = ContactSearchViewModel(contactSearchService: contactSearchService)
-
-        // Set the dependency's implementation.
-        contactSearchService._contacts.implementation = .throws(URLError(.badServerResponse))
-
-        // Invoke the method being tested.
-        await viewModel.handleSearchQuery("   JoHN AppLESEED ", filters: [.favorites])
-
-        // Validate the number of times the dependency was called.
-        #expect(contactSearchService._contacts.callCount == 1)
-
-        // Validate the arguments passed to the dependency.
-        #expect(contactSearchService._contacts.lastInvocation.searchQuery == "john appleseed")
-        #expect(contactSearchService._contacts.lastInvocation.filters == [.favorites])
-
-        // Validate the view model's new state.
-        #expect(viewModel.state == .failed)
-    }
 }
 ```
 
