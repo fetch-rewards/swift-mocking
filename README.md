@@ -141,6 +141,7 @@ implementation constructors:
 mock._property.getter.callCount // Int
 mock._property.getter.returnedValues // [Int]
 mock._property.getter.lastReturnedValue // Int?
+
 mock._property.setter.callCount // Int
 mock._property.setter.invocations // [Int]
 mock._property.setter.lastInvocation // Int?
@@ -150,6 +151,7 @@ mock._property.getter.implementation = .invokes { 5 }
 mock._property.getter.implementation = .uncheckedInvokes { 5 }
 mock._property.getter.implementation = .returns(5)
 mock._property.getter.implementation = .uncheckedReturns(5)
+
 mock._property.setter.implementation = .invokes { _ in }
 mock._property.setter.implementation = .uncheckedInvokes { _ in }
 ```
