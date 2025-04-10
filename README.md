@@ -67,8 +67,8 @@ struct WeatherViewModelTests {
         #expect(weatherService._currentWeather.callCount == 1)
 
         // Validate the arguments passed to the dependency.
-        #expect(weatherService._currentWeather.lastInvocation.latitude == 37.3349)
-        #expect(weatherService._currentWeather.lastInvocation.longitude == 122.0090)
+        #expect(weatherService._currentWeather.lastInvocation?.latitude == 37.3349)
+        #expect(weatherService._currentWeather.lastInvocation?.longitude == 122.0090)
 
         // Validate the view model's new state.
         #expect(viewModel.state == .loaded(currentWeather))
