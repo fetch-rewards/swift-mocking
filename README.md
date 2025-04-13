@@ -43,7 +43,7 @@
 ## Example
 
 ```swift
-@Mocked
+@Mocked(compilationCondition: .debug)
 protocol WeatherService {
     func currentTemperature(latitude Double, longitude: Double) async throws -> Double
 }
@@ -99,7 +99,7 @@ import Mocked
 
 Attach the `@Mocked` macro to your protocol:
 ```swift
-@Mocked
+@Mocked(compilationCondition: .debug)
 protocol Dependency {
     var property: Int { get set }
 
@@ -113,13 +113,10 @@ your protocol.
 > [!NOTE]
 > For mocking protocols that inherit from other protocols, see [`@MockedMembers`](#mockedmembers).
 
-> [!IMPORTANT]
-> To ensure that your generated mocks are conditionally compiled to exclude them from production builds, see
-> [Compilation Condition](#compilation-condition).
-
 Now let's take a look at the mock we've generated, stripping out some of the implementation details to highlight
 the mock's API:
 ```swift
+#if DEBUG
 final class DependencyMock: Dependency {
     var property: Int
     var _property: MockReadWriteProperty<Int>
@@ -127,6 +124,7 @@ final class DependencyMock: Dependency {
     func method(x: Int, y: Int) async throws -> Int
     var _method: MockReturningParameterizedAsyncThrowingMethod<...>
 }
+#endif
 ```
 
 Each member of the generated mock is backed by a single, underscored property. These backing properties contain 
@@ -182,6 +180,10 @@ mock._method.implementation = .uncheckedReturns(5)
 > Only use `unchecked` implementation constructors when dealing with non-sendable types. For sendable types, use
 > the checked version of each implementation constructor (e.g. `invokes` instead of `uncheckedInvokes` and `returns`
 > instead of `uncheckedReturns`).
+
+> [!IMPORTANT]
+> To ensure that your generated mocks are conditionally compiled to exclude them from production builds, see
+> [Compilation Condition](#compilation-condition).
 
 ## Macros
 
