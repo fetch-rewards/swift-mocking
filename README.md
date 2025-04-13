@@ -235,9 +235,8 @@ final class DependencyMock: Dependency {}
 ```
 
 Because of the nature of Swift macros, `@Mocked` only has access to the raw syntax of its arguments and the protocol
-to which it's attached. This limitation precludes us from making `compilationCondition` globally configurable. 
-
-So when deciding on an appropriate default value for `compilationCondition`, we had two goals in mind:
+to which it's attached. This limitation precludes us from making `compilationCondition` globally configurable. So when 
+deciding on an appropriate default value for `compilationCondition`, we had two goals in mind:
 1. One-step install and one-line usage (excluding import statement) for users who want conditionally compiled,
    generated mocks without any additional setup
 2. The simplest setup possible for users with large codebases who want fine-tuned control over when generated mocks
