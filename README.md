@@ -493,7 +493,7 @@ distinguish the macros that serve as markers from those that actually produce mo
 
 ## Contributing
 
-The simplest way to contribute to this project is by [opening an issue](https://github.com/fetch-rewards/swift-mocking/issues/new/choose).
+The simplest way to contribute to this project is by [opening an issue](https://github.com/fetch-rewards/swift-mocking/issues/new).
 
 If you would like to contribute code to this project, please read our [Contributing Guidelines](https://github.com/fetch-rewards/swift-mocking/blob/main/CONTRIBUTING.md).
 
