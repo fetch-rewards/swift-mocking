@@ -113,6 +113,12 @@ your protocol.
 > [!NOTE]
 > For mocking protocols that inherit from other protocols, see [`@MockedMembers`](#mockedmembers).
 
+> [!IMPORTANT]
+> Using `@Mocked` without an explicit `compilationCondition` argument will result in the generated mock being wrapped
+> in an `#if` compiler directive with a `SWIFT_MOCKING_ENABLED` condition (i.e. `#if SWIFT_MOCKING_ENABLED`). To continue
+> using `@Mocked` without any additional setup, use `@Mocked(compilationCondition: .debug)` as shown in the examples above.
+> If you would like fine-tuned control over when generated mocks are compiled, see [Compilation Condition](#compilation-condition).
+
 Now let's take a look at the mock we've generated, stripping out some of the implementation details to highlight
 the mock's API:
 ```swift
@@ -132,7 +138,6 @@ the invocation records and implementation details for each member.
 
 For example, the backing property for `property` from the above mock would have the following structure and 
 implementation constructors:
-
 ```swift
 // Invocation Records
 mock._property.getter.callCount // Int
@@ -155,7 +160,6 @@ mock._property.setter.implementation = .uncheckedInvokes { _ in }
 
 And the backing property for `method` from the above mock would have the following structure and implementation
 constructors:
-
 ```swift
 // Invocation Records
 mock._method.callCount // Int
@@ -193,10 +197,6 @@ mock._method.implementation = .uncheckedReturns(5)
 > } 
 > ```
 
-> [!IMPORTANT]
-> To ensure that your generated mocks are conditionally compiled to exclude them from production builds, see
-> [Compilation Condition](#compilation-condition).
-
 ## Macros
 
 `swift-mocking` contains several Swift macros: `@Mocked`, `@MockedMembers`, `@MockableProperty`, and `@MockableMethod`. 
@@ -207,12 +207,12 @@ It also contains two internal, underscored macros (`@_MockedProperty` and `@_Moc
 
 `@Mocked` is an attached, peer macro that generates a mock class from a protocol declaration:
 ```swift
-@Mocked
+@Mocked(compilationCondition: .debug)
 protocol Dependency {}
 
 // Generates:
 
-#if SWIFT_MOCKING_ENABLED
+#if DEBUG
 @MockedMembers
 final class DependencyMock: Dependency {}
 #endif
@@ -220,8 +220,8 @@ final class DependencyMock: Dependency {}
 
 #### Compilation Condition
 
-By default, `@Mocked` wraps the generated mock in an `#if` compiler directive with a `SWIFT_MOCKING_ENABLED`
-condition:
+Using `@Mocked` without an explicit `compilationCondition` argument will result in the generated mock being wrapped
+in an `#if` compiler directive with a `SWIFT_MOCKING_ENABLED` condition:
 ```swift
 @Mocked
 protocol Dependency {}
@@ -234,16 +234,30 @@ final class DependencyMock: Dependency {}
 #endif
 ```
 
-To make use of this condition in an Xcode project, add `SWIFT_MOCKING_ENABLED` as a compiler flag to the build 
-configurations for which you would like mocks to compile. 
+Because of the nature of Swift macros, `@Mocked` only has access to the raw syntax of its arguments and the protocol
+to which it's attached. This limitation precludes us from making `compilationCondition` globally configurable. 
 
-To make use of this condition in a Swift Package, add the following `SwiftSetting` to your target's `swiftSettings`
+So when deciding on an appropriate default value for `compilationCondition`, we had two goals in mind:
+1. One-step install and one-line usage (excluding import statement) for users who want conditionally compiled,
+   generated mocks without any additional setup
+2. The simplest setup possible for users with large codebases who want fine-tuned control over when generated mocks
+   are compiled
+
+As such, we decided to make the default compilation condition `SWIFT_MOCKING_ENABLED`. This allows us to accomplish
+both of these goals, albeit with the tiny caveat that one-step-install users need to explicitly specify the compilation 
+condition when using `@Mocked`.
+
+If you would like to make use of `SWIFT_MOCKING_ENABLED` in an Xcode project, add `SWIFT_MOCKING_ENABLED` as a compiler 
+flag to the build configurations for which you would like mocks to compile. 
+
+To make use of `SWIFT_MOCKING_ENABLED` in a Swift package, add the following `SwiftSetting` to your target's `swiftSettings`
 array:
 ```swift
 .define("SWIFT_MOCKING_ENABLED", .when(configuration: .debug))
 ```
+
 > [!Note]
-> The `.debug` build configuration in a Swift Package applies to any Xcode project build configuration with a name
+> The `.debug` build configuration in a Swift package applies to any Xcode project build configuration with a name
 > that begins with either "Debug" or "Development".
 
 If you would like to specify a compilation condition other than `SWIFT_MOCKING_ENABLED`, you can explicitly provide
@@ -262,7 +276,6 @@ protocol DebugCompilationCondition {}
 protocol CustomCompilationCondition {}
 ```
 
-
 #### Access Levels
 
 The generated mock is marked with the access level required to conform to the protocol:
@@ -273,12 +286,12 @@ and `fileprivate` for both `fileprivate` and `private`.
 
 `@Mocked` also supports protocols that conform to `Actor`:
 ```swift
-@Mocked
+@Mocked(compilationCondition: .debug)
 protocol Dependency: Actor {}
 
 // Generates:
 
-#if SWIFT_MOCKING_ENABLED
+#if DEBUG
 @MockedMembers
 final actor DependencyMock: Dependency {}
 #endif
@@ -289,7 +302,7 @@ final actor DependencyMock: Dependency {}
 When `@Mocked` is applied to a protocol that defines associated types, the resulting mock uses 
 those associated types as its generic parameters in order to fulfill the protocol requirements:
 ```swift
-@Mocked
+@Mocked(compilationCondition: .debug)
 protocol Dependency {
     associatedtype Key: Hashable
     associatedtype Value: Equatable
@@ -297,7 +310,7 @@ protocol Dependency {
 
 // Generates:
 
-#if SWIFT_MOCKING_ENABLED
+#if DEBUG
 @MockedMembers
 final class DependencyMock<Key: Hashable, Value: Equatable>: Dependency {}
 #endif
@@ -308,7 +321,7 @@ final class DependencyMock<Key: Hashable, Value: Equatable>: Dependency {}
 In addition to the `@MockedMembers` macro that gets applied to the mock declaration, `@Mocked` also 
 utilizes the `@MockableProperty` and `@MockableMethod` macros when defining the mock's members:
 ```swift
-@Mocked
+@Mocked(compilationCondition: .debug)
 protocol Dependency {
     var readOnlyProperty: Int { get }
     var readOnlyAsyncProperty: Int { get async }
@@ -319,7 +332,7 @@ protocol Dependency {
 
 // Generates:
 
-#if SWIFT_MOCKING_ENABLED
+#if DEBUG
 @MockedMembers
 final class DependencyMock: Dependency {
     @MockableProperty(.readOnly)
@@ -355,7 +368,7 @@ to generate conformances to the requirements of that protocol. In this instance,
 declaration yourself, along with the declarations for the properties and methods required by the protocols. Luckily, 
 using Xcode's [Fix-It](https://developer.apple.com/documentation/xcode/fixing-issues-in-your-code-as-you-type#Make-a-Fix-It-correction) 
 feature to add protocol conformances and `@MockedMembers`, `@MockableProperty`, and `@MockableMethod` to generate 
-backing properties, you can still easily create and maintain these mocks with minimal code.
+backing properties, you can still easily create and maintain these mocks with minimal code:
 ```swift
 protocol Dependency: SomeProtocol {
     var propertyFromDependency: Int { get }
@@ -363,7 +376,7 @@ protocol Dependency: SomeProtocol {
     func methodFromDependency()
 }
 
-#if SWIFT_MOCKING_ENABLED
+#if DEBUG
 @MockedMembers
 final class DependencyMock: Dependency {
     @MockableProperty(.readOnly)
@@ -405,6 +418,7 @@ public final class DependencyMock: Dependency {
     }
 }
 ```
+
 This method is useful for tearing down static state between test cases.
 
 ### `@MockableProperty`
@@ -421,7 +435,7 @@ protocol Dependency {
     var readWriteProperty: Int { get set }
 }
 
-#if SWIFT_MOCKING_ENABLED
+#if DEBUG
 @MockedMembers
 final class DependencyMock: Dependency {
     @MockableProperty(.readOnly)
