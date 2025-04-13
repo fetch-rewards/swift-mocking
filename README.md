@@ -18,6 +18,7 @@
   - [`@MockableProperty`](#mockableproperty)
   - [`@MockableMethod`](#mockablemethod)
   - [`@Mockable` vs. `@_Mocked`](#mockable-vs-_mocked)
+- [Contributing](#contributing)
 - [License](#license)
 
 ## Features
@@ -489,6 +490,14 @@ with other parameters that `@MockedMembers` provides for us. `@_MockedProperty` 
 backing properties. `@MockableProperty` and `@MockableMethod` exist so that the consumer has to provide as little information 
 as possible when manually applying `@MockedMembers`. The usage of the prefix `Mockable` is a deliberate choice to semantically 
 distinguish the macros that serve as markers from those that actually produce mocks.
+
+## Contributing
+
+The simplest way to contribute to this project is by [opening an issue](https://github.com/fetch-rewards/swift-mocking/issues/new/choose).
+
+If you would like to contribute code to this project, please read our [Contributing Guidelines](https://github.com/fetch-rewards/swift-mocking/blob/main/CONTRIBUTING.md).
+
+By opening an issue or contributing code to this project, you agree to follow our [Code of Conduct](https://github.com/fetch-rewards/swift-mocking/blob/main/CODE_OF_CONDUCT.md).
 
 ## License
 
