@@ -179,7 +179,19 @@ mock._method.implementation = .uncheckedReturns(5)
 > [!TIP]
 > Only use `unchecked` implementation constructors when dealing with non-sendable types. For sendable types, use
 > the checked version of each implementation constructor (e.g. `invokes` instead of `uncheckedInvokes` and `returns`
-> instead of `uncheckedReturns`).
+> instead of `uncheckedReturns`). These checked constructors require the member's arguments and/or return value to
+> be sendable.
+>
+> With Strict Concurrency Checking or Swift 6+ enabled, you will get concurrency warnings/errors if you try to use
+> these checked constructors with a non-sendable type, whether that non-sendable type is the member's argument or
+> return value or is a type captured by the closure passed to `invokes`:
+> ```swift
+> let nonSendableInstance = NonSendableType()
+> 
+> mock._methodReturningNonSendableType.implementation = .invokes { // Type 'NonSendableType' does not conform to the 'Sendable' protocol
+>     nonSendableInstance // Capture of 'nonSendableInstance' with non-sendable type 'NonSendableType' in a `@Sendable` closure
+> } 
+> ```
 
 > [!IMPORTANT]
 > To ensure that your generated mocks are conditionally compiled to exclude them from production builds, see
