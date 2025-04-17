@@ -60,6 +60,6 @@ contributors.
    ```
 1. The subject is ideally 50 characters or less (otherwise, 72 characters or less).
 1. The subject is separated from the body with a blank line (critical unless the body is ommitted entirely).
-1. The subject and body are free of whitepsace errors and typos.
+1. The subject and body are free of whitespace errors and typos.
 1. The body uses proper punctuation and capitalization.
 1. The body has a line length of 72 characters or less.
