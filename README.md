@@ -1,4 +1,4 @@
-# swift-mocking
+![Swift Mocking](.github/assets/swift-mocking-banner.png)
 
 `swift-mocking` is a collection of Swift macros used to generate mock dependencies.
 
