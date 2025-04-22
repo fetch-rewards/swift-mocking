@@ -1,6 +1,6 @@
 ![Swift Mocking](.github/assets/swift-mocking-banner.png)
 
-`swift-mocking` is a collection of Swift macros used to generate mock dependencies.
+Swift Mocking is a collection of Swift macros used to generate mock dependencies.
 
 - [Features](#features)
 - [Example](#example)
@@ -23,7 +23,7 @@
 
 ## Features
 
-`swift-mocking` is Swift 6 compatible, fully concurrency-safe, and generates conditionally compiled mocks that can handle:
+Swift Mocking is Swift 6 compatible, fully concurrency-safe, and generates conditionally compiled mocks that can handle:
 - [x] Any access level
 - [x] Associated types, including primary associated types
 - [x] Actor conformance
@@ -78,7 +78,7 @@ struct WeatherViewModelTests {
 
 ## Installation
 
-To add `swift-mocking` to a Swift package manifest file:
+To add Swift Mocking to a Swift package manifest file:
 - Add the `swift-mocking` package to your package's `dependencies`:
   ```swift
   .package(
@@ -200,7 +200,7 @@ mock._method.implementation = .uncheckedReturns(5)
 
 ## Macros
 
-`swift-mocking` contains several Swift macros: `@Mocked`, `@MockedMembers`, `@MockableProperty`, and `@MockableMethod`. 
+Swift Mocking contains several Swift macros: `@Mocked`, `@MockedMembers`, `@MockableProperty`, and `@MockableMethod`. 
 
 It also contains two internal, underscored macros (`@_MockedProperty` and `@_MockedMethod`) which are not meant to be used directly.
 
