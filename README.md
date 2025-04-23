@@ -1,5 +1,9 @@
 ![Swift Mocking](.github/assets/swift-mocking-banner.png)
 
+[![ci](https://github.com/fetch-rewards/swift-mocking/actions/workflows/ci.yml/badge.svg)](https://github.com/fetch-rewards/swift-mocking/actions/workflows/ci.yml?query=branch%3Amain)
+[![codecov](https://codecov.io/gh/fetch-rewards/swift-mocking/graph/badge.svg?token=4KrYoYfaxz)](https://codecov.io/gh/fetch-rewards/swift-mocking)
+[![License](https://img.shields.io/badge/license-MIT-lightgrey.svg)](https://github.com/fetch-rewards/SwiftSyntaxSugar/blob/main/LICENSE)
+
 Swift Mocking is a collection of Swift macros used to generate mock dependencies.
 
 - [Features](#features)
