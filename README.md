@@ -1,6 +1,10 @@
-# swift-mocking
+![Swift Mocking](.github/assets/swift-mocking-banner.png)
 
-`swift-mocking` is a collection of Swift macros used to generate mock dependencies.
+[![ci](https://github.com/fetch-rewards/swift-mocking/actions/workflows/ci.yml/badge.svg)](https://github.com/fetch-rewards/swift-mocking/actions/workflows/ci.yml?query=branch%3Amain)
+[![codecov](https://codecov.io/gh/fetch-rewards/swift-mocking/graph/badge.svg?token=4KrYoYfaxz)](https://codecov.io/gh/fetch-rewards/swift-mocking)
+[![License](https://img.shields.io/badge/license-MIT-lightgrey.svg)](https://github.com/fetch-rewards/SwiftSyntaxSugar/blob/main/LICENSE)
+
+Swift Mocking is a collection of Swift macros used to generate mock dependencies.
 
 - [Features](#features)
 - [Example](#example)
@@ -23,23 +27,23 @@
 
 ## Features
 
-`swift-mocking` is Swift 6 compatible, fully concurrency-safe, and generates conditionally compiled mocks that can handle:
-- [x] Any access level
-- [x] Associated types, including primary associated types
-- [x] Actor conformance
-- [x] Generic `where` clauses 
-- [x] Initializers
-- [x] Static members
-- [x] Instance members 
-- [x] Read-only properties, including those with getters marked with `async`, `throws`, `mutating`, etc.
-- [x] Read-write properties
-- [x] Mutating methods
-- [x] Async methods
-- [x] Throwing methods
-- [x] Generic methods
-- [x] Method overloads
-- [x] Attributed types (`inout`, `consuming`, `sending`, etc.)
-- [x] Variadic parameters
+Swift Mocking is Swift 6 compatible, fully concurrency-safe, and generates conditionally compiled mocks that can handle:
+- Any access level
+- Associated types, including primary associated types
+- Actor conformance
+- Generic `where` clauses 
+- Initializers
+- Static members
+- Instance members 
+- Read-only properties, including those with getters marked with `async`, `throws`, `mutating`, etc.
+- Read-write properties
+- Mutating methods
+- Async methods
+- Throwing methods
+- Generic methods
+- Method overloads
+- Attributed types (`inout`, `consuming`, `sending`, etc.)
+- Variadic parameters
 
 ## Example
 
@@ -78,7 +82,7 @@ struct WeatherViewModelTests {
 
 ## Installation
 
-To add `swift-mocking` to a Swift package manifest file:
+To add Swift Mocking to a Swift package manifest file:
 - Add the `swift-mocking` package to your package's `dependencies`:
   ```swift
   .package(
@@ -200,7 +204,7 @@ mock._method.implementation = .uncheckedReturns(5)
 
 ## Macros
 
-`swift-mocking` contains several Swift macros: `@Mocked`, `@MockedMembers`, `@MockableProperty`, and `@MockableMethod`. 
+Swift Mocking contains several Swift macros: `@Mocked`, `@MockedMembers`, `@MockableProperty`, and `@MockableMethod`. 
 
 It also contains two internal, underscored macros (`@_MockedProperty` and `@_MockedMethod`) which are not meant to be used directly.
 
