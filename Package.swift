@@ -4,7 +4,7 @@ import CompilerPluginSupport
 import PackageDescription
 
 let package = Package(
-    name: "Mocked",
+    name: "swift-mocking",
     platforms: [
         .macOS(.v13),
         .iOS(.v16),
@@ -14,12 +14,12 @@ let package = Package(
     ],
     products: [
         .library(
-            name: "Mocked",
-            targets: ["Mocked"]
+            name: "Mocking",
+            targets: ["Mocking"]
         ),
         .executable(
-            name: "MockedClient",
-            targets: ["MockedClient"]
+            name: "MockingClient",
+            targets: ["MockingClient"]
         ),
     ],
     dependencies: [
@@ -38,9 +38,9 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "Mocked",
+            name: "Mocking",
             dependencies: [
-                "MockedMacros",
+                "MockingMacros",
                 .product(
                     name: "Locked",
                     package: "swift-synchronization"
@@ -49,17 +49,17 @@ let package = Package(
             swiftSettings: .default
         ),
         .testTarget(
-            name: "MockedTests",
-            dependencies: ["Mocked"],
+            name: "MockingTests",
+            dependencies: ["Mocking"],
             swiftSettings: .default
         ),
         .executableTarget(
-            name: "MockedClient",
-            dependencies: ["Mocked"],
+            name: "MockingClient",
+            dependencies: ["Mocking"],
             swiftSettings: .default
         ),
         .macro(
-            name: "MockedMacros",
+            name: "MockingMacros",
             dependencies: [
                 .product(
                     name: "SwiftCompilerPlugin",
@@ -77,9 +77,9 @@ let package = Package(
             swiftSettings: .default
         ),
         .testTarget(
-            name: "MockedMacrosTests",
+            name: "MockingMacrosTests",
             dependencies: [
-                "MockedMacros",
+                "MockingMacros",
                 .product(
                     name: "SwiftSyntaxMacrosTestSupport",
                     package: "swift-syntax"
