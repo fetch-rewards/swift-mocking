@@ -90,16 +90,16 @@ To add Swift Mocking to a Swift package manifest file:
       from: "<#latest swift-mocking tag#>"
   )
   ```
-- Add the `Mocked` product to your target's `dependencies`:
+- Add the `Mocking` product to your target's `dependencies`:
   ```swift
-  .product(name: "Mocked", package: "swift-mocking")
+  .product(name: "Mocking", package: "swift-mocking")
   ```
 
 ## Usage
 
-Import `Mocked`:
+Import `Mocking`:
 ```swift
-import Mocked
+import Mocking
 ```
 
 Attach the `@Mocked` macro to your protocol:
