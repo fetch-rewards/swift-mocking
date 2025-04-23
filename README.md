@@ -24,22 +24,22 @@ Swift Mocking is a collection of Swift macros used to generate mock dependencies
 ## Features
 
 Swift Mocking is Swift 6 compatible, fully concurrency-safe, and generates conditionally compiled mocks that can handle:
-- [x] Any access level
-- [x] Associated types, including primary associated types
-- [x] Actor conformance
-- [x] Generic `where` clauses 
-- [x] Initializers
-- [x] Static members
-- [x] Instance members 
-- [x] Read-only properties, including those with getters marked with `async`, `throws`, `mutating`, etc.
-- [x] Read-write properties
-- [x] Mutating methods
-- [x] Async methods
-- [x] Throwing methods
-- [x] Generic methods
-- [x] Method overloads
-- [x] Attributed types (`inout`, `consuming`, `sending`, etc.)
-- [x] Variadic parameters
+- Any access level
+- Associated types, including primary associated types
+- Actor conformance
+- Generic `where` clauses 
+- Initializers
+- Static members
+- Instance members 
+- Read-only properties, including those with getters marked with `async`, `throws`, `mutating`, etc.
+- Read-write properties
+- Mutating methods
+- Async methods
+- Throwing methods
+- Generic methods
+- Method overloads
+- Attributed types (`inout`, `consuming`, `sending`, etc.)
+- Variadic parameters
 
 ## Example
 
