@@ -1,4 +1,4 @@
-![Swift Mocking](.github/assets/swift-mocking-banner.png)
+![Swift Mocking](.github/assets/swift-mocking-banner-2000w.png)
 
 [![ci](https://github.com/fetch-rewards/swift-mocking/actions/workflows/ci.yml/badge.svg)](https://github.com/fetch-rewards/swift-mocking/actions/workflows/ci.yml?query=branch%3Amain)
 [![codecov](https://codecov.io/gh/fetch-rewards/swift-mocking/graph/badge.svg?token=4KrYoYfaxz)](https://codecov.io/gh/fetch-rewards/swift-mocking)
