@@ -14,8 +14,28 @@
 > 
 > Thank you for helping us make this project the best it can be!
 
+- [Homebrew](#homebrew)
+- [Code Formatting](#code-formatting)
 - [Signed Commits Required](#signed-commits-required)
 - [Commit Messages & PR Titles](#commit-messages--pr-titles)
+
+## Homebrew
+
+This project uses [Homebrew](https://brew.sh) to manage certain dependencies required for development. These
+dependencies are defined in the [`Brewfile`](https://github.com/fetch-rewards/swift-mocking/blob/main/Brewfile)
+located at the repository's root.
+
+To install these dependencies, use the command line to navigate to the repository’s root and run the following command:
+```
+brew bundle install
+```
+
+## Code Formatting
+
+This project uses [`SwiftFormat`](https://github.com/nicklockwood/SwiftFormat) to maintain consistent code formatting.
+We do not currently automate the process of formatting code, but our CI workflow does use `SwiftFormat` as a linter to
+validate that all code changes adhere to our formatting rules. Before creating a PR, please run `swiftformat` on all new 
+or updated files and commit the changes.
 
 ## Signed Commits Required
 
