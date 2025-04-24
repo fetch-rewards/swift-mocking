@@ -1,7 +1,6 @@
 //
 //  MockedMethod_GenericMethod_ArrayTypeTests.swift
 //
-//  Created by Gray Campbell.
 //  Copyright © 2025 Fetch.
 //
 

@@ -1,7 +1,6 @@
 //
 //  MockPropertyAsyncGetter.swift
 //
-//  Created by Cole Campbell.
 //  Copyright © 2025 Fetch.
 //
 
