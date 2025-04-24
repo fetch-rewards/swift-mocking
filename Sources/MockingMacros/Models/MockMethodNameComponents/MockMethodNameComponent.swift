@@ -1,7 +1,6 @@
 //
 //  MockMethodNameComponent.swift
 //
-//  Created by Gray Campbell.
 //  Copyright © 2025 Fetch.
 //
 

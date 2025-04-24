@@ -25,7 +25,7 @@
 --groupedextension "MARK: - %c"
 
 ## Header comments: strip, ignore, or the text you wish use.
---header \n {file}\n\n Created by {author.name}.\n Copyright © {year} Fetch.\n
+--header \n {file}\n\n Copyright © {year} Fetch.\n
 
 ## #if indenting: indent (default), no-indent, or outdent.
 --ifdef no-indent
