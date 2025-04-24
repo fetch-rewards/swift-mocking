@@ -136,7 +136,10 @@ extension MockedMacro {
     private static func mockGenericParameterClause(
         from protocolDeclaration: ProtocolDeclSyntax
     ) -> GenericParameterClauseSyntax? {
-        let associatedTypeDeclarations = protocolDeclaration.associatedTypeDeclarations
+        let memberBlock = protocolDeclaration.memberBlock
+        let associatedTypeDeclarations = memberBlock.memberDeclarations(
+            ofType: AssociatedTypeDeclSyntax.self
+        )
 
         guard !associatedTypeDeclarations.isEmpty else {
             return nil
@@ -146,8 +149,7 @@ extension MockedMacro {
             for associatedTypeDeclaration in associatedTypeDeclarations {
                 let genericParameterName = associatedTypeDeclaration.name.trimmed
                 let genericInheritedType = associatedTypeDeclaration.inheritanceClause?
-                    .inheritedTypes
-                    .identifierTypes
+                    .inheritedTypes(ofType: IdentifierTypeSyntax.self)
                     .map(\.name.text)
                     .joined(separator: " & ")
 
@@ -228,16 +230,26 @@ extension MockedMacro {
         from protocolDeclaration: ProtocolDeclSyntax
     ) throws -> MemberBlockSyntax {
         let accessLevel = protocolDeclaration.minimumConformingAccessLevel
+        let memberBlock = protocolDeclaration.memberBlock
+        let initializerDeclarations = memberBlock.memberDeclarations(
+            ofType: InitializerDeclSyntax.self
+        )
+        let propertyDeclarations = memberBlock.memberDeclarations(
+            ofType: VariableDeclSyntax.self
+        )
+        let methodDeclarations = memberBlock.memberDeclarations(
+            ofType: FunctionDeclSyntax.self
+        )
 
         return try MemberBlockSyntax {
-            for initializerDeclaration in protocolDeclaration.initializerDeclarations {
+            for initializerDeclaration in initializerDeclarations {
                 try self.mockInitializerConformanceDeclaration(
                     with: accessLevel,
                     from: initializerDeclaration
                 )
             }
 
-            for propertyDeclaration in protocolDeclaration.variableDeclarations {
+            for propertyDeclaration in propertyDeclarations {
                 for binding in propertyDeclaration.bindings {
                     try self.mockPropertyConformanceDeclaration(
                         with: accessLevel,
@@ -247,7 +259,7 @@ extension MockedMacro {
                 }
             }
 
-            for methodDeclaration in protocolDeclaration.functionDeclarations {
+            for methodDeclaration in methodDeclarations {
                 try self.mockMethodConformanceDeclaration(
                     with: accessLevel,
                     for: methodDeclaration,

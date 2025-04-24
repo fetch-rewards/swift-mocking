@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import Locked
+import Synchronization
 
 /// A mock property that contains implementation details and invocation records
 /// for a read-only, async, throwing property.
