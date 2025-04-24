@@ -178,8 +178,7 @@ public final class MockReturningParameterizedMethod<
 // MARK: - Sendable
 
 extension MockReturningParameterizedMethod: Sendable
-    where Arguments: Sendable,
-          ReturnValue: Sendable
+    where Arguments: Sendable, ReturnValue: Sendable
 {
 
     // MARK: Factories
