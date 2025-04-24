@@ -1,8 +1,8 @@
 //
 //  MockVoidNonParameterizedMethod_ImplementationTests.swift
-//  MockingTests
 //
-//  Created by Gray Campbell on 3/18/25.
+//  Created by Gray Campbell.
+//  Copyright © 2025 Fetch.
 //
 
 import Testing
@@ -19,7 +19,7 @@ struct MockVoidNonParameterizedMethod_ImplementationTests {
 
     @Test
     func unimplemented() async {
-        await confirmation(expectedCount: .zero) { confirmation in
+        await confirmation(expectedCount: .zero) { _ in
             let sut: SUT = .unimplemented
 
             sut()

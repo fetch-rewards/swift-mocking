@@ -1,8 +1,8 @@
 //
 //  MockImplementationDescription.swift
-//  Mocking
 //
-//  Created by Cole Campbell on 11/25/23.
+//  Created by Cole Campbell.
+//  Copyright © 2025 Fetch.
 //
 
 import Foundation

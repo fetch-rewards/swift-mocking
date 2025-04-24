@@ -1,8 +1,8 @@
 //
 //  MockedMethod_GenericMethod_FunctionTypeTests.swift
-//  MockingMacrosTests
 //
-//  Created by Gray Campbell on 1/11/25.
+//  Created by Gray Campbell.
+//  Copyright © 2025 Fetch.
 //
 
 #if canImport(MockingMacros)
@@ -50,7 +50,7 @@ struct MockedMethod_GenericMethod_FunctionTypeTests {
                 )
                 return returnValue
             }
-            
+
             /// An implementation for `DependencyMock._method`.
             enum MethodImplementation<
             \tArguments,
@@ -76,7 +76,7 @@ struct MockedMethod_GenericMethod_FunctionTypeTests {
                 ) -> Self where Arguments: Sendable, ReturnValue: Sendable {
                     .uncheckedInvokes(closure)
                 }
-            
+
                 /// Returns the provided value when invoked.
                 ///
                 /// - Parameter value: The value to return.
@@ -98,7 +98,7 @@ struct MockedMethod_GenericMethod_FunctionTypeTests {
                         value
                     }
                 }
-            
+
                 /// The implementation as a closure, or `nil` if unimplemented.
                 var _closure: Closure? {
                     switch self {
@@ -109,7 +109,7 @@ struct MockedMethod_GenericMethod_FunctionTypeTests {
                     }
                 }
             }
-            
+
             private let __method = MockReturningParameterizedMethod<
             \tMethodImplementation<
             \t\t((String) -> Any),
@@ -121,7 +121,7 @@ struct MockedMethod_GenericMethod_FunctionTypeTests {
                     member: "_method"
                 )
             )
-            
+
             var _method: MockReturningParameterizedMethod<
             \tMethodImplementation<
             \t\t((String) -> Any),
@@ -171,7 +171,7 @@ struct MockedMethod_GenericMethod_FunctionTypeTests {
                 )
                 return returnValue
             }
-            
+
             /// An implementation for `DependencyMock._method`.
             enum MethodImplementation<
             \tArguments,
@@ -199,7 +199,7 @@ struct MockedMethod_GenericMethod_FunctionTypeTests {
                 ) -> Self where Arguments: Sendable, ReturnValue: Sendable {
                     .uncheckedInvokes(closure)
                 }
-            
+
                 /// Returns the provided value when invoked.
                 ///
                 /// - Parameter value: The value to return.
@@ -221,7 +221,7 @@ struct MockedMethod_GenericMethod_FunctionTypeTests {
                         value
                     }
                 }
-            
+
                 /// The implementation as a closure, or `nil` if unimplemented.
                 var _closure: Closure? {
                     switch self {
@@ -232,7 +232,7 @@ struct MockedMethod_GenericMethod_FunctionTypeTests {
                     }
                 }
             }
-            
+
             private let __method = MockReturningParameterizedMethod<
             \tMethodImplementation<
             \t\t((String) -> any (Sendable & Equatable)),
@@ -244,7 +244,7 @@ struct MockedMethod_GenericMethod_FunctionTypeTests {
                     member: "_method"
                 )
             )
-            
+
             var _method: MockReturningParameterizedMethod<
             \tMethodImplementation<
             \t\t((String) -> any (Sendable & Equatable)),

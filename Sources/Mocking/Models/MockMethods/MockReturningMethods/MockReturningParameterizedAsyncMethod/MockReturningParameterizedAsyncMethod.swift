@@ -1,8 +1,8 @@
 //
 //  MockReturningParameterizedAsyncMethod.swift
-//  Mocking
 //
-//  Created by Gray Campbell on 11/4/23.
+//  Created by Gray Campbell.
+//  Copyright © 2025 Fetch.
 //
 
 import Foundation
@@ -178,8 +178,7 @@ public final class MockReturningParameterizedAsyncMethod<
 // MARK: - Sendable
 
 extension MockReturningParameterizedAsyncMethod: Sendable
-    where Arguments: Sendable,
-          ReturnValue: Sendable
+    where Arguments: Sendable, ReturnValue: Sendable
 {
 
     // MARK: Factories

@@ -1,8 +1,8 @@
 //
 //  MockedMembers_MethodOverloadsTests.swift
-//  MockingMacrosTests
 //
-//  Created by Gray Campbell on 2/2/25.
+//  Created by Gray Campbell.
+//  Copyright © 2025 Fetch.
 //
 
 #if canImport(MockingMacros)
@@ -36,7 +36,7 @@ struct MockedMembers_MethodOverloadsTests {
                 \tmockMethodName: "methodReturningString"
                 )
                 func method() -> String
-            
+
                 init() {
                 }
             }

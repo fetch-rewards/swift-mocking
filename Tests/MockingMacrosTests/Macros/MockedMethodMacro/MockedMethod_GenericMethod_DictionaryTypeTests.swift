@@ -1,8 +1,8 @@
 //
 //  MockedMethod_GenericMethod_DictionaryTypeTests.swift
-//  MockingMacrosTests
 //
-//  Created by Gray Campbell on 1/11/25.
+//  Created by Gray Campbell.
+//  Copyright © 2025 Fetch.
 //
 
 #if canImport(MockingMacros)
@@ -48,7 +48,7 @@ struct Mocked_GenericMethod_DictionaryTypeTests {
                 )
                 return returnValue
             }
-            
+
             /// An implementation for `DependencyMock._method`.
             enum MethodImplementation<
             \tArguments,
@@ -74,7 +74,7 @@ struct Mocked_GenericMethod_DictionaryTypeTests {
                 ) -> Self where Arguments: Sendable, ReturnValue: Sendable {
                     .uncheckedInvokes(closure)
                 }
-            
+
                 /// Returns the provided value when invoked.
                 ///
                 /// - Parameter value: The value to return.
@@ -96,7 +96,7 @@ struct Mocked_GenericMethod_DictionaryTypeTests {
                         value
                     }
                 }
-            
+
                 /// The implementation as a closure, or `nil` if unimplemented.
                 var _closure: Closure? {
                     switch self {
@@ -107,7 +107,7 @@ struct Mocked_GenericMethod_DictionaryTypeTests {
                     }
                 }
             }
-            
+
             private let __method = MockReturningParameterizedMethod<
             \tMethodImplementation<
             \t\t([AnyHashable: Any]),
@@ -119,7 +119,7 @@ struct Mocked_GenericMethod_DictionaryTypeTests {
                     member: "_method"
                 )
             )
-            
+
             var _method: MockReturningParameterizedMethod<
             \tMethodImplementation<
             \t\t([AnyHashable: Any]),
@@ -169,7 +169,7 @@ struct Mocked_GenericMethod_DictionaryTypeTests {
                 )
                 return returnValue
             }
-            
+
             /// An implementation for `DependencyMock._method`.
             enum MethodImplementation<
             \tArguments,
@@ -197,7 +197,7 @@ struct Mocked_GenericMethod_DictionaryTypeTests {
                 ) -> Self where Arguments: Sendable, ReturnValue: Sendable {
                     .uncheckedInvokes(closure)
                 }
-            
+
                 /// Returns the provided value when invoked.
                 ///
                 /// - Parameter value: The value to return.
@@ -219,7 +219,7 @@ struct Mocked_GenericMethod_DictionaryTypeTests {
                         value
                     }
                 }
-            
+
                 /// The implementation as a closure, or `nil` if unimplemented.
                 var _closure: Closure? {
                     switch self {
@@ -230,7 +230,7 @@ struct Mocked_GenericMethod_DictionaryTypeTests {
                     }
                 }
             }
-            
+
             private let __method = MockReturningParameterizedMethod<
             \tMethodImplementation<
             \t\t([AnyHashable: any (Equatable & Comparable & Hashable)]),
@@ -242,7 +242,7 @@ struct Mocked_GenericMethod_DictionaryTypeTests {
                     member: "_method"
                 )
             )
-            
+
             var _method: MockReturningParameterizedMethod<
             \tMethodImplementation<
             \t\t([AnyHashable: any (Equatable & Comparable & Hashable)]),

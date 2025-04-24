@@ -1,8 +1,8 @@
 //
 //  MockedMethod_VariadicParameterTests.swift
-//  MockingMacrosTests
 //
-//  Created by Gray Campbell on 12/20/24.
+//  Created by Gray Campbell.
+//  Copyright © 2025 Fetch.
 //
 
 #if canImport(MockingMacros)
@@ -34,7 +34,7 @@ struct MockedMethod_VariadicParameterTests {
                     integers
                 )
             }
-            
+
             /// An implementation for `DependencyMock._method`.
             enum MethodImplementation<
             \tArguments
@@ -59,7 +59,7 @@ struct MockedMethod_VariadicParameterTests {
                 ) -> Self where Arguments: Sendable {
                     .uncheckedInvokes(closure)
                 }
-            
+
                 /// The implementation as a closure, or `nil` if unimplemented.
                 var _closure: Closure? {
                     switch self {
@@ -70,13 +70,13 @@ struct MockedMethod_VariadicParameterTests {
                     }
                 }
             }
-            
+
             private let __method = MockVoidParameterizedMethod<
             \tMethodImplementation<
             \t\t(strings: [String], integers: [Int])
             \t>
             >.makeMethod()
-            
+
             var _method: MockVoidParameterizedMethod<
             \tMethodImplementation<
             \t\t(strings: [String], integers: [Int])

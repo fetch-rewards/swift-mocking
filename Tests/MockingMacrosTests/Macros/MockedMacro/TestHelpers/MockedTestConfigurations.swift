@@ -1,8 +1,8 @@
 //
-//  MockedMacroTests+TestConfigurations.swift
-//  MockingMacrosTests
+//  MockedTestConfigurations.swift
 //
-//  Created by Gray Campbell on 1/21/25.
+//  Created by Gray Campbell.
+//  Copyright © 2025 Fetch.
 //
 
 #if canImport(MockingMacros)

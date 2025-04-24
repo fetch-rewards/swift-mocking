@@ -1,8 +1,8 @@
 //
 //  MockedMembers_InitializerTests.swift
-//  MockingMacrosTests
 //
-//  Created by Gray Campbell on 3/30/25.
+//  Created by Gray Campbell.
+//  Copyright © 2025 Fetch.
 //
 
 #if canImport(MockingMacros)
@@ -22,7 +22,7 @@ struct MockedMembers_InitializerTests {
             """,
             generates: """
             final class Mock {
-            
+
                 init() {
                 }
             }
@@ -61,7 +61,7 @@ struct MockedMembers_InitializerTests {
             final class Mock {
                 init(parameter: Int) {
                 }
-            
+
                 init() {
                 }
             }

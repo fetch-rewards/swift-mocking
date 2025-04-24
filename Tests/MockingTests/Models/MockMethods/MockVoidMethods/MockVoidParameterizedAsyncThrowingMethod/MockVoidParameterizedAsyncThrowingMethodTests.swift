@@ -1,8 +1,8 @@
 //
 //  MockVoidParameterizedAsyncThrowingMethodTests.swift
-//  MockingTests
 //
-//  Created by Gray Campbell on 12/8/23.
+//  Created by Gray Campbell.
+//  Copyright © 2025 Fetch.
 //
 
 import Foundation

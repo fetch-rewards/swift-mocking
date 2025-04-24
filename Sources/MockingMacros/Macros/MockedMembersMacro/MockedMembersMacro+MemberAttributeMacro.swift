@@ -1,8 +1,8 @@
 //
 //  MockedMembersMacro+MemberAttributeMacro.swift
-//  MockingMacros
 //
-//  Created by Gray Campbell on 1/15/25.
+//  Created by Gray Campbell.
+//  Copyright © 2025 Fetch.
 //
 
 public import SwiftSyntax
@@ -86,7 +86,7 @@ extension MockedMembersMacro: MemberAttributeMacro {
                 ),
                 rightParen: .rightParenToken(),
                 trailingTrivia: .newline
-            )
+            ),
         ]
     }
 
@@ -177,7 +177,7 @@ extension MockedMembersMacro: MemberAttributeMacro {
                 ),
                 rightParen: .rightParenToken(),
                 trailingTrivia: .newline
-            )
+            ),
         ]
     }
 

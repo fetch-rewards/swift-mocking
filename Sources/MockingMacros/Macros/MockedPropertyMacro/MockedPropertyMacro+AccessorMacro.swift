@@ -1,8 +1,8 @@
 //
 //  MockedPropertyMacro+AccessorMacro.swift
-//  MockingMacros
 //
-//  Created by Gray Campbell on 1/17/25.
+//  Created by Gray Campbell.
+//  Copyright © 2025 Fetch.
 //
 
 public import SwiftSyntax
@@ -13,7 +13,7 @@ import SwiftSyntaxSugar
 extension MockedPropertyMacro: AccessorMacro {
 
     // MARK: Expansion
-    
+
     public static func expansion(
         of node: AttributeSyntax,
         providingAccessorsOf declaration: some DeclSyntaxProtocol,
@@ -45,7 +45,7 @@ extension MockedPropertyMacro: AccessorMacro {
             self.getAccessor(
                 propertyType: macroArguments.propertyType,
                 propertyBindingName: propertyBindingName
-            )
+            ),
         ]
 
         if let setAccessor = self.setAccessor(
@@ -112,7 +112,7 @@ extension MockedPropertyMacro: AccessorMacro {
             asyncSpecifier,
             throwsClause
         ) {
-        case (.some, _), (_, .some):
+        case (_, .some), (.some, _):
             AccessorEffectSpecifiersSyntax(
                 asyncSpecifier: asyncSpecifier,
                 throwsClause: throwsClause

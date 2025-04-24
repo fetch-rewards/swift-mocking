@@ -1,8 +1,8 @@
 //
 //  MockedMacro.swift
-//  MockingMacros
 //
-//  Created by Gray Campbell on 11/4/23.
+//  Created by Gray Campbell.
+//  Copyright © 2025 Fetch.
 //
 
 public import SwiftSyntax
@@ -388,7 +388,7 @@ extension MockedMacro {
                         rightParen: .rightParenToken(),
                         trailingTrivia: .newline
                     )
-                )
+                ),
             ]
         } else {
             []
@@ -424,7 +424,7 @@ extension MockedMacro {
         for methodDeclaration: FunctionDeclSyntax,
         in protocolDeclaration: ProtocolDeclSyntax
     ) throws -> FunctionDeclSyntax {
-        return try methodDeclaration
+        try methodDeclaration
             .trimmed
             .withAccessLevel(accessLevel)
             .with(\.modifiers) { modifiers in

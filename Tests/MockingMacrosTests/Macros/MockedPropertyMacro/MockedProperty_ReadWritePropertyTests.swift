@@ -1,8 +1,8 @@
 //
 //  MockedProperty_ReadWritePropertyTests.swift
-//  MockingMacrosTests
 //
-//  Created by Gray Campbell on 11/4/23.
+//  Created by Gray Campbell.
+//  Copyright © 2025 Fetch.
 //
 
 #if canImport(MockingMacros)
@@ -29,7 +29,7 @@ struct MockedProperty_ReadWritePropertyTests {
                     self.__property.set(newValue)
                 }
             }
-            
+
             private let __property = MockReadWriteProperty<
             \tString
             >.makeProperty(
@@ -38,7 +38,7 @@ struct MockedProperty_ReadWritePropertyTests {
                     member: "_property"
                 )
             )
-            
+
             var _property: MockReadWriteProperty<
             \tString
             > {

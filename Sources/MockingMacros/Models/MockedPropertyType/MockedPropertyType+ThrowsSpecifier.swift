@@ -1,8 +1,8 @@
 //
 //  MockedPropertyType+ThrowsSpecifier.swift
-//  MockingMacros
 //
-//  Created by Gray Campbell on 1/20/25.
+//  Created by Gray Campbell.
+//  Copyright © 2025 Fetch.
 //
 
 import SwiftSyntax

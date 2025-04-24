@@ -1,8 +1,8 @@
 //
 //  MockedMethodMacro+BodyMacro.swift
-//  MockingMacros
 //
-//  Created by Gray Campbell on 1/14/25.
+//  Created by Gray Campbell.
+//  Copyright © 2025 Fetch.
 //
 
 public import SwiftSyntax
@@ -78,16 +78,17 @@ extension MockedMethodMacro: BodyMacro {
                 let recordInputClosureCallArgument = LabeledExprSyntax(
                     expression: parameterReferenceExpression
                 )
-                let invokeClosureCallArgument: LabeledExprSyntax
-
-                if self.isInoutParameter(parameter), !didTypeEraseParameter {
-                    invokeClosureCallArgument = LabeledExprSyntax(
+                let invokeClosureCallArgument: LabeledExprSyntax = if
+                    self.isInoutParameter(parameter),
+                    !didTypeEraseParameter
+                {
+                    LabeledExprSyntax(
                         expression: InOutExprSyntax(
                             expression: parameterReferenceExpression
                         )
                     )
                 } else {
-                    invokeClosureCallArgument = recordInputClosureCallArgument
+                    recordInputClosureCallArgument
                 }
 
                 recordInputClosureCallArguments.append(recordInputClosureCallArgument)
@@ -601,7 +602,7 @@ extension MockedMethodMacro: BodyMacro {
             guard case let .simpleTypeSpecifier(specifier) = specifier else {
                 return false
             }
-            
+
             return specifier.specifier.tokenKind == .keyword(specifierKeyword)
         }
     }

@@ -1,8 +1,8 @@
 //
 //  MockedMethod_GenericMethod_OpaqueTypeTests.swift
-//  MockingMacrosTests
 //
-//  Created by Gray Campbell on 1/11/25.
+//  Created by Gray Campbell.
+//  Copyright © 2025 Fetch.
 //
 
 #if canImport(MockingMacros)
@@ -32,7 +32,7 @@ struct MockedMethod_GenericMethod_OpaqueTypeTests {
                     parameter
                 )
             }
-            
+
             /// An implementation for `DependencyMock._method`.
             enum MethodImplementation<
             \tArguments
@@ -57,7 +57,7 @@ struct MockedMethod_GenericMethod_OpaqueTypeTests {
                 ) -> Self where Arguments: Sendable {
                     .uncheckedInvokes(closure)
                 }
-            
+
                 /// The implementation as a closure, or `nil` if unimplemented.
                 var _closure: Closure? {
                     switch self {
@@ -68,13 +68,13 @@ struct MockedMethod_GenericMethod_OpaqueTypeTests {
                     }
                 }
             }
-            
+
             private let __method = MockVoidParameterizedMethod<
             \tMethodImplementation<
             \t\t(any Equatable)
             \t>
             >.makeMethod()
-            
+
             var _method: MockVoidParameterizedMethod<
             \tMethodImplementation<
             \t\t(any Equatable)
@@ -105,7 +105,7 @@ struct MockedMethod_GenericMethod_OpaqueTypeTests {
                     parameter
                 )
             }
-            
+
             /// An implementation for `DependencyMock._method`.
             enum MethodImplementation<
             \tArguments
@@ -130,7 +130,7 @@ struct MockedMethod_GenericMethod_OpaqueTypeTests {
                 ) -> Self where Arguments: Sendable {
                     .uncheckedInvokes(closure)
                 }
-            
+
                 /// The implementation as a closure, or `nil` if unimplemented.
                 var _closure: Closure? {
                     switch self {
@@ -141,13 +141,13 @@ struct MockedMethod_GenericMethod_OpaqueTypeTests {
                     }
                 }
             }
-            
+
             private let __method = MockVoidParameterizedMethod<
             \tMethodImplementation<
             \t\t(any (Equatable & Sendable & Comparable))
             \t>
             >.makeMethod()
-            
+
             var _method: MockVoidParameterizedMethod<
             \tMethodImplementation<
             \t\t(any (Equatable & Sendable & Comparable))

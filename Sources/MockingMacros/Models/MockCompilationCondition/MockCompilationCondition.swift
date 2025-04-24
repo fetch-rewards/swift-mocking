@@ -1,8 +1,8 @@
 //
 //  MockCompilationCondition.swift
-//  MockingMacros
 //
-//  Created by Gray Campbell on 4/4/25.
+//  Created by Gray Campbell.
+//  Copyright © 2025 Fetch.
 //
 
 import SwiftSyntax

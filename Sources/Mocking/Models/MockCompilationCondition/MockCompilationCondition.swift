@@ -1,8 +1,8 @@
 //
 //  MockCompilationCondition.swift
-//  Mocking
 //
-//  Created by Gray Campbell on 3/30/25.
+//  Created by Gray Campbell.
+//  Copyright © 2025 Fetch.
 //
 
 import Foundation

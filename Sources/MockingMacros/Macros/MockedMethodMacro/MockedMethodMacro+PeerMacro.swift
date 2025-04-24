@@ -1,8 +1,8 @@
 //
 //  MockedMethodMacro+PeerMacro.swift
-//  MockingMacros
 //
-//  Created by Gray Campbell on 1/14/25.
+//  Created by Gray Campbell.
+//  Copyright © 2025 Fetch.
 //
 
 public import SwiftSyntax
@@ -587,17 +587,17 @@ extension MockedMethodMacro: PeerMacro {
             with: AccessLevelSyntax.private,
             isMockAnActor: macroArguments.isMockAnActor
         )
-        let typeReference: any ExprSyntaxProtocol
-
-        if let genericArgumentClause = overrideDeclarationType.genericArgumentClause {
-            typeReference = GenericSpecializationExprSyntax(
+        let typeReference: any ExprSyntaxProtocol = if
+            let genericArgumentClause = overrideDeclarationType.genericArgumentClause
+        {
+            GenericSpecializationExprSyntax(
                 expression: DeclReferenceExprSyntax(
                     baseName: overrideDeclarationType.name
                 ),
                 genericArgumentClause: genericArgumentClause
             )
         } else {
-            typeReference = DeclReferenceExprSyntax(
+            DeclReferenceExprSyntax(
                 baseName: overrideDeclarationType.name
             )
         }

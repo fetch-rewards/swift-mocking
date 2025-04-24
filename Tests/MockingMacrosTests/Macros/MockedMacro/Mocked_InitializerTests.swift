@@ -1,8 +1,8 @@
 //
 //  Mocked_InitializerTests.swift
-//  MockingMacrosTests
 //
-//  Created by Gray Campbell on 11/30/24.
+//  Created by Gray Campbell.
+//  Copyright © 2025 Fetch.
 //
 
 #if canImport(MockingMacros)
