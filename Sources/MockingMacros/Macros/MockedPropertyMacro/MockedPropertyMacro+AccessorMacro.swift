@@ -112,7 +112,7 @@ extension MockedPropertyMacro: AccessorMacro {
             asyncSpecifier,
             throwsClause
         ) {
-        case (.some, _), (_, .some):
+        case (_, .some), (.some, _):
             AccessorEffectSpecifiersSyntax(
                 asyncSpecifier: asyncSpecifier,
                 throwsClause: throwsClause

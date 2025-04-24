@@ -547,9 +547,10 @@ extension MockMethodNameComponents {
         of type: NamedOpaqueReturnTypeSyntax
     ) -> String {
         let genericParameters = type.genericParameterClause.parameters
-        let genericParametersDescription = genericParameters.reduce("") { result, genericParameter in
-            result + Self.capitalizedDescription(of: genericParameter)
-        }
+        let genericParametersDescription = genericParameters
+            .reduce("") { result, genericParameter in
+                result + Self.capitalizedDescription(of: genericParameter)
+            }
         let typeDescription = Self.capitalizedDescription(of: type.type)
 
         return genericParametersDescription + typeDescription

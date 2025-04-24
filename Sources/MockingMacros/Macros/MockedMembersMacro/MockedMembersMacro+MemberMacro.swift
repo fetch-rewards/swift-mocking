@@ -50,11 +50,10 @@ extension MockedMembersMacro: MemberMacro {
             members.append(DeclSyntax(defaultInitializerDeclaration))
         }
 
-        if
-            let resetMockedStaticMembersMethodDeclaration =
-                self.resetMockedStaticMembersMethodDeclaration(for: declaration)
-        {
-            members.append(DeclSyntax(resetMockedStaticMembersMethodDeclaration))
+        if let resetMethodDeclaration = self.resetMockedStaticMembersMethodDeclaration(
+            for: declaration
+        ) {
+            members.append(DeclSyntax(resetMethodDeclaration))
         }
 
         return members

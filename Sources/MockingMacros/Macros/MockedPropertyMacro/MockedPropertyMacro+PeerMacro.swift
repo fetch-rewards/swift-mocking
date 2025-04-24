@@ -96,17 +96,17 @@ extension MockedPropertyMacro: PeerMacro {
             isMockAnActor: macroArguments.isMockAnActor
         )
         let name = IdentifierPatternSyntax(identifier: "__\(propertyBindingName)")
-        let typeReference: any ExprSyntaxProtocol
-
-        if let genericArgumentClause = overrideDeclarationType.genericArgumentClause {
-            typeReference = GenericSpecializationExprSyntax(
+        let typeReference: any ExprSyntaxProtocol = if
+            let genericArgumentClause = overrideDeclarationType.genericArgumentClause
+        {
+            GenericSpecializationExprSyntax(
                 expression: DeclReferenceExprSyntax(
                     baseName: overrideDeclarationType.name
                 ),
                 genericArgumentClause: genericArgumentClause
             )
         } else {
-            typeReference = DeclReferenceExprSyntax(
+            DeclReferenceExprSyntax(
                 baseName: overrideDeclarationType.name
             )
         }

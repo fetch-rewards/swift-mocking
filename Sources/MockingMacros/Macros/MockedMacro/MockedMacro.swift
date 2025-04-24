@@ -424,7 +424,7 @@ extension MockedMacro {
         for methodDeclaration: FunctionDeclSyntax,
         in protocolDeclaration: ProtocolDeclSyntax
     ) throws -> FunctionDeclSyntax {
-        return try methodDeclaration
+        try methodDeclaration
             .trimmed
             .withAccessLevel(accessLevel)
             .with(\.modifiers) { modifiers in

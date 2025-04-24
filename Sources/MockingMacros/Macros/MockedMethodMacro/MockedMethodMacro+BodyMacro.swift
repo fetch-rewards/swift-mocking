@@ -78,16 +78,17 @@ extension MockedMethodMacro: BodyMacro {
                 let recordInputClosureCallArgument = LabeledExprSyntax(
                     expression: parameterReferenceExpression
                 )
-                let invokeClosureCallArgument: LabeledExprSyntax
-
-                if self.isInoutParameter(parameter), !didTypeEraseParameter {
-                    invokeClosureCallArgument = LabeledExprSyntax(
+                let invokeClosureCallArgument: LabeledExprSyntax = if
+                    self.isInoutParameter(parameter),
+                    !didTypeEraseParameter
+                {
+                    LabeledExprSyntax(
                         expression: InOutExprSyntax(
                             expression: parameterReferenceExpression
                         )
                     )
                 } else {
-                    invokeClosureCallArgument = recordInputClosureCallArgument
+                    recordInputClosureCallArgument
                 }
 
                 recordInputClosureCallArguments.append(recordInputClosureCallArgument)
