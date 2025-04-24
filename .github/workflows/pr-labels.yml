@@ -1,0 +1,44 @@
+name: PR Labels
+
+on:
+  pull_request:
+    types: [opened, labeled, unlabeled, reopened, synchronize]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  check-for-required-labels:
+    name: Check For Required Labels
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Validate PR has required labels
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          REPO=${{ github.repository }}
+
+          REQUIRED_LABELS=("bug" "ci/cd" "dependencies" "documentation" "enhancement" "formatting" "refactoring" "testing")
+          LABELS=$(gh pr view "$PR_NUMBER" --repo "$REPO" --json labels --jq '.labels[].name')
+
+          echo "PR labels:"
+          echo "$LABELS"
+
+          for required in "${REQUIRED_LABELS[@]}"; do
+            if echo "$LABELS" | grep -q "^$required$"; then
+              echo "✅ Found required label: $required"
+              exit 0
+            fi
+          done
+
+          echo "❌ PR is missing a required label."
+          echo "At least one of the following labels is required:"
+          printf '%s\n' "${REQUIRED_LABELS[@]}"
+          exit 1
+        shell: bash
