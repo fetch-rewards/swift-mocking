@@ -45,33 +45,31 @@ extension MockedPropertyMacro {
                 return arguments.count > index ? arguments[argumentIndex] : nil
             }
 
-            guard let propertyTypeArgument = argument(0) else {
+            let propertyTypeArgument = argument(0)
+            let mockName = argument(1)?
+                .expression
+                .as(StringLiteralExprSyntax.self)?
+                .representedLiteralValue
+            let isMockAnActorTokenKind = argument(2)?
+                .expression
+                .as(BooleanLiteralExprSyntax.self)?
+                .literal
+                .tokenKind
+
+            guard let propertyTypeArgument else {
                 throw MacroError.unableToParsePropertyTypeArgument
             }
 
-            self.propertyType = try MockedPropertyType(argument: propertyTypeArgument)
-
-            guard
-                let mockName = argument(1)?
-                    .expression
-                    .as(StringLiteralExprSyntax.self)?
-                    .representedLiteralValue
-            else {
+            guard let mockName else {
                 throw MacroError.unableToParseMockNameArgument
             }
 
-            self.mockName = mockName
-
-            guard
-                let isMockAnActorTokenKind = argument(2)?
-                    .expression
-                    .as(BooleanLiteralExprSyntax.self)?
-                    .literal
-                    .tokenKind
-            else {
+            guard let isMockAnActorTokenKind else {
                 throw MacroError.unableToParseIsMockAnActorArgument
             }
 
+            self.propertyType = try MockedPropertyType(argument: propertyTypeArgument)
+            self.mockName = mockName
             self.isMockAnActor = isMockAnActorTokenKind == .keyword(.true)
         }
     }
