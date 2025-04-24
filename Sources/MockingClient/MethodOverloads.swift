@@ -87,9 +87,13 @@ public final class MethodOverloadsMock {
     func increment<Incrementor>(using incrementor: Incrementor) where Incrementor: Hashable
     func increment<Incrementor>(using incrementor: Incrementor) async where Incrementor: Hashable
     func increment<Incrementor>(using incrementor: inout Incrementor) where Incrementor: Hashable
-    func increment<Incrementor>(using incrementor: inout Incrementor) async where Incrementor: Hashable
+    func increment<Incrementor>(
+        using incrementor: inout Incrementor
+    ) async where Incrementor: Hashable
     func increment<Incrementor>(using incrementor: sending Incrementor) where Incrementor: Hashable
-    func increment<Incrementor>(using incrementor: sending Incrementor) async where Incrementor: Hashable
+    func increment<Incrementor>(
+        using incrementor: sending Incrementor
+    ) async where Incrementor: Hashable
 
     func increment(using incrementor: Incrementor) async -> Int
     func increment(using incrementor: Incrementor) throws -> Int
