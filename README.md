@@ -210,7 +210,7 @@ It also contains two internal, underscored macros (`@_MockedProperty` and `@_Moc
 
 ### `@Mocked`
 
-`@Mocked` is an attached, peer macro that generates a mock class from a protocol declaration:
+`@Mocked` is an attached peer macro that generates a mock class from a protocol declaration:
 ```swift
 @Mocked(compilationCondition: .debug)
 protocol Dependency {}
