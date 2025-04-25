@@ -52,5 +52,5 @@ Please link any related PRs, for example:
 - [ ] I have formatted my code using `SwiftFormat`
 - [ ] I have updated documentation (if needed)
 - [ ] I have added the appropriate label to my PR
-- [ ] I have read the [contributing guidelines](https://github.com/fetch-rewards/swift-synchronization/blob/main/CONTRIBUTING.md)
-- [ ] I agree to follow this project's [Code of Conduct](https://github.com/fetch-rewards/swift-synchronization/blob/main/CODE_OF_CONDUCT.md)
+- [ ] I have read the [contributing guidelines](https://github.com/fetch-rewards/swift-mocking/blob/main/CONTRIBUTING.md)
+- [ ] I agree to follow this project's [Code of Conduct](https://github.com/fetch-rewards/swift-mocking/blob/main/CODE_OF_CONDUCT.md)
