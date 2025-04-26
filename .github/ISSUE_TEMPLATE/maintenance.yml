@@ -2,6 +2,7 @@ name: Maintenance
 description: Suggest internal improvements unrelated to features or bugs
 title: "[Maintenance] <brief description>"
 labels: []
+assignees: []
 
 body:
   - type: textarea
