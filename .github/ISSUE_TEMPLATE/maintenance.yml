@@ -1,0 +1,36 @@
+name: Maintenance
+description: Suggest internal improvements unrelated to features or bugs
+labels: []
+body:
+  - type: textarea
+    id: area
+    attributes:
+      label: What area needs maintenance?
+      description: Specify what part of the project you want to improve.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reason
+    attributes:
+      label: Why is this improvement needed?
+      description: Explain the benefit (e.g. performance, test coverage, code quality, build speed).
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed_solution
+    attributes:
+      label: Proposed solution
+      description: If you have a suggestion for how to fix the issue, please describe it here.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Code of Conduct
+      description: By submitting this issue, you agree to follow our [Code of Conduct](https://github.com/fetch-rewards/swift-mocking/blob/main/CODE_OF_CONDUCT.md). 
+      options:
+        - label: I agree to follow this project's Code of Conduct
+          required: true
