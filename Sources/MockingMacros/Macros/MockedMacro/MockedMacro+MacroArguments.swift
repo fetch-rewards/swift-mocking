@@ -20,7 +20,7 @@ extension MockedMacro {
         let compilationCondition: MockCompilationCondition
         
         // TODO: Docs
-        let sendability: MockSendability
+        let sendableConformance: MockSendableConformance
 
         // MARK: Initializers
 
@@ -49,11 +49,13 @@ extension MockedMacro {
 
             self.compilationCondition = compilationCondition ?? .swiftMockingEnabled
             
-            var sendability: MockSendability?
-            if let sendabilityArgument = argument(1) {
-                sendability = MockSendability(argument: sendabilityArgument)
+            var sendableConformance: MockSendableConformance?
+            if let sendableConformanceArgument = argument(1) {
+                sendableConformance = MockSendableConformance(
+                    argument: sendableConformanceArgument
+                )
             }
-            self.sendability = sendability ?? .checked
+            self.sendableConformance = sendableConformance ?? .checked
         }
     }
 }

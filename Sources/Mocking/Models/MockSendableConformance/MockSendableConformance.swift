@@ -1,11 +1,11 @@
 //
-//  MockSendability.swift
+//  MockSendableConformance.swift
 //
 //  Copyright © 2025 Fetch.
 //
 
 // TODO: Docs
-public enum MockSendability {
+public enum MockSendableConformance {
     
     // TODO: Docs
     case checked

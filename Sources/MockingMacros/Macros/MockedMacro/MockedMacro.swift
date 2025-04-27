@@ -42,7 +42,7 @@ public struct MockedMacro: PeerMacro {
                 ),
                 inheritanceClause: self.mockInheritanceClause(
                     from: protocolDeclaration,
-                    sendability: macroArguments.sendability
+                    sendableConformance: macroArguments.sendableConformance
                 ),
                 genericWhereClause: self.mockGenericWhereClause(
                     from: protocolDeclaration
@@ -184,17 +184,16 @@ extension MockedMacro {
     // TODO: Docs
     private static func mockInheritanceClause(
         from protocolDeclaration: ProtocolDeclSyntax,
-        sendability: MockSendability
+        sendableConformance: MockSendableConformance
     ) -> InheritanceClauseSyntax {
-        var inheritedTypes = [
-            InheritedTypeSyntax(type: protocolDeclaration.type)
-        ]
-        if case .unchecked = sendability {
-            inheritedTypes.insert(.uncheckedSendable, at: .zero)
+        InheritanceClauseSyntax {
+            InheritedTypeListSyntax {
+                if case .unchecked = sendableConformance {
+                    .uncheckedSendable
+                }
+                InheritedTypeSyntax(type: protocolDeclaration.type)
+            }
         }
-        return InheritanceClauseSyntax(
-            inheritedTypes: InheritedTypeListSyntax(inheritedTypes)
-        )
     }
     
     // MARK: Generic Where Clause

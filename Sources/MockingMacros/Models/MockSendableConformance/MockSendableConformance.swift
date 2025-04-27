@@ -1,5 +1,5 @@
 //
-//  MockSendability.swift
+//  MockSendableConformance.swift
 //
 //  Copyright © 2025 Fetch.
 //
@@ -7,7 +7,7 @@
 import SwiftSyntax
 
 // TODO: Docs
-enum MockSendability: String {
+enum MockSendableConformance: String {
     
     // TODO: Docs
     case checked

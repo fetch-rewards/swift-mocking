@@ -22,7 +22,7 @@
 @attached(peer, names: suffixed(Mock))
 public macro Mocked(
     compilationCondition: MockCompilationCondition = .swiftMockingEnabled,
-    sendability: MockSendability = .checked
+    sendableConformance: MockSendableConformance = .checked
 ) = #externalMacro(
     module: "MockingMacros",
     type: "MockedMacro"
