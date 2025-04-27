@@ -16,9 +16,12 @@
 /// public final class DependencyMock: Dependency { ... }
 /// ```
 ///
-/// - Parameter compilationCondition: The compilation condition to apply to the
-///   `#if` compiler directive used to wrap the generated mock.
-// TODO: Docs
+/// - Parameters:
+///   - compilationCondition: The compilation condition to apply to the
+///     `#if` compiler directive used to wrap the generated mock.
+///     (default: `.swiftMockingEnabled`)
+///   - sendableConformance: The `Sendable` conformance to apply to
+///     the generated mock. (default: `.checked`)
 @attached(peer, names: suffixed(Mock))
 public macro Mocked(
     compilationCondition: MockCompilationCondition = .swiftMockingEnabled,

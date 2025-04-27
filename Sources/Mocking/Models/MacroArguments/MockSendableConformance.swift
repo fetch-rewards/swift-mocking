@@ -4,12 +4,13 @@
 //  Copyright © 2025 Fetch.
 //
 
-// TODO: Docs
+/// A `Sendable` conformance that can be applied to a mock declaration.
 public enum MockSendableConformance {
     
-    // TODO: Docs
+    /// The mock adheres to the `Sendable` conformance of the original
+    /// implementation.
     case checked
     
-    // TODO: Docs
+    /// The mock conforms to `@unchecked Sendable`.
     case unchecked
 }

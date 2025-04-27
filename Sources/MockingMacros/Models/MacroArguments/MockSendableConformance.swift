@@ -6,16 +6,20 @@
 
 import SwiftSyntax
 
-// TODO: Docs
+/// A `Sendable` conformance that can be applied to a mock declaration.
 enum MockSendableConformance: String, MacroArgument {
     
-    // TODO: Docs
+    /// The mock adheres to the `Sendable` conformance of the original
+    /// implementation.
     case checked
     
-    // TODO: Docs
+    /// The mock conforms to `@unchecked Sendable`.
     case unchecked
-    
-    // TODO: Docs
+
+    /// Creates a sendable conformance from the provided `argument`.
+    ///
+    /// - Parameter argument: The argument syntax from which to parse a
+    ///   sendable conformance.
     init?(argument: LabeledExprSyntax) {
         guard
             let memberAccessExpression = argument.expression.as(
