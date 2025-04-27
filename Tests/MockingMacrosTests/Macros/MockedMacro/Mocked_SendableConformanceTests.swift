@@ -9,7 +9,7 @@ import Testing
 @testable import MockingMacros
 
 struct Mocked_SendableConformanceTests {
-    
+
     @Test(
         "Default conformance doesn't modify inheritance clause.",
         arguments: mockedTestConfigurations
@@ -33,7 +33,7 @@ struct Mocked_SendableConformanceTests {
             """
         )
     }
-    
+
     @Test(
         "Checked conformance doesn't modify inheritance clause.",
         arguments: mockedTestConfigurations
@@ -57,7 +57,7 @@ struct Mocked_SendableConformanceTests {
             """
         )
     }
-    
+
     @Test(
         "Unchecked conformance adds @unchecked Sendable to inheritance clause.",
         arguments: mockedTestConfigurations

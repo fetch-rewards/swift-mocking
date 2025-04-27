@@ -28,7 +28,7 @@ func assertMocked(
     if let compilationCondition {
         arguments.append("compilationCondition: \(compilationCondition)")
     }
-    
+
     if let sendableConformance {
         arguments.append("sendableConformance: .\(sendableConformance.rawValue)")
     }

@@ -248,7 +248,7 @@ extension MockedMethodMacro: PeerMacro {
             inheritanceClause: InheritanceClauseSyntax {
                 // @unchecked Sendable
                 .uncheckedSendable
-                
+
                 // Implementation
                 InheritedTypeSyntax(
                     type: IdentifierTypeSyntax(

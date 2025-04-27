@@ -7,7 +7,7 @@
 import SwiftSyntax
 
 extension InheritedTypeSyntax {
-    
+
     /// An `InheritedTypeSyntax` representing unchecked sendable conformance
     /// with a trailing comma.
     ///

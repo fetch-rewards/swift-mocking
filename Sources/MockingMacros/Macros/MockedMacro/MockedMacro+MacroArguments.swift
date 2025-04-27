@@ -18,7 +18,7 @@ extension MockedMacro {
 
         /// The compilation condition with which to wrap the generated mock.
         let compilationCondition: MockCompilationCondition
-        
+
         /// The sendable conformance to apply to the generated mock.
         let sendableConformance: MockSendableConformance
 
@@ -29,10 +29,10 @@ extension MockedMacro {
         /// - Parameter node: The node representing the macro.
         init(node: AttributeSyntax) {
             let arguments = node.arguments?.as(LabeledExprListSyntax.self)
-            
+
             func argumentValue<A>(
                 for argumentType: A.Type,
-                `default`: A
+                default: A
             ) -> A where A: MacroArgument {
                 guard let arguments else {
                     return `default`
@@ -44,7 +44,7 @@ extension MockedMacro {
                 }
                 return `default`
             }
-            
+
             self.compilationCondition = argumentValue(
                 for: MockCompilationCondition.self,
                 default: .swiftMockingEnabled

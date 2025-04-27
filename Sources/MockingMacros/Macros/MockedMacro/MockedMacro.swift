@@ -198,7 +198,7 @@ extension MockedMacro {
             }
         }
     }
-    
+
     // MARK: Generic Where Clause
 
     /// Returns the generic `where` clause to apply to the mock declaration,
