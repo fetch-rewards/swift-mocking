@@ -29,33 +29,31 @@ extension MockedMacro {
         /// - Parameter node: The node representing the macro.
         init(node: AttributeSyntax) {
             let arguments = node.arguments?.as(LabeledExprListSyntax.self)
-            let argument: (Int) -> LabeledExprSyntax? = { index in
-                guard let arguments else {
-                    return nil
-                }
-
-                let argumentIndex = arguments.index(at: index)
-
-                return arguments.count > index ? arguments[argumentIndex] : nil
-            }
-
-            var compilationCondition: MockCompilationCondition?
-
-            if let compilationConditionArgument = argument(0) {
-                compilationCondition = MockCompilationCondition(
-                    argument: compilationConditionArgument
-                )
-            }
-
-            self.compilationCondition = compilationCondition ?? .swiftMockingEnabled
             
-            var sendableConformance: MockSendableConformance?
-            if let sendableConformanceArgument = argument(1) {
-                sendableConformance = MockSendableConformance(
-                    argument: sendableConformanceArgument
-                )
+            func argumentValue<A>(
+                for argumentType: A.Type,
+                `default`: A
+            ) -> A where A: MacroArgument {
+                guard let arguments else {
+                    return `default`
+                }
+                for argument in arguments {
+                    if let value = A(argument: argument) {
+                        return value
+                    }
+                }
+                return `default`
             }
-            self.sendableConformance = sendableConformance ?? .checked
+            
+            self.compilationCondition = argumentValue(
+                for: MockCompilationCondition.self,
+                default: .swiftMockingEnabled
+            )
+
+            self.sendableConformance = argumentValue(
+                for: MockSendableConformance.self,
+                default: .checked
+            )
         }
     }
 }

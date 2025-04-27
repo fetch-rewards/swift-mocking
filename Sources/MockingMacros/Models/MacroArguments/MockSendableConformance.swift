@@ -7,7 +7,7 @@
 import SwiftSyntax
 
 // TODO: Docs
-enum MockSendableConformance: String {
+enum MockSendableConformance: String, MacroArgument {
     
     // TODO: Docs
     case checked
@@ -15,6 +15,7 @@ enum MockSendableConformance: String {
     // TODO: Docs
     case unchecked
     
+    // TODO: Docs
     init?(argument: LabeledExprSyntax) {
         guard
             let memberAccessExpression = argument.expression.as(
