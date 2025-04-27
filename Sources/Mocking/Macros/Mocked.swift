@@ -18,9 +18,11 @@
 ///
 /// - Parameter compilationCondition: The compilation condition to apply to the
 ///   `#if` compiler directive used to wrap the generated mock.
+// TODO: Docs
 @attached(peer, names: suffixed(Mock))
 public macro Mocked(
-    compilationCondition: MockCompilationCondition = .swiftMockingEnabled
+    compilationCondition: MockCompilationCondition = .swiftMockingEnabled,
+    sendability: MockSendability = .checked
 ) = #externalMacro(
     module: "MockingMacros",
     type: "MockedMacro"

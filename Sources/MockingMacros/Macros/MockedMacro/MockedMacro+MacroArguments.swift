@@ -18,6 +18,9 @@ extension MockedMacro {
 
         /// The compilation condition with which to wrap the generated mock.
         let compilationCondition: MockCompilationCondition
+        
+        // TODO: Docs
+        let sendability: MockSendability
 
         // MARK: Initializers
 
@@ -45,6 +48,12 @@ extension MockedMacro {
             }
 
             self.compilationCondition = compilationCondition ?? .swiftMockingEnabled
+            
+            var sendability: MockSendability?
+            if let sendabilityArgument = argument(1) {
+                sendability = MockSendability(argument: sendabilityArgument)
+            }
+            self.sendability = sendability ?? .checked
         }
     }
 }
