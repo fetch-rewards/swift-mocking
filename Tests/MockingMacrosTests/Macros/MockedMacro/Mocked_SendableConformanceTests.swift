@@ -46,7 +46,7 @@ struct Mocked_SendableConformanceTests {
             """
             \(interface.accessLevel) protocol Dependency: Sendable {}
             """,
-            sendableConformance: .checked,
+            sendableConformance: ".checked",
             generates: """
             #if SWIFT_MOCKING_ENABLED
             @MockedMembers
@@ -70,7 +70,31 @@ struct Mocked_SendableConformanceTests {
             """
             \(interface.accessLevel) protocol Dependency: Sendable {}
             """,
-            sendableConformance: .unchecked,
+            sendableConformance: ".unchecked",
+            generates: """
+            #if SWIFT_MOCKING_ENABLED
+            @MockedMembers
+            \(mock.modifiers)\
+            class DependencyMock: @unchecked Sendable, Dependency {
+            }
+            #endif
+            """
+        )
+    }
+
+    @Test(
+        "Argument is valid without dot notation.",
+        arguments: mockedTestConfigurations
+    )
+    func argumentWithoutDotNotation(
+        interface: InterfaceConfiguration,
+        mock: MockConfiguration
+    ) {
+        assertMocked(
+            """
+            \(interface.accessLevel) protocol Dependency: Sendable {}
+            """,
+            sendableConformance: "MockSendableConformance.unchecked",
             generates: """
             #if SWIFT_MOCKING_ENABLED
             @MockedMembers
@@ -82,5 +106,4 @@ struct Mocked_SendableConformanceTests {
         )
     }
 }
-
 #endif

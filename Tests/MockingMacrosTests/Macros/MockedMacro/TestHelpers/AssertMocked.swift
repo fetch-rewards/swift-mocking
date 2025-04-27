@@ -13,7 +13,7 @@ import Testing
 func assertMocked(
     _ interface: String,
     compilationCondition: String? = nil,
-    sendableConformance: MockSendableConformance? = nil,
+    sendableConformance: String? = nil,
     generates mock: String,
     diagnostics: [DiagnosticSpec] = [],
     applyFixIts: [String]? = nil,
@@ -30,7 +30,7 @@ func assertMocked(
     }
 
     if let sendableConformance {
-        arguments.append("sendableConformance: .\(sendableConformance.rawValue)")
+        arguments.append("sendableConformance: \(sendableConformance)")
     }
 
     var macro = "@Mocked"
