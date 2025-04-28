@@ -15,7 +15,11 @@ struct MockSendableConformanceTests {
     @Test("Initializes as .checked from a valid checked argument.")
     func initCheckedFromArgument() {
         let sendableConformance = MockSendableConformance(
-            argument: argument(base: nil, name: "checked")
+            argument: .macroArgumentSyntax(
+                label: "sendableConformance",
+                base: nil,
+                name: "checked"
+            )
         )
         #expect(sendableConformance == .checked)
     }
@@ -23,7 +27,11 @@ struct MockSendableConformanceTests {
     @Test("Initializes as .unchecked from a valid unchecked argument.")
     func initUncheckedFromArgument() {
         let sendableConformance = MockSendableConformance(
-            argument: argument(base: nil, name: "unchecked")
+            argument: .macroArgumentSyntax(
+                label: "sendableConformance",
+                base: nil,
+                name: "unchecked"
+            )
         )
         #expect(sendableConformance == .unchecked)
     }
@@ -31,7 +39,11 @@ struct MockSendableConformanceTests {
     @Test("Initializes as nil from an unrecognized argument.")
     func initNilFromArgument() {
         let sendableConformance = MockSendableConformance(
-            argument: argument(base: nil, name: "unrecognized")
+            argument: .macroArgumentSyntax(
+                label: "sendableConformance",
+                base: nil,
+                name: "unrecognized"
+            )
         )
         #expect(sendableConformance == nil)
     }
@@ -39,32 +51,12 @@ struct MockSendableConformanceTests {
     @Test("Initializes from argument when base is included.")
     func initFromArgumentWithBase() {
         let sendableConformance = MockSendableConformance(
-            argument: argument(base: "MockSendableConformance", name: "checked")
-        )
-        #expect(sendableConformance == .checked)
-    }
-
-    // MARK: Helper functions
-
-    /// Returns the sendable conformance argument syntax for the provided base
-    /// and name.
-    ///
-    /// ```swift
-    /// argument(base: "SomeEnum", name: "someCase")
-    /// // Represents
-    /// sendableConformance: SomeEnum.someCase
-    /// ```
-    private func argument(base: String?, name: String) -> LabeledExprSyntax {
-        LabeledExprSyntax(
-            label: .identifier("sendableConformance"),
-            colon: .colonToken(),
-            expression: MemberAccessExprSyntax(
-                base: base.map {
-                    DeclReferenceExprSyntax(baseName: .identifier($0))
-                },
-                period: .periodToken(),
-                name: .identifier(name)
+            argument: .macroArgumentSyntax(
+                label: "sendableConformance",
+                base: "MockSendableConformance",
+                name: "checked"
             )
         )
+        #expect(sendableConformance == .checked)
     }
 }
