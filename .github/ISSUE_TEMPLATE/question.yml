@@ -1,0 +1,40 @@
+name: Question
+description: Ask a question or request clarification
+title: "[Question] <brief description>"
+labels: [question]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### Thanks for asking a question!
+        > [!Important]
+        > Please consider using [Discussions](https://github.com/fetch-rewards/swift-mocking/discussions) to ask your question. There, you can receive answers from maintainers as well as community members. While we do provide this form for submitting questions, we prefer to reserve issues for things that need to be fixed, changed, or added. If you are sharing feedback, asking for help or opinions, or looking to brainstorm ideas with other members of the community, please use [Discussions](https://github.com/fetch-rewards/swift-mocking/discussions).
+        
+  - type: textarea
+    id: question
+    attributes:
+      label: What is your question?
+      description: Please be clear and specific.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I have searched existing [Issues](https://github.com/fetch-rewards/swift-mocking/issues) and [Discussions](https://github.com/fetch-rewards/swift-mocking/discussions).
+          required: true
+        - label: This is not a bug report or feature request.
+          required: true
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Code of Conduct
+      description: By submitting this issue, you agree to follow our [Code of Conduct](https://github.com/fetch-rewards/swift-mocking/blob/main/CODE_OF_CONDUCT.md). 
+      options:
+        - label: I agree to follow this project's Code of Conduct
+          required: true

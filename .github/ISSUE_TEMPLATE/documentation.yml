@@ -1,0 +1,39 @@
+name: Documentation
+description: Request changes to documentation
+title: "[Documentation] <brief description>"
+labels: [documentation]
+assignees: []
+
+body:
+  - type: textarea
+    id: location
+    attributes:
+      label: Where is the documentation issue?
+      description: Please provide a link or describe the section of the documentation that needs attention.
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is the problem?
+      description: Explain what's wrong (typo, unclear instructions, outdated info, etc.).
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggested_change
+    attributes:
+      label: Suggested fix or improvement
+      description: If you have a suggestion for how to fix the issue, please describe it here.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Code of Conduct
+      description: By submitting this issue, you agree to follow our [Code of Conduct](https://github.com/fetch-rewards/swift-mocking/blob/main/CODE_OF_CONDUCT.md). 
+      options:
+        - label: I agree to follow this project's Code of Conduct
+          required: true
