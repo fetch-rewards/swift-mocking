@@ -15,6 +15,7 @@ Swift Mocking is a collection of Swift macros used to generate mock dependencies
 - [Macros](#macros)
   - [`@Mocked`](#mocked)
     - [Compilation Condition](#compilation-condition)
+    - [Sendable Conformance](#sendable-conformance)
     - [Access Levels](#access-levels)
     - [Actor Conformance](#actor-conformance)
     - [Associated Types](#associated-types)
