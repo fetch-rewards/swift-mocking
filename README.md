@@ -290,16 +290,11 @@ can be `.checked` (the default) or `.unchecked`, allowing you to control the
 `Sendable` conformance of the generated mock. In most cases, the default is
 preferred and this argument can be omitted.
 
-- Default: `.checked` 
-  - When set to `.checked`, the mock's Sendability is inherited from its
-    underlying implementation and verified by the compiler as usual. No
-    additonal annotations or Sendable conformance are added. 
-- Alternatively: `.unchecked`
-  - When set to `.unchecked`, the generated mock will explicitly conform to
-    `@unchecked Sendable`.
-  - This is useful when you need your mock to be `Sendable` but cannot satisfy
-    strict compiler checks and know your usage is concurrency-safe.
-
+Default: `.checked`
+- When set to `.checked`, the mock's Sendability is inherited from its
+  underlying implementation and verified by the compiler as usual. No
+  additonal annotations or Sendable conformance are added. 
+  
 ```swift
 @Mocked
 protocol Dependency: Sendable {}
@@ -316,6 +311,12 @@ protocol Dependency: Sendable {}
 final class DependencyMock: Dependency {}
 #endif
 ```
+
+Alternatively: `.unchecked`
+- When set to `.unchecked`, the generated mock will explicitly conform to
+  `@unchecked Sendable`.
+- This is useful when you need your mock to be `Sendable` but cannot satisfy
+  strict compiler checks and know your usage is concurrency-safe.
 
 ```swift
 @Mocked(sendableConformance: .unchecked)
