@@ -28,7 +28,7 @@ extension LabeledExprSyntax {
                     DeclReferenceExprSyntax(baseName: .identifier($0))
                 },
                 period: .periodToken(),
-                name: .identifier(name)
+                declName: DeclReferenceExprSyntax(baseName: .identifier(name))
             )
         )
     }

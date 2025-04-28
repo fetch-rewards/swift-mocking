@@ -48,6 +48,21 @@ struct MockSendableConformanceTests {
         #expect(sendableConformance == nil)
     }
 
+    @Test("Initializes as nil from argument with invalid name token.")
+    func initNilFromNamelessArgument() {
+        let sendableConformance = MockSendableConformance(
+            argument: LabeledExprSyntax(
+                label: .identifier("sendableConformance"),
+                colon: .colonToken(),
+                expression: MemberAccessExprSyntax(
+                    period: .periodToken(),
+                    declName: DeclReferenceExprSyntax(baseName: .commaToken())
+                )
+            )
+        )
+        #expect(sendableConformance == nil)
+    }
+
     @Test("Initializes from argument when base is included.")
     func initFromArgumentWithBase() {
         let sendableConformance = MockSendableConformance(
