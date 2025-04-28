@@ -83,7 +83,7 @@ struct Mocked_SendableConformanceTests {
     }
 
     @Test(
-        "Argument is valid without dot notation.",
+        "Argument is valid when MockSendableConformance base is included.",
         arguments: mockedTestConfigurations
     )
     func argumentWithoutDotNotation(
