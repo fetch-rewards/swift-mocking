@@ -9,8 +9,9 @@ import SwiftSyntax
 /// A `Sendable` conformance that can be applied to a mock declaration.
 enum MockSendableConformance: String, MacroArgument {
 
-    /// The mock adheres to the `Sendable` conformance of the original
-    /// implementation.
+    /// The mock conforms to the protocol it is mocking, resulting in
+    /// checked `Sendable` conformance if the protocol inherits from
+    /// `Sendable`.
     case checked
 
     /// The mock conforms to `@unchecked Sendable`.
@@ -19,7 +20,7 @@ enum MockSendableConformance: String, MacroArgument {
     /// Creates a sendable conformance from the provided `argument`.
     ///
     /// - Parameter argument: The argument syntax from which to parse a
-    ///   sendable conformance.
+    ///   `Sendable` conformance.
     init?(argument: LabeledExprSyntax) {
         guard
             let memberAccessExpression = argument.expression.as(
@@ -29,6 +30,7 @@ enum MockSendableConformance: String, MacroArgument {
         else {
             return nil
         }
+
         self.init(rawValue: identifier.name)
     }
 }
