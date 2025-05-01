@@ -285,16 +285,13 @@ protocol CustomCompilationCondition {}
 
 #### Sendable Conformance
 
-The `@Mocked` macro supports an optional `sendableConformance` argument, which
-can be `.checked` (the default) or `.unchecked`, allowing you to control the
-`Sendable` conformance of the generated mock. In most cases, the default is
-preferred and this argument can be omitted.
+The `@Mocked` macro supports a `sendableConformance` argument, which
+can be `.checked` or `.unchecked`, allowing you to control the
+`Sendable` conformance of the generated mock.
 
-Default: `.checked`
-- When set to `.checked`, the mock's Sendability is inherited from its
-  underlying implementation and verified by the compiler as usual. No
-  additonal annotations or Sendable conformance are added. 
-  
+With `.checked`, the mock's Sendability is inherited from the protocol it is
+mocking, resulting in checked `Sendable` conformance if the protocol inherits
+from `Sendable`.
 ```swift
 @Mocked
 protocol Dependency: Sendable {}
@@ -304,7 +301,7 @@ protocol Dependency: Sendable {}
 @Mocked(sendableConformance: .checked)
 protocol Dependency: Sendable {}
 
-// Both generate
+// Both generate:
 
 #if SWIFT_MOCKING_ENABLED
 @MockedMembers
@@ -312,17 +309,15 @@ final class DependencyMock: Dependency {}
 #endif
 ```
 
-Alternatively: `.unchecked`
-- When set to `.unchecked`, the generated mock will explicitly conform to
-  `@unchecked Sendable`.
-- This is useful when you need your mock to be `Sendable` but cannot satisfy
-  strict compiler checks and know your usage is concurrency-safe.
+With `.unchecked`, the generated mock will explicitly conform to `@unchecked Sendable`.
+This is useful when you need your mock to be `Sendable` but cannot satisfy strict
+compiler checks and know your usage is concurrency-safe.
 
 ```swift
 @Mocked(sendableConformance: .unchecked)
 protocol Dependency: Sendable {}
 
-// Generates
+// Generates:
 
 #if SWIFT_MOCKING_ENABLED
 @MockedMembers
