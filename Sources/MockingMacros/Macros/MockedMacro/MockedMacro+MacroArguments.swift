@@ -19,7 +19,7 @@ extension MockedMacro {
         /// The compilation condition with which to wrap the generated mock.
         let compilationCondition: MockCompilationCondition
 
-        /// The sendable conformance to apply to the generated mock.
+        /// The `Sendable` conformance to apply to the generated mock.
         let sendableConformance: MockSendableConformance
 
         // MARK: Initializers

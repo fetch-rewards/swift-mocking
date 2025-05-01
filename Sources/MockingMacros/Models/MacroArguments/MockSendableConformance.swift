@@ -17,7 +17,7 @@ enum MockSendableConformance: String, MacroArgumentValue {
     /// The mock conforms to `@unchecked Sendable`.
     case unchecked
 
-    /// Creates a sendable conformance from the provided `argument`.
+    /// Creates a `Sendable` conformance from the provided `argument`.
     ///
     /// - Parameter argument: The argument syntax from which to parse a
     ///   `Sendable` conformance.
