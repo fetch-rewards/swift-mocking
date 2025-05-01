@@ -246,8 +246,9 @@ extension MockedMethodMacro: PeerMacro {
                 }
             },
             inheritanceClause: InheritanceClauseSyntax {
-                // @unchecked Sendable
+                // @unchecked Sendable,
                 .uncheckedSendable
+                    .with(\.trailingComma, .commaToken())
 
                 // Implementation
                 InheritedTypeSyntax(

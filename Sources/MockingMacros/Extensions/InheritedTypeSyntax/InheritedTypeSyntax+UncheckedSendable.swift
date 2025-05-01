@@ -8,12 +8,10 @@ import SwiftSyntax
 
 extension InheritedTypeSyntax {
 
-    /// An `InheritedTypeSyntax` representing unchecked sendable conformance
-    /// with a trailing comma.
+    /// An `InheritedTypeSyntax` representing `@unchecked Sendable` conformance.
     ///
     /// ```swift
-    /// // Represents
-    /// @unchecked Sendable,
+    /// @unchecked Sendable
     /// ```
     static let uncheckedSendable = InheritedTypeSyntax(
         type: AttributedTypeSyntax(
@@ -26,7 +24,6 @@ extension InheritedTypeSyntax {
                 )
             },
             baseType: IdentifierTypeSyntax(name: "Sendable")
-        ),
-        trailingComma: .commaToken()
+        )
     )
 }

@@ -193,6 +193,7 @@ extension MockedMacro {
             InheritedTypeListSyntax {
                 if case .unchecked = sendableConformance {
                     .uncheckedSendable
+                        .with(\.trailingComma, .commaToken())
                 }
                 InheritedTypeSyntax(type: protocolDeclaration.type)
             }
