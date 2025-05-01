@@ -30,32 +30,30 @@ extension MockedMacro {
         init(node: AttributeSyntax) {
             let arguments = node.arguments?.as(LabeledExprListSyntax.self)
 
-            func argumentValue<A>(
-                named argumentName: String,
-                for argumentType: A.Type,
-                default: A
-            ) -> A where A: MacroArgument {
+            func argumentValue<ArgumentValue: MacroArgumentValue>(
+                named name: String,
+                default: ArgumentValue
+            ) -> ArgumentValue {
                 guard
                     let arguments,
-                    let argument = arguments.first(where: {
-                        $0.label?.text == argumentName
+                    let argument = arguments.first(where: { argument in
+                        argument.label?.text == name
                     }),
-                    let value = A(argument: argument)
+                    let value = ArgumentValue(argument: argument)
                 else {
                     return `default`
                 }
+
                 return value
             }
 
             self.compilationCondition = argumentValue(
                 named: "compilationCondition",
-                for: MockCompilationCondition.self,
                 default: .swiftMockingEnabled
             )
 
             self.sendableConformance = argumentValue(
                 named: "sendableConformance",
-                for: MockSendableConformance.self,
                 default: .checked
             )
         }

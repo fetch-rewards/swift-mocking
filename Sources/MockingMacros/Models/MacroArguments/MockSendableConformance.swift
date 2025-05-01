@@ -7,7 +7,7 @@
 import SwiftSyntax
 
 /// A `Sendable` conformance that can be applied to a mock declaration.
-enum MockSendableConformance: String, MacroArgument {
+enum MockSendableConformance: String, MacroArgumentValue {
 
     /// The mock conforms to the protocol it is mocking, resulting in
     /// checked `Sendable` conformance if the protocol inherits from
