@@ -15,6 +15,7 @@ Swift Mocking is a collection of Swift macros used to generate mock dependencies
 - [Macros](#macros)
   - [`@Mocked`](#mocked)
     - [Compilation Condition](#compilation-condition)
+    - [Sendable Conformance](#sendable-conformance)
     - [Access Levels](#access-levels)
     - [Actor Conformance](#actor-conformance)
     - [Associated Types](#associated-types)
@@ -280,6 +281,48 @@ protocol DebugCompilationCondition {}
 /// `#if !RELEASE`
 @Mocked(compilationCondition: "!RELEASE")
 protocol CustomCompilationCondition {}
+```
+
+#### Sendable Conformance
+
+The `@Mocked` macro supports a `sendableConformance` argument, which
+can be `.checked` or `.unchecked`, allowing you to control the
+`Sendable` conformance of the generated mock.
+
+With `.checked`, the mock's Sendability is inherited from the protocol it is
+mocking, resulting in checked `Sendable` conformance if the protocol inherits
+from `Sendable`.
+```swift
+@Mocked
+protocol Dependency: Sendable {}
+
+// Or
+
+@Mocked(sendableConformance: .checked)
+protocol Dependency: Sendable {}
+
+// Both generate:
+
+#if SWIFT_MOCKING_ENABLED
+@MockedMembers
+final class DependencyMock: Dependency {}
+#endif
+```
+
+With `.unchecked`, the generated mock will explicitly conform to `@unchecked Sendable`.
+This is useful when you need your mock to be `Sendable` but cannot satisfy strict
+compiler checks and know your usage is concurrency-safe.
+
+```swift
+@Mocked(sendableConformance: .unchecked)
+protocol Dependency: Sendable {}
+
+// Generates:
+
+#if SWIFT_MOCKING_ENABLED
+@MockedMembers
+final class DependencyMock: @unchecked Sendable, Dependency {}
+#endif
 ```
 
 #### Access Levels

@@ -16,11 +16,15 @@
 /// public final class DependencyMock: Dependency { ... }
 /// ```
 ///
-/// - Parameter compilationCondition: The compilation condition to apply to the
-///   `#if` compiler directive used to wrap the generated mock.
+/// - Parameters:
+///   - compilationCondition: The compilation condition to apply to the
+///     `#if` compiler directive used to wrap the generated mock.
+///   - sendableConformance: The `Sendable` conformance to apply to
+///     the generated mock.
 @attached(peer, names: suffixed(Mock))
 public macro Mocked(
-    compilationCondition: MockCompilationCondition = .swiftMockingEnabled
+    compilationCondition: MockCompilationCondition = .swiftMockingEnabled,
+    sendableConformance: MockSendableConformance = .checked
 ) = #externalMacro(
     module: "MockingMacros",
     type: "MockedMacro"

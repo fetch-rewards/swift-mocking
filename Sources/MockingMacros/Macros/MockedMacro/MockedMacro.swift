@@ -41,7 +41,8 @@ public struct MockedMacro: PeerMacro {
                     from: protocolDeclaration
                 ),
                 inheritanceClause: self.mockInheritanceClause(
-                    from: protocolDeclaration
+                    from: protocolDeclaration,
+                    sendableConformance: macroArguments.sendableConformance
                 ),
                 genericWhereClause: self.mockGenericWhereClause(
                     from: protocolDeclaration
@@ -177,17 +178,25 @@ extension MockedMacro {
     /// final class DependencyMock: Dependency {}
     /// ```
     ///
-    /// - Parameter protocolDeclaration: The protocol to which the mock must
-    ///   conform.
+    /// - Parameters:
+    ///   - protocolDeclaration: The protocol to which the mock must
+    ///     conform.
+    ///   - sendableConformance: The `Sendable` conformance the mock should have.
+    ///     If `.unchecked`, the inheritance clause will include `@unchecked Sendable`.
     /// - Returns: The inheritance clause to apply to the mock declaration.
     private static func mockInheritanceClause(
-        from protocolDeclaration: ProtocolDeclSyntax
+        from protocolDeclaration: ProtocolDeclSyntax,
+        sendableConformance: MockSendableConformance
     ) -> InheritanceClauseSyntax {
-        InheritanceClauseSyntax(
-            inheritedTypes: [
-                InheritedTypeSyntax(type: protocolDeclaration.type),
-            ]
-        )
+        InheritanceClauseSyntax {
+            InheritedTypeListSyntax {
+                if case .unchecked = sendableConformance {
+                    .uncheckedSendable
+                        .with(\.trailingComma, .commaToken())
+                }
+                InheritedTypeSyntax(type: protocolDeclaration.type)
+            }
+        }
     }
 
     // MARK: Generic Where Clause

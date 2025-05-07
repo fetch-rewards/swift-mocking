@@ -19,6 +19,9 @@ extension MockedMacro {
         /// The compilation condition with which to wrap the generated mock.
         let compilationCondition: MockCompilationCondition
 
+        /// The `Sendable` conformance to apply to the generated mock.
+        let sendableConformance: MockSendableConformance
+
         // MARK: Initializers
 
         /// Creates macro arguments parsed from the provided `node`.
@@ -26,25 +29,33 @@ extension MockedMacro {
         /// - Parameter node: The node representing the macro.
         init(node: AttributeSyntax) {
             let arguments = node.arguments?.as(LabeledExprListSyntax.self)
-            let argument: (Int) -> LabeledExprSyntax? = { index in
-                guard let arguments else {
-                    return nil
+
+            func argumentValue<ArgumentValue: MacroArgumentValue>(
+                named name: String,
+                default: ArgumentValue
+            ) -> ArgumentValue {
+                guard
+                    let arguments,
+                    let argument = arguments.first(where: { argument in
+                        argument.label?.text == name
+                    }),
+                    let value = ArgumentValue(argument: argument)
+                else {
+                    return `default`
                 }
 
-                let argumentIndex = arguments.index(at: index)
-
-                return arguments.count > index ? arguments[argumentIndex] : nil
+                return value
             }
 
-            var compilationCondition: MockCompilationCondition?
+            self.compilationCondition = argumentValue(
+                named: "compilationCondition",
+                default: .swiftMockingEnabled
+            )
 
-            if let compilationConditionArgument = argument(0) {
-                compilationCondition = MockCompilationCondition(
-                    argument: compilationConditionArgument
-                )
-            }
-
-            self.compilationCondition = compilationCondition ?? .swiftMockingEnabled
+            self.sendableConformance = argumentValue(
+                named: "sendableConformance",
+                default: .checked
+            )
         }
     }
 }

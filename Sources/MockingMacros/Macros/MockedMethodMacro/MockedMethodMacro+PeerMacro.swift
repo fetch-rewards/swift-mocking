@@ -246,21 +246,9 @@ extension MockedMethodMacro: PeerMacro {
                 }
             },
             inheritanceClause: InheritanceClauseSyntax {
-                // @unchecked Sendable
-                InheritedTypeSyntax(
-                    type: AttributedTypeSyntax(
-                        specifiers: [],
-                        attributes: AttributeListSyntax {
-                            AttributeSyntax(
-                                attributeName: IdentifierTypeSyntax(
-                                    name: "unchecked"
-                                )
-                            )
-                        },
-                        baseType: IdentifierTypeSyntax(name: "Sendable")
-                    ),
-                    trailingComma: .commaToken()
-                )
+                // @unchecked Sendable,
+                .uncheckedSendable
+                    .with(\.trailingComma, .commaToken())
 
                 // Implementation
                 InheritedTypeSyntax(

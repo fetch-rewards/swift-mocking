@@ -8,7 +8,7 @@ import SwiftSyntax
 
 /// A compilation condition for an `#if` compiler directive used to wrap a mock
 /// declaration.
-enum MockCompilationCondition: RawRepresentable, Equatable {
+enum MockCompilationCondition: RawRepresentable, Equatable, MacroArgumentValue {
 
     // MARK: Cases
 
