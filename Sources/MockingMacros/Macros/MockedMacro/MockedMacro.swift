@@ -182,8 +182,7 @@ extension MockedMacro {
     ///   - protocolDeclaration: The protocol to which the mock must
     ///     conform.
     ///   - sendableConformance: The `Sendable` conformance the mock should have.
-    ///     If `.unchecked`, the clause will include `@unchecked Sendable`.
-    ///
+    ///     If `.unchecked`, the inheritance clause will include `@unchecked Sendable`.
     /// - Returns: The inheritance clause to apply to the mock declaration.
     private static func mockInheritanceClause(
         from protocolDeclaration: ProtocolDeclSyntax,
