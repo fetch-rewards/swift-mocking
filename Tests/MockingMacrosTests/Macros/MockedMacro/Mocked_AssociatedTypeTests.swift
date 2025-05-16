@@ -60,7 +60,7 @@ struct Mocked_AssociatedTypeTests {
             """
         )
     }
-    
+
     @Test(arguments: mockedTestConfigurations)
     func protocolAssociatedTypeInheritanceWithMultipleComposedInheritedTypes(
         interface: InterfaceConfiguration,
@@ -86,7 +86,7 @@ struct Mocked_AssociatedTypeTests {
             """
         )
     }
-    
+
     @Test(arguments: mockedTestConfigurations)
     func protocolAssociatedTypeInheritanceWithMultipleMixedInheritedTypes(
         interface: InterfaceConfiguration,
