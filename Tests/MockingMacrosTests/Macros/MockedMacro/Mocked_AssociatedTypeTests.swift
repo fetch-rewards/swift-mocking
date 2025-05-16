@@ -36,7 +36,7 @@ struct Mocked_AssociatedTypeTests {
     }
 
     @Test(arguments: mockedTestConfigurations)
-    func protocolAssociatedTypeInheritanceWithMultipleInheritedTypes(
+    func protocolAssociatedTypeInheritanceWithMultipleCommaSeparatedInheritedTypes(
         interface: InterfaceConfiguration,
         mock: MockConfiguration
     ) {
@@ -54,6 +54,56 @@ struct Mocked_AssociatedTypeTests {
             class DependencyMock<\
             A: Hashable & Identifiable, \
             B: Comparable & Equatable & RawRepresentable\
+            >: Dependency {
+            }
+            #endif
+            """
+        )
+    }
+    
+    @Test(arguments: mockedTestConfigurations)
+    func protocolAssociatedTypeInheritanceWithMultipleComposedInheritedTypes(
+        interface: InterfaceConfiguration,
+        mock: MockConfiguration
+    ) {
+        assertMocked(
+            """
+            \(interface.accessLevel) protocol Dependency {
+                associatedtype A: Hashable & Identifiable
+                associatedtype B: Comparable & Equatable & RawRepresentable
+            }
+            """,
+            generates: """
+            #if SWIFT_MOCKING_ENABLED
+            @MockedMembers
+            \(mock.modifiers)\
+            class DependencyMock<\
+            A: Hashable & Identifiable, \
+            B: Comparable & Equatable & RawRepresentable\
+            >: Dependency {
+            }
+            #endif
+            """
+        )
+    }
+    
+    @Test(arguments: mockedTestConfigurations)
+    func protocolAssociatedTypeInheritanceWithMultipleMixedInheritedTypes(
+        interface: InterfaceConfiguration,
+        mock: MockConfiguration
+    ) {
+        assertMocked(
+            """
+            \(interface.accessLevel) protocol Dependency {
+                associatedtype A: Sendable, Hashable & Identifiable 
+            }
+            """,
+            generates: """
+            #if SWIFT_MOCKING_ENABLED
+            @MockedMembers
+            \(mock.modifiers)\
+            class DependencyMock<\
+            A: Sendable & Hashable & Identifiable\
             >: Dependency {
             }
             #endif
