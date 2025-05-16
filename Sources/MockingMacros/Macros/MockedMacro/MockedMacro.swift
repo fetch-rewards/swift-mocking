@@ -120,13 +120,16 @@ extension MockedMacro {
     /// Returns the generic parameter clause to apply to the mock declaration,
     /// generated from the associated types defined by the provided protocol.
     ///
+    /// The clause supports associated types with comma-separated constraints,
+    /// composition (`&`), or a combination of both.
+    ///
     /// ```swift
     /// @Mocked
     /// protocol Dependency {
-    ///     associatedtype Item: Equatable, Identifiable
+    ///     associatedtype Item: Equatable & Identifiable, Sendable
     /// }
     ///
-    /// final class DependencyMock<Item: Equatable & Identifiable>: Dependency {}
+    /// final class DependencyMock<Item: Sendable & Equatable & Identifiable>: Dependency {}
     /// ```
     ///
     /// - Parameter protocolDeclaration: The protocol to which the mock must
@@ -148,12 +151,21 @@ extension MockedMacro {
         return GenericParameterClauseSyntax {
             for associatedTypeDeclaration in associatedTypeDeclarations {
                 let genericParameterName = associatedTypeDeclaration.name.trimmed
-                let genericInheritedType = associatedTypeDeclaration.inheritanceClause?
-                    .inheritedTypes(ofType: IdentifierTypeSyntax.self)
-                    .map(\.name.text)
-                    .joined(separator: " & ")
 
-                if let genericInheritedType {
+                if let inheritanceClause = associatedTypeDeclaration.inheritanceClause {
+                    let commaSeparatedInheritedTypes = inheritanceClause
+                        .inheritedTypes(ofType: IdentifierTypeSyntax.self)
+
+                    let composedInheritedTypes = inheritanceClause
+                        .inheritedTypes(ofType: CompositionTypeSyntax.self)
+                        .flatMap(\.elements)
+                        .compactMap { $0.type.as(IdentifierTypeSyntax.self) }
+
+                    let genericInheritedType =
+                        (commaSeparatedInheritedTypes + composedInheritedTypes)
+                            .map(\.name.text)
+                            .joined(separator: " & ")
+
                     GenericParameterSyntax(
                         name: genericParameterName,
                         colon: .colonToken(),
