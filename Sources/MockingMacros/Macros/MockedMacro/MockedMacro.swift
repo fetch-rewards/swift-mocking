@@ -161,8 +161,9 @@ extension MockedMacro {
                         .flatMap(\.elements)
                         .compactMap { $0.type.as(IdentifierTypeSyntax.self) }
 
-                    let genericInheritedType =
-                        (commaSeparatedInheritedTypes + composedInheritedTypes)
+                    let inheritedTypes = commaSeparatedInheritedTypes + composedInheritedTypes
+
+                    let genericInheritedType = inheritedTypes
                             .map(\.name.text)
                             .joined(separator: " & ")
 
