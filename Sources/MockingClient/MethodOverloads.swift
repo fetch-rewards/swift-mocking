@@ -4,7 +4,7 @@
 //  Copyright © 2025 Fetch.
 //
 
-// swiftformat:disable opaqueGenericParameters trailingSpace
+// swiftformat:disable opaqueGenericParameters
 
 import Foundation
 public import Mocking
