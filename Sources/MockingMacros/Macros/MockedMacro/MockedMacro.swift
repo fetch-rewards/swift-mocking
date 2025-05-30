@@ -155,22 +155,26 @@ extension MockedMacro {
                 if let inheritanceClause = associatedTypeDeclaration.inheritanceClause {
                     let commaSeparatedInheritedTypes = inheritanceClause
                         .inheritedTypes(ofType: IdentifierTypeSyntax.self)
+                        .compactMap { CompositionTypeElementSyntax(type: $0) }
 
                     let composedInheritedTypes = inheritanceClause
                         .inheritedTypes(ofType: CompositionTypeSyntax.self)
                         .flatMap(\.elements)
-                        .compactMap { $0.type.as(IdentifierTypeSyntax.self) }
 
                     let inheritedTypes = commaSeparatedInheritedTypes + composedInheritedTypes
-
-                    let genericInheritedType = inheritedTypes
-                            .map(\.name.text)
-                            .joined(separator: " & ")
+                    let lastIndex = inheritedTypes.count - 1
+                    let inheritedTypeElements = CompositionTypeElementListSyntax {
+                        for (index, inheritedType) in inheritedTypes.enumerated() {
+                            inheritedType
+                                .trimmed
+                                .with(\.ampersand, index < lastIndex ? .binaryOperator("&") : nil)
+                        }
+                    }
 
                     GenericParameterSyntax(
                         name: genericParameterName,
                         colon: .colonToken(),
-                        inheritedType: TypeSyntax(stringLiteral: genericInheritedType)
+                        inheritedType: CompositionTypeSyntax(elements: inheritedTypeElements)
                     )
                 } else {
                     GenericParameterSyntax(name: genericParameterName)
