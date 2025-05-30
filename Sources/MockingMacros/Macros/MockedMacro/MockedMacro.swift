@@ -120,13 +120,16 @@ extension MockedMacro {
     /// Returns the generic parameter clause to apply to the mock declaration,
     /// generated from the associated types defined by the provided protocol.
     ///
+    /// The clause supports associated types with comma-separated constraints,
+    /// composition (`&`), or a combination of both.
+    ///
     /// ```swift
     /// @Mocked
     /// protocol Dependency {
-    ///     associatedtype Item: Equatable, Identifiable
+    ///     associatedtype Item: Equatable & Identifiable, Sendable
     /// }
     ///
-    /// final class DependencyMock<Item: Equatable & Identifiable>: Dependency {}
+    /// final class DependencyMock<Item: Sendable & Equatable & Identifiable>: Dependency {}
     /// ```
     ///
     /// - Parameter protocolDeclaration: The protocol to which the mock must
@@ -148,16 +151,30 @@ extension MockedMacro {
         return GenericParameterClauseSyntax {
             for associatedTypeDeclaration in associatedTypeDeclarations {
                 let genericParameterName = associatedTypeDeclaration.name.trimmed
-                let genericInheritedType = associatedTypeDeclaration.inheritanceClause?
-                    .inheritedTypes(ofType: IdentifierTypeSyntax.self)
-                    .map(\.name.text)
-                    .joined(separator: " & ")
 
-                if let genericInheritedType {
+                if let inheritanceClause = associatedTypeDeclaration.inheritanceClause {
+                    let commaSeparatedInheritedTypes = inheritanceClause
+                        .inheritedTypes(ofType: IdentifierTypeSyntax.self)
+                        .compactMap { CompositionTypeElementSyntax(type: $0) }
+
+                    let composedInheritedTypes = inheritanceClause
+                        .inheritedTypes(ofType: CompositionTypeSyntax.self)
+                        .flatMap(\.elements)
+
+                    let inheritedTypes = commaSeparatedInheritedTypes + composedInheritedTypes
+                    let lastIndex = inheritedTypes.count - 1
+                    let inheritedTypeElements = CompositionTypeElementListSyntax {
+                        for (index, inheritedType) in inheritedTypes.enumerated() {
+                            inheritedType
+                                .trimmed
+                                .with(\.ampersand, index < lastIndex ? .binaryOperator("&") : nil)
+                        }
+                    }
+
                     GenericParameterSyntax(
                         name: genericParameterName,
                         colon: .colonToken(),
-                        inheritedType: TypeSyntax(stringLiteral: genericInheritedType)
+                        inheritedType: CompositionTypeSyntax(elements: inheritedTypeElements)
                     )
                 } else {
                     GenericParameterSyntax(name: genericParameterName)
