@@ -25,10 +25,14 @@ jobs:
           xcode-version: latest
 
       - name: Install Brewfile dependencies
-        run: brew bundle install
+        run: |
+          brew update --quiet
+          brew bundle install
 
       - name: Run SwiftFormat in lint mode
-        run: swiftformat --lint .
+        run: |
+          swiftformat --version
+          swiftformat --lint .
 
       - name: Install package dependencies
         run: swift package resolve
