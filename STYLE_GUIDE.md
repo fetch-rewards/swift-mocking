@@ -146,8 +146,8 @@ Unicode escape sequences (`\u{????}`) and literal code points (for example, `Ü`
 
 More specifically, string literals are either:
 
-*   composed of a combination of Unicode code points written literally and/or single character escape sequences (such as `\t`, but _not_`\u{????}`), or
-*   composed of 7-bit ASCII with any number of Unicode escape sequences and/or other escape sequences.
+- composed of a combination of Unicode code points written literally and/or single character escape sequences (such as `\t`, but _not_`\u{????}`), or
+- composed of 7-bit ASCII with any number of Unicode escape sequences and/or other escape sequences.
 
 The following example is correct because `\n` is allowed to be present among other Unicode code points.
 
