@@ -106,8 +106,8 @@ Source files are encoded in UTF-8.
 
 Aside from the line terminator, the Unicode horizontal space character (`U+0020`) is the only whitespace character that appears anywhere in a source file. The implications are:
 
-*   All other whitespace characters in string and character literals are represented by their corresponding escape sequence.
-*   Tab characters are not used for indentation.
+- All other whitespace characters in string and character literals are represented by their corresponding escape sequence.
+- Tab characters are not used for indentation.
 
 ### Special Escape Sequences
 
