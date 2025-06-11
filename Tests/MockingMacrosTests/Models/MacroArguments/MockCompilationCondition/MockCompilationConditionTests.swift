@@ -171,7 +171,7 @@ struct MockCompilationConditionTests {
                     calledExpression: MemberAccessExprSyntax(
                         base: DeclReferenceExprSyntax(baseName: "MockCompilationCondition"),
                         period: .periodToken(),
-                        declName: DeclReferenceExprSyntax(baseName: "custom"),
+                        declName: DeclReferenceExprSyntax(baseName: "custom")
                     ),
                     leftParen: .leftParenToken(),
                     arguments: LabeledExprListSyntax {
@@ -196,7 +196,7 @@ struct MockCompilationConditionTests {
                 expression: FunctionCallExprSyntax(
                     calledExpression: MemberAccessExprSyntax(
                         period: .periodToken(),
-                        declName: DeclReferenceExprSyntax(baseName: "custom"),
+                        declName: DeclReferenceExprSyntax(baseName: "custom")
                     ),
                     leftParen: .leftParenToken(),
                     arguments: LabeledExprListSyntax {
