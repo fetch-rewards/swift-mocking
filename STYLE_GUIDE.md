@@ -85,8 +85,6 @@ Sections that have been added or modified for Swift Mocking's conventions are ma
 
 All Swift source files end with the extension `.swift`.
 
-In general, each Swift source file should contain exactly one type. A file can contain more than one type as long as only one of those types is accessible from outside the file and the rest are `private` or `fileprivate`.
-
 The name of a source file best describes the primary entity that it contains. A file that primarily contains a single type has the name of that type. A file that extends an existing type with protocol conformance is named with a combination of the type name and the protocol name, joined with a plus (`+`) sign. A file that contains a nested type is named with a combination of the type name in which the nested type is namespaced and the nested type name, joined with a plus (`+`) sign.
 
 For example:
@@ -210,12 +208,9 @@ import func Darwin.C.isatty
 @testable import MyModuleUnderTest
 ```
 
-### Type, Variable, and Function Declarations
+### Type, Variable, and Function Declarations*
 
-In general, most source files contain only one top-level type, especially when the type declaration is large. Exceptions are allowed when it makes sense to include multiple related types in a single file. For example,
-
-*   A class and its delegate protocol may be defined in the same file.
-*   A type and its small related helper types may be defined in the same file. This can be useful when using `fileprivate` to restrict certain functionality of the type and/or its helpers to only that file and not the rest of the module.
+In general, each Swift source file should contain exactly one type. A file can contain more than one type as long as only one of those types is accessible from outside the file and the rest are `private` or `fileprivate`.
 
 The order of types, variables, and functions in a source file, and the order of the members of those types, can have a great effect on readability. However, there is no single correct recipe for how to do it; different files and different types may order their contents in different ways.
 
