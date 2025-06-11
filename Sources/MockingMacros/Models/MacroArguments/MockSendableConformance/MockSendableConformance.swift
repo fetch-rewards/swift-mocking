@@ -21,16 +21,17 @@ enum MockSendableConformance: String, MacroArgumentValue {
     ///
     /// - Parameter argument: The argument syntax from which to parse a
     ///   `Sendable` conformance.
-    init?(argument: LabeledExprSyntax) {
+    init(argument: LabeledExprSyntax) throws {
         guard
             let memberAccessExpression = argument.expression.as(
                 MemberAccessExprSyntax.self
             ),
-            let identifier = memberAccessExpression.declName.baseName.identifier
+            let identifier = memberAccessExpression.declName.baseName.identifier,
+            let sendableConformance = MockSendableConformance(rawValue: identifier.name)
         else {
-            return nil
+            throw ParsingError.unableToParseSendableConformance
         }
 
-        self.init(rawValue: identifier.name)
+        self = sendableConformance
     }
 }

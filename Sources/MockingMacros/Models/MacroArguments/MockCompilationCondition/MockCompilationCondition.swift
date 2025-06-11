@@ -65,7 +65,9 @@ enum MockCompilationCondition: RawRepresentable, Equatable, MacroArgumentValue {
     ///
     /// - Parameter argument: The argument syntax from which to parse a
     ///   compilation condition.
-    init?(argument: LabeledExprSyntax) {
+    /// - Throws: An error if a valid compilation condition cannot be parsed
+    ///   from the provided `argument`.
+    init(argument: LabeledExprSyntax) throws {
         let (
             memberAccessExpression,
             arguments
@@ -103,7 +105,7 @@ enum MockCompilationCondition: RawRepresentable, Equatable, MacroArgumentValue {
         }
 
         guard let memberAccessExpression else {
-            return nil
+            throw ParsingError.unableToParseCompilationCondition
         }
 
         let declarationNameTokenKind = memberAccessExpression.declName.baseName.tokenKind
@@ -125,7 +127,7 @@ enum MockCompilationCondition: RawRepresentable, Equatable, MacroArgumentValue {
         {
             self = .custom(condition)
         } else {
-            return nil
+            throw ParsingError.unableToParseCompilationCondition
         }
     }
 }

@@ -7,7 +7,7 @@
 import SwiftSyntax
 
 /// The type of property being mocked.
-enum MockedPropertyType {
+enum MockedPropertyType: MacroArgumentValue {
 
     // MARK: Cases
 

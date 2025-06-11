@@ -14,5 +14,6 @@ protocol MacroArgumentValue {
     ///
     /// - Parameter argument: The argument syntax from which to parse the
     ///   macro argument value.
-    init?(argument: LabeledExprSyntax)
+    /// - Throws: An error if unable to parse the macro argument value.
+    init(argument: LabeledExprSyntax) throws
 }
