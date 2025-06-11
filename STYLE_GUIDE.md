@@ -14,7 +14,7 @@ Sections that have been added or modified for Swift Mocking's conventions are ma
     - [Invisible Characters and Modifiers](#invisible-characters-and-modifiers)
     - [String Literals](#string-literals)
 - [Source File Structure](#source-file-structure)
-    - [File Comments](#file-comments)
+    - [File Headers](#file-headers)
     - [Import Statements](#import-statements)
     - [Type, Variable, and Function Declarations](#type-variable-and-function-declarations)
     - [Overloaded Declarations](#overloaded-declarations)
@@ -169,9 +169,9 @@ let size = "Übergr\u{00F6}\u{00DF}e\n"
 
 ## Source File Structure
 
-### File Comments*
+### File Headers*
 
-Please run `swiftformat` on all modified files to automatically format file comments according to this project's conventions.
+Please run `swiftformat` on all modified files to automatically format file headers according to this project's conventions.
 
 ### Import Statements
 
