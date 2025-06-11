@@ -169,9 +169,9 @@ let size = "Übergr\u{00F6}\u{00DF}e\n"
 
 ## Source File Structure
 
-### File Comments
+### File Comments*
 
-Comments describing the contents of a source file are optional. They are discouraged for files that contain only a single abstraction (such as a class declaration)—in those cases, the documentation comment on the abstraction itself is sufficient and a file comment is only present if it provides additional useful information. File comments are allowed for files that contain multiple abstractions in order to document that grouping as a whole.
+Please run `swiftformat` on all modified files to automatically format file comments according to this project's conventions.
 
 ### Import Statements
 
