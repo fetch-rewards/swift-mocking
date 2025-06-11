@@ -181,9 +181,9 @@ Imports of whole modules are preferred to imports of individual declarations or 
 
 > There are a number of reasons to avoid importing individual members:
 > 
-> *   There is no automated tooling to resolve/organize imports.
-> *   Existing automated tooling (such as Xcode’s migrator) are less likely to work well on code that imports individual members because they are considered corner cases.
-> *   The prevailing style in Swift (based on official examples and community code) is to import entire modules.
+> - There is no automated tooling to resolve/organize imports.
+> - Existing automated tooling (such as Xcode’s migrator) are less likely to work well on code that imports individual members because they are considered corner cases.
+> - The prevailing style in Swift (based on official examples and community code) is to import entire modules.
 
 Imports of individual declarations are permitted when importing the whole module would otherwise pollute the global namespace with top-level definitions (such as C interfaces). Use your best judgment in these situations.
 
@@ -193,9 +193,9 @@ Import statements are not line-wrapped.
 
 Import statements are the first non-comment tokens in a source file. They are grouped in the following fashion, with the imports in each group ordered lexicographically and with exactly one blank line between each group:
 
-1.  Module/submodule imports not under test
-2.  Individual declaration imports (`class`, `enum`, `func`, `struct`, `var`)
-3.  Modules imported with `@testable` (only present in test sources)
+1. Module/submodule imports not under test
+1. Individual declaration imports (`class`, `enum`, `func`, `struct`, `var`)
+1. Modules imported with `@testable` (only present in test sources)
 
 ```
 import CoreLocation
