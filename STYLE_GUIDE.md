@@ -1,6 +1,8 @@
 # Swift Style Guide
 
-This style guide is adapted from the [Google Swift Style Guide](https://google.github.io/swift/) © Google Inc., licensed [CC-BY 3.0](https://creativecommons.org/licenses/by/3.0/). It has been modified for Fetch's conventions, June 2025.
+This style guide has been adapted from Google's [Swift Style Guide](https://google.github.io/swift/) © Google LLC, licensed under the [CC-BY 3.0](https://creativecommons.org/licenses/by/3.0/) license.
+
+Sections that have been added or modified for Swift Mocking's conventions are marked with an asterisk (*).
 
 ## Table of Contents
 
@@ -79,19 +81,22 @@ This style guide is adapted from the [Google Swift Style Guide](https://google.g
 
 ## Source File Basics
 
-### File Names
+### File Names*
 
 All Swift source files end with the extension `.swift`.
 
-In general, the name of a source file best describes the primary entity that it contains. A file that primarily contains a single type has the name of that type. A file that extends an existing type with protocol conformance is named with a combination of the type name and the protocol name, joined with a plus (`+`) sign. For more complex situations, exercise your best judgment.
+In general, each Swift source file should contain exactly one type. A file can contain more than one type as long as only one of those types is accessible from outside the file and the rest are `private` or `fileprivate`.
 
-For example,
+The name of a source file best describes the primary entity that it contains. A file that primarily contains a single type has the name of that type. A file that extends an existing type with protocol conformance is named with a combination of the type name and the protocol name, joined with a plus (`+`) sign. A file that contains a nested type is named with a combination of the type name in which the nested type is namespaced and the nested type name, joined with a plus (`+`) sign.
 
-*   A file containing a single type `MyType` is named `MyType.swift`.
-*   A file containing a type `MyType` and some top-level helper functions is also named `MyType.swift`. (The top-level helpers are not the primary entity.)
-*   A file containing a single extension to a type `MyType` that adds conformance to a protocol `MyProtocol` is named `MyType+MyProtocol.swift`.
-*   A file containing multiple extensions to a type `MyType` that add conformances, nested types, or other functionality to a type can be named more generally, as long as it is prefixed with `MyType+`; for example, `MyType+Additions.swift`.
-*   A file containing related declarations that are not otherwise scoped under a common type or namespace (such as a collection of global mathematical functions) can be named descriptively; for example, `Math.swift`.
+For example:
+- A file containing a single type `MyType` is named `MyType.swift`.
+- A file containing a type `MyType` and some top-level helper functions is also named `MyType.swift`. (The top-level helpers are not the primary entity.)
+- A file containing a single extension to a type `MyType` that adds conformance to a protocol `MyProtocol` is named `MyType+MyProtocol.swift`.
+- A file containing a type `MyType` that is nested inside another type `MyOtherType` is named `MyOtherType+MyType.swift`.
+- A file containing related declarations that are not otherwise scoped under a common type or namespace (such as a collection of global mathematical functions) can be named descriptively; for example, `Math.swift`.
+
+For more complex situations, exercise your best judgment.
 
 ### File Encoding
 
