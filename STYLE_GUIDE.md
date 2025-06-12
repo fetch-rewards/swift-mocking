@@ -203,7 +203,7 @@ Please order members in the following way:
     - Precede this section with a `MARK` comment: `// MARK: Properties`.
     - Static properties should be grouped together.
     - Instance properties should be grouped together.
-    - Static properties should generally precede instance properties, but this can be use-case dependent, so use your best judgment.
+    - Static properties should generally precede instance properties.
 1. Initializers
     - Precede this section with a `MARK` comment: `// MARK: Initializers`.
 1. Deinitializers (Actors & Classes only)
@@ -213,9 +213,9 @@ Please order members in the following way:
     - Use `MARK` comments to group related methods into sections (e.g. `// MARK: Constructors`, `// MARK: View Lifecycle`, etc.).
     - Within each section, static methods should be grouped together.
     - Within each section, instance methods should be grouped together.
-    - Static methods should generally precede instance methods within a section, but this can be use-case dependent, so use your best judgment.
+    - Static methods should generally precede instance methods within a section.
 
-When adding new members to each section, do not simply add the member to the end. Use your best judgment as to where the member should logically be placed within the section.
+When adding new members to each section, do not simply add the members to the end of the section. Use your best judgment as to where the members should logically be placed within the section.
 
 `MARK` comments should be written using title case (e.g. `// MARK: Associated Types`, not `// MARK: Associated types`). The first top-level declaration in a file should not be preceded by a `MARK` comment, and `// MARK: -` (as opposed to just `// MARK:`) should only be used when a `MARK` comment precedes a top-level declaration that is not the first declaration in the file. For example:
 
