@@ -256,7 +256,7 @@ Extensions can be used to organize functionality of a type across multiple “un
 
 Swift code has a soft column limit of 80 characters and a hard limit of 100 characters. Please run `swiftformat` on all modified files to automatically format lines according to this project's conventions.
 
-Comments and documentation should have a column limit of 80 characters. SwiftFormat will not format comments or documentation according to the column limit for you, so please set your Xcode column limit to 80 characters (Xcode > Settings > Text Editing > Editing > Reformat code at column), check the box next to "Show reformatting guide," and manually line wrap comments and documentation according to the guide. Code blocks within documentation do not need to be limited to 80 characters if doing so would harm readability, but please try to limit code blocks within documentation to 100 characters using the rules specified in [Line-Wrapping](#line-wrapping).
+Comments and documentation should have a column limit of 80 characters. SwiftFormat will not format comments or documentation according to the column limit for you, so please set your Xcode column limit to 80 characters (Xcode > Settings > Text Editing > Editing > Reformat code at column), check the box next to "Show reformatting guide," and manually line wrap comments and documentation according to the guide. Code blocks within documentation do not need to be limited to 80 characters if doing so would harm readability, but please try to limit code blocks within documentation to 100 characters using the rules specified in [Line-Wrapping](#line-wrapping) whenever possible.
 
 ### Braces
 
