@@ -279,34 +279,52 @@ Semicolons (`;`) are **not used**, either to terminate or separate statements.
 
 In other words, the only location where a semicolon may appear is inside a string literal or a comment.
 
-### One Statement Per Line
+### One Statement Per Line*
 
-There is **at most** one statement per line, and each statement is followed by a line break, except when the line ends with a block that also contains zero or one statements.
+There is **at most** one statement per line, and each statement is followed by a line break. A single-expression body counts as one statement and should be placed on its own line. Empty closure, function, or declaration bodies do not need a line break between the opening and closing braces.
 
 ```
-guard let value = value else { return 0 }
+guard let value = value else { 
+  return .zero
+}
 
-defer { file.close() }
+defer { 
+  file.close()
+}
 
 switch someEnum {
-case .first: return 5
-case .second: return 10
-case .third: return 20
+case .first: 
+  return 5
+case .second: 
+  return 10
+case .third: 
+  return 20
 }
 
-let squares = numbers.map { $0 * $0 }
+let squares = numbers.map { number in
+  number * number
+}
 
 var someProperty: Int {
-  get { return otherObject.property }
-  set { otherObject.property = newValue }
+  get { 
+    otherObject.property 
+  }
+
+  set { 
+    otherObject.property = newValue 
+  }
 }
 
-var someProperty: Int { return otherObject.somethingElse() }
+var someProperty: Int {
+  otherObject.somethingElse() 
+}
 
-required init?(coder aDecoder: NSCoder) { fatalError("no coder") }
+required init?(coder aDecoder: NSCoder) { 
+  fatalError("no coder") 
+}
+
+extension SomeType: SomeProtocol {}
 ```
-
-Wrapping the body of a single-statement block onto its own line is always allowed. Exercise best judgment when deciding whether to place a conditional statement and its body on the same line. For example, single line conditionals work well for early-return and basic cleanup tasks, but less so when the body contains a function call with significant logic. When in doubt, write it as a multi-line statement.
 
 ### Line-Wrapping
 
