@@ -194,26 +194,26 @@ In general, each Swift source file should contain exactly one type. A file can c
 Please order members in the following way:
 
 1. Cases (Enums only)
-  - Precede this section with a `MARK` comment: `// MARK: Cases`.
+    - Precede this section with a `MARK` comment: `// MARK: Cases`.
 1. Associated Types (Protocols only)
-  - Precede this section with a `MARK` comment: `// MARK: Associated Types`.
+    - Precede this section with a `MARK` comment: `// MARK: Associated Types`.
 1. Type Aliases
-  - Precede this section with a `MARK` comment: `// MARK: Type Aliases`.
+    - Precede this section with a `MARK` comment: `// MARK: Type Aliases`.
 1. Properties
-  - Precede this section with a `MARK` comment: `// MARK: Properties`.
-  - Static properties should be grouped together.
-  - Instance properties should be grouped together.
-  - Static properties should generally precede instance properties, but this can be use-case dependent, so use your best judgment.
+    - Precede this section with a `MARK` comment: `// MARK: Properties`.
+    - Static properties should be grouped together.
+    - Instance properties should be grouped together.
+    - Static properties should generally precede instance properties, but this can be use-case dependent, so use your best judgment.
 1. Initializers
-  - Precede this section with a `MARK` comment: `// MARK: Initializers`.
+    - Precede this section with a `MARK` comment: `// MARK: Initializers`.
 1. Deinitializers (Actors & Classes only)
-  - Precede this section with a `MARK` comment: `// MARK: Deinitializers`.
+    - Precede this section with a `MARK` comment: `// MARK: Deinitializers`.
 1. Methods
-  - Methods do not need to be grouped into one big section.
-  - Use `MARK` comments to group related methods into sections: e.g. `// MARK: Constructors`, `// MARK: View Lifecycle`, etc.
-  - Within each section, static methods should be grouped together.
-  - Within each section, instance methods should be grouped together.
-  - Static methods should generally precede instance methods within a section, but this can be use-case dependent, so use your best judgment.
+    - Methods do not need to be grouped into one big section.
+    - Use `MARK` comments to group related methods into sections: e.g. `// MARK: Constructors`, `// MARK: View Lifecycle`, etc.
+    - Within each section, static methods should be grouped together.
+    - Within each section, instance methods should be grouped together.
+    - Static methods should generally precede instance methods within a section, but this can be use-case dependent, so use your best judgment.
 
 When adding new members to each section, do not simply add the member to the end. Use your best judgment as to where the member should logically be placed within the section.
 
