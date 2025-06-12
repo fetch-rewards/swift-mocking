@@ -213,7 +213,7 @@ Please order members in the following way:
     - Use `MARK` comments to group related methods into sections (e.g. `// MARK: Constructors`, `// MARK: View Lifecycle`, etc.).
     - Within each section, static methods should be grouped together.
     - Within each section, instance methods should be grouped together.
-    - Static methods should generally precede instance methods within a section.
+    - Static methods should generally precede instance methods within each section.
 
 When adding new members to each section, do not simply add the members to the end of the section. Use your best judgment as to where the members should logically be placed within the section.
 
