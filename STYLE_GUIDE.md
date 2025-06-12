@@ -191,36 +191,56 @@ Import statements are the first non-comment tokens in a source file. Ordering an
 
 In general, each Swift source file should contain exactly one type. A file can contain more than one type as long as only one of those types is accessible from outside the file and the rest are `private` or `fileprivate`.
 
-The order of types, variables, and functions in a source file, and the order of the members of those types, can have a great effect on readability. However, there is no single correct recipe for how to do it; different files and different types may order their contents in different ways.
+Please order members in the following way:
 
-What is important is that each file and type uses _**some** logical order,_ which its maintainer could explain if asked. For example, new methods are not just habitually added to the end of the type, as that would yield “chronological by date added” ordering, which is not a logical ordering.
+1. Cases (Enums only)
+  - Precede this section with a `MARK` comment: `// MARK: Cases`.
+1. Associated Types (Protocols only)
+  - Precede this section with a `MARK` comment: `// MARK: Associated Types`.
+1. Type Aliases
+  - Precede this section with a `MARK` comment: `// MARK: Type Aliases`.
+1. Properties
+  - Precede this section with a `MARK` comment: `// MARK: Properties`.
+  - Static properties should be grouped together.
+  - Instance properties should be grouped together.
+  - Static properties should generally precede instance properties, but this can be use-case dependent, so use your best judgment.
+1. Initializers
+  - Precede this section with a `MARK` comment: `// MARK: Initializers`.
+1. Deinitializers (Actors & Classes only)
+  - Precede this section with a `MARK` comment: `// MARK: Deinitializers`.
+1. Methods
+  - Methods do not need to be grouped into one big section.
+  - Use `MARK` comments to group related methods into sections: e.g. `// MARK: Constructors`, `// MARK: View Lifecycle`, etc.
+  - Within each section, static methods should be grouped together.
+  - Within each section, instance methods should be grouped together.
+  - Static methods should generally precede instance methods within a section, but this can be use-case dependent, so use your best judgment.
 
-When deciding on the logical order of members, it can be helpful for readers and future writers (including yourself) to use `// MARK:` comments to provide descriptions for that grouping. These comments are also interpreted by Xcode and provide bookmarks in the source window’s navigation bar. (Likewise, `// MARK: -`, written with a hyphen before the description, causes Xcode to insert a divider before the menu item.) For example,
+When adding new members to each section, do not simply add the member to the end. Use your best judgment as to where the member should logically be placed within the section.
 
-```
-class MovieRatingViewController: UITableViewController {
+`MARK` comments should be written using title case (e.g. `// MARK: Associated Types`, not `// MARK: Associated types`). The first top-level declaration in a file should not be preceded by a `MARK` comment, and `// MARK: -` (as opposed to just `// MARK:`) should only be used when a `MARK` comment precedes a top-level declaration that is not the first declaration in the file. For example:
 
-  // MARK: - View controller lifecycle methods
+```swift
+// No `MARK` comment preceding `MyType` since it is the first top-level declaration in the file.
+class MyType {
 
-  override func viewDidLoad() {
-    // ...
-  }
+  // MARK: Properties
 
-  override func viewWillAppear(_ animated: Bool) {
-    // ...
-  }
+  // The `MARK` comment preceding the properties does not have a `-` because it is not preceding a top-level declaration.
+  var myProperty: String { ... } 
 
-  // MARK: - Movie rating manipulation methods
+  // MARK: Initializers
 
-  @objc private func ratingStarWasTapped(_ sender: UIButton?) {
-    // ...
-  }
-
-  @objc private func criticReviewWasTapped(_ sender: UIButton?) {
-    // ...
-  }
+  // The `MARK` comment preceding the initializers does not have a `-` because it is not preceding a top-level declaration.
+  init() { ... }
 }
+
+// MARK: - My Extension
+
+// The `MARK` comment preceding this extension has a `-` because it precedes a top-level declaration.
+extension MyType { ... }
 ```
+
+This creates a clean, logical separation of the file within Xcode's file navigator.
 
 ### Overloaded Declarations
 
