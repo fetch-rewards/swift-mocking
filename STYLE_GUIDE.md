@@ -193,12 +193,12 @@ In general, each Swift source file should contain exactly one type. A file can c
 
 Please order members in the following way:
 
-1. Cases (Enums only)
-    - Precede this section with a `MARK` comment: `// MARK: Cases`.
 1. Associated Types (Protocols only)
     - Precede this section with a `MARK` comment: `// MARK: Associated Types`.
 1. Type Aliases
     - Precede this section with a `MARK` comment: `// MARK: Type Aliases`.
+1. Cases (Enums only)
+    - Precede this section with a `MARK` comment: `// MARK: Cases`.
 1. Properties
     - Precede this section with a `MARK` comment: `// MARK: Properties`.
     - Static properties should be grouped together.
