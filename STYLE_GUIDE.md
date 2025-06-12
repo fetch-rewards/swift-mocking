@@ -223,15 +223,15 @@ When adding new members to each section, do not simply add the members to the en
 // No `MARK` comment preceding `MyType` since it is the first top-level declaration in the file.
 class MyType {
 
-  // MARK: Properties
+    // MARK: Properties
 
-  // The `MARK` comment preceding the properties does not have a `-` because it is not preceding a top-level declaration.
-  var myProperty: String { ... } 
+    // The `MARK` comment preceding the properties does not have a `-` because it is not preceding a top-level declaration.
+    var myProperty: String { ... } 
 
-  // MARK: Initializers
+    // MARK: Initializers
 
-  // The `MARK` comment preceding the initializers does not have a `-` because it is not preceding a top-level declaration.
-  init() { ... }
+    // The `MARK` comment preceding the initializers does not have a `-` because it is not preceding a top-level declaration.
+    init() { ... }
 }
 
 // MARK: - My Extension
@@ -285,42 +285,42 @@ There is **at most** one statement per line, and each statement is followed by a
 
 ```
 guard let value = value else { 
-  return .zero
+    return .zero
 }
 
 defer { 
-  file.close()
+    file.close()
 }
 
 switch someEnum {
 case .first: 
-  return 5
+    return 5
 case .second: 
-  return 10
+    return 10
 case .third: 
-  return 20
+    return 20
 }
 
 let squares = numbers.map { number in
-  number * number
+    number * number
 }
 
 var someProperty: Int {
-  get { 
-    otherObject.property 
-  }
+    get { 
+        otherObject.property 
+    }
 
-  set { 
-    otherObject.property = newValue 
-  }
+    set { 
+        otherObject.property = newValue 
+    }
 }
 
 var someProperty: Int {
-  otherObject.somethingElse() 
+    otherObject.somethingElse() 
 }
 
 required init?(coder aDecoder: NSCoder) { 
-  fatalError("no coder") 
+    fatalError("no coder") 
 }
 
 extension SomeType: SomeProtocol {}
