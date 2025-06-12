@@ -210,7 +210,7 @@ Please order members in the following way:
     - Precede this section with a `MARK` comment: `// MARK: Deinitializers`.
 1. Methods
     - Methods do not need to be grouped into one big section.
-    - Use `MARK` comments to group related methods into sections: e.g. `// MARK: Constructors`, `// MARK: View Lifecycle`, etc.
+    - Use `MARK` comments to group related methods into sections (e.g. `// MARK: Constructors`, `// MARK: View Lifecycle`, etc.).
     - Within each section, static methods should be grouped together.
     - Within each section, instance methods should be grouped together.
     - Static methods should generally precede instance methods within a section, but this can be use-case dependent, so use your best judgment.
