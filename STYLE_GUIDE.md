@@ -119,21 +119,21 @@ Control characters, combining characters, and variation selectors that _do_ affe
 
 The strings below are well-formed because the umlauts and variation selectors associate with neighboring characters in the string. The second example is in fact composed of _five_ Unicode scalars, but they are unescaped because the specific combination is rendered as a single character.
 
-```
+```swift
 let size = "Übergröße"
 let shrug = "🤷🏿‍️"
 ```
 
 In the example below, the umlaut and variation selector are in strings by themselves, so they are escaped.
 
-```
+```swift
 let diaeresis = "\u{0308}"
 let skinToneType6 = "\u{1F3FF}"
 ```
 
 If the umlaut were included in the string literally, it would combine with the preceding quotation mark, impairing readability. Likewise, while most systems may render a standalone skin tone modifier as a block graphic, the example below is still forbidden because it is a modifier that is not modifying a character in the same string.
 
-```
+```swift
 let diaeresis = "̈"
 let skinToneType6 = "🏿"
 ```
@@ -149,19 +149,19 @@ More specifically, string literals are either:
 
 The following example is correct because `\n` is allowed to be present among other Unicode code points.
 
-```
+```swift
 let size = "Übergröße\n"
 ```
 
 The following example is allowed because it follows the rules above, but it is _not preferred_ because the text is harder to read and understand compared to the string above.
 
-```
+```swift
 let size = "\u{00DC}bergr\u{00F6}\u{00DF}e\n"
 ```
 
 The example below is forbidden because it mixes code points outside the 7-bit ASCII range in both literal form and in escaped form.
 
-```
+```swift
 let size = "Übergr\u{00F6}\u{00DF}e\n"
 ```
 
@@ -283,7 +283,7 @@ In other words, the only location where a semicolon may appear is inside a strin
 
 There is **at most** one statement per line, and each statement is followed by a line break. A single-expression body counts as one statement and should be placed on its own line. Empty closure, function, or declaration bodies do not need a line break between the opening and closing braces.
 
-```
+```swift
 guard let value = value else { 
     return .zero
 }
