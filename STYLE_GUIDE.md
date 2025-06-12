@@ -273,25 +273,11 @@ In general, braces follow Kernighan and Ritchie (K&R) style for non-empty blocks
 - There **is a** line break before the closing brace (`}`), except where it may be omitted as described in [One Statement Per Line](#one-statement-per-line), or it completes an empty block.
 - There **is a** line break after the closing brace (`}`), **if and only if** that brace terminates a statement or the body of a declaration. For example, an `else` block is written `} else {` with both braces on the same line.
 
-### Semicolons
+### Semicolons*
 
 Semicolons (`;`) are **not used**, either to terminate or separate statements.
 
 In other words, the only location where a semicolon may appear is inside a string literal or a comment.
-
-```
-func printSum(_ a: Int, _ b: Int) {
-  let sum = a + b
-  print(sum)
-}
-```
-
-```
-func printSum(_ a: Int, _ b: Int) {
-  let sum = a + b;
-  print(sum);
-}
-```
 
 ### One Statement Per Line
 
