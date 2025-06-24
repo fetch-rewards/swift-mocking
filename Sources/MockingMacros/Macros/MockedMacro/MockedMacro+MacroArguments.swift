@@ -39,7 +39,7 @@ extension MockedMacro {
                     let argument = arguments.first(where: { argument in
                         argument.label?.text == name
                     }),
-                    let value = ArgumentValue(argument: argument)
+                    let value = try? ArgumentValue(argument: argument)
                 else {
                     return `default`
                 }
