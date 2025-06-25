@@ -5,7 +5,7 @@
 //
 
 import Foundation
-import Synchronization
+import Locking
 
 /// A mock method that contains implementation details and invocation records
 /// for a returning, non-parameterized method.

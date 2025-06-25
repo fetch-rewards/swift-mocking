@@ -5,7 +5,7 @@
 //
 
 import Foundation
-import Synchronization
+import Locking
 
 /// A mock property getter that contains implementation details and invocation
 /// records for an async, throwing property getter.

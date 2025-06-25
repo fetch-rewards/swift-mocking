@@ -24,16 +24,16 @@ let package = Package(
     ],
     dependencies: [
         .package(
-            url: "https://github.com/fetch-rewards/swift-synchronization.git",
-            exact: "0.1.0"
+            url: "https://github.com/fetch-rewards/swift-locking.git",
+            exact: "0.2.0"
         ),
         .package(
-            url: "https://github.com/apple/swift-syntax.git",
+            url: "https://github.com/swiftlang/swift-syntax.git",
             exact: "600.0.0" // Must match SwiftSyntaxSugar's swift-syntax version
         ),
         .package(
             url: "https://github.com/fetch-rewards/SwiftSyntaxSugar.git",
-            exact: "0.1.0" // Must match swift-synchronization's SwiftSyntaxSugar version
+            exact: "0.1.1" // Must match swift-locking's SwiftSyntaxSugar version
         ),
     ],
     targets: [
@@ -42,8 +42,8 @@ let package = Package(
             dependencies: [
                 "MockingMacros",
                 .product(
-                    name: "Synchronization",
-                    package: "swift-synchronization"
+                    name: "Locking",
+                    package: "swift-locking"
                 ),
             ],
             swiftSettings: .default
