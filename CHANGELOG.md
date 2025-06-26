@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org).
 
-## 🏷️ [Version 0.2.0](https://github.com/fetch-rewards/swift-mocking/releases/tag/0.2.0) - June 26, 2025 ([Full Changelog](https://github.com/fetch-rewards/swift-mocking/compare/0.1.0...0.2.0))
+## 🚀 [Version 0.2.0](https://github.com/fetch-rewards/swift-mocking/releases/tag/0.2.0) - June 26, 2025 ([Full Changelog](https://github.com/fetch-rewards/swift-mocking/compare/0.1.0...0.2.0))
 
 ### ✨ Features
 
@@ -39,9 +39,9 @@ This project adheres to [Semantic Versioning](https://semver.org).
 - Add CODEOWNERS ([#104](https://github.com/fetch-rewards/swift-mocking/pull/104))
 - Update SwiftFormat minimum version and output version in CI ([#110](https://github.com/fetch-rewards/swift-mocking/pull/110))
 
-## 🏷️ [Version 0.1.0](https://github.com/fetch-rewards/swift-mocking/releases/tag/0.1.0) - April 23, 2025 ([Full Changelog](https://github.com/fetch-rewards/swift-mocking/commits/0.1.0))
+## 🚀 [Version 0.1.0](https://github.com/fetch-rewards/swift-mocking/releases/tag/0.1.0) - April 23, 2025 ([Full Changelog](https://github.com/fetch-rewards/swift-mocking/commits/0.1.0))
 
-### 🚀 Initial Release
+### 🎉 Initial Release
 
 This is the first public release of Swift Mocking, a library that provides a collection of Swift macros used to generate mocks.
 
