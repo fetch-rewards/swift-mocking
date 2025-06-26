@@ -5,7 +5,7 @@
 //
 
 import Foundation
-import Synchronization
+import Locking
 
 /// A mock property that contains implementation details and invocation records
 /// for a read-only property.

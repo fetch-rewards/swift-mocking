@@ -5,7 +5,7 @@
 //
 
 import Foundation
-import Synchronization
+import Locking
 
 /// A mock property setter that contains implementation details and invocation
 /// records for a property setter.
