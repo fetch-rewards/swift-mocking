@@ -25,3 +25,6 @@ Package.resolved
 
 # Homebrew
 Brewfile.lock.json
+
+# Claude
+.claude/settings.local.json
