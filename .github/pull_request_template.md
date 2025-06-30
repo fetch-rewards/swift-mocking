@@ -17,6 +17,7 @@ Include any screenshots, logs, or terminal output you think would be helpful to 
 - [ ] Refactoring or code formatting (no logic changes)
 - [ ] Updating dependencies (Swift packages, Homebrew, etc.)
 - [ ] CI/CD (change to automated workflows)
+- [ ] Chore (other maintenance)
 
 ## 🧪 How Has This Been Tested?
 
