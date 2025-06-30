@@ -24,7 +24,7 @@ jobs:
           PR_NUMBER=${{ github.event.pull_request.number }}
           REPO=${{ github.repository }}
 
-          REQUIRED_LABELS=("bug" "ci/cd" "dependencies" "documentation" "enhancement" "formatting" "refactoring" "testing")
+          REQUIRED_LABELS=("bug" "chore" "ci/cd" "dependencies" "documentation" "enhancement" "formatting" "refactoring" "testing")
           LABELS=$(gh pr view "$PR_NUMBER" --repo "$REPO" --json labels --jq '.labels[].name')
 
           echo "PR labels:"
