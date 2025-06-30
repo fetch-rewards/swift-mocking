@@ -26,7 +26,7 @@ extension MockVoidNonParameterizedMethod {
         /// Invokes the provided closure when invoked.
         ///
         /// - Parameter closure: The closure to invoke.
-        static func invokes(_ closure: @Sendable @escaping () -> Void) -> Self {
+        public static func invokes(_ closure: @Sendable @escaping () -> Void) -> Self {
             .uncheckedInvokes(closure)
         }
 
