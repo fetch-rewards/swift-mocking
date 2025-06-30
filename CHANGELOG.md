@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org).
 
+## 🚀 [Version 0.2.1](https://github.com/fetch-rewards/swift-mocking/releases/tag/0.2.1) - June 30, 2025 ([Full Changelog](https://github.com/fetch-rewards/swift-mocking/compare/0.2.0...0.2.1))
+
+### 🐛 Bug Fixes
+
+- Make MockVoidNonParameterizedMethod.Implementation.invokes public ([#116](https://github.com/fetch-rewards/swift-mocking/pull/116))
+
+### 📝 Documentation
+
+- Add chore to PR template ([#118](https://github.com/fetch-rewards/swift-mocking/pull/118))
+
+### 🛠️ CI/CD
+
+- Add chore label to list of required PR labels ([#117](https://github.com/fetch-rewards/swift-mocking/pull/117))
+
+### 🧹 Chores
+
+- Add local Claude settings to gitignore ([#119](https://github.com/fetch-rewards/swift-mocking/pull/119))
+
 ## 🚀 [Version 0.2.0](https://github.com/fetch-rewards/swift-mocking/releases/tag/0.2.0) - June 26, 2025 ([Full Changelog](https://github.com/fetch-rewards/swift-mocking/compare/0.1.0...0.2.0))
 
 ### ✨ Features
