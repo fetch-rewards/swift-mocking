@@ -101,8 +101,12 @@ public final class MockVoidParameterizedAsyncMethod<
     /// - Parameter arguments: The arguments with which the method is being
     ///   invoked.
     private func recordInput(arguments: Arguments) {
-        self.callCount += 1
-        self.invocations.append(arguments)
+        self._callCount.withLockUnchecked { callCount in
+            callCount += 1
+        }
+        self._invocations.withLockUnchecked { invocations in
+            invocations.append(arguments)
+        }
     }
 
     /// Returns the method's implementation as a closure, or `nil` if
@@ -118,9 +122,15 @@ public final class MockVoidParameterizedAsyncMethod<
 
     /// Resets the method's implementation and invocation records.
     private func reset() {
-        self.implementation = .unimplemented
-        self.callCount = .zero
-        self.invocations.removeAll()
+        self._implementation.withLockUnchecked { implementation in
+            implementation = .unimplemented
+        }
+        self._callCount.withLockUnchecked { callCount in
+            callCount = .zero
+        }
+        self._invocations.withLockUnchecked { invocations in
+            invocations.removeAll()
+        }
     }
 }
 

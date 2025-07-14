@@ -105,7 +105,9 @@ public final class MockReturningNonParameterizedAsyncThrowingMethod<ReturnValue>
     /// - Returns: A value, if ``implementation-swift.property`` returns a
     ///   value.
     private func invoke() async throws -> ReturnValue {
-        self.callCount += 1
+        self._callCount.withLockUnchecked { callCount in
+            callCount += 1
+        }
 
         let returnValue = await Result {
             guard let returnValue = try await self.implementation() else {
@@ -115,7 +117,9 @@ public final class MockReturningNonParameterizedAsyncThrowingMethod<ReturnValue>
             return returnValue
         }
 
-        self.returnedValues.append(returnValue)
+        self._returnedValues.withLockUnchecked { returnedValues in
+            returnedValues.append(returnValue)
+        }
 
         return try returnValue.get()
     }
@@ -124,9 +128,15 @@ public final class MockReturningNonParameterizedAsyncThrowingMethod<ReturnValue>
 
     /// Resets the method's implementation and invocation records.
     private func reset() {
-        self.implementation = .unimplemented
-        self.callCount = .zero
-        self.returnedValues.removeAll()
+        self._implementation.withLockUnchecked { implementation in
+            implementation = .unimplemented
+        }
+        self._callCount.withLockUnchecked { callCount in
+            callCount = .zero
+        }
+        self._returnedValues.withLockUnchecked { returnedValues in
+            returnedValues.removeAll()
+        }
     }
 }
 

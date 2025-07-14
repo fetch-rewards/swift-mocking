@@ -147,8 +147,12 @@ public final class MockReturningParameterizedThrowingMethod<
     /// - Parameter arguments: The arguments with which the method is being
     ///   invoked.
     private func recordInput(arguments: Arguments) {
-        self.callCount += 1
-        self.invocations.append(arguments)
+        self._callCount.withLockUnchecked { callCount in
+            callCount += 1
+        }
+        self._invocations.withLockUnchecked { invocations in
+            invocations.append(arguments)
+        }
     }
 
     /// Returns the method's implementation as a closure, or triggers a fatal
@@ -167,17 +171,27 @@ public final class MockReturningParameterizedThrowingMethod<
     ///
     /// - Parameter returnValue: The value returned by the method.
     private func recordOutput(returnValue: Result<ReturnValue, Error>) {
-        self.returnedValues.append(returnValue)
+        self._returnedValues.withLockUnchecked { returnedValues in
+            returnedValues.append(returnValue)
+        }
     }
 
     // MARK: Reset
 
     /// Resets the method's implementation and invocation records.
     private func reset() {
-        self.implementation = .unimplemented
-        self.callCount = .zero
-        self.invocations.removeAll()
-        self.returnedValues.removeAll()
+        self._implementation.withLockUnchecked { implementation in
+            implementation = .unimplemented
+        }
+        self._callCount.withLockUnchecked { callCount in
+            callCount = .zero
+        }
+        self._invocations.withLockUnchecked { invocations in
+            invocations.removeAll()
+        }
+        self._returnedValues.withLockUnchecked { returnedValues in
+            returnedValues.removeAll()
+        }
     }
 }
 

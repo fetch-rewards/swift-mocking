@@ -58,7 +58,9 @@ public final class MockPropertyThrowingGetter<Value> {
     /// - Returns: A value, if ``implementation-swift.property`` returns a
     ///   value.
     func get() throws -> Value {
-        self.callCount += 1
+        self._callCount.withLockUnchecked { callCount in
+            callCount += 1
+        }
 
         let value = Result {
             guard let value = try self.implementation() else {
@@ -68,7 +70,9 @@ public final class MockPropertyThrowingGetter<Value> {
             return value
         }
 
-        self.returnedValues.append(value)
+        self._returnedValues.withLockUnchecked { returnedValues in
+            returnedValues.append(value)
+        }
 
         return try value.get()
     }
@@ -77,9 +81,15 @@ public final class MockPropertyThrowingGetter<Value> {
 
     /// Resets the getter's implementation and invocation records.
     func reset() {
-        self.implementation = .unimplemented
-        self.callCount = .zero
-        self.returnedValues.removeAll()
+        self._implementation.withLockUnchecked { implementation in
+            implementation = .unimplemented
+        }
+        self._callCount.withLockUnchecked { callCount in
+            callCount = .zero
+        }
+        self._returnedValues.withLockUnchecked { returnedValues in
+            returnedValues.removeAll()
+        }
     }
 }
 

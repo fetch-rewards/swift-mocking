@@ -68,7 +68,9 @@ public final class MockVoidNonParameterizedAsyncMethod: Sendable {
     /// Records the invocation of the method and invokes
     /// ``implementation-swift.property``.
     private func invoke() async {
-        self.callCount += 1
+        self._callCount.withLockUnchecked { callCount in
+            callCount += 1
+        }
         await self.implementation()
     }
 
@@ -76,7 +78,11 @@ public final class MockVoidNonParameterizedAsyncMethod: Sendable {
 
     /// Resets the method's implementation and invocation records.
     private func reset() {
-        self.implementation = .unimplemented
-        self.callCount = .zero
+        self._implementation.withLockUnchecked { implementation in
+            implementation = .unimplemented
+        }
+        self._callCount.withLockUnchecked { callCount in
+            callCount = .zero
+        }
     }
 }
