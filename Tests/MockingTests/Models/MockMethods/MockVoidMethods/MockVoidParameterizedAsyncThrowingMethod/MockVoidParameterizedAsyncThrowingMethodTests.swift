@@ -61,33 +61,47 @@ struct MockVoidParameterizedAsyncThrowingMethodTests {
         let invoke = closure()
         #expect(sut.callCount == .zero)
 
-        recordInput(("a", true))
-        #expect(sut.callCount == 1)
+        try await TestBarrier.executeConcurrently {
+            recordInput(("a", true))
+        }
+        #expect(sut.callCount == TestBarrier.defaultTaskCount)
 
         do {
-            try await invoke?("a", true)
+            try await TestBarrier.executeConcurrently {
+                try await invoke?("a", true)
+            }
             Issue.record("Expected invoke to throw error.")
         } catch {
-            #expect(sut.callCount == 1)
+            #expect(sut.callCount == TestBarrier.defaultTaskCount)
 
-            recordOutput(error)
-            #expect(sut.callCount == 1)
+            try await TestBarrier.executeConcurrently {
+                recordOutput(error)
+            }
+            #expect(sut.callCount == TestBarrier.defaultTaskCount)
         }
 
-        recordInput(("b", false))
-        #expect(sut.callCount == 2)
+        try await TestBarrier.executeConcurrently {
+            recordInput(("b", false))
+        }
+        #expect(sut.callCount == TestBarrier.defaultTaskCount * 2)
 
         do {
-            try await invoke?("b", false)
+            try await TestBarrier.executeConcurrently {
+                try await invoke?("b", false)
+            }
             Issue.record("Expected invoke to throw error.")
         } catch {
-            #expect(sut.callCount == 2)
+            #expect(sut.callCount == TestBarrier.defaultTaskCount * 2)
 
-            recordOutput(error)
-            #expect(sut.callCount == 2)
+            try await TestBarrier.executeConcurrently {
+                recordOutput(error)
+            }
+            #expect(sut.callCount == TestBarrier.defaultTaskCount * 2)
         }
 
-        reset()
+        try await TestBarrier.executeConcurrently {
+            reset()
+        }
         #expect(sut.callCount == .zero)
     }
 
@@ -104,51 +118,65 @@ struct MockVoidParameterizedAsyncThrowingMethodTests {
         let invoke = closure()
         #expect(sut.invocations.isEmpty)
 
-        recordInput(("a", true))
-        #expect(sut.invocations.count == 1)
+        try await TestBarrier.executeConcurrently {
+            recordInput(("a", true))
+        }
+        #expect(sut.invocations.count == TestBarrier.defaultTaskCount)
         #expect(sut.invocations.first?.string == "a")
         #expect(sut.invocations.first?.boolean == true)
 
         do {
-            try await invoke?("a", true)
+            try await TestBarrier.executeConcurrently {
+                try await invoke?("a", true)
+            }
             Issue.record("Expected invoke to throw error.")
         } catch {
-            #expect(sut.invocations.count == 1)
+            #expect(sut.invocations.count == TestBarrier.defaultTaskCount)
             #expect(sut.invocations.first?.string == "a")
             #expect(sut.invocations.first?.boolean == true)
 
-            recordOutput(error)
-            #expect(sut.invocations.count == 1)
+            try await TestBarrier.executeConcurrently {
+                recordOutput(error)
+            }
+            #expect(sut.invocations.count == TestBarrier.defaultTaskCount)
             #expect(sut.invocations.first?.string == "a")
             #expect(sut.invocations.first?.boolean == true)
         }
 
-        recordInput(("b", false))
-        #expect(sut.invocations.count == 2)
+        try await TestBarrier.executeConcurrently {
+            recordInput(("b", false))
+        }
+        #expect(sut.invocations.count == TestBarrier.defaultTaskCount * 2)
         #expect(sut.invocations.first?.string == "a")
         #expect(sut.invocations.first?.boolean == true)
         #expect(sut.invocations.last?.string == "b")
         #expect(sut.invocations.last?.boolean == false)
 
         do {
-            try await invoke?("b", false)
+            try await TestBarrier.executeConcurrently {
+                try await invoke?("b", false)
+            }
             Issue.record("Expected invoke to throw error.")
         } catch {
-            #expect(sut.invocations.count == 2)
+            #expect(sut.invocations.count == TestBarrier.defaultTaskCount * 2)
             #expect(sut.invocations.first?.string == "a")
             #expect(sut.invocations.first?.boolean == true)
             #expect(sut.invocations.last?.string == "b")
             #expect(sut.invocations.last?.boolean == false)
 
-            recordOutput(error)
-            #expect(sut.invocations.count == 2)
+            try await TestBarrier.executeConcurrently {
+                recordOutput(error)
+            }
+            #expect(sut.invocations.count == TestBarrier.defaultTaskCount * 2)
             #expect(sut.invocations.first?.string == "a")
             #expect(sut.invocations.first?.boolean == true)
             #expect(sut.invocations.last?.string == "b")
             #expect(sut.invocations.last?.boolean == false)
         }
 
-        reset()
+        try await TestBarrier.executeConcurrently {
+            reset()
+        }
         #expect(sut.invocations.isEmpty)
     }
 
@@ -165,39 +193,53 @@ struct MockVoidParameterizedAsyncThrowingMethodTests {
         let invoke = closure()
         #expect(sut.lastInvocation == nil)
 
-        recordInput(("a", true))
+        try await TestBarrier.executeConcurrently {
+            recordInput(("a", true))
+        }
         #expect(sut.lastInvocation?.string == "a")
         #expect(sut.lastInvocation?.boolean == true)
 
         do {
-            try await invoke?("a", true)
+            try await TestBarrier.executeConcurrently {
+                try await invoke?("a", true)
+            }
             Issue.record("Expected invoke to throw error.")
         } catch {
             #expect(sut.lastInvocation?.string == "a")
             #expect(sut.lastInvocation?.boolean == true)
 
-            recordOutput(error)
+            try await TestBarrier.executeConcurrently {
+                recordOutput(error)
+            }
             #expect(sut.lastInvocation?.string == "a")
             #expect(sut.lastInvocation?.boolean == true)
         }
 
-        recordInput(("b", false))
+        try await TestBarrier.executeConcurrently {
+            recordInput(("b", false))
+        }
         #expect(sut.lastInvocation?.string == "b")
         #expect(sut.lastInvocation?.boolean == false)
 
         do {
-            try await invoke?("b", false)
+            try await TestBarrier.executeConcurrently {
+                try await invoke?("b", false)
+            }
             Issue.record("Expected invoke to throw error.")
         } catch {
             #expect(sut.lastInvocation?.string == "b")
             #expect(sut.lastInvocation?.boolean == false)
 
-            recordOutput(error)
+            try await TestBarrier.executeConcurrently {
+                recordOutput(error)
+            }
             #expect(sut.lastInvocation?.string == "b")
             #expect(sut.lastInvocation?.boolean == false)
         }
 
-        reset()
+        try await TestBarrier.executeConcurrently {
+            reset()
+        }
         #expect(sut.lastInvocation == nil)
     }
 
@@ -209,30 +251,40 @@ struct MockVoidParameterizedAsyncThrowingMethodTests {
 
         sut.implementation = .uncheckedInvokes { _, _ in }
 
-        var invoke = closure()
+        let invoke1 = closure()
         #expect(sut.thrownErrors.isEmpty)
 
-        recordInput(("a", true))
+        try await TestBarrier.executeConcurrently {
+            recordInput(("a", true))
+        }
         #expect(sut.thrownErrors.isEmpty)
 
-        try await invoke?("a", true)
+        try await TestBarrier.executeConcurrently {
+            try await invoke1?("a", true)
+        }
         #expect(sut.thrownErrors.isEmpty)
 
         sut.implementation = .uncheckedInvokes { _, _ in
             throw URLError(.badURL)
         }
 
-        invoke = closure()
-        recordInput(("b", false))
+        let invoke2 = closure()
+        try await TestBarrier.executeConcurrently {
+            recordInput(("b", false))
+        }
         #expect(sut.thrownErrors.isEmpty)
 
         do {
-            try await invoke?("b", false)
+            try await TestBarrier.executeConcurrently {
+                try await invoke2?("b", false)
+            }
             Issue.record("Expected invoke to throw error.")
         } catch {
             #expect(sut.thrownErrors.isEmpty)
 
-            recordOutput(error)
+            try await TestBarrier.executeConcurrently {
+                recordOutput(error)
+            }
 
             let lastThrownError = try #require(sut.thrownErrors.last)
 
@@ -241,7 +293,9 @@ struct MockVoidParameterizedAsyncThrowingMethodTests {
             }
         }
 
-        reset()
+        try await TestBarrier.executeConcurrently {
+            reset()
+        }
         #expect(sut.thrownErrors.isEmpty)
     }
 
@@ -253,30 +307,40 @@ struct MockVoidParameterizedAsyncThrowingMethodTests {
 
         sut.implementation = .uncheckedInvokes { _, _ in }
 
-        var invoke = closure()
+        let invoke1 = closure()
         #expect(sut.lastThrownError == nil)
 
-        recordInput(("a", true))
+        try await TestBarrier.executeConcurrently {
+            recordInput(("a", true))
+        }
         #expect(sut.lastThrownError == nil)
 
-        try await invoke?("a", true)
+        try await TestBarrier.executeConcurrently {
+            try await invoke1?("a", true)
+        }
         #expect(sut.lastThrownError == nil)
 
         sut.implementation = .uncheckedInvokes { _, _ in
             throw URLError(.badURL)
         }
 
-        invoke = closure()
-        recordInput(("b", false))
+        let invoke2 = closure()
+        try await TestBarrier.executeConcurrently {
+            recordInput(("b", false))
+        }
         #expect(sut.lastThrownError == nil)
 
         do {
-            try await invoke?("b", false)
+            try await TestBarrier.executeConcurrently {
+                try await invoke2?("b", false)
+            }
             Issue.record("Expected invoke to throw error.")
         } catch {
             #expect(sut.lastThrownError == nil)
 
-            recordOutput(error)
+            try await TestBarrier.executeConcurrently {
+                recordOutput(error)
+            }
 
             let lastThrownError = try #require(sut.lastThrownError)
 
@@ -285,7 +349,9 @@ struct MockVoidParameterizedAsyncThrowingMethodTests {
             }
         }
 
-        reset()
+        try await TestBarrier.executeConcurrently {
+            reset()
+        }
         #expect(sut.lastThrownError == nil)
     }
 }
@@ -296,7 +362,7 @@ extension MockVoidParameterizedAsyncThrowingMethodTests {
     enum Implementation<
         Arguments
     >: @unchecked Sendable, MockVoidParameterizedAsyncThrowingMethodImplementation {
-        typealias Closure = (String, Bool) async throws -> Void
+        typealias Closure = @Sendable (String, Bool) async throws -> Void
 
         case unimplemented
         case uncheckedInvokes(_ closure: Closure)

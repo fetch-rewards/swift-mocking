@@ -49,7 +49,7 @@ struct MockVoidParameterizedAsyncMethodTests {
     // MARK: Call Count Tests
 
     @Test
-    func callCount() async {
+    func callCount() async throws {
         let (sut, recordInput, closure, reset) = SUT.makeMethod()
 
         sut.implementation = .uncheckedInvokes { _, _ in }
@@ -57,26 +57,36 @@ struct MockVoidParameterizedAsyncMethodTests {
         let invoke = closure()
         #expect(sut.callCount == .zero)
 
-        recordInput(("a", true))
-        #expect(sut.callCount == 1)
+        try await TestBarrier.executeConcurrently {
+            recordInput(("a", true))
+        }
+        #expect(sut.callCount == TestBarrier.defaultTaskCount)
 
-        await invoke?("a", true)
-        #expect(sut.callCount == 1)
+        try await TestBarrier.executeConcurrently {
+            await invoke?("a", true)
+        }
+        #expect(sut.callCount == TestBarrier.defaultTaskCount)
 
-        recordInput(("b", false))
-        #expect(sut.callCount == 2)
+        try await TestBarrier.executeConcurrently {
+            recordInput(("b", false))
+        }
+        #expect(sut.callCount == TestBarrier.defaultTaskCount * 2)
 
-        await invoke?("b", false)
-        #expect(sut.callCount == 2)
+        try await TestBarrier.executeConcurrently {
+            await invoke?("b", false)
+        }
+        #expect(sut.callCount == TestBarrier.defaultTaskCount * 2)
 
-        reset()
+        try await TestBarrier.executeConcurrently {
+            reset()
+        }
         #expect(sut.callCount == .zero)
     }
 
     // MARK: Invocations Tests
 
     @Test
-    func invocations() async {
+    func invocations() async throws {
         let (sut, recordInput, closure, reset) = SUT.makeMethod()
 
         sut.implementation = .uncheckedInvokes { _, _ in }
@@ -84,38 +94,48 @@ struct MockVoidParameterizedAsyncMethodTests {
         let invoke = closure()
         #expect(sut.invocations.isEmpty)
 
-        recordInput(("a", true))
-        #expect(sut.invocations.count == 1)
+        try await TestBarrier.executeConcurrently {
+            recordInput(("a", true))
+        }
+        #expect(sut.invocations.count == TestBarrier.defaultTaskCount)
         #expect(sut.invocations.first?.string == "a")
         #expect(sut.invocations.first?.boolean == true)
 
-        await invoke?("a", true)
-        #expect(sut.invocations.count == 1)
+        try await TestBarrier.executeConcurrently {
+            await invoke?("a", true)
+        }
+        #expect(sut.invocations.count == TestBarrier.defaultTaskCount)
         #expect(sut.invocations.first?.string == "a")
         #expect(sut.invocations.first?.boolean == true)
 
-        recordInput(("b", false))
-        #expect(sut.invocations.count == 2)
+        try await TestBarrier.executeConcurrently {
+            recordInput(("b", false))
+        }
+        #expect(sut.invocations.count == TestBarrier.defaultTaskCount * 2)
         #expect(sut.invocations.first?.string == "a")
         #expect(sut.invocations.first?.boolean == true)
         #expect(sut.invocations.last?.string == "b")
         #expect(sut.invocations.last?.boolean == false)
 
-        await invoke?("b", false)
-        #expect(sut.invocations.count == 2)
+        try await TestBarrier.executeConcurrently {
+            await invoke?("b", false)
+        }
+        #expect(sut.invocations.count == TestBarrier.defaultTaskCount * 2)
         #expect(sut.invocations.first?.string == "a")
         #expect(sut.invocations.first?.boolean == true)
         #expect(sut.invocations.last?.string == "b")
         #expect(sut.invocations.last?.boolean == false)
 
-        reset()
+        try await TestBarrier.executeConcurrently {
+            reset()
+        }
         #expect(sut.invocations.isEmpty)
     }
 
     // MARK: Last Invocation Tests
 
     @Test
-    func lastInvocation() async {
+    func lastInvocation() async throws {
         let (sut, recordInput, closure, reset) = SUT.makeMethod()
 
         sut.implementation = .uncheckedInvokes { _, _ in }
@@ -123,23 +143,33 @@ struct MockVoidParameterizedAsyncMethodTests {
         let invoke = closure()
         #expect(sut.lastInvocation == nil)
 
-        recordInput(("a", true))
+        try await TestBarrier.executeConcurrently {
+            recordInput(("a", true))
+        }
         #expect(sut.lastInvocation?.string == "a")
         #expect(sut.lastInvocation?.boolean == true)
 
-        await invoke?("a", true)
+        try await TestBarrier.executeConcurrently {
+            await invoke?("a", true)
+        }
         #expect(sut.lastInvocation?.string == "a")
         #expect(sut.lastInvocation?.boolean == true)
 
-        recordInput(("b", false))
+        try await TestBarrier.executeConcurrently {
+            recordInput(("b", false))
+        }
         #expect(sut.lastInvocation?.string == "b")
         #expect(sut.lastInvocation?.boolean == false)
 
-        await invoke?("b", false)
+        try await TestBarrier.executeConcurrently {
+            await invoke?("b", false)
+        }
         #expect(sut.lastInvocation?.string == "b")
         #expect(sut.lastInvocation?.boolean == false)
 
-        reset()
+        try await TestBarrier.executeConcurrently {
+            reset()
+        }
         #expect(sut.lastInvocation == nil)
     }
 }
@@ -150,7 +180,7 @@ extension MockVoidParameterizedAsyncMethodTests {
     enum Implementation<
         Arguments
     >: @unchecked Sendable, MockVoidParameterizedAsyncMethodImplementation {
-        typealias Closure = (String, Bool) async -> Void
+        typealias Closure = @Sendable (String, Bool) async -> Void
 
         case unimplemented
         case uncheckedInvokes(_ closure: Closure)

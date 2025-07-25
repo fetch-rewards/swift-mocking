@@ -49,19 +49,25 @@ struct MockVoidNonParameterizedAsyncThrowingMethodTests {
 
         #expect(sut.callCount == .zero)
 
-        try await invoke()
-        #expect(sut.callCount == 1)
+        try await TestBarrier.executeConcurrently {
+            try await invoke()
+        }
+        #expect(sut.callCount == TestBarrier.defaultTaskCount)
 
         sut.implementation = .uncheckedInvokes {
             throw URLError(.badURL)
         }
 
         await #expect(throws: URLError(.badURL)) {
-            try await invoke()
+            try await TestBarrier.executeConcurrently {
+                try await invoke()
+            }
         }
-        #expect(sut.callCount == 2)
+        #expect(sut.callCount == TestBarrier.defaultTaskCount * 2)
 
-        reset()
+        try await TestBarrier.executeConcurrently {
+            reset()
+        }
         #expect(sut.callCount == .zero)
     }
 
@@ -73,7 +79,9 @@ struct MockVoidNonParameterizedAsyncThrowingMethodTests {
 
         #expect(sut.thrownErrors.isEmpty)
 
-        try await invoke()
+        try await TestBarrier.executeConcurrently {
+            try await invoke()
+        }
         #expect(sut.thrownErrors.isEmpty)
 
         sut.implementation = .uncheckedInvokes {
@@ -81,9 +89,11 @@ struct MockVoidNonParameterizedAsyncThrowingMethodTests {
         }
 
         await #expect(throws: URLError(.badURL)) {
-            try await invoke()
+            try await TestBarrier.executeConcurrently {
+                try await invoke()
+            }
         }
-        #expect(sut.thrownErrors.count == 1)
+        #expect(sut.thrownErrors.count == TestBarrier.defaultTaskCount)
 
         var firstThrownError = try #require(sut.thrownErrors.first)
 
@@ -96,9 +106,11 @@ struct MockVoidNonParameterizedAsyncThrowingMethodTests {
         }
 
         await #expect(throws: URLError(.badServerResponse)) {
-            try await invoke()
+            try await TestBarrier.executeConcurrently {
+                try await invoke()
+            }
         }
-        #expect(sut.thrownErrors.count == 2)
+        #expect(sut.thrownErrors.count == TestBarrier.defaultTaskCount * 2)
 
         firstThrownError = try #require(sut.thrownErrors.first)
         let lastThrownError = try #require(sut.thrownErrors.last)
@@ -110,7 +122,9 @@ struct MockVoidNonParameterizedAsyncThrowingMethodTests {
             throw lastThrownError
         }
 
-        reset()
+        try await TestBarrier.executeConcurrently {
+            reset()
+        }
         #expect(sut.thrownErrors.isEmpty)
     }
 
@@ -122,7 +136,9 @@ struct MockVoidNonParameterizedAsyncThrowingMethodTests {
 
         #expect(sut.lastThrownError == nil)
 
-        try await invoke()
+        try await TestBarrier.executeConcurrently {
+            try await invoke()
+        }
         #expect(sut.lastThrownError == nil)
 
         sut.implementation = .uncheckedInvokes {
@@ -130,7 +146,9 @@ struct MockVoidNonParameterizedAsyncThrowingMethodTests {
         }
 
         await #expect(throws: URLError(.badURL)) {
-            try await invoke()
+            try await TestBarrier.executeConcurrently {
+                try await invoke()
+            }
         }
 
         var lastThrownError = try #require(sut.lastThrownError)
@@ -144,7 +162,9 @@ struct MockVoidNonParameterizedAsyncThrowingMethodTests {
         }
 
         await #expect(throws: URLError(.badServerResponse)) {
-            try await invoke()
+            try await TestBarrier.executeConcurrently {
+                try await invoke()
+            }
         }
 
         lastThrownError = try #require(sut.lastThrownError)
@@ -153,7 +173,9 @@ struct MockVoidNonParameterizedAsyncThrowingMethodTests {
             throw lastThrownError
         }
 
-        reset()
+        try await TestBarrier.executeConcurrently {
+            reset()
+        }
         #expect(sut.lastThrownError == nil)
     }
 }

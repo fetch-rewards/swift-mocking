@@ -43,15 +43,21 @@ struct MockVoidNonParameterizedMethodTests {
     // MARK: Call Count Tests
 
     @Test
-    func callCount() {
+    func callCount() async throws {
         let (sut, invoke, reset) = SUT.makeMethod()
 
         #expect(sut.callCount == .zero)
 
-        invoke()
-        #expect(sut.callCount == 1)
+        try await TestBarrier.executeConcurrently {
+            invoke()
+        }
 
-        reset()
+        #expect(sut.callCount == TestBarrier.defaultTaskCount)
+
+        try await TestBarrier.executeConcurrently {
+            reset()
+        }
+
         #expect(sut.callCount == .zero)
     }
 }
