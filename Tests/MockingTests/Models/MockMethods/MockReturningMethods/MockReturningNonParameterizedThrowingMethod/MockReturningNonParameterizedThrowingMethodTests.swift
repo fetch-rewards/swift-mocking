@@ -46,85 +46,120 @@ struct MockReturningNonParameterizedThrowingMethodTests {
     // MARK: Call Count Tests
 
     @Test
-    func callCount() throws {
+    func callCount() async throws {
         let (sut, invoke, reset) = self.sut()
 
         sut.implementation = .uncheckedInvokes { 5 }
 
         #expect(sut.callCount == .zero)
 
-        _ = try invoke()
-        #expect(sut.callCount == 1)
+        try await TestBarrier.executeConcurrently {
+            _ = try invoke()
+        }
+        #expect(sut.callCount == TestBarrier.defaultTaskCount)
 
         sut.implementation = .uncheckedInvokes {
             throw URLError(.badURL)
         }
 
-        #expect(throws: URLError(.badURL)) {
-            _ = try invoke()
+        await #expect(throws: URLError(.badURL)) {
+            try await TestBarrier.executeConcurrently {
+                _ = try invoke()
+            }
         }
-        #expect(sut.callCount == 2)
+        #expect(sut.callCount == TestBarrier.defaultTaskCount * 2)
 
-        reset()
+        try await TestBarrier.executeConcurrently {
+            reset()
+        }
         #expect(sut.callCount == .zero)
     }
 
     // MARK: Returned Values Tests
 
     @Test
-    func returnedValues() throws {
+    func returnedValues() async throws {
         let (sut, invoke, reset) = self.sut()
 
         sut.implementation = .uncheckedInvokes { 5 }
 
         #expect(sut.returnedValues.isEmpty)
 
-        _ = try invoke()
-        #expect(sut.returnedValues.count == 1)
-        #expect(try sut.returnedValues.first?.get() == 5)
+        try await TestBarrier.executeConcurrently {
+            _ = try invoke()
+        }
+        #expect(sut.returnedValues.count == TestBarrier.defaultTaskCount)
+        #expect(
+            sut.returnedValues.allSatisfy { returnedValue in
+                (try? returnedValue.get()) == 5
+            }
+        )
 
         sut.implementation = .uncheckedInvokes {
             throw URLError(.badURL)
         }
 
-        #expect(throws: URLError(.badURL)) {
-            _ = try invoke()
+        await #expect(throws: URLError(.badURL)) {
+            try await TestBarrier.executeConcurrently {
+                _ = try invoke()
+            }
         }
-        #expect(sut.returnedValues.count == 2)
-        #expect(try sut.returnedValues.first?.get() == 5)
-        #expect(throws: URLError(.badURL)) {
-            _ = try sut.returnedValues.last?.get()
-        }
+        #expect(sut.returnedValues.count == TestBarrier.defaultTaskCount * 2)
+        #expect(
+            sut.returnedValues.prefix(TestBarrier.defaultTaskCount).allSatisfy { returnedValue in
+                (try? returnedValue.get()) == 5
+            }
+        )
+        #expect(
+            sut.returnedValues.suffix(TestBarrier.defaultTaskCount).allSatisfy { returnedValue in
+                do {
+                    _ = try returnedValue.get()
+                    return false
+                } catch URLError.badURL {
+                    return true
+                } catch {
+                    return false
+                }
+            }
+        )
 
-        reset()
+        try await TestBarrier.executeConcurrently {
+            reset()
+        }
         #expect(sut.returnedValues.isEmpty)
     }
 
     // MARK: Last Returned Value Tests
 
     @Test
-    func lastReturnedValue() throws {
+    func lastReturnedValue() async throws {
         let (sut, invoke, reset) = self.sut()
 
         sut.implementation = .uncheckedInvokes { 5 }
 
         #expect(sut.lastReturnedValue == nil)
 
-        _ = try invoke()
+        try await TestBarrier.executeConcurrently {
+            _ = try invoke()
+        }
         #expect(try sut.lastReturnedValue?.get() == 5)
 
         sut.implementation = .uncheckedInvokes {
             throw URLError(.badURL)
         }
 
-        #expect(throws: URLError(.badURL)) {
-            _ = try invoke()
+        await #expect(throws: URLError(.badURL)) {
+            try await TestBarrier.executeConcurrently {
+                _ = try invoke()
+            }
         }
         #expect(throws: URLError(.badURL)) {
-            _ = try sut.lastReturnedValue?.get()
+            try sut.lastReturnedValue?.get()
         }
 
-        reset()
+        try await TestBarrier.executeConcurrently {
+            reset()
+        }
         #expect(sut.lastReturnedValue == nil)
     }
 }
@@ -134,8 +169,8 @@ struct MockReturningNonParameterizedThrowingMethodTests {
 extension MockReturningNonParameterizedThrowingMethodTests {
     private func sut() -> (
         method: SUT,
-        invoke: () throws -> ReturnValue,
-        reset: () -> Void
+        invoke: @Sendable () throws -> ReturnValue,
+        reset: @Sendable () -> Void
     ) {
         SUT.makeMethod(
             exposedMethodDescription: MockImplementationDescription(
