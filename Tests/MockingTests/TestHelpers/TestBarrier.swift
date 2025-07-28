@@ -31,11 +31,11 @@ actor TestBarrier {
     // MARK: Properties
 
     /// The default number of tasks used when no task count is specified.
-    static let defaultTaskCount = 1_000
+    static let defaultTaskCount = 1000
 
     /// The continuations waiting to be resumed once all tasks arrive.
     private var continuations: [CheckedContinuation<Void, Never>] = []
-    
+
     /// The number of tasks still expected to arrive at the barrier.
     private var remainingTasks: Int
 
@@ -69,7 +69,9 @@ actor TestBarrier {
             self.remainingTasks -= 1
             self.continuations.append(continuation)
 
-            guard self.remainingTasks == .zero else { return }
+            guard self.remainingTasks == .zero else {
+                return
+            }
 
             for continuation in self.continuations {
                 continuation.resume()
@@ -127,7 +129,9 @@ actor TestBarrier {
             }
         }
 
-        guard let error = await errorStorage.getError() else { return }
+        guard let error = await errorStorage.getError() else {
+            return
+        }
 
         throw error
     }
@@ -158,7 +162,9 @@ private actor ErrorStorage {
     ///
     /// - Parameter error: The error to store.
     func setError(_ error: any Error) {
-        guard self.error == nil else { return }
+        guard self.error == nil else {
+            return
+        }
 
         self.error = error
     }
