@@ -37,8 +37,12 @@ public final class MockPropertySetter<Value> {
     ///
     /// - Parameter value: The value with which the setter is being invoked.
     func set(_ value: Value) {
-        self.callCount += 1
-        self.invocations.append(value)
+        self._callCount.withLockUnchecked { callCount in
+            callCount += 1
+        }
+        self._invocations.withLockUnchecked { invocations in
+            invocations.append(value)
+        }
         self.implementation(value)
     }
 
@@ -46,9 +50,15 @@ public final class MockPropertySetter<Value> {
 
     /// Resets the setter's implementation and invocation records.
     func reset() {
-        self.implementation = .unimplemented
-        self.callCount = .zero
-        self.invocations.removeAll()
+        self._implementation.withLockUnchecked { implementation in
+            implementation = .unimplemented
+        }
+        self._callCount.withLockUnchecked { callCount in
+            callCount = .zero
+        }
+        self._invocations.withLockUnchecked { invocations in
+            invocations.removeAll()
+        }
     }
 }
 

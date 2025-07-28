@@ -120,8 +120,12 @@ public final class MockVoidParameterizedThrowingMethod<
     /// - Parameter arguments: The arguments with which the method is being
     ///   invoked.
     private func recordInput(arguments: Arguments) {
-        self.callCount += 1
-        self.invocations.append(arguments)
+        self._callCount.withLockUnchecked { callCount in
+            callCount += 1
+        }
+        self._invocations.withLockUnchecked { invocations in
+            invocations.append(arguments)
+        }
     }
 
     /// Returns the method's implementation as a closure, or `nil` if
@@ -137,17 +141,27 @@ public final class MockVoidParameterizedThrowingMethod<
     ///
     /// - Parameter error: The error thrown by the method.
     private func recordOutput(error: Error) {
-        self.thrownErrors.append(error)
+        self._thrownErrors.withLockUnchecked { thrownErrors in
+            thrownErrors.append(error)
+        }
     }
 
     // MARK: Reset
 
     /// Resets the method's implementation and invocation records.
     private func reset() {
-        self.implementation = .unimplemented
-        self.callCount = .zero
-        self.invocations.removeAll()
-        self.thrownErrors.removeAll()
+        self._implementation.withLockUnchecked { implementation in
+            implementation = .unimplemented
+        }
+        self._callCount.withLockUnchecked { callCount in
+            callCount = .zero
+        }
+        self._invocations.withLockUnchecked { invocations in
+            invocations.removeAll()
+        }
+        self._thrownErrors.withLockUnchecked { thrownErrors in
+            thrownErrors.removeAll()
+        }
     }
 }
 

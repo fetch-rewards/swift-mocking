@@ -16,7 +16,7 @@ struct MockReturningParameterizedAsyncMethodTests {
     >
     typealias Arguments = (string: String, boolean: Bool)
     typealias ReturnValue = Int
-    typealias Closure = (String, Bool) async -> ReturnValue
+    typealias Closure = @Sendable (String, Bool) async -> ReturnValue
 
     // MARK: Implementation Tests
 
@@ -51,7 +51,7 @@ struct MockReturningParameterizedAsyncMethodTests {
     // MARK: Call Count Tests
 
     @Test
-    func callCount() async {
+    func callCount() async throws {
         let (sut, recordInput, closure, recordOutput, reset) = self.sut()
 
         sut.implementation = .uncheckedInvokes { _, _ in 5 }
@@ -59,32 +59,38 @@ struct MockReturningParameterizedAsyncMethodTests {
         let invoke = closure()
         #expect(sut.callCount == .zero)
 
-        recordInput(("a", true))
-        #expect(sut.callCount == 1)
+        try await TestBarrier.executeConcurrently {
+            recordInput(("a", true))
+        }
+        #expect(sut.callCount == TestBarrier.defaultTaskCount)
 
-        var returnValue = await invoke("a", true)
-        #expect(sut.callCount == 1)
+        try await TestBarrier.executeConcurrently {
+            let returnValue = await invoke("a", true)
+            recordOutput(returnValue)
+        }
+        #expect(sut.callCount == TestBarrier.defaultTaskCount)
 
-        recordOutput(returnValue)
-        #expect(sut.callCount == 1)
+        try await TestBarrier.executeConcurrently {
+            recordInput(("b", false))
+        }
+        #expect(sut.callCount == TestBarrier.defaultTaskCount * 2)
 
-        recordInput(("b", false))
-        #expect(sut.callCount == 2)
+        try await TestBarrier.executeConcurrently {
+            let returnValue = await invoke("b", false)
+            recordOutput(returnValue)
+        }
+        #expect(sut.callCount == TestBarrier.defaultTaskCount * 2)
 
-        returnValue = await invoke("b", false)
-        #expect(sut.callCount == 2)
-
-        recordOutput(returnValue)
-        #expect(sut.callCount == 2)
-
-        reset()
+        try await TestBarrier.executeConcurrently {
+            reset()
+        }
         #expect(sut.callCount == .zero)
     }
 
     // MARK: Invocations Tests
 
     @Test
-    func invocations() async {
+    func invocations() async throws {
         let (sut, recordInput, closure, recordOutput, reset) = self.sut()
 
         sut.implementation = .uncheckedInvokes { _, _ in 5 }
@@ -92,50 +98,68 @@ struct MockReturningParameterizedAsyncMethodTests {
         let invoke = closure()
         #expect(sut.invocations.isEmpty)
 
-        recordInput(("a", true))
-        #expect(sut.invocations.count == 1)
-        #expect(sut.invocations.first?.string == "a")
-        #expect(sut.invocations.first?.boolean == true)
+        try await TestBarrier.executeConcurrently {
+            recordInput(("a", true))
+        }
+        #expect(sut.invocations.count == TestBarrier.defaultTaskCount)
+        #expect(
+            sut.invocations.allSatisfy { invocation in
+                invocation == ("a", true)
+            }
+        )
 
-        var returnValue = await invoke("a", true)
-        #expect(sut.invocations.count == 1)
-        #expect(sut.invocations.first?.string == "a")
-        #expect(sut.invocations.first?.boolean == true)
+        try await TestBarrier.executeConcurrently {
+            let returnValue = await invoke("a", true)
+            recordOutput(returnValue)
+        }
+        #expect(sut.invocations.count == TestBarrier.defaultTaskCount)
+        #expect(
+            sut.invocations.allSatisfy { invocation in
+                invocation == ("a", true)
+            }
+        )
 
-        recordOutput(returnValue)
-        #expect(sut.invocations.count == 1)
-        #expect(sut.invocations.first?.string == "a")
-        #expect(sut.invocations.first?.boolean == true)
+        try await TestBarrier.executeConcurrently {
+            recordInput(("b", false))
+        }
+        #expect(sut.invocations.count == TestBarrier.defaultTaskCount * 2)
+        #expect(
+            sut.invocations.prefix(TestBarrier.defaultTaskCount).allSatisfy { invocation in
+                invocation == ("a", true)
+            }
+        )
+        #expect(
+            sut.invocations.suffix(TestBarrier.defaultTaskCount).allSatisfy { invocation in
+                invocation == ("b", false)
+            }
+        )
 
-        recordInput(("b", false))
-        #expect(sut.invocations.count == 2)
-        #expect(sut.invocations.first?.string == "a")
-        #expect(sut.invocations.first?.boolean == true)
-        #expect(sut.invocations.last?.string == "b")
-        #expect(sut.invocations.last?.boolean == false)
+        try await TestBarrier.executeConcurrently {
+            let returnValue = await invoke("b", false)
+            recordOutput(returnValue)
+        }
+        #expect(sut.invocations.count == TestBarrier.defaultTaskCount * 2)
+        #expect(
+            sut.invocations.prefix(TestBarrier.defaultTaskCount).allSatisfy { invocation in
+                invocation == ("a", true)
+            }
+        )
+        #expect(
+            sut.invocations.suffix(TestBarrier.defaultTaskCount).allSatisfy { invocation in
+                invocation == ("b", false)
+            }
+        )
 
-        returnValue = await invoke("b", false)
-        #expect(sut.invocations.count == 2)
-        #expect(sut.invocations.first?.string == "a")
-        #expect(sut.invocations.first?.boolean == true)
-        #expect(sut.invocations.last?.string == "b")
-        #expect(sut.invocations.last?.boolean == false)
-
-        recordOutput(returnValue)
-        #expect(sut.invocations.count == 2)
-        #expect(sut.invocations.first?.string == "a")
-        #expect(sut.invocations.first?.boolean == true)
-        #expect(sut.invocations.last?.string == "b")
-        #expect(sut.invocations.last?.boolean == false)
-
-        reset()
+        try await TestBarrier.executeConcurrently {
+            reset()
+        }
         #expect(sut.invocations.isEmpty)
     }
 
     // MARK: Last Invocation Tests
 
     @Test
-    func lastInvocation() async {
+    func lastInvocation() async throws {
         let (sut, recordInput, closure, recordOutput, reset) = self.sut()
 
         sut.implementation = .uncheckedInvokes { _, _ in 5 }
@@ -143,103 +167,139 @@ struct MockReturningParameterizedAsyncMethodTests {
         let invoke = closure()
         #expect(sut.lastInvocation == nil)
 
-        recordInput(("a", true))
+        try await TestBarrier.executeConcurrently {
+            recordInput(("a", true))
+        }
         #expect(sut.lastInvocation?.string == "a")
         #expect(sut.lastInvocation?.boolean == true)
 
-        var returnValue = await invoke("a", true)
+        try await TestBarrier.executeConcurrently {
+            let returnValue = await invoke("a", true)
+            recordOutput(returnValue)
+        }
         #expect(sut.lastInvocation?.string == "a")
         #expect(sut.lastInvocation?.boolean == true)
 
-        recordOutput(returnValue)
-        #expect(sut.lastInvocation?.string == "a")
-        #expect(sut.lastInvocation?.boolean == true)
-
-        recordInput(("b", false))
+        try await TestBarrier.executeConcurrently {
+            recordInput(("b", false))
+        }
         #expect(sut.lastInvocation?.string == "b")
         #expect(sut.lastInvocation?.boolean == false)
 
-        returnValue = await invoke("b", false)
+        try await TestBarrier.executeConcurrently {
+            let returnValue = await invoke("b", false)
+            recordOutput(returnValue)
+        }
         #expect(sut.lastInvocation?.string == "b")
         #expect(sut.lastInvocation?.boolean == false)
 
-        recordOutput(returnValue)
-        #expect(sut.lastInvocation?.string == "b")
-        #expect(sut.lastInvocation?.boolean == false)
-
-        reset()
+        try await TestBarrier.executeConcurrently {
+            reset()
+        }
         #expect(sut.lastInvocation == nil)
     }
 
     // MARK: Returned Values Tests
 
     @Test
-    func returnedValues() async {
+    func returnedValues() async throws {
         let (sut, recordInput, closure, recordOutput, reset) = self.sut()
 
         sut.implementation = .uncheckedInvokes { _, _ in 5 }
 
-        var invoke = closure()
+        let invoke1 = closure()
         #expect(sut.returnedValues.isEmpty)
 
-        recordInput(("a", true))
+        try await TestBarrier.executeConcurrently {
+            recordInput(("a", true))
+        }
         #expect(sut.returnedValues.isEmpty)
 
-        var returnValue = await invoke("a", true)
-        #expect(sut.returnedValues.isEmpty)
-
-        recordOutput(returnValue)
-        #expect(sut.returnedValues == [5])
+        try await TestBarrier.executeConcurrently {
+            let returnValue = await invoke1("a", true)
+            recordOutput(returnValue)
+        }
+        #expect(sut.returnedValues.count == TestBarrier.defaultTaskCount)
+        #expect(
+            sut.returnedValues.allSatisfy { returnedValue in
+                returnedValue == 5
+            }
+        )
 
         sut.implementation = .uncheckedInvokes { _, _ in 10 }
 
-        invoke = closure()
-        recordInput(("b", false))
-        #expect(sut.returnedValues == [5])
+        let invoke2 = closure()
+        try await TestBarrier.executeConcurrently {
+            recordInput(("b", false))
+        }
+        #expect(sut.returnedValues.count == TestBarrier.defaultTaskCount)
+        #expect(
+            sut.returnedValues.allSatisfy { returnedValue in
+                returnedValue == 5
+            }
+        )
 
-        returnValue = await invoke("b", false)
-        #expect(sut.returnedValues == [5])
+        try await TestBarrier.executeConcurrently {
+            let returnValue = await invoke2("b", false)
+            recordOutput(returnValue)
+        }
+        #expect(sut.returnedValues.count == TestBarrier.defaultTaskCount * 2)
+        #expect(
+            sut.returnedValues.prefix(TestBarrier.defaultTaskCount).allSatisfy { returnedValue in
+                returnedValue == 5
+            }
+        )
+        #expect(
+            sut.returnedValues.suffix(TestBarrier.defaultTaskCount).allSatisfy { returnedValue in
+                returnedValue == 10
+            }
+        )
 
-        recordOutput(returnValue)
-        #expect(sut.returnedValues == [5, 10])
-
-        reset()
+        try await TestBarrier.executeConcurrently {
+            reset()
+        }
         #expect(sut.returnedValues.isEmpty)
     }
 
     // MARK: Last Returned Value Tests
 
     @Test
-    func lastReturnedValue() async {
+    func lastReturnedValue() async throws {
         let (sut, recordInput, closure, recordOutput, reset) = self.sut()
 
         sut.implementation = .uncheckedInvokes { _, _ in 5 }
 
-        var invoke = closure()
+        let invoke1 = closure()
         #expect(sut.lastReturnedValue == nil)
 
-        recordInput(("a", true))
+        try await TestBarrier.executeConcurrently {
+            recordInput(("a", true))
+        }
         #expect(sut.lastReturnedValue == nil)
 
-        var returnValue = await invoke("a", true)
-        #expect(sut.lastReturnedValue == nil)
-
-        recordOutput(returnValue)
+        try await TestBarrier.executeConcurrently {
+            let returnValue = await invoke1("a", true)
+            recordOutput(returnValue)
+        }
         #expect(sut.lastReturnedValue == 5)
 
         sut.implementation = .uncheckedInvokes { _, _ in 10 }
 
-        invoke = closure()
-        recordInput(("b", false))
+        let invoke2 = closure()
+        try await TestBarrier.executeConcurrently {
+            recordInput(("b", false))
+        }
         #expect(sut.lastReturnedValue == 5)
 
-        returnValue = await invoke("b", false)
-        #expect(sut.lastReturnedValue == 5)
-
-        recordOutput(returnValue)
+        try await TestBarrier.executeConcurrently {
+            let returnValue = await invoke2("b", false)
+            recordOutput(returnValue)
+        }
         #expect(sut.lastReturnedValue == 10)
 
-        reset()
+        try await TestBarrier.executeConcurrently {
+            reset()
+        }
         #expect(sut.lastReturnedValue == nil)
     }
 }
@@ -251,7 +311,7 @@ extension MockReturningParameterizedAsyncMethodTests {
         Arguments,
         ReturnValue
     >: @unchecked Sendable, MockReturningParameterizedAsyncMethodImplementation {
-        typealias Closure = (String, Bool) async -> ReturnValue
+        typealias Closure = @Sendable (String, Bool) async -> ReturnValue
 
         case unimplemented
         case uncheckedInvokes(_ closure: Closure)
@@ -272,10 +332,10 @@ extension MockReturningParameterizedAsyncMethodTests {
 extension MockReturningParameterizedAsyncMethodTests {
     private func sut() -> (
         method: SUT,
-        recordInput: (Arguments) -> Void,
-        closure: () -> Closure,
-        recordOutput: (ReturnValue) -> Void,
-        reset: () -> Void
+        recordInput: @Sendable (Arguments) -> Void,
+        closure: @Sendable () -> Closure,
+        recordOutput: @Sendable (ReturnValue) -> Void,
+        reset: @Sendable () -> Void
     ) {
         SUT.makeMethod(
             exposedMethodDescription: MockImplementationDescription(

@@ -78,12 +78,16 @@ public final class MockVoidNonParameterizedAsyncThrowingMethod: Sendable {
     /// Records the invocation of the method and invokes
     /// ``implementation-swift.property``.
     private func invoke() async throws {
-        self.callCount += 1
+        self._callCount.withLockUnchecked { callCount in
+            callCount += 1
+        }
 
         do {
             try await self.implementation()
         } catch {
-            self.thrownErrors.append(error)
+            self._thrownErrors.withLockUnchecked { thrownErrors in
+                thrownErrors.append(error)
+            }
             throw error
         }
     }
@@ -92,8 +96,14 @@ public final class MockVoidNonParameterizedAsyncThrowingMethod: Sendable {
 
     /// Resets the method's implementation and invocation records.
     private func reset() {
-        self.implementation = .unimplemented
-        self.callCount = .zero
-        self.thrownErrors.removeAll()
+        self._implementation.withLockUnchecked { implementation in
+            implementation = .unimplemented
+        }
+        self._callCount.withLockUnchecked { callCount in
+            callCount = .zero
+        }
+        self._thrownErrors.withLockUnchecked { thrownErrors in
+            thrownErrors.removeAll()
+        }
     }
 }

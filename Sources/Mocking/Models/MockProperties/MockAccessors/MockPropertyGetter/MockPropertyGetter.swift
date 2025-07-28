@@ -56,13 +56,17 @@ public final class MockPropertyGetter<Value> {
     /// - Returns: A value, if ``implementation-swift.property`` returns a
     ///   value.
     func get() -> Value {
-        self.callCount += 1
+        self._callCount.withLockUnchecked { callCount in
+            callCount += 1
+        }
 
         guard let value = self.implementation() else {
             fatalError("Unimplemented: \(self.exposedPropertyDescription)")
         }
 
-        self.returnedValues.append(value)
+        self._returnedValues.withLockUnchecked { returnedValues in
+            returnedValues.append(value)
+        }
 
         return value
     }
@@ -71,9 +75,15 @@ public final class MockPropertyGetter<Value> {
 
     /// Resets the getter's implementation and invocation records.
     func reset() {
-        self.implementation = .unimplemented
-        self.callCount = .zero
-        self.returnedValues.removeAll()
+        self._implementation.withLockUnchecked { implementation in
+            implementation = .unimplemented
+        }
+        self._callCount.withLockUnchecked { callCount in
+            callCount = .zero
+        }
+        self._returnedValues.withLockUnchecked { returnedValues in
+            returnedValues.removeAll()
+        }
     }
 }
 

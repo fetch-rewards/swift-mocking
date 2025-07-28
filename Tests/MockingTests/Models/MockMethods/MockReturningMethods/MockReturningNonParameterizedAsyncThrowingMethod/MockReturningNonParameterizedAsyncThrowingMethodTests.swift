@@ -53,19 +53,25 @@ struct MockReturningNonParameterizedAsyncThrowingMethodTests {
 
         #expect(sut.callCount == .zero)
 
-        _ = try await invoke()
-        #expect(sut.callCount == 1)
+        try await TestBarrier.executeConcurrently {
+            _ = try await invoke()
+        }
+        #expect(sut.callCount == TestBarrier.defaultTaskCount)
 
         sut.implementation = .uncheckedInvokes {
             throw URLError(.badURL)
         }
 
         await #expect(throws: URLError(.badURL)) {
-            _ = try await invoke()
+            try await TestBarrier.executeConcurrently {
+                _ = try await invoke()
+            }
         }
-        #expect(sut.callCount == 2)
+        #expect(sut.callCount == TestBarrier.defaultTaskCount * 2)
 
-        reset()
+        try await TestBarrier.executeConcurrently {
+            reset()
+        }
         #expect(sut.callCount == .zero)
     }
 
@@ -79,24 +85,47 @@ struct MockReturningNonParameterizedAsyncThrowingMethodTests {
 
         #expect(sut.returnedValues.isEmpty)
 
-        _ = try await invoke()
-        #expect(sut.returnedValues.count == 1)
-        #expect(try sut.returnedValues.first?.get() == 5)
+        try await TestBarrier.executeConcurrently {
+            _ = try await invoke()
+        }
+        #expect(sut.returnedValues.count == TestBarrier.defaultTaskCount)
+        #expect(
+            sut.returnedValues.allSatisfy { returnedValue in
+                (try? returnedValue.get()) == 5
+            }
+        )
 
         sut.implementation = .uncheckedInvokes {
             throw URLError(.badURL)
         }
 
         await #expect(throws: URLError(.badURL)) {
-            _ = try await invoke()
+            try await TestBarrier.executeConcurrently {
+                _ = try await invoke()
+            }
         }
-        #expect(sut.returnedValues.count == 2)
-        #expect(try sut.returnedValues.first?.get() == 5)
-        #expect(throws: URLError(.badURL)) {
-            _ = try sut.returnedValues.last?.get()
-        }
+        #expect(sut.returnedValues.count == TestBarrier.defaultTaskCount * 2)
+        #expect(
+            sut.returnedValues.prefix(TestBarrier.defaultTaskCount).allSatisfy { returnedValue in
+                (try? returnedValue.get()) == 5
+            }
+        )
+        #expect(
+            sut.returnedValues.suffix(TestBarrier.defaultTaskCount).allSatisfy { returnedValue in
+                do {
+                    _ = try returnedValue.get()
+                    return false
+                } catch URLError.badURL {
+                    return true
+                } catch {
+                    return false
+                }
+            }
+        )
 
-        reset()
+        try await TestBarrier.executeConcurrently {
+            reset()
+        }
         #expect(sut.returnedValues.isEmpty)
     }
 
@@ -110,7 +139,9 @@ struct MockReturningNonParameterizedAsyncThrowingMethodTests {
 
         #expect(sut.lastReturnedValue == nil)
 
-        _ = try await invoke()
+        try await TestBarrier.executeConcurrently {
+            _ = try await invoke()
+        }
         #expect(try sut.lastReturnedValue?.get() == 5)
 
         sut.implementation = .uncheckedInvokes {
@@ -118,13 +149,17 @@ struct MockReturningNonParameterizedAsyncThrowingMethodTests {
         }
 
         await #expect(throws: URLError(.badURL)) {
-            _ = try await invoke()
+            try await TestBarrier.executeConcurrently {
+                _ = try await invoke()
+            }
         }
         #expect(throws: URLError(.badURL)) {
-            _ = try sut.lastReturnedValue?.get()
+            try sut.lastReturnedValue?.get()
         }
 
-        reset()
+        try await TestBarrier.executeConcurrently {
+            reset()
+        }
         #expect(sut.lastReturnedValue == nil)
     }
 }
@@ -134,8 +169,8 @@ struct MockReturningNonParameterizedAsyncThrowingMethodTests {
 extension MockReturningNonParameterizedAsyncThrowingMethodTests {
     private func sut() -> (
         method: SUT,
-        invoke: () async throws -> ReturnValue,
-        reset: () -> Void
+        invoke: @Sendable () async throws -> ReturnValue,
+        reset: @Sendable () -> Void
     ) {
         SUT.makeMethod(
             exposedMethodDescription: MockImplementationDescription(
