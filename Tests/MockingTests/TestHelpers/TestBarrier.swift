@@ -31,7 +31,7 @@ actor TestBarrier {
     // MARK: Properties
 
     /// The default number of tasks used when no task count is specified.
-    static let defaultTaskCount = 1000
+    static let defaultTaskCount = 1_000
 
     /// The continuations waiting to be resumed once all tasks arrive.
     private var continuations: [CheckedContinuation<Void, Never>] = []
