@@ -12,6 +12,11 @@
 ## Date format to use in file headers: system (default), iso, dmy, mdy, or custom.
 --dateformat mdy
 
+## Grouping for decimal numbers: 3,6 (default).
+## First number: group size (the number of digits in each group).
+## Second number: threshold (the minimum number of digits in a number before grouping is applied).
+--decimalgrouping 3,4
+
 ## Change type with only static members to enum: always (default) or structs-only.
 --enumnamespaces structs-only
 
