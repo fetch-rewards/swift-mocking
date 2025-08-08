@@ -1,8 +1,7 @@
 //
 //  CovariantSelf.swift
-//  swift-mocking
 //
-//  Created by Gray Campbell on 8/8/25.
+//  Copyright © 2025 Fetch.
 //
 
 import Foundation
