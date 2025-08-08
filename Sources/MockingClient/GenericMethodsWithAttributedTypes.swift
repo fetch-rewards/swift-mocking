@@ -14,7 +14,7 @@ public import Mocking
 ///   Mocked's handling of generic methods with attributed types. For temporary
 ///   testing of Mocked's expansion, use the `Playground` protocol in
 ///   `main.swift`.
-@Mocked
+@Mocked(compilationCondition: .none)
 public protocol GenericMethodsWithAttributedTypes {
     func genericMethodWithAttributedTypesAndUnconstrainedGenericParameter<Value>(
         inoutParameter: inout Value,
