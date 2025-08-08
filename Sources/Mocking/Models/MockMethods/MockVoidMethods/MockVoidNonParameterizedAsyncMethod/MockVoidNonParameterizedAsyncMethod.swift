@@ -18,7 +18,7 @@ public final class MockVoidNonParameterizedAsyncMethod: Sendable {
     public var implementation: Implementation = .unimplemented
 
     /// The number of times the method has been called.
-    @Locked(.unchecked)
+    @Locked(.checked)
     public private(set) var callCount: Int = .zero
 
     // MARK: Initializers
@@ -68,7 +68,7 @@ public final class MockVoidNonParameterizedAsyncMethod: Sendable {
     /// Records the invocation of the method and invokes
     /// ``implementation-swift.property``.
     private func invoke() async {
-        self._callCount.withLockUnchecked { callCount in
+        self._callCount.withLock { callCount in
             callCount += 1
         }
         await self.implementation()
@@ -81,7 +81,7 @@ public final class MockVoidNonParameterizedAsyncMethod: Sendable {
         self._implementation.withLockUnchecked { implementation in
             implementation = .unimplemented
         }
-        self._callCount.withLockUnchecked { callCount in
+        self._callCount.withLock { callCount in
             callCount = .zero
         }
     }

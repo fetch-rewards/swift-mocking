@@ -18,7 +18,7 @@ public final class MockPropertySetter<Value> {
     public var implementation: Implementation = .unimplemented
 
     /// The number of times the setter has been called.
-    @Locked(.unchecked)
+    @Locked(.checked)
     public private(set) var callCount: Int = .zero
 
     /// All the values with which the setter has been invoked.
@@ -37,7 +37,7 @@ public final class MockPropertySetter<Value> {
     ///
     /// - Parameter value: The value with which the setter is being invoked.
     func set(_ value: Value) {
-        self._callCount.withLockUnchecked { callCount in
+        self._callCount.withLock { callCount in
             callCount += 1
         }
         self._invocations.withLockUnchecked { invocations in
@@ -53,7 +53,7 @@ public final class MockPropertySetter<Value> {
         self._implementation.withLockUnchecked { implementation in
             implementation = .unimplemented
         }
-        self._callCount.withLockUnchecked { callCount in
+        self._callCount.withLock { callCount in
             callCount = .zero
         }
         self._invocations.withLockUnchecked { invocations in

@@ -31,7 +31,7 @@ public final class MockVoidParameterizedThrowingMethod<
     public var implementation: Implementation = .unimplemented
 
     /// The number of times the method has been called.
-    @Locked(.unchecked)
+    @Locked(.checked)
     public private(set) var callCount: Int = .zero
 
     /// All the arguments with which the method has been invoked.
@@ -44,7 +44,7 @@ public final class MockVoidParameterizedThrowingMethod<
     }
 
     /// All the errors that have been thrown by the method.
-    @Locked(.unchecked)
+    @Locked(.checked)
     public private(set) var thrownErrors: [Error] = []
 
     /// The last error thrown by the method.
@@ -120,7 +120,7 @@ public final class MockVoidParameterizedThrowingMethod<
     /// - Parameter arguments: The arguments with which the method is being
     ///   invoked.
     private func recordInput(arguments: Arguments) {
-        self._callCount.withLockUnchecked { callCount in
+        self._callCount.withLock { callCount in
             callCount += 1
         }
         self._invocations.withLockUnchecked { invocations in
@@ -141,7 +141,7 @@ public final class MockVoidParameterizedThrowingMethod<
     ///
     /// - Parameter error: The error thrown by the method.
     private func recordOutput(error: Error) {
-        self._thrownErrors.withLockUnchecked { thrownErrors in
+        self._thrownErrors.withLock { thrownErrors in
             thrownErrors.append(error)
         }
     }
@@ -153,13 +153,13 @@ public final class MockVoidParameterizedThrowingMethod<
         self._implementation.withLockUnchecked { implementation in
             implementation = .unimplemented
         }
-        self._callCount.withLockUnchecked { callCount in
+        self._callCount.withLock { callCount in
             callCount = .zero
         }
         self._invocations.withLockUnchecked { invocations in
             invocations.removeAll()
         }
-        self._thrownErrors.withLockUnchecked { thrownErrors in
+        self._thrownErrors.withLock { thrownErrors in
             thrownErrors.removeAll()
         }
     }

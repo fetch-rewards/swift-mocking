@@ -18,7 +18,7 @@ public final class MockReturningNonParameterizedThrowingMethod<ReturnValue> {
     public var implementation: Implementation = .unimplemented
 
     /// The number of times the method has been called.
-    @Locked(.unchecked)
+    @Locked(.checked)
     public private(set) var callCount: Int = .zero
 
     /// All the values that have been returned by the method.
@@ -105,7 +105,7 @@ public final class MockReturningNonParameterizedThrowingMethod<ReturnValue> {
     /// - Returns: A value, if ``implementation-swift.property`` returns a
     ///   value.
     private func invoke() throws -> ReturnValue {
-        self._callCount.withLockUnchecked { callCount in
+        self._callCount.withLock { callCount in
             callCount += 1
         }
 
@@ -131,7 +131,7 @@ public final class MockReturningNonParameterizedThrowingMethod<ReturnValue> {
         self._implementation.withLockUnchecked { implementation in
             implementation = .unimplemented
         }
-        self._callCount.withLockUnchecked { callCount in
+        self._callCount.withLock { callCount in
             callCount = .zero
         }
         self._returnedValues.withLockUnchecked { returnedValues in

@@ -34,7 +34,7 @@ public final class MockReturningParameterizedAsyncThrowingMethod<
     public var implementation: Implementation = .unimplemented
 
     /// The number of times the method has been called.
-    @Locked(.unchecked)
+    @Locked(.checked)
     public private(set) var callCount: Int = .zero
 
     /// All the arguments with which the method has been invoked.
@@ -148,7 +148,7 @@ public final class MockReturningParameterizedAsyncThrowingMethod<
     /// - Parameter arguments: The arguments with which the method is being
     ///   invoked.
     private func recordInput(arguments: Arguments) {
-        self._callCount.withLockUnchecked { callCount in
+        self._callCount.withLock { callCount in
             callCount += 1
         }
         self._invocations.withLockUnchecked { invocations in
@@ -184,7 +184,7 @@ public final class MockReturningParameterizedAsyncThrowingMethod<
         self._implementation.withLockUnchecked { implementation in
             implementation = .unimplemented
         }
-        self._callCount.withLockUnchecked { callCount in
+        self._callCount.withLock { callCount in
             callCount = .zero
         }
         self._invocations.withLockUnchecked { invocations in

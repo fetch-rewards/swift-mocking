@@ -18,7 +18,7 @@ public final class MockPropertyAsyncThrowingGetter<Value> {
     public var implementation: Implementation = .unimplemented
 
     /// The number of times the getter has been called.
-    @Locked(.unchecked)
+    @Locked(.checked)
     public private(set) var callCount: Int = .zero
 
     /// All the values that have been returned by the getter.
@@ -58,7 +58,7 @@ public final class MockPropertyAsyncThrowingGetter<Value> {
     /// - Returns: A value, if ``implementation-swift.property`` returns a
     ///   value.
     func get() async throws -> Value {
-        self._callCount.withLockUnchecked { callCount in
+        self._callCount.withLock { callCount in
             callCount += 1
         }
 
@@ -84,7 +84,7 @@ public final class MockPropertyAsyncThrowingGetter<Value> {
         self._implementation.withLockUnchecked { implementation in
             implementation = .unimplemented
         }
-        self._callCount.withLockUnchecked { callCount in
+        self._callCount.withLock { callCount in
             callCount = .zero
         }
         self._returnedValues.withLockUnchecked { returnedValues in

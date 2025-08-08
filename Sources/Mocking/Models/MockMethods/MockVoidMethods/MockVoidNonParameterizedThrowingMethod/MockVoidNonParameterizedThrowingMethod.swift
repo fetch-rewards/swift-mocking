@@ -18,11 +18,11 @@ public final class MockVoidNonParameterizedThrowingMethod: Sendable {
     public var implementation: Implementation = .unimplemented
 
     /// The number of times the method has been called.
-    @Locked(.unchecked)
+    @Locked(.checked)
     public private(set) var callCount: Int = .zero
 
     /// All the errors that have been thrown by the method.
-    @Locked(.unchecked)
+    @Locked(.checked)
     public private(set) var thrownErrors: [any Error] = []
 
     /// The last error thrown by the method.
@@ -76,14 +76,14 @@ public final class MockVoidNonParameterizedThrowingMethod: Sendable {
     /// Records the invocation of the method and invokes
     /// ``implementation-swift.property``.
     private func invoke() throws {
-        self._callCount.withLockUnchecked { callCount in
+        self._callCount.withLock { callCount in
             callCount += 1
         }
 
         do {
             try self.implementation()
         } catch {
-            self._thrownErrors.withLockUnchecked { thrownErrors in
+            self._thrownErrors.withLock { thrownErrors in
                 thrownErrors.append(error)
             }
             throw error
@@ -97,10 +97,10 @@ public final class MockVoidNonParameterizedThrowingMethod: Sendable {
         self._implementation.withLockUnchecked { implementation in
             implementation = .unimplemented
         }
-        self._callCount.withLockUnchecked { callCount in
+        self._callCount.withLock { callCount in
             callCount = .zero
         }
-        self._thrownErrors.withLockUnchecked { thrownErrors in
+        self._thrownErrors.withLock { thrownErrors in
             thrownErrors.removeAll()
         }
     }
