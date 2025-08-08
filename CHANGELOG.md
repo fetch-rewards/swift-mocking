@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org).
 
+## 🚀 [Version 0.2.2](https://github.com/fetch-rewards/swift-mocking/releases/tag/0.2.2) - August 8, 2025 ([Full Changelog](https://github.com/fetch-rewards/swift-mocking/compare/0.2.1...0.2.2))
+
+### 🐛 Bug Fixes
+
+- Fix race conditions in mock methods and mock properties ([#122](https://github.com/fetch-rewards/swift-mocking/pull/122))
+
+### 🎨 Formatting
+
+- Update SwiftFormat rules to properly format decimal numbers ([#123](https://github.com/fetch-rewards/swift-mocking/pull/123))
+
+### 🧹 Chores
+
+- Update callCount and thrownErrors properties to use checked locks ([#127](https://github.com/fetch-rewards/swift-mocking/pull/127))
+
 ## 🚀 [Version 0.2.1](https://github.com/fetch-rewards/swift-mocking/releases/tag/0.2.1) - June 30, 2025 ([Full Changelog](https://github.com/fetch-rewards/swift-mocking/compare/0.2.0...0.2.1))
 
 ### 🐛 Bug Fixes
