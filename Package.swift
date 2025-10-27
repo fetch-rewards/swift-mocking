@@ -25,15 +25,15 @@ let package = Package(
     dependencies: [
         .package(
             url: "https://github.com/fetch-rewards/swift-locking.git",
-            exact: "0.2.0"
+            exact: "0.2.1"
         ),
         .package(
             url: "https://github.com/swiftlang/swift-syntax.git",
-            exact: "600.0.0" // Must match SwiftSyntaxSugar's swift-syntax version
+            from: "602.0.0" // Must match SwiftSyntaxSugar's swift-syntax version
         ),
         .package(
             url: "https://github.com/fetch-rewards/SwiftSyntaxSugar.git",
-            exact: "0.1.1" // Must match swift-locking's SwiftSyntaxSugar version
+            from: "0.1.2" // Must match swift-locking's SwiftSyntaxSugar version
         ),
     ],
     targets: [

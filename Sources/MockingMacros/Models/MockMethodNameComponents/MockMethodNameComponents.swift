@@ -228,6 +228,8 @@ extension MockMethodNameComponents {
             self.capitalizedDescription(of: type)
         case let .attributedType(type):
             self.capitalizedDescription(of: type)
+        case let .inlineArrayType(type):
+            self.capitalizedDescription(of: type)
         case let .classRestrictionType(type):
             self.capitalizedDescription(of: type.classKeyword)
         case let .compositionType(type):
@@ -296,6 +298,8 @@ extension MockMethodNameComponents {
                 result += specifier.arguments.reduce("") { result, argument in
                     result + self.capitalizedDescription(of: argument.parameter)
                 }
+            case let .nonisolatedTypeSpecifier(specifier):
+                result += self.capitalizedDescription(of: specifier)
             }
         }
         let baseTypeDescription = self.capitalizedDescription(of: type.baseType)
@@ -440,9 +444,19 @@ extension MockMethodNameComponents {
             return nameDescription + "Of" + genericArgumentsDescription
         }
 
-        return self.capitalizedDescription(
-            of: DictionaryTypeSyntax(key: key, value: value)
-        )
+        if
+            let keyType = Self.type(from: key),
+            let valueType = Self.type(from: value)
+        {
+            return self.capitalizedDescription(
+                of: DictionaryTypeSyntax(key: keyType, value: valueType)
+            )
+        }
+
+        let keyDescription = Self.capitalizedDescription(of: key)
+        let valueDescription = Self.capitalizedDescription(of: value)
+
+        return "DictionaryOf" + keyDescription + "To" + valueDescription
     }
 
     /// Returns a capitalized description of the provided `type`.
@@ -503,9 +517,20 @@ extension MockMethodNameComponents {
             return baseTypeDescription + nameDescription + "Of" + genericArgumentsDescription
         }
 
-        let dictionaryDescription = self.capitalizedDescription(
-            of: DictionaryTypeSyntax(key: key, value: value)
-        )
+        let dictionaryDescription: String
+
+        if
+            let keyType = Self.type(from: key),
+            let valueType = Self.type(from: value)
+        {
+            dictionaryDescription = self.capitalizedDescription(
+                of: DictionaryTypeSyntax(key: keyType, value: valueType)
+            )
+        } else {
+            let keyDescription = Self.capitalizedDescription(of: key)
+            let valueDescription = Self.capitalizedDescription(of: value)
+            dictionaryDescription = "DictionaryOf" + keyDescription + "To" + valueDescription
+        }
 
         return baseTypeDescription + dictionaryDescription
     }
@@ -692,5 +717,122 @@ extension MockMethodNameComponents {
         description += self.capitalizedDescription(of: tupleTypeElement.type)
 
         return description
+    }
+
+    /// Returns a capitalized description of the provided `type`.
+    ///
+    /// - Parameter type: The inline array type syntax to describe.
+    ///
+    /// - Returns: A capitalized description of the provided `type`.
+    private static func capitalizedDescription(
+        of type: InlineArrayTypeSyntax
+    ) -> String {
+        let countDescription = self.capitalizedDescription(of: type.count.argument)
+        let elementDescription = self.capitalizedDescription(of: type.element.argument)
+
+        return "InlineArrayOf" + countDescription + "Of" + elementDescription
+    }
+
+    /// Returns a capitalized description of the provided `argument`.
+    ///
+    /// - Parameter argument: The generic argument syntax to describe.
+    ///
+    /// - Returns: A capitalized description of the provided `argument`.
+    private static func capitalizedDescription(
+        of argument: GenericArgumentSyntax.Argument
+    ) -> String {
+        switch argument {
+        case let .type(type):
+            self.capitalizedDescription(of: type)
+        case let .expr(expr):
+            self.capitalizedDescription(of: expr)
+        }
+    }
+
+    /// Returns a capitalized description of the provided `expression`.
+    ///
+    /// - Parameter expression: The expression syntax to describe.
+    ///
+    /// - Returns: A capitalized description of the provided `expression`.
+    private static func capitalizedDescription(
+        of expression: ExprSyntax
+    ) -> String {
+        expression.trimmedDescription.withFirstCharacterCapitalized()
+    }
+
+    /// Returns a capitalized description of the provided `specifier`.
+    ///
+    /// - Parameter specifier: The nonisolated type specifier syntax to describe.
+    ///
+    /// - Returns: A capitalized description of the provided `specifier`.
+    private static func capitalizedDescription(
+        of specifier: NonisolatedTypeSpecifierSyntax
+    ) -> String {
+        var description = self.capitalizedDescription(of: specifier.nonisolatedKeyword)
+
+        if let argument = specifier.argument {
+            description += Self.capitalizedDescription(of: argument)
+        }
+
+        return description
+    }
+
+    /// Returns a capitalized description of the provided `argument`.
+    ///
+    /// - Parameter argument: The nonisolated specifier argument syntax to describe.
+    ///
+    /// - Returns: A capitalized description of the provided `argument`.
+    private static func capitalizedDescription(
+        of argument: NonisolatedSpecifierArgumentSyntax
+    ) -> String {
+        argument.trimmedDescription.withFirstCharacterCapitalized()
+    }
+
+    /// Returns a capitalized description of the provided `type`.
+    ///
+    /// - Parameter type: The same-type requirement's left type to describe.
+    ///
+    /// - Returns: A capitalized description of the provided `type`.
+    private static func capitalizedDescription(
+        of type: SameTypeRequirementSyntax.LeftType
+    ) -> String {
+        switch type {
+        case let .type(type):
+            self.capitalizedDescription(of: type)
+        case let .expr(expr):
+            self.capitalizedDescription(of: expr)
+        }
+    }
+
+    /// Returns a capitalized description of the provided `type`.
+    ///
+    /// - Parameter type: The same-type requirement's right type to describe.
+    ///
+    /// - Returns: A capitalized description of the provided `type`.
+    private static func capitalizedDescription(
+        of type: SameTypeRequirementSyntax.RightType
+    ) -> String {
+        switch type {
+        case let .type(type):
+            self.capitalizedDescription(of: type)
+        case let .expr(expr):
+            self.capitalizedDescription(of: expr)
+        }
+    }
+
+    /// Returns a `TypeSyntax` when the provided `argument` is a type argument.
+    ///
+    /// - Parameter argument: The generic argument from which to extract a type.
+    ///
+    /// - Returns: A `TypeSyntax` if the argument represents a type; otherwise, `nil`.
+    private static func type(
+        from argument: GenericArgumentSyntax.Argument
+    ) -> TypeSyntax? {
+        switch argument {
+        case let .type(type):
+            type
+        case .expr:
+            nil
+        }
     }
 }

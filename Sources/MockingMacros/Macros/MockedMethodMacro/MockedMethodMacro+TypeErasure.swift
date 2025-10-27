@@ -247,6 +247,15 @@ extension MockedMethodMacro {
                 ifTypeIsContainedIn: genericParameters,
                 typeConstrainedBy: genericWhereClause
             )
+        case var .inlineArrayType(type):
+            let (element, didTypeEraseElement) = self.syntax(
+                type.element,
+                ifTypeIsContainedIn: genericParameters,
+                typeConstrainedBy: genericWhereClause
+            )
+
+            type = type.with(\.element, element)
+            result = (newType: type, didTypeErase: didTypeEraseElement)
         case let .tupleType(type):
             result = self.syntax(
                 type,
@@ -456,9 +465,7 @@ extension MockedMethodMacro {
         ):
             let (newGenericArgumentClause, didTypeErase) = self.syntax(
                 genericArgumentClause,
-                withElementsInCollectionAt: \.arguments,
-                typeErasedAt: \.argument,
-                ifTypeIsContainedIn: genericParameters,
+                typeErasedIfElementsIn: genericParameters,
                 typeConstrainedBy: genericWhereClause
             )
             let newType = type.with(\.genericArgumentClause, newGenericArgumentClause)
@@ -470,13 +477,23 @@ extension MockedMethodMacro {
         ):
             let (newGenericArgumentClause, didTypeErase) = self.syntax(
                 genericArgumentClause,
-                withElementsInCollectionAt: \.arguments,
-                typeErasedAt: \.argument,
-                ifTypeIsContainedIn: genericParameters,
+                typeErasedIfElementsIn: genericParameters,
                 typeConstrainedBy: genericWhereClause
             ) { index in
                 index == .zero ? AnyHashable.self : Any.self
             }
+            let newType = type.with(\.genericArgumentClause, newGenericArgumentClause)
+
+            return (newType, didTypeErase)
+        case let .identifierType(type) where self.isIdentifierType(
+            type,
+            named: "InlineArray"
+        ):
+            let (newGenericArgumentClause, didTypeErase) = self.inlineArrayGenericArgumentClause(
+                genericArgumentClause,
+                typeErasingElementsIn: genericParameters,
+                typeConstrainedBy: genericWhereClause
+            )
             let newType = type.with(\.genericArgumentClause, newGenericArgumentClause)
 
             return (newType, didTypeErase)
@@ -487,9 +504,7 @@ extension MockedMethodMacro {
         ):
             let (newGenericArgumentClause, didTypeErase) = self.syntax(
                 genericArgumentClause,
-                withElementsInCollectionAt: \.arguments,
-                typeErasedAt: \.argument,
-                ifTypeIsContainedIn: genericParameters,
+                typeErasedIfElementsIn: genericParameters,
                 typeConstrainedBy: genericWhereClause
             )
             let newType = type.with(\.genericArgumentClause, newGenericArgumentClause)
@@ -502,9 +517,7 @@ extension MockedMethodMacro {
         ):
             let (newGenericArgumentClause, didTypeErase) = self.syntax(
                 genericArgumentClause,
-                withElementsInCollectionAt: \.arguments,
-                typeErasedAt: \.argument,
-                ifTypeIsContainedIn: genericParameters,
+                typeErasedIfElementsIn: genericParameters,
                 typeConstrainedBy: genericWhereClause
             ) { index in
                 index == .zero ? AnyHashable.self : Any.self
@@ -512,12 +525,23 @@ extension MockedMethodMacro {
             let newType = type.with(\.genericArgumentClause, newGenericArgumentClause)
 
             return (newType, didTypeErase)
+        case let .memberType(type) where self.isMemberType(
+            type,
+            named: "InlineArray",
+            withBaseTypeNamed: "Swift"
+        ):
+            let (newGenericArgumentClause, didTypeErase) = self.inlineArrayGenericArgumentClause(
+                genericArgumentClause,
+                typeErasingElementsIn: genericParameters,
+                typeConstrainedBy: genericWhereClause
+            )
+            let newType = type.with(\.genericArgumentClause, newGenericArgumentClause)
+
+            return (newType, didTypeErase)
         default:
             let (_, didTypeErase) = self.syntax(
                 genericArgumentClause,
-                withElementsInCollectionAt: \.arguments,
-                typeErasedAt: \.argument,
-                ifTypeIsContainedIn: genericParameters,
+                typeErasedIfElementsIn: genericParameters,
                 typeConstrainedBy: genericWhereClause
             )
 
@@ -529,6 +553,108 @@ extension MockedMethodMacro {
 
             return (newType, didTypeErase)
         }
+    }
+
+    private static func syntax(
+        _ argument: GenericArgumentSyntax,
+        ifTypeIsContainedIn genericParameters: GenericParameterListSyntax?,
+        typeConstrainedBy genericWhereClause: GenericWhereClauseSyntax?,
+        typeErasedType: (some Any).Type = Any.self
+    ) -> (GenericArgumentSyntax, Bool) {
+        guard case let .type(type) = argument.argument else {
+            return (argument, false)
+        }
+
+        let (erasedType, didTypeErase) = self.type(
+            type,
+            typeErasedIfNecessaryUsing: genericParameters,
+            typeConstrainedBy: genericWhereClause,
+            typeErasedType: typeErasedType
+        )
+
+        let newArgument = argument.with(
+            \.argument,
+            .type(TypeSyntax(erasedType))
+        )
+
+        return (newArgument, didTypeErase)
+    }
+
+    private static func syntax(
+        _ clause: GenericArgumentClauseSyntax,
+        typeErasedIfElementsIn genericParameters: GenericParameterListSyntax?,
+        typeConstrainedBy genericWhereClause: GenericWhereClauseSyntax?,
+        typeErasedType: (Int) -> Any.Type
+    ) -> (GenericArgumentClauseSyntax, Bool) {
+        var didTypeErase = false
+        var newArguments: [GenericArgumentSyntax] = []
+
+        for (index, argument) in clause.arguments.enumerated() {
+            let (newArgument, didTypeEraseArgument) = self.syntax(
+                argument,
+                ifTypeIsContainedIn: genericParameters,
+                typeConstrainedBy: genericWhereClause,
+                typeErasedType: typeErasedType(index)
+            )
+
+            newArguments.append(newArgument)
+            didTypeErase = didTypeErase || didTypeEraseArgument
+        }
+
+        let newClause = clause.with(
+            \.arguments,
+            GenericArgumentListSyntax(newArguments)
+        )
+
+        return (newClause, didTypeErase)
+    }
+
+    private static func syntax(
+        _ clause: GenericArgumentClauseSyntax,
+        typeErasedIfElementsIn genericParameters: GenericParameterListSyntax?,
+        typeConstrainedBy genericWhereClause: GenericWhereClauseSyntax?
+    ) -> (GenericArgumentClauseSyntax, Bool) {
+        self.syntax(
+            clause,
+            typeErasedIfElementsIn: genericParameters,
+            typeConstrainedBy: genericWhereClause
+        ) { _ in Any.self }
+    }
+
+    private static func inlineArrayGenericArgumentClause(
+        _ clause: GenericArgumentClauseSyntax,
+        typeErasingElementsIn genericParameters: GenericParameterListSyntax?,
+        typeConstrainedBy genericWhereClause: GenericWhereClauseSyntax?
+    ) -> (GenericArgumentClauseSyntax, Bool) {
+        guard !clause.arguments.isEmpty else {
+            return (clause, false)
+        }
+
+        var didTypeErase = false
+        var newArguments: [GenericArgumentSyntax] = []
+
+        for (index, argument) in clause.arguments.enumerated() {
+            if index == .zero {
+                newArguments.append(argument)
+                continue
+            }
+
+            let (newArgument, didTypeEraseArgument) = self.syntax(
+                argument,
+                ifTypeIsContainedIn: genericParameters,
+                typeConstrainedBy: genericWhereClause
+            )
+
+            newArguments.append(newArgument)
+            didTypeErase = didTypeErase || didTypeEraseArgument
+        }
+
+        let newClause = clause.with(
+            \.arguments,
+            GenericArgumentListSyntax(newArguments)
+        )
+
+        return (newClause, didTypeErase)
     }
 
     /// Returns a Boolean value indicating whether the provided identifier
