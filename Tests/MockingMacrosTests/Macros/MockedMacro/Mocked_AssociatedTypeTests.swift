@@ -26,7 +26,7 @@ struct Mocked_AssociatedTypeTests {
             """,
             generates: """
             #if SWIFT_MOCKING_ENABLED
-            @MockedMembers
+            \(mock.noOpDeclaration)@MockedMembers
             \(mock.modifiers)\
             class DependencyMock<A: Hashable, B: Identifiable>: Dependency {
             }
@@ -49,7 +49,7 @@ struct Mocked_AssociatedTypeTests {
             """,
             generates: """
             #if SWIFT_MOCKING_ENABLED
-            @MockedMembers
+            \(mock.noOpDeclaration)@MockedMembers
             \(mock.modifiers)\
             class DependencyMock<\
             A: Hashable & Identifiable, \
@@ -75,7 +75,7 @@ struct Mocked_AssociatedTypeTests {
             """,
             generates: """
             #if SWIFT_MOCKING_ENABLED
-            @MockedMembers
+            \(mock.noOpDeclaration)@MockedMembers
             \(mock.modifiers)\
             class DependencyMock<\
             A: Hashable & Identifiable, \
@@ -95,12 +95,12 @@ struct Mocked_AssociatedTypeTests {
         assertMocked(
             """
             \(interface.accessLevel) protocol Dependency {
-                associatedtype A: Sendable, Hashable & Identifiable 
+                associatedtype A: Sendable, Hashable & Identifiable
             }
             """,
             generates: """
             #if SWIFT_MOCKING_ENABLED
-            @MockedMembers
+            \(mock.noOpDeclaration)@MockedMembers
             \(mock.modifiers)\
             class DependencyMock<\
             A: Sendable & Hashable & Identifiable\
@@ -123,13 +123,13 @@ struct Mocked_AssociatedTypeTests {
             \(interface.accessLevel) protocol Dependency<A> where A: Hashable {
                 associatedtype A: Comparable
                 associatedtype B: BidirectionalCollection \
-                where B.Element: Equatable, B.Element: Identifiable
+            where B.Element: Equatable, B.Element: Identifiable
                 associatedtype C: RandomAccessCollection where C.Element == String
             }
             """,
             generates: """
             #if SWIFT_MOCKING_ENABLED
-            @MockedMembers
+            \(mock.noOpDeclaration)@MockedMembers
             \(mock.modifiers)\
             class DependencyMock<\
             A: Comparable, \

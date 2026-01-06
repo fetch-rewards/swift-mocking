@@ -24,7 +24,7 @@ struct Mocked_CompilationConditionTests {
             compilationCondition: nil,
             generates: """
             #if SWIFT_MOCKING_ENABLED
-            @MockedMembers
+            \(mock.noOpDeclaration)@MockedMembers
             \(mock.modifiers)\
             class DependencyMock: Dependency {
             }
@@ -44,7 +44,7 @@ struct Mocked_CompilationConditionTests {
             """,
             compilationCondition: ".none",
             generates: """
-            @MockedMembers
+            \(mock.noOpDeclarationUnwrapped)@MockedMembers
             \(mock.modifiers)\
             class DependencyMock: Dependency {
             }
@@ -64,7 +64,7 @@ struct Mocked_CompilationConditionTests {
             compilationCondition: ".debug",
             generates: """
             #if DEBUG
-            @MockedMembers
+            \(mock.noOpDeclaration)@MockedMembers
             \(mock.modifiers)\
             class DependencyMock: Dependency {
             }
@@ -85,7 +85,7 @@ struct Mocked_CompilationConditionTests {
             compilationCondition: ".swiftMockingEnabled",
             generates: """
             #if SWIFT_MOCKING_ENABLED
-            @MockedMembers
+            \(mock.noOpDeclaration)@MockedMembers
             \(mock.modifiers)\
             class DependencyMock: Dependency {
             }
@@ -106,7 +106,7 @@ struct Mocked_CompilationConditionTests {
             compilationCondition: #".custom("!RELEASE")"#,
             generates: """
             #if !RELEASE
-            @MockedMembers
+            \(mock.noOpDeclaration)@MockedMembers
             \(mock.modifiers)\
             class DependencyMock: Dependency {
             }
@@ -127,7 +127,7 @@ struct Mocked_CompilationConditionTests {
             compilationCondition: #""!RELEASE""#,
             generates: """
             #if !RELEASE
-            @MockedMembers
+            \(mock.noOpDeclaration)@MockedMembers
             \(mock.modifiers)\
             class DependencyMock: Dependency {
             }

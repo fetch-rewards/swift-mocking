@@ -23,7 +23,7 @@ struct Mocked_AccessLevelTests {
             """,
             generates: """
             #if SWIFT_MOCKING_ENABLED
-            @MockedMembers
+            \(mock.noOpDeclaration)@MockedMembers
             \(mock.modifiers)class DependencyMock: Dependency {
             }
             #endif

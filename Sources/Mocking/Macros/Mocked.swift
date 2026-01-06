@@ -21,7 +21,7 @@
 ///     `#if` compiler directive used to wrap the generated mock.
 ///   - sendableConformance: The `Sendable` conformance to apply to
 ///     the generated mock.
-@attached(peer, names: suffixed(Mock))
+@attached(peer, names: suffixed(Mock), prefixed(_noOp))
 public macro Mocked(
     compilationCondition: MockCompilationCondition = .swiftMockingEnabled,
     sendableConformance: MockSendableConformance = .checked

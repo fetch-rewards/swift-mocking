@@ -25,7 +25,7 @@ struct Mocked_SendableConformanceTests {
             sendableConformance: nil,
             generates: """
             #if SWIFT_MOCKING_ENABLED
-            @MockedMembers
+            \(mock.noOpDeclaration)@MockedMembers
             \(mock.modifiers)\
             class DependencyMock: Dependency {
             }
@@ -49,7 +49,7 @@ struct Mocked_SendableConformanceTests {
             sendableConformance: ".checked",
             generates: """
             #if SWIFT_MOCKING_ENABLED
-            @MockedMembers
+            \(mock.noOpDeclaration)@MockedMembers
             \(mock.modifiers)\
             class DependencyMock: Dependency {
             }
@@ -73,7 +73,7 @@ struct Mocked_SendableConformanceTests {
             sendableConformance: ".unchecked",
             generates: """
             #if SWIFT_MOCKING_ENABLED
-            @MockedMembers
+            \(mock.noOpDeclaration)@MockedMembers
             \(mock.modifiers)\
             class DependencyMock: @unchecked Sendable, Dependency {
             }
@@ -97,7 +97,7 @@ struct Mocked_SendableConformanceTests {
             sendableConformance: "MockSendableConformance.unchecked",
             generates: """
             #if SWIFT_MOCKING_ENABLED
-            @MockedMembers
+            \(mock.noOpDeclaration)@MockedMembers
             \(mock.modifiers)\
             class DependencyMock: @unchecked Sendable, Dependency {
             }

@@ -23,6 +23,43 @@ public struct MockedMacro: PeerMacro {
         }
 
         let macroArguments = MacroArguments(node: node)
+        let accessLevel = protocolDeclaration.minimumConformingAccessLevel
+
+        // Only generate the _noOp variable for package access level to work around
+        // the "package import was not used in package declarations" warning
+        let noOpDeclaration: DeclSyntax? = if accessLevel == .package {
+            DeclSyntax(
+                VariableDeclSyntax(
+                    modifiers: DeclModifierListSyntax {
+                        accessLevel.modifier
+                    },
+                    bindingSpecifier: .keyword(.let),
+                    bindings: PatternBindingListSyntax {
+                        PatternBindingSyntax(
+                            pattern: IdentifierPatternSyntax(
+                                identifier: "_noOp\(protocolDeclaration.name.trimmed)"
+                            ),
+                            typeAnnotation: TypeAnnotationSyntax(
+                                type: MetatypeTypeSyntax(
+                                    baseType: IdentifierTypeSyntax(name: "_MockingModule"),
+                                    metatypeSpecifier: .keyword(.Type)
+                                )
+                            ),
+                            initializer: InitializerClauseSyntax(
+                                value: MemberAccessExprSyntax(
+                                    base: DeclReferenceExprSyntax(baseName: "_MockingModule"),
+                                    period: .periodToken(),
+                                    name: "self"
+                                )
+                            )
+                        )
+                    }
+                )
+            )
+        } else {
+            nil
+        }
+
         let mockDeclaration = DeclSyntax(
             ClassDeclSyntax(
                 attributes: AttributeListSyntax {
@@ -52,7 +89,11 @@ public struct MockedMacro: PeerMacro {
         )
 
         guard let compilationCondition = macroArguments.compilationCondition.rawValue else {
-            return [mockDeclaration]
+            if let noOpDeclaration {
+                return [noOpDeclaration, mockDeclaration]
+            } else {
+                return [mockDeclaration]
+            }
         }
 
         let ifConfigDeclaration = IfConfigDeclSyntax(
@@ -64,6 +105,9 @@ public struct MockedMacro: PeerMacro {
                     ),
                     elements: .statements(
                         CodeBlockItemListSyntax {
+                            if let noOpDeclaration {
+                                CodeBlockItemSyntax(item: .decl(noOpDeclaration))
+                            }
                             CodeBlockItemSyntax(item: .decl(mockDeclaration))
                         }
                     )

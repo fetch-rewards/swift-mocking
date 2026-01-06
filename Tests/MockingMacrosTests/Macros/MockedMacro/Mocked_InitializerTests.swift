@@ -23,7 +23,7 @@ struct Mocked_InitializerTests {
             """,
             generates: """
             #if SWIFT_MOCKING_ENABLED
-            @MockedMembers
+            \(mock.noOpDeclaration)@MockedMembers
             \(mock.modifiers)class DependencyMock: Dependency {
             }
             #endif
@@ -48,7 +48,7 @@ struct Mocked_InitializerTests {
             """,
             generates: """
             #if SWIFT_MOCKING_ENABLED
-            @MockedMembers
+            \(mock.noOpDeclaration)@MockedMembers
             \(mock.modifiers)class DependencyMock: Dependency {
                 \(mock.memberModifiers)init(parameter: Int) {
                 }
