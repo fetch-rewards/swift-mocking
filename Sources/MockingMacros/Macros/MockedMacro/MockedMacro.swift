@@ -121,7 +121,8 @@ extension MockedMacro {
     /// generated from the associated types defined by the provided protocol.
     ///
     /// The clause supports associated types with comma-separated constraints,
-    /// composition (`&`), or a combination of both.
+    /// composition (`&`), or a combination of both. Associated types inside
+    /// `#if` blocks are also extracted.
     ///
     /// ```swift
     /// @Mocked
@@ -140,16 +141,25 @@ extension MockedMacro {
         from protocolDeclaration: ProtocolDeclSyntax
     ) -> GenericParameterClauseSyntax? {
         let memberBlock = protocolDeclaration.memberBlock
-        let associatedTypeDeclarations = memberBlock.memberDeclarations(
-            ofType: AssociatedTypeDeclSyntax.self
-        )
+        let associatedTypeDeclarations = self.collectAssociatedTypes(from: memberBlock)
 
         guard !associatedTypeDeclarations.isEmpty else {
             return nil
         }
 
+        // Deduplicate by name (same associated type may appear in multiple #if branches)
+        var seenNames: Set<String> = []
+        let uniqueAssociatedTypes = associatedTypeDeclarations.filter { decl in
+            let name = decl.name.text
+            if seenNames.contains(name) {
+                return false
+            }
+            seenNames.insert(name)
+            return true
+        }
+
         return GenericParameterClauseSyntax {
-            for associatedTypeDeclaration in associatedTypeDeclarations {
+            for associatedTypeDeclaration in uniqueAssociatedTypes {
                 let genericParameterName = associatedTypeDeclaration.name.trimmed
 
                 if let inheritanceClause = associatedTypeDeclaration.inheritanceClause {
@@ -181,6 +191,55 @@ extension MockedMacro {
                 }
             }
         }
+    }
+
+    /// Collects all associated type declarations from a member block, including
+    /// those inside `#if` blocks.
+    ///
+    /// - Parameter memberBlock: The member block to search.
+    /// - Returns: An array of associated type declarations.
+    private static func collectAssociatedTypes(
+        from memberBlock: MemberBlockSyntax
+    ) -> [AssociatedTypeDeclSyntax] {
+        var associatedTypes: [AssociatedTypeDeclSyntax] = []
+
+        for member in memberBlock.members {
+            if let associatedType = member.decl.as(AssociatedTypeDeclSyntax.self) {
+                associatedTypes.append(associatedType)
+            } else if let ifConfigDecl = member.decl.as(IfConfigDeclSyntax.self) {
+                associatedTypes.append(contentsOf: self.collectAssociatedTypes(from: ifConfigDecl))
+            }
+        }
+
+        return associatedTypes
+    }
+
+    /// Collects all associated type declarations from an `IfConfigDeclSyntax`,
+    /// searching all branches.
+    ///
+    /// - Parameter ifConfigDecl: The `#if` declaration to search.
+    /// - Returns: An array of associated type declarations.
+    private static func collectAssociatedTypes(
+        from ifConfigDecl: IfConfigDeclSyntax
+    ) -> [AssociatedTypeDeclSyntax] {
+        var associatedTypes: [AssociatedTypeDeclSyntax] = []
+
+        for clause in ifConfigDecl.clauses {
+            guard case let .decls(members) = clause.elements else {
+                continue
+            }
+
+            for member in members {
+                if let associatedType = member.decl.as(AssociatedTypeDeclSyntax.self) {
+                    associatedTypes.append(associatedType)
+                } else if let nestedIfConfig = member.decl.as(IfConfigDeclSyntax.self) {
+                    associatedTypes
+                        .append(contentsOf: self.collectAssociatedTypes(from: nestedIfConfig))
+                }
+            }
+        }
+
+        return associatedTypes
     }
 
     // MARK: Inheritance Clause
@@ -265,6 +324,17 @@ extension MockedMacro {
         let methodDeclarations = memberBlock.memberDeclarations(
             ofType: FunctionDeclSyntax.self
         )
+        let ifConfigDeclarations = memberBlock.memberDeclarations(
+            ofType: IfConfigDeclSyntax.self
+        )
+
+        let mockedIfConfigDeclarations: [IfConfigDeclSyntax] = try ifConfigDeclarations.compactMap {
+            try self.mockIfConfigDeclaration(
+                from: $0,
+                with: accessLevel,
+                in: protocolDeclaration
+            )
+        }
 
         return try MemberBlockSyntax {
             for initializerDeclaration in initializerDeclarations {
@@ -290,6 +360,10 @@ extension MockedMacro {
                     for: methodDeclaration,
                     in: protocolDeclaration
                 )
+            }
+
+            for mockedIfConfig in mockedIfConfigDeclarations {
+                mockedIfConfig
             }
         }
     }
@@ -528,5 +602,116 @@ extension MockedMacro {
                 modifier.trimmed
             }
         }
+    }
+
+    // MARK: Conditional Compilation
+
+    /// Returns an `IfConfigDeclSyntax` containing mocked member declarations,
+    /// preserving the conditional compilation structure from the protocol.
+    ///
+    /// - Parameters:
+    ///   - ifConfigDecl: The `IfConfigDeclSyntax` from the protocol containing
+    ///     member declarations.
+    ///   - accessLevel: The access level to apply to the mocked declarations.
+    ///   - protocolDeclaration: The protocol being mocked.
+    /// - Returns: An `IfConfigDeclSyntax` with mocked member declarations,
+    ///   or `nil` if all clauses are empty (e.g., only contained associated types).
+    private static func mockIfConfigDeclaration(
+        from ifConfigDecl: IfConfigDeclSyntax,
+        with accessLevel: AccessLevelSyntax,
+        in protocolDeclaration: ProtocolDeclSyntax
+    ) throws -> IfConfigDeclSyntax? {
+        let transformedClauses = try IfConfigClauseListSyntax {
+            for clause in ifConfigDecl.clauses {
+                try self.mockIfConfigClause(
+                    from: clause,
+                    with: accessLevel,
+                    in: protocolDeclaration
+                )
+            }
+        }
+
+        let allClausesEmpty = transformedClauses.allSatisfy { clause in
+            guard case let .decls(members) = clause.elements else {
+                return true
+            }
+            return members.isEmpty
+        }
+
+        guard !allClausesEmpty else {
+            return nil
+        }
+
+        return IfConfigDeclSyntax(
+            clauses: transformedClauses,
+            poundEndif: ifConfigDecl.poundEndif.trimmed
+        )
+    }
+
+    /// Returns a transformed `IfConfigClauseSyntax` with mocked member declarations.
+    ///
+    /// Associated types are skipped since they become generic parameters on the
+    /// mock class rather than member declarations.
+    ///
+    /// - Parameters:
+    ///   - clause: The clause to transform.
+    ///   - accessLevel: The access level to apply to the mocked declarations.
+    ///   - protocolDeclaration: The protocol being mocked.
+    /// - Returns: A transformed `IfConfigClauseSyntax`.
+    private static func mockIfConfigClause(
+        from clause: IfConfigClauseSyntax,
+        with accessLevel: AccessLevelSyntax,
+        in protocolDeclaration: ProtocolDeclSyntax
+    ) throws -> IfConfigClauseSyntax {
+        guard case let .decls(memberBlockItems) = clause.elements else {
+            return clause
+        }
+
+        let transformedMembers = try MemberBlockItemListSyntax {
+            for member in memberBlockItems {
+                if let initializerDecl = member.decl.as(InitializerDeclSyntax.self) {
+                    MemberBlockItemSyntax(
+                        decl: try self.mockInitializerConformanceDeclaration(
+                            with: accessLevel,
+                            from: initializerDecl
+                        )
+                    )
+                } else if let propertyDecl = member.decl.as(VariableDeclSyntax.self) {
+                    for binding in propertyDecl.bindings {
+                        MemberBlockItemSyntax(
+                            decl: try self.mockPropertyConformanceDeclaration(
+                                with: accessLevel,
+                                for: binding,
+                                from: propertyDecl
+                            )
+                        )
+                    }
+                } else if let methodDecl = member.decl.as(FunctionDeclSyntax.self) {
+                    MemberBlockItemSyntax(
+                        decl: try self.mockMethodConformanceDeclaration(
+                            with: accessLevel,
+                            for: methodDecl,
+                            in: protocolDeclaration
+                        )
+                    )
+                } else if let nestedIfConfig = member.decl.as(IfConfigDeclSyntax.self) {
+                    if let mockedIfConfig = try self.mockIfConfigDeclaration(
+                        from: nestedIfConfig,
+                        with: accessLevel,
+                        in: protocolDeclaration
+                    ) {
+                        MemberBlockItemSyntax(decl: mockedIfConfig)
+                    }
+                }
+                // AssociatedTypeDeclSyntax is intentionally skipped here since
+                // associated types become generic parameters on the mock class.
+            }
+        }
+
+        return IfConfigClauseSyntax(
+            poundKeyword: clause.poundKeyword.trimmed,
+            condition: clause.condition?.trimmed,
+            elements: .decls(transformedMembers)
+        )
     }
 }
