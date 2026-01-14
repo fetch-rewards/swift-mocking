@@ -230,5 +230,69 @@ struct Mocked_IfConfigDeclTests {
             """
         )
     }
+
+    // MARK: OR Condition Tests
+
+    @Test(arguments: mockedTestConfigurations)
+    func orCondition(
+        interface: InterfaceConfiguration,
+        mock: MockConfiguration
+    ) {
+        assertMocked(
+            """
+            \(interface.accessLevel) protocol Dependency {
+                func commonMethod()
+                #if DEBUG || TESTFLIGHT
+                func debugOrTestFlightMethod()
+                #endif
+            }
+            """,
+            generates: """
+            #if SWIFT_MOCKING_ENABLED
+            @MockedMembers
+            \(mock.modifiers)class DependencyMock: Dependency {
+                \(mock.memberModifiers)func commonMethod()
+                #if DEBUG || TESTFLIGHT
+                \(mock.memberModifiers)func debugOrTestFlightMethod()
+                #endif
+            }
+            #endif
+            """
+        )
+    }
+
+    // MARK: Nested #if Conditional Tests
+
+    @Test(arguments: mockedTestConfigurations)
+    func nestedIfConditionals(
+        interface: InterfaceConfiguration,
+        mock: MockConfiguration
+    ) {
+        assertMocked(
+            """
+            \(interface.accessLevel) protocol Dependency {
+                #if DEBUG
+                func debugMethod()
+                #if os(iOS)
+                func debugiOSOnlyMethod()
+                #endif
+                #endif
+            }
+            """,
+            generates: """
+            #if SWIFT_MOCKING_ENABLED
+            @MockedMembers
+            \(mock.modifiers)class DependencyMock: Dependency {
+                #if DEBUG
+                \(mock.memberModifiers)func debugMethod()
+                #if os(iOS)
+                \(mock.memberModifiers)func debugiOSOnlyMethod()
+                #endif
+                #endif
+            }
+            #endif
+            """
+        )
+    }
 }
 #endif

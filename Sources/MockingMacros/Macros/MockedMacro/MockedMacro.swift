@@ -328,14 +328,6 @@ extension MockedMacro {
             ofType: IfConfigDeclSyntax.self
         )
 
-        let mockedIfConfigDeclarations: [IfConfigDeclSyntax] = try ifConfigDeclarations.compactMap {
-            try self.mockIfConfigDeclaration(
-                from: $0,
-                with: accessLevel,
-                in: protocolDeclaration
-            )
-        }
-
         return try MemberBlockSyntax {
             for initializerDeclaration in initializerDeclarations {
                 try self.mockInitializerConformanceDeclaration(
@@ -362,8 +354,14 @@ extension MockedMacro {
                 )
             }
 
-            for mockedIfConfig in mockedIfConfigDeclarations {
-                mockedIfConfig
+            for ifConfigDeclaration in ifConfigDeclarations {
+                if let mockedIfConfig = try self.mockIfConfigDeclaration(
+                    from: ifConfigDeclaration,
+                    with: accessLevel,
+                    in: protocolDeclaration
+                ) {
+                    mockedIfConfig
+                }
             }
         }
     }
@@ -703,7 +701,7 @@ extension MockedMacro {
                         MemberBlockItemSyntax(decl: mockedIfConfig)
                     }
                 }
-                // AssociatedTypeDeclSyntax is intentionally skipped here since
+                // AssociatedTypeDeclSyntax is intentionally skipped since
                 // associated types become generic parameters on the mock class.
             }
         }
