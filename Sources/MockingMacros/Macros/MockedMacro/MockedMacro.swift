@@ -314,53 +314,64 @@ extension MockedMacro {
         from protocolDeclaration: ProtocolDeclSyntax
     ) throws -> MemberBlockSyntax {
         let accessLevel = protocolDeclaration.minimumConformingAccessLevel
-        let memberBlock = protocolDeclaration.memberBlock
-        let initializerDeclarations = memberBlock.memberDeclarations(
-            ofType: InitializerDeclSyntax.self
+        let transformedMembers = try self.mockMemberBlockItems(
+            from: protocolDeclaration.memberBlock.members,
+            with: accessLevel,
+            in: protocolDeclaration
         )
-        let propertyDeclarations = memberBlock.memberDeclarations(
-            ofType: VariableDeclSyntax.self
-        )
-        let methodDeclarations = memberBlock.memberDeclarations(
-            ofType: FunctionDeclSyntax.self
-        )
-        let ifConfigDeclarations = memberBlock.memberDeclarations(
-            ofType: IfConfigDeclSyntax.self
-        )
+        return MemberBlockSyntax(members: transformedMembers)
+    }
 
-        return try MemberBlockSyntax {
-            for initializerDeclaration in initializerDeclarations {
-                try self.mockInitializerConformanceDeclaration(
-                    with: accessLevel,
-                    from: initializerDeclaration
-                )
-            }
-
-            for propertyDeclaration in propertyDeclarations {
-                for binding in propertyDeclaration.bindings {
-                    try self.mockPropertyConformanceDeclaration(
-                        with: accessLevel,
-                        for: binding,
-                        from: propertyDeclaration
+    /// Transforms member block items into mocked declarations.
+    ///
+    /// Associated types are skipped since they become generic parameters on the
+    /// mock class rather than member declarations.
+    ///
+    /// - Parameters:
+    ///   - members: The member block items to transform.
+    ///   - accessLevel: The access level to apply to the mocked declarations.
+    ///   - protocolDeclaration: The protocol being mocked.
+    /// - Returns: The transformed member block items.
+    private static func mockMemberBlockItems(
+        from members: MemberBlockItemListSyntax,
+        with accessLevel: AccessLevelSyntax,
+        in protocolDeclaration: ProtocolDeclSyntax
+    ) throws -> MemberBlockItemListSyntax {
+        try MemberBlockItemListSyntax {
+            for member in members {
+                if let initializerDecl = member.decl.as(InitializerDeclSyntax.self) {
+                    MemberBlockItemSyntax(
+                        decl: try self.mockInitializerConformanceDeclaration(
+                            with: accessLevel,
+                            from: initializerDecl
+                        )
                     )
-                }
-            }
-
-            for methodDeclaration in methodDeclarations {
-                try self.mockMethodConformanceDeclaration(
-                    with: accessLevel,
-                    for: methodDeclaration,
-                    in: protocolDeclaration
-                )
-            }
-
-            for ifConfigDeclaration in ifConfigDeclarations {
-                if let mockedIfConfig = try self.mockIfConfigDeclaration(
-                    from: ifConfigDeclaration,
-                    with: accessLevel,
-                    in: protocolDeclaration
-                ) {
-                    mockedIfConfig
+                } else if let propertyDecl = member.decl.as(VariableDeclSyntax.self) {
+                    for binding in propertyDecl.bindings {
+                        MemberBlockItemSyntax(
+                            decl: try self.mockPropertyConformanceDeclaration(
+                                with: accessLevel,
+                                for: binding,
+                                from: propertyDecl
+                            )
+                        )
+                    }
+                } else if let methodDecl = member.decl.as(FunctionDeclSyntax.self) {
+                    MemberBlockItemSyntax(
+                        decl: try self.mockMethodConformanceDeclaration(
+                            with: accessLevel,
+                            for: methodDecl,
+                            in: protocolDeclaration
+                        )
+                    )
+                } else if let ifConfigDecl = member.decl.as(IfConfigDeclSyntax.self) {
+                    if let mockedIfConfig = try self.mockIfConfigDeclaration(
+                        from: ifConfigDecl,
+                        with: accessLevel,
+                        in: protocolDeclaration
+                    ) {
+                        MemberBlockItemSyntax(decl: mockedIfConfig)
+                    }
                 }
             }
         }
@@ -619,15 +630,25 @@ extension MockedMacro {
         with accessLevel: AccessLevelSyntax,
         in protocolDeclaration: ProtocolDeclSyntax
     ) throws -> IfConfigDeclSyntax? {
-        let transformedClauses = try IfConfigClauseListSyntax {
-            for clause in ifConfigDecl.clauses {
-                try self.mockIfConfigClause(
-                    from: clause,
+        let transformedClauses = try IfConfigClauseListSyntax(
+            ifConfigDecl.clauses.map { clause in
+                guard case let .decls(memberBlockItems) = clause.elements else {
+                    return clause
+                }
+
+                let transformedMembers = try self.mockMemberBlockItems(
+                    from: memberBlockItems,
                     with: accessLevel,
                     in: protocolDeclaration
                 )
+
+                return IfConfigClauseSyntax(
+                    poundKeyword: clause.poundKeyword.trimmed,
+                    condition: clause.condition?.trimmed,
+                    elements: .decls(transformedMembers)
+                )
             }
-        }
+        )
 
         let allClausesEmpty = transformedClauses.allSatisfy { clause in
             guard case let .decls(members) = clause.elements else {
@@ -643,73 +664,6 @@ extension MockedMacro {
         return IfConfigDeclSyntax(
             clauses: transformedClauses,
             poundEndif: ifConfigDecl.poundEndif.trimmed
-        )
-    }
-
-    /// Returns a transformed `IfConfigClauseSyntax` with mocked member declarations.
-    ///
-    /// Associated types are skipped since they become generic parameters on the
-    /// mock class rather than member declarations.
-    ///
-    /// - Parameters:
-    ///   - clause: The clause to transform.
-    ///   - accessLevel: The access level to apply to the mocked declarations.
-    ///   - protocolDeclaration: The protocol being mocked.
-    /// - Returns: A transformed `IfConfigClauseSyntax`.
-    private static func mockIfConfigClause(
-        from clause: IfConfigClauseSyntax,
-        with accessLevel: AccessLevelSyntax,
-        in protocolDeclaration: ProtocolDeclSyntax
-    ) throws -> IfConfigClauseSyntax {
-        guard case let .decls(memberBlockItems) = clause.elements else {
-            return clause
-        }
-
-        let transformedMembers = try MemberBlockItemListSyntax {
-            for member in memberBlockItems {
-                if let initializerDecl = member.decl.as(InitializerDeclSyntax.self) {
-                    MemberBlockItemSyntax(
-                        decl: try self.mockInitializerConformanceDeclaration(
-                            with: accessLevel,
-                            from: initializerDecl
-                        )
-                    )
-                } else if let propertyDecl = member.decl.as(VariableDeclSyntax.self) {
-                    for binding in propertyDecl.bindings {
-                        MemberBlockItemSyntax(
-                            decl: try self.mockPropertyConformanceDeclaration(
-                                with: accessLevel,
-                                for: binding,
-                                from: propertyDecl
-                            )
-                        )
-                    }
-                } else if let methodDecl = member.decl.as(FunctionDeclSyntax.self) {
-                    MemberBlockItemSyntax(
-                        decl: try self.mockMethodConformanceDeclaration(
-                            with: accessLevel,
-                            for: methodDecl,
-                            in: protocolDeclaration
-                        )
-                    )
-                } else if let nestedIfConfig = member.decl.as(IfConfigDeclSyntax.self) {
-                    if let mockedIfConfig = try self.mockIfConfigDeclaration(
-                        from: nestedIfConfig,
-                        with: accessLevel,
-                        in: protocolDeclaration
-                    ) {
-                        MemberBlockItemSyntax(decl: mockedIfConfig)
-                    }
-                }
-                // AssociatedTypeDeclSyntax is intentionally skipped since
-                // associated types become generic parameters on the mock class.
-            }
-        }
-
-        return IfConfigClauseSyntax(
-            poundKeyword: clause.poundKeyword.trimmed,
-            condition: clause.condition?.trimmed,
-            elements: .decls(transformedMembers)
         )
     }
 }
