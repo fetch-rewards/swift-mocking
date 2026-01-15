@@ -1,7 +1,7 @@
 //
 //  MockableProperty.swift
 //
-//  Copyright © 2025 Fetch.
+//  Copyright © 2026 Fetch.
 //
 
 /// A macro that marks a property as being mockable.

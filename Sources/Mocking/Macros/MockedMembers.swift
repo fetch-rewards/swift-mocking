@@ -1,7 +1,7 @@
 //
 //  MockedMembers.swift
 //
-//  Copyright © 2025 Fetch.
+//  Copyright © 2026 Fetch.
 //
 
 /// A macro that adds the `@_MockedProperty` macro to all property declarations

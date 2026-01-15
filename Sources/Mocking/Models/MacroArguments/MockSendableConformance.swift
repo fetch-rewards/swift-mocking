@@ -1,7 +1,7 @@
 //
 //  MockSendableConformance.swift
 //
-//  Copyright © 2025 Fetch.
+//  Copyright © 2026 Fetch.
 //
 
 /// A `Sendable` conformance that can be applied to a mock declaration.

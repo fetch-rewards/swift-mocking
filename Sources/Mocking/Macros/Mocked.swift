@@ -1,7 +1,7 @@
 //
 //  Mocked.swift
 //
-//  Copyright © 2025 Fetch.
+//  Copyright © 2026 Fetch.
 //
 
 /// A macro that produces a mock when attached to a protocol.

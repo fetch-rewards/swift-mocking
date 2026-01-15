@@ -1,7 +1,7 @@
 //
 //  MockReturningParameterizedAsyncMethodImplementation.swift
 //
-//  Copyright © 2025 Fetch.
+//  Copyright © 2026 Fetch.
 //
 
 /// An implementation for a returning, parameterized, async mock method.
