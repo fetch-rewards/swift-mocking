@@ -65,7 +65,7 @@ extension MockedMethodMacro: BodyMacro {
 
             for parameter in methodParameters {
                 let (_, didTypeEraseParameter) = self.type(
-                    parameter.type,
+                    from: parameter,
                     typeErasedIfNecessaryUsing: methodGenericParameters,
                     typeConstrainedBy: methodGenericWhereClause
                 )
@@ -93,9 +93,12 @@ extension MockedMethodMacro: BodyMacro {
                 recordInputClosureCallArguments.append(recordInputClosureCallArgument)
                 invokeClosureCallArguments.append(invokeClosureCallArgument)
 
-                if self.isConsumingParameter(parameter) {
+                let isAutoClosure = self.isAutoClosure(parameter)
+
+                if isAutoClosure || self.isConsumingParameter(parameter) {
                     let parameterVariableDeclaration = self.parameterVariableDeclaration(
-                        parameterName: parameterName
+                        parameterName: parameterName,
+                        isAutoClosure: isAutoClosure
                     )
 
                     body.append(self.codeBlockItem(parameterVariableDeclaration))
@@ -225,21 +228,30 @@ extension MockedMethodMacro: BodyMacro {
     /// Variable declarations are created for `consuming` parameters so that the
     /// parameter is only consumed once.
     ///
-    /// - Parameter parameterName: The name of the parameter for which to create
-    ///   a variable declaration.
+    /// - Parameters:
+    ///   - parameterName: The name of the parameter for which to create a
+    ///     variable declaration.
+    ///   - isAutoClosure: A Boolean value indicating whether the parameter is
+    ///     an autoclosure.
     /// - Returns: A variable declaration for the parameter with the provided
     ///   `parameterName`.
     private static func parameterVariableDeclaration(
-        parameterName: TokenSyntax
+        parameterName: TokenSyntax,
+        isAutoClosure: Bool
     ) -> VariableDeclSyntax {
-        VariableDeclSyntax(
+        let parameterReference = DeclReferenceExprSyntax(baseName: parameterName)
+        let initializerClauseValue: any ExprSyntaxProtocol = if isAutoClosure {
+            FunctionCallExprSyntax(callee: parameterReference)
+        } else {
+            parameterReference
+        }
+
+        return VariableDeclSyntax(
             .let,
             name: PatternSyntax(
                 IdentifierPatternSyntax(identifier: parameterName)
             ),
-            initializer: InitializerClauseSyntax(
-                value: DeclReferenceExprSyntax(baseName: parameterName)
-            )
+            initializer: InitializerClauseSyntax(value: initializerClauseValue)
         )
     }
 
@@ -546,6 +558,33 @@ extension MockedMethodMacro: BodyMacro {
     }
 
     // MARK: Attributed Parameters
+
+    /// Returns a Boolean value indicating whether the provided `parameter` is
+    /// an autoclosure.
+    ///
+    /// - Parameter parameter: A function parameter.
+    /// - Returns: A Boolean value indicating whether the provided `parameter`
+    ///   is an autoclosure.
+    private static func isAutoClosure(
+        _ parameter: FunctionParameterSyntax
+    ) -> Bool {
+        guard
+            let attributedType = parameter.type.as(AttributedTypeSyntax.self)
+        else {
+            return false
+        }
+
+        return attributedType.attributes.contains(where: {
+            guard
+                case let .attribute(attribute) = $0,
+                let identifierType = attribute.attributeName.as(IdentifierTypeSyntax.self)
+            else {
+                return false
+            }
+
+            return identifierType.name.tokenKind == .identifier("autoclosure")
+        })
+    }
 
     /// Returns a Boolean value indicating whether the provided `parameter` is
     /// an `inout` parameter.

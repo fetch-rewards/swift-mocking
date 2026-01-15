@@ -11,6 +11,57 @@ import SwiftSyntaxSugar
 
 extension MockedMethodMacro {
 
+    /// Returns a type parsed from the provided `parameter`, type-erased if
+    /// necessary using the provided `genericParameters` and
+    /// `genericWhereClause`.
+    ///
+    /// - Parameters:
+    ///   - parameter: The parameter from which to parse the type.
+    ///   - genericParameters: The generic parameters with which to determine
+    ///     whether the type needs to be type-erased.
+    ///   - genericWhereClause: The generic where clause with which to determine
+    ///     how to constrain the type-erased type.
+    ///   - typeErasedType: The type-erased type to use to type-erase the
+    ///     provided `type`. The default value is `Any.self`.
+    /// - Returns: A type parsed from the provided `parameter`, type-erased if
+    ///   necessary using the provided `genericParameters` and
+    ///   `genericWhereClause`.
+    static func type(
+        from parameter: FunctionParameterSyntax,
+        typeErasedIfNecessaryUsing genericParameters: GenericParameterListSyntax?,
+        typeConstrainedBy genericWhereClause: GenericWhereClauseSyntax?,
+        typeErasedType: (some Any).Type = Any.self
+    ) -> (
+        newType: TypeSyntax,
+        didTypeErase: Bool
+    ) {
+        let type = if
+            let attributedType = parameter.type.as(AttributedTypeSyntax.self),
+            let closureType = attributedType.baseType.as(FunctionTypeSyntax.self),
+            attributedType.attributes.contains(where: {
+                guard
+                    case let .attribute(attribute) = $0,
+                    let identifierType = attribute.attributeName.as(IdentifierTypeSyntax.self)
+                else {
+                    return false
+                }
+
+                return identifierType.name.tokenKind == .identifier("autoclosure")
+            })
+        {
+            closureType.returnClause.type
+        } else {
+            parameter.type
+        }
+
+        return self.type(
+            type,
+            typeErasedIfNecessaryUsing: genericParameters,
+            typeConstrainedBy: genericWhereClause,
+            typeErasedType: typeErasedType
+        )
+    }
+
     /// Returns a copy of the provided `type`, type-erased if necessary using
     /// the provided `genericParameters` and `genericWhereClause`.
     ///

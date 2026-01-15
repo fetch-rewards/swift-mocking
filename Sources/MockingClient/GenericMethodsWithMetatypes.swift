@@ -13,7 +13,7 @@ public import Mocking
 /// - Important: Please only use this protocol for permanent verification of
 ///   Mocked's handling of generic methods with metatypes. For temporary testing
 ///   of Mocked's expansion, use the `Playground` protocol in `main.swift`.
-@Mocked
+@Mocked(compilationCondition: .none)
 public protocol GenericMethodsWithMetatypes {
     func genericMethodWithGenericTypeMetatypeAndUnconstrainedGenericParameter<Value>(
         parameter: Value.Type

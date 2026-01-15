@@ -97,7 +97,7 @@ extension MockedMethodMacro: PeerMacro {
         if !parameters.isEmpty {
             for (index, parameter) in parameters.enumerated() {
                 let (parameterType, didTypeEraseParameter) = self.type(
-                    parameter.type,
+                    from: parameter,
                     typeErasedIfNecessaryUsing: genericParameterClause?.parameters,
                     typeConstrainedBy: methodDeclaration.genericWhereClause
                 )
