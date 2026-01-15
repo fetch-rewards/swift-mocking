@@ -141,7 +141,9 @@ extension MockedMacro {
         from protocolDeclaration: ProtocolDeclSyntax
     ) -> GenericParameterClauseSyntax? {
         let memberBlock = protocolDeclaration.memberBlock
-        let associatedTypeDeclarations = self.collectAssociatedTypes(from: memberBlock)
+        let associatedTypeDeclarations = self.associatedTypeDeclarations(
+            from: memberBlock.members
+        )
 
         guard !associatedTypeDeclarations.isEmpty else {
             return nil
@@ -193,53 +195,43 @@ extension MockedMacro {
         }
     }
 
-    /// Collects all associated type declarations from a member block, including
-    /// those inside `#if` blocks.
+    /// Returns the associated type declarations from the provided `members`,
+    /// including those inside `#if` declarations.
     ///
-    /// - Parameter memberBlock: The member block to search.
-    /// - Returns: An array of associated type declarations.
-    private static func collectAssociatedTypes(
-        from memberBlock: MemberBlockSyntax
+    /// - Parameter members: The members to search.
+    /// - Returns: The associated type declarations from the provided `members`.
+    private static func associatedTypeDeclarations(
+        from members: MemberBlockItemListSyntax
     ) -> [AssociatedTypeDeclSyntax] {
-        var associatedTypes: [AssociatedTypeDeclSyntax] = []
-
-        for member in memberBlock.members {
-            if let associatedType = member.decl.as(AssociatedTypeDeclSyntax.self) {
-                associatedTypes.append(associatedType)
-            } else if let ifConfigDecl = member.decl.as(IfConfigDeclSyntax.self) {
-                associatedTypes.append(contentsOf: self.collectAssociatedTypes(from: ifConfigDecl))
+        members.flatMap { member -> [AssociatedTypeDeclSyntax] in
+            if let associatedTypeDeclaration = member.decl.as(AssociatedTypeDeclSyntax.self) {
+                return [associatedTypeDeclaration]
+            } else if let ifConfigDeclaration = member.decl.as(IfConfigDeclSyntax.self) {
+                return self.associatedTypeDeclarations(from: ifConfigDeclaration)
+            } else {
+                return []
             }
         }
-
-        return associatedTypes
     }
 
-    /// Collects all associated type declarations from an `IfConfigDeclSyntax`,
-    /// searching all branches.
+    /// Returns the associated type declarations from the provided
+    /// `ifConfigDeclaration`.
     ///
-    /// - Parameter ifConfigDecl: The `#if` declaration to search.
-    /// - Returns: An array of associated type declarations.
-    private static func collectAssociatedTypes(
-        from ifConfigDecl: IfConfigDeclSyntax
+    /// This method recursively searches nested `#if` declarations.
+    ///
+    /// - Parameter ifConfigDeclaration: The `#if` declaration to search.
+    /// - Returns: The associated type declarations from the provided
+    ///   `ifConfigDeclaration`.
+    private static func associatedTypeDeclarations(
+        from ifConfigDeclaration: IfConfigDeclSyntax
     ) -> [AssociatedTypeDeclSyntax] {
-        var associatedTypes: [AssociatedTypeDeclSyntax] = []
-
-        for clause in ifConfigDecl.clauses {
+        ifConfigDeclaration.clauses.flatMap { clause -> [AssociatedTypeDeclSyntax] in
             guard case let .decls(members) = clause.elements else {
-                continue
+                return []
             }
 
-            for member in members {
-                if let associatedType = member.decl.as(AssociatedTypeDeclSyntax.self) {
-                    associatedTypes.append(associatedType)
-                } else if let nestedIfConfig = member.decl.as(IfConfigDeclSyntax.self) {
-                    associatedTypes
-                        .append(contentsOf: self.collectAssociatedTypes(from: nestedIfConfig))
-                }
-            }
+            return self.associatedTypeDeclarations(from: members)
         }
-
-        return associatedTypes
     }
 
     // MARK: Inheritance Clause
