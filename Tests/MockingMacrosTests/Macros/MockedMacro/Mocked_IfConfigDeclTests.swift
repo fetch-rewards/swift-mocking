@@ -298,6 +298,109 @@ struct Mocked_IfConfigDeclTests {
         )
     }
 
+    // MARK: Associated Type with Different Constraints in #if/#else Tests
+
+    @Test(arguments: mockedTestConfigurations)
+    func associatedTypeWithDifferentConstraintsInIfElseBlock(
+        interface: InterfaceConfiguration,
+        mock: MockConfiguration
+    ) {
+        assertMocked(
+            """
+            \(interface.accessLevel) protocol SomeCollection {
+                #if DEBUG
+                associatedtype Item: Equatable
+                #else
+                associatedtype Item: Hashable
+                #endif
+            }
+            """,
+            generates: """
+            #if SWIFT_MOCKING_ENABLED
+            @MockedMembers
+            \(mock.modifiers)class SomeCollectionMock<Item> {
+            }
+            #if DEBUG
+            extension SomeCollectionMock: SomeCollection where Item: Equatable {
+            }
+            #else
+            extension SomeCollectionMock: SomeCollection where Item: Hashable {
+            }
+            #endif
+            #endif
+            """
+        )
+    }
+
+    @Test(arguments: mockedTestConfigurations)
+    func associatedTypeWithDifferentConstraintsInIfElseifElseChain(
+        interface: InterfaceConfiguration,
+        mock: MockConfiguration
+    ) {
+        assertMocked(
+            """
+            \(interface.accessLevel) protocol PlatformCollection {
+                #if os(iOS)
+                associatedtype Element: Equatable
+                #elseif os(macOS)
+                associatedtype Element: Hashable
+                #else
+                associatedtype Element: Codable
+                #endif
+            }
+            """,
+            generates: """
+            #if SWIFT_MOCKING_ENABLED
+            @MockedMembers
+            \(mock.modifiers)class PlatformCollectionMock<Element> {
+            }
+            #if os(iOS)
+            extension PlatformCollectionMock: PlatformCollection where Element: Equatable {
+            }
+            #elseif os(macOS)
+            extension PlatformCollectionMock: PlatformCollection where Element: Hashable {
+            }
+            #else
+            extension PlatformCollectionMock: PlatformCollection where Element: Codable {
+            }
+            #endif
+            #endif
+            """
+        )
+    }
+
+    @Test(arguments: mockedTestConfigurations)
+    func associatedTypeWithMultipleConstraintsInIfElseBlock(
+        interface: InterfaceConfiguration,
+        mock: MockConfiguration
+    ) {
+        assertMocked(
+            """
+            \(interface.accessLevel) protocol MultiConstraintCollection {
+                #if DEBUG
+                associatedtype Item: Equatable & Sendable
+                #else
+                associatedtype Item: Hashable, Codable
+                #endif
+            }
+            """,
+            generates: """
+            #if SWIFT_MOCKING_ENABLED
+            @MockedMembers
+            \(mock.modifiers)class MultiConstraintCollectionMock<Item> {
+            }
+            #if DEBUG
+            extension MultiConstraintCollectionMock: MultiConstraintCollection where Item: Equatable, Item: Sendable {
+            }
+            #else
+            extension MultiConstraintCollectionMock: MultiConstraintCollection where Item: Hashable, Item: Codable {
+            }
+            #endif
+            #endif
+            """
+        )
+    }
+
     // MARK: OR Condition Tests
 
     @Test(arguments: mockedTestConfigurations)

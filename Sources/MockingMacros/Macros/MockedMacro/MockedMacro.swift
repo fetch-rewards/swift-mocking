@@ -23,6 +23,17 @@ public struct MockedMacro: PeerMacro {
         }
 
         let macroArguments = MacroArguments(node: node)
+
+        if let conflictingConditionalClauses = self.conflictingConditionalClauses(
+            from: protocolDeclaration.memberBlock.members
+        ) {
+            return try self.expansionWithConditionalConformance(
+                protocolDeclaration: protocolDeclaration,
+                macroArguments: macroArguments,
+                clauses: conflictingConditionalClauses
+            )
+        }
+
         let mockDeclaration = DeclSyntax(
             ClassDeclSyntax(
                 attributes: AttributeListSyntax {
@@ -133,12 +144,14 @@ extension MockedMacro {
     /// final class DependencyMock<Item: Sendable & Equatable & Identifiable>: Dependency {}
     /// ```
     ///
-    /// - Parameter protocolDeclaration: The protocol to which the mock must
-    ///   conform.
-    /// - Returns: The generic parameter clause to apply to the mock
-    ///   declaration.
+    /// - Parameters:
+    ///   - protocolDeclaration: The protocol to which the mock must conform.
+    ///   - excludingConstraintsFor: Names of associated types whose constraints
+    ///     should be excluded (used for conditional conformance).
+    /// - Returns: The generic parameter clause to apply to the mock declaration.
     private static func mockGenericParameterClause(
-        from protocolDeclaration: ProtocolDeclSyntax
+        from protocolDeclaration: ProtocolDeclSyntax,
+        excludingConstraintsFor excludedNames: Set<String> = []
     ) -> GenericParameterClauseSyntax? {
         let memberBlock = protocolDeclaration.memberBlock
         let associatedTypeDeclarations = self.associatedTypeDeclarations(
@@ -163,8 +176,10 @@ extension MockedMacro {
         return GenericParameterClauseSyntax {
             for associatedTypeDeclaration in uniqueAssociatedTypes {
                 let genericParameterName = associatedTypeDeclaration.name.trimmed
+                let shouldExcludeConstraints = excludedNames.contains(associatedTypeDeclaration.name.text)
 
-                if let inheritanceClause = associatedTypeDeclaration.inheritanceClause {
+                if !shouldExcludeConstraints,
+                   let inheritanceClause = associatedTypeDeclaration.inheritanceClause {
                     let commaSeparatedInheritedTypes = inheritanceClause
                         .inheritedTypes(ofType: IdentifierTypeSyntax.self)
                         .compactMap { CompositionTypeElementSyntax(type: $0) }
@@ -279,18 +294,14 @@ extension MockedMacro {
     private static func mockGenericWhereClause(
         from protocolDeclaration: ProtocolDeclSyntax
     ) -> GenericWhereClauseSyntax? {
-        let genericWhereClauses = protocolDeclaration.genericWhereClauses
-
-        guard !genericWhereClauses.isEmpty else {
+        guard !protocolDeclaration.genericWhereClauses.isEmpty else {
             return nil
         }
 
         return GenericWhereClauseSyntax {
-            for genericWhereClause in genericWhereClauses {
-                for requirement in genericWhereClause.requirements {
-                    requirement.trimmed
-                }
-            }
+            protocolDeclaration.genericWhereClauses
+                .flatMap(\.requirements)
+                .map(\.trimmed)
         }
     }
 
@@ -662,6 +673,227 @@ extension MockedMacro {
 
             for modifier in modifiers where !modifier.isAccessLevel {
                 modifier.trimmed
+            }
+        }
+    }
+}
+
+// MARK: - Conditional Associated Type Conformance
+
+extension MockedMacro {
+
+    /// A tuple representing one clause of an `#if` block containing associated
+    /// types with their conditional compilation condition.
+    ///
+    /// - `condition`: The conditional compilation expression (e.g., `DEBUG`),
+    ///   or `nil` for `#else` clauses.
+    /// - `associatedTypes`: The associated type declarations within this clause.
+    private typealias ConditionalClause = (
+        condition: ExprSyntax?,
+        associatedTypes: [AssociatedTypeDeclSyntax]
+    )
+
+    /// Returns conditional clauses containing associated types with conflicting
+    /// constraints across different `#if` branches.
+    ///
+    /// This method detects when the same associated type has different constraints
+    /// in different conditional compilation branches, requiring conditional conformance.
+    ///
+    /// - Parameter members: The protocol members to search for conflicting
+    ///   conditional associated types.
+    /// - Returns: An array of conditional clauses if conflicts are found, or
+    ///   `nil` if there are no conflicts.
+    private static func conflictingConditionalClauses(
+        from members: MemberBlockItemListSyntax
+    ) -> [ConditionalClause]? {
+        members
+            .compactMap { member in member.decl.as(IfConfigDeclSyntax.self) }
+            .compactMap { ifConfigDeclaration -> [ConditionalClause]? in
+                let clauses = ifConfigDeclaration.clauses.compactMap { clause -> ConditionalClause? in
+                    guard case let .decls(declarations) = clause.elements else { return nil }
+
+                    let associatedTypes = declarations.compactMap { declaration in
+                        declaration.decl.as(AssociatedTypeDeclSyntax.self)
+                    }
+
+                    guard !associatedTypes.isEmpty else { return nil }
+
+                    return (clause.condition, associatedTypes)
+                }
+
+                guard !clauses.isEmpty else { return nil }
+
+                let constraintSetsByTypeName = Dictionary(
+                    grouping: clauses.flatMap(\.associatedTypes),
+                    by: \.name.text
+                ).mapValues { types in
+                    Set(types.map { type in
+                        type.inheritanceClause?.description.trimmingCharacters(in: .whitespaces) ?? ""
+                    })
+                }
+
+                let hasConflictingConstraints = constraintSetsByTypeName.values.contains { constraints in
+                    constraints.count > 1
+                }
+                return hasConflictingConstraints ? clauses : nil
+            }
+            .first
+    }
+
+    /// Returns the macro expansion with conditional conformance extensions
+    /// for protocols with conflicting associated type constraints in `#if` blocks.
+    ///
+    /// This method generates a mock class without associated type constraints,
+    /// along with conditional extensions that conform to the protocol under
+    /// specific compilation conditions with the appropriate constraints applied.
+    ///
+    /// - Parameters:
+    ///   - protocolDeclaration: The protocol to which the mock must conform.
+    ///   - macroArguments: The macro arguments provided to the `@Mocked` attribute.
+    ///   - clauses: The conditional clauses containing conflicting associated
+    ///     type constraints.
+    /// - Returns: The declarations to generate, including the mock class and
+    ///   conditional conformance extensions.
+    private static func expansionWithConditionalConformance(
+        protocolDeclaration: ProtocolDeclSyntax,
+        macroArguments: MacroArguments,
+        clauses: [ConditionalClause]
+    ) throws -> [DeclSyntax] {
+        let mockName = self.mockName(from: protocolDeclaration)
+        let associatedTypeNamesToExclude = Set(clauses.flatMap { clause in
+            clause.associatedTypes.map(\.name.text)
+        })
+
+        let mockDeclaration = ClassDeclSyntax(
+            attributes: AttributeListSyntax {
+                AttributeSyntax(
+                    atSign: .atSignToken(),
+                    attributeName: IdentifierTypeSyntax(name: "MockedMembers"),
+                    trailingTrivia: .newline
+                )
+            },
+            modifiers: self.mockModifiers(from: protocolDeclaration),
+            classKeyword: .keyword(protocolDeclaration.isActorConstrained ? .actor : .class),
+            name: mockName,
+            genericParameterClause: self.mockGenericParameterClause(
+                from: protocolDeclaration,
+                excludingConstraintsFor: associatedTypeNamesToExclude
+            ),
+            inheritanceClause: macroArguments.sendableConformance == .unchecked
+                ? InheritanceClauseSyntax { InheritedTypeSyntax.uncheckedSendable }
+                : nil,
+            genericWhereClause: self.mockGenericWhereClause(from: protocolDeclaration),
+            memberBlock: try self.mockMemberBlock(from: protocolDeclaration)
+        )
+
+        let ifConfigDeclaration = IfConfigDeclSyntax(
+            clauses: IfConfigClauseListSyntax(
+                clauses.enumerated().map { index, clause in
+                    IfConfigClauseSyntax(
+                        poundKeyword: index == 0 ? .poundIfToken()
+                            : clause.condition != nil ? .poundElseifToken() : .poundElseToken(),
+                        condition: clause.condition,
+                        elements: .decls(MemberBlockItemListSyntax {
+                            MemberBlockItemSyntax(decl: ExtensionDeclSyntax(
+                                extendedType: IdentifierTypeSyntax(name: mockName),
+                                inheritanceClause: InheritanceClauseSyntax {
+                                    InheritedTypeSyntax(type: protocolDeclaration.type)
+                                },
+                                genericWhereClause: self.whereClause(from: clause.associatedTypes),
+                                memberBlock: MemberBlockSyntax(members: [])
+                            ))
+                        })
+                    )
+                }
+            )
+        )
+
+        let declarations: [DeclSyntax] = [
+            DeclSyntax(mockDeclaration),
+            DeclSyntax(ifConfigDeclaration)
+        ]
+
+        guard let condition = macroArguments.compilationCondition.rawValue else {
+            return declarations
+        }
+
+        return [DeclSyntax(IfConfigDeclSyntax(clauses: IfConfigClauseListSyntax {
+            IfConfigClauseSyntax(
+                poundKeyword: .poundIfToken(),
+                condition: DeclReferenceExprSyntax(baseName: .identifier(condition)),
+                elements: .statements(CodeBlockItemListSyntax(
+                    declarations.map { declaration in
+                        CodeBlockItemSyntax(item: .decl(declaration))
+                    }
+                ))
+            )
+        }))]
+    }
+
+    /// Builds a generic `where` clause from associated type constraints.
+    ///
+    /// This method extracts all constraints from the provided associated types
+    /// and combines them into a single `where` clause. It handles both simple
+    /// constraints (e.g., `Item: Equatable`) and composition constraints
+    /// (e.g., `Item: Equatable & Sendable`).
+    ///
+    /// For example, given these associated types:
+    ///
+    /// ```swift
+    /// associatedtype Item: Equatable
+    /// associatedtype Value: Codable & Sendable
+    /// ```
+    ///
+    /// This method generates:
+    ///
+    /// ```swift
+    /// where Item: Equatable, Value: Codable, Value: Sendable
+    /// ```
+    ///
+    /// This is used when creating conditional conformance extensions for mocks
+    /// where different `#if` branches define conflicting constraints for the
+    /// same associated type.
+    ///
+    /// - Parameter associatedTypes: The associated type declarations from which
+    ///   to extract constraints.
+    /// - Returns: A generic `where` clause containing all the constraints, or
+    ///   `nil` if no constraints are found.
+    private static func whereClause(
+        from associatedTypes: [AssociatedTypeDeclSyntax]
+    ) -> GenericWhereClauseSyntax? {
+        let allConstraints = associatedTypes.flatMap { associatedType -> [(name: TokenSyntax, type: TypeSyntax)] in
+            guard let inheritanceClause = associatedType.inheritanceClause else {
+                return []
+            }
+
+            let identifierTypes = inheritanceClause
+                .inheritedTypes(ofType: IdentifierTypeSyntax.self)
+                .map(TypeSyntax.init)
+
+            let compositionTypes = inheritanceClause
+                .inheritedTypes(ofType: CompositionTypeSyntax.self)
+                .flatMap(\.elements)
+                .map { compositionType in
+                    TypeSyntax(compositionType.type)
+                }
+
+
+            return (identifierTypes + compositionTypes).map { type in (associatedType.name.trimmed, type) }
+        }
+
+        guard !allConstraints.isEmpty else {
+            return nil
+        }
+
+        return GenericWhereClauseSyntax {
+            allConstraints.map { constraint in
+                GenericRequirementSyntax(requirement: .conformanceRequirement(
+                    ConformanceRequirementSyntax(
+                        leftType: IdentifierTypeSyntax(name: constraint.name),
+                        colon: .colonToken(),
+                        rightType: constraint.type.trimmed
+                    )
+                ))
             }
         }
     }
