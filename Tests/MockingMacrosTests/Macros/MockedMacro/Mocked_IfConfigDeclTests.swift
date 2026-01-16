@@ -8,8 +8,139 @@
 import Testing
 @testable import MockingMacros
 
-/// Tests for IfConfigDeclSyntax support in mocked protocols.
 struct Mocked_IfConfigDeclTests {
+
+    // MARK: Initializer in #if Block Tests
+
+    @Test(arguments: mockedTestConfigurations)
+    func initializerInIfBlock(
+        interface: InterfaceConfiguration,
+        mock: MockConfiguration
+    ) {
+        assertMocked(
+            """
+            \(interface.accessLevel) protocol Dependency {
+                init()
+                #if DEBUG
+                init(debugParameter: String)
+                #endif
+            }
+            """,
+            generates: """
+            #if SWIFT_MOCKING_ENABLED
+            @MockedMembers
+            \(mock.modifiers)class DependencyMock: Dependency {
+                \(mock.memberModifiers)init() {
+                }
+                #if DEBUG
+                \(mock.memberModifiers)init(debugParameter: String) {
+                }
+                #endif
+            }
+            #endif
+            """
+        )
+    }
+
+    // MARK: Initializer in #if/#else Block Tests
+
+    @Test(arguments: mockedTestConfigurations)
+    func initializerInIfElseBlock(
+        interface: InterfaceConfiguration,
+        mock: MockConfiguration
+    ) {
+        assertMocked(
+            """
+            \(interface.accessLevel) protocol Dependency {
+                #if os(iOS)
+                init(iOSParameter: String)
+                #else
+                init(otherPlatformParameter: String)
+                #endif
+            }
+            """,
+            generates: """
+            #if SWIFT_MOCKING_ENABLED
+            @MockedMembers
+            \(mock.modifiers)class DependencyMock: Dependency {
+                #if os(iOS)
+                \(mock.memberModifiers)init(iOSParameter: String) {
+                }
+                #else
+                \(mock.memberModifiers)init(otherPlatformParameter: String) {
+                }
+                #endif
+            }
+            #endif
+            """
+        )
+    }
+
+    // MARK: Property in #if Block Tests
+
+    @Test(arguments: mockedTestConfigurations)
+    func propertyInIfBlock(
+        interface: InterfaceConfiguration,
+        mock: MockConfiguration
+    ) {
+        assertMocked(
+            """
+            \(interface.accessLevel) protocol Dependency {
+                var commonProperty: String { get }
+                #if DEBUG
+                var debugProperty: Int { get set }
+                #endif
+            }
+            """,
+            generates: """
+            #if SWIFT_MOCKING_ENABLED
+            @MockedMembers
+            \(mock.modifiers)class DependencyMock: Dependency {
+                @MockableProperty(.readOnly)
+                \(mock.memberModifiers)var commonProperty: String
+                #if DEBUG
+                @MockableProperty(.readWrite)
+                \(mock.memberModifiers)var debugProperty: Int
+                #endif
+            }
+            #endif
+            """
+        )
+    }
+
+    // MARK: Property in #if/#else Block Tests
+
+    @Test(arguments: mockedTestConfigurations)
+    func propertyInIfElseBlock(
+        interface: InterfaceConfiguration,
+        mock: MockConfiguration
+    ) {
+        assertMocked(
+            """
+            \(interface.accessLevel) protocol Dependency {
+                #if os(iOS)
+                var iOSProperty: String { get }
+                #else
+                var otherPlatformProperty: Int { get set }
+                #endif
+            }
+            """,
+            generates: """
+            #if SWIFT_MOCKING_ENABLED
+            @MockedMembers
+            \(mock.modifiers)class DependencyMock: Dependency {
+                #if os(iOS)
+                @MockableProperty(.readOnly)
+                \(mock.memberModifiers)var iOSProperty: String
+                #else
+                @MockableProperty(.readWrite)
+                \(mock.memberModifiers)var otherPlatformProperty: Int
+                #endif
+            }
+            #endif
+            """
+        )
+    }
 
     // MARK: Method in #if Block Tests
 
@@ -66,70 +197,6 @@ struct Mocked_IfConfigDeclTests {
                 \(mock.memberModifiers)func iOSMethod()
                 #else
                 \(mock.memberModifiers)func otherPlatformMethod()
-                #endif
-            }
-            #endif
-            """
-        )
-    }
-
-    // MARK: Property in #if Block Tests
-
-    @Test(arguments: mockedTestConfigurations)
-    func propertyInIfBlock(
-        interface: InterfaceConfiguration,
-        mock: MockConfiguration
-    ) {
-        assertMocked(
-            """
-            \(interface.accessLevel) protocol Dependency {
-                var commonProperty: String { get }
-                #if DEBUG
-                var debugProperty: Int { get set }
-                #endif
-            }
-            """,
-            generates: """
-            #if SWIFT_MOCKING_ENABLED
-            @MockedMembers
-            \(mock.modifiers)class DependencyMock: Dependency {
-                @MockableProperty(.readOnly)
-                \(mock.memberModifiers)var commonProperty: String
-                #if DEBUG
-                @MockableProperty(.readWrite)
-                \(mock.memberModifiers)var debugProperty: Int
-                #endif
-            }
-            #endif
-            """
-        )
-    }
-
-    // MARK: Initializer in #if Block Tests
-
-    @Test(arguments: mockedTestConfigurations)
-    func initializerInIfBlock(
-        interface: InterfaceConfiguration,
-        mock: MockConfiguration
-    ) {
-        assertMocked(
-            """
-            \(interface.accessLevel) protocol Dependency {
-                init()
-                #if DEBUG
-                init(debugParameter: String)
-                #endif
-            }
-            """,
-            generates: """
-            #if SWIFT_MOCKING_ENABLED
-            @MockedMembers
-            \(mock.modifiers)class DependencyMock: Dependency {
-                \(mock.memberModifiers)init() {
-                }
-                #if DEBUG
-                \(mock.memberModifiers)init(debugParameter: String) {
-                }
                 #endif
             }
             #endif
