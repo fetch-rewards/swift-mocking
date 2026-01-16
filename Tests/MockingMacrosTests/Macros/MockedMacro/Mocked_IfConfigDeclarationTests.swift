@@ -1,5 +1,5 @@
 //
-//  Mocked_IfConfigDeclTests.swift
+//  Mocked_IfConfigDeclarationTests.swift
 //
 //  Copyright © 2026 Fetch.
 //
@@ -8,7 +8,7 @@
 import Testing
 @testable import MockingMacros
 
-struct Mocked_IfConfigDeclTests {
+struct Mocked_IfConfigDeclarationTests {
 
     // MARK: Initializer in #if Block Tests
 

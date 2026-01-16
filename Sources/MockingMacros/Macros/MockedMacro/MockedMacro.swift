@@ -176,10 +176,12 @@ extension MockedMacro {
         return GenericParameterClauseSyntax {
             for associatedTypeDeclaration in uniqueAssociatedTypes {
                 let genericParameterName = associatedTypeDeclaration.name.trimmed
-                let shouldExcludeConstraints = excludedNames.contains(associatedTypeDeclaration.name.text)
+                let shouldExcludeConstraints = excludedNames
+                    .contains(associatedTypeDeclaration.name.text)
 
                 if !shouldExcludeConstraints,
-                   let inheritanceClause = associatedTypeDeclaration.inheritanceClause {
+                   let inheritanceClause = associatedTypeDeclaration.inheritanceClause
+                {
                     let commaSeparatedInheritedTypes = inheritanceClause
                         .inheritedTypes(ofType: IdentifierTypeSyntax.self)
                         .compactMap { CompositionTypeElementSyntax(type: $0) }
@@ -709,32 +711,41 @@ extension MockedMacro {
         members
             .compactMap { member in member.decl.as(IfConfigDeclSyntax.self) }
             .compactMap { ifConfigDeclaration -> [ConditionalClause]? in
-                let clauses = ifConfigDeclaration.clauses.compactMap { clause -> ConditionalClause? in
-                    guard case let .decls(declarations) = clause.elements else { return nil }
+                let clauses = ifConfigDeclaration.clauses
+                    .compactMap { clause -> ConditionalClause? in
+                        guard case let .decls(declarations) = clause.elements else {
+                            return nil
+                        }
 
-                    let associatedTypes = declarations.compactMap { declaration in
-                        declaration.decl.as(AssociatedTypeDeclSyntax.self)
+                        let associatedTypes = declarations.compactMap { declaration in
+                            declaration.decl.as(AssociatedTypeDeclSyntax.self)
+                        }
+
+                        guard !associatedTypes.isEmpty else {
+                            return nil
+                        }
+
+                        return (clause.condition, associatedTypes)
                     }
 
-                    guard !associatedTypes.isEmpty else { return nil }
-
-                    return (clause.condition, associatedTypes)
+                guard !clauses.isEmpty else {
+                    return nil
                 }
-
-                guard !clauses.isEmpty else { return nil }
 
                 let constraintSetsByTypeName = Dictionary(
                     grouping: clauses.flatMap(\.associatedTypes),
                     by: \.name.text
                 ).mapValues { types in
                     Set(types.map { type in
-                        type.inheritanceClause?.description.trimmingCharacters(in: .whitespaces) ?? ""
+                        type.inheritanceClause?.description
+                            .trimmingCharacters(in: .whitespaces) ?? ""
                     })
                 }
 
-                let hasConflictingConstraints = constraintSetsByTypeName.values.contains { constraints in
-                    constraints.count > 1
-                }
+                let hasConflictingConstraints = constraintSetsByTypeName.values
+                    .contains { constraints in
+                        constraints.count > 1
+                    }
                 return hasConflictingConstraints ? clauses : nil
             }
             .first
@@ -790,7 +801,8 @@ extension MockedMacro {
             clauses: IfConfigClauseListSyntax(
                 clauses.enumerated().map { index, clause in
                     IfConfigClauseSyntax(
-                        poundKeyword: index == 0 ? .poundIfToken()
+                        poundKeyword: index == 0
+                            ? .poundIfToken()
                             : clause.condition != nil ? .poundElseifToken() : .poundElseToken(),
                         condition: clause.condition,
                         elements: .decls(MemberBlockItemListSyntax {
@@ -810,7 +822,7 @@ extension MockedMacro {
 
         let declarations: [DeclSyntax] = [
             DeclSyntax(mockDeclaration),
-            DeclSyntax(ifConfigDeclaration)
+            DeclSyntax(ifConfigDeclaration),
         ]
 
         guard let condition = macroArguments.compilationCondition.rawValue else {
@@ -861,7 +873,10 @@ extension MockedMacro {
     private static func whereClause(
         from associatedTypes: [AssociatedTypeDeclSyntax]
     ) -> GenericWhereClauseSyntax? {
-        let allConstraints = associatedTypes.flatMap { associatedType -> [(name: TokenSyntax, type: TypeSyntax)] in
+        let allConstraints = associatedTypes.flatMap { associatedType -> [(
+            name: TokenSyntax,
+            type: TypeSyntax
+        )] in
             guard let inheritanceClause = associatedType.inheritanceClause else {
                 return []
             }
@@ -877,8 +892,10 @@ extension MockedMacro {
                     TypeSyntax(compositionType.type)
                 }
 
-
-            return (identifierTypes + compositionTypes).map { type in (associatedType.name.trimmed, type) }
+            return (identifierTypes + compositionTypes).map { type in (
+                associatedType.name.trimmed,
+                type
+            ) }
         }
 
         guard !allConstraints.isEmpty else {
