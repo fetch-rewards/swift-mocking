@@ -1,7 +1,7 @@
 //
 //  MockedProperty.swift
 //
-//  Copyright © 2025 Fetch.
+//  Copyright © 2026 Fetch.
 //
 
 /// A macro that produces a mocked property when attached to a property

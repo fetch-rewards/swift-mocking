@@ -1,7 +1,7 @@
 //
 //  Mocked_InheritanceTests.swift
 //
-//  Copyright © 2025 Fetch.
+//  Copyright © 2026 Fetch.
 //
 
 #if canImport(MockingMacros)

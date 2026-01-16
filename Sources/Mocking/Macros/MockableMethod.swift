@@ -1,7 +1,7 @@
 //
 //  MockableMethod.swift
 //
-//  Copyright © 2025 Fetch.
+//  Copyright © 2026 Fetch.
 //
 
 /// A macro that marks a method as being mockable.

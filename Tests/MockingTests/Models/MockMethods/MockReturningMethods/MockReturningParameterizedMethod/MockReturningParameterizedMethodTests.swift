@@ -1,7 +1,7 @@
 //
 //  MockReturningParameterizedMethodTests.swift
 //
-//  Copyright © 2025 Fetch.
+//  Copyright © 2026 Fetch.
 //
 
 import Testing
