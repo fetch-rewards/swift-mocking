@@ -271,10 +271,10 @@ struct Mocked_IfConfigDeclarationTests {
         )
     }
 
-    // MARK: Associated Type in #if Block Tests
+    // MARK: Associated Type with Same Declaration in #if/#else Block Tests
 
     @Test(arguments: mockedTestConfigurations)
-    func associatedTypeInIfBlock(
+    func associatedTypeWithSameDeclarationInIfElseBlock(
         interface: InterfaceConfiguration,
         mock: MockConfiguration
     ) {
