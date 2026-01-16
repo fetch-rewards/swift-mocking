@@ -297,72 +297,74 @@ extension MockedMacro {
     // MARK: Members
 
     /// Returns the member block to apply to the mock, generated from the
-    /// properties and methods of the provided protocol.
+    /// members from the provided `protocolDeclaration`.
     ///
-    /// - Parameter protocolDeclaration: The protocol to which the mock must
-    ///   conform.
+    /// - Parameter protocolDeclaration: The protocol being mocked.
     /// - Returns: The member block to apply to the mock.
     private static func mockMemberBlock(
         from protocolDeclaration: ProtocolDeclSyntax
     ) throws -> MemberBlockSyntax {
         let accessLevel = protocolDeclaration.minimumConformingAccessLevel
-        let transformedMembers = try self.mockMemberBlockItems(
+        let members = try self.mockMembers(
             from: protocolDeclaration.memberBlock.members,
             with: accessLevel,
             in: protocolDeclaration
         )
-        return MemberBlockSyntax(members: transformedMembers)
+
+        return MemberBlockSyntax(members: members)
     }
 
-    /// Transforms member block items into mocked declarations.
+    /// Returns the members to apply to the mock, generated from the provided
+    /// `members` from the provided `protocolDeclaration` and marked with the
+    /// provided `accessLevel`.
     ///
-    /// Associated types are skipped since they become generic parameters on the
-    /// mock class rather than member declarations.
+    /// Associated types are skipped since they become generic parameters for
+    /// the mock class rather than member declarations.
     ///
     /// - Parameters:
-    ///   - members: The member block items to transform.
-    ///   - accessLevel: The access level to apply to the mocked declarations.
+    ///   - members: The members from the protocol being mocked.
+    ///   - accessLevel: The access level to apply to the mock's members.
     ///   - protocolDeclaration: The protocol being mocked.
-    /// - Returns: The transformed member block items.
-    private static func mockMemberBlockItems(
+    /// - Returns: The members to apply to the mock.
+    private static func mockMembers(
         from members: MemberBlockItemListSyntax,
         with accessLevel: AccessLevelSyntax,
         in protocolDeclaration: ProtocolDeclSyntax
     ) throws -> MemberBlockItemListSyntax {
         try MemberBlockItemListSyntax {
             for member in members {
-                if let initializerDecl = member.decl.as(InitializerDeclSyntax.self) {
+                if let initializerDeclaration = member.decl.as(InitializerDeclSyntax.self) {
                     MemberBlockItemSyntax(
                         decl: try self.mockInitializerConformanceDeclaration(
                             with: accessLevel,
-                            from: initializerDecl
+                            from: initializerDeclaration
                         )
                     )
-                } else if let propertyDecl = member.decl.as(VariableDeclSyntax.self) {
-                    for binding in propertyDecl.bindings {
+                } else if let propertyDeclaration = member.decl.as(VariableDeclSyntax.self) {
+                    for binding in propertyDeclaration.bindings {
                         MemberBlockItemSyntax(
                             decl: try self.mockPropertyConformanceDeclaration(
                                 with: accessLevel,
                                 for: binding,
-                                from: propertyDecl
+                                from: propertyDeclaration
                             )
                         )
                     }
-                } else if let methodDecl = member.decl.as(FunctionDeclSyntax.self) {
+                } else if let methodDeclaration = member.decl.as(FunctionDeclSyntax.self) {
                     MemberBlockItemSyntax(
                         decl: try self.mockMethodConformanceDeclaration(
                             with: accessLevel,
-                            for: methodDecl,
+                            for: methodDeclaration,
                             in: protocolDeclaration
                         )
                     )
-                } else if let ifConfigDecl = member.decl.as(IfConfigDeclSyntax.self) {
-                    if let mockedIfConfig = try self.mockIfConfigDeclaration(
-                        from: ifConfigDecl,
+                } else if let ifConfigDeclaration = member.decl.as(IfConfigDeclSyntax.self) {
+                    if let mockIfConfigDeclaration = try self.mockIfConfigDeclaration(
+                        from: ifConfigDeclaration,
                         with: accessLevel,
                         in: protocolDeclaration
                     ) {
-                        MemberBlockItemSyntax(decl: mockedIfConfig)
+                        MemberBlockItemSyntax(decl: mockIfConfigDeclaration)
                     }
                 }
             }
@@ -543,6 +545,65 @@ extension MockedMacro {
             }
     }
 
+    // MARK: If Configs
+
+    /// Returns an `IfConfigDeclSyntax` containing mock member declarations,
+    /// generated from the provided `ifConfigDeclaration` from the provided
+    /// `protocolDeclaration` and marked with the provided `accessLevel`.
+    ///
+    /// This method preserves the conditional compilation structure from the
+    /// provided `ifConfigDeclaration` in the returned `IfConfigDeclSyntax`.
+    ///
+    /// - Parameters:
+    ///   - ifConfigDeclaration: The `IfConfigDeclSyntax` from the protocol.
+    ///   - accessLevel: The access level to apply to the mock declarations.
+    ///   - protocolDeclaration: The protocol being mocked.
+    /// - Returns: An `IfConfigDeclSyntax` containing mock member declarations,
+    ///   or `nil` if none of the clauses contain member declarations (e.g., are
+    ///   empty or contain only associated type declarations).
+    private static func mockIfConfigDeclaration(
+        from ifConfigDeclaration: IfConfigDeclSyntax,
+        with accessLevel: AccessLevelSyntax,
+        in protocolDeclaration: ProtocolDeclSyntax
+    ) throws -> IfConfigDeclSyntax? {
+        let clauses = try IfConfigClauseListSyntax(
+            ifConfigDeclaration.clauses.map { clause in
+                guard case let .decls(members) = clause.elements else {
+                    return clause
+                }
+
+                let mockMembers = try self.mockMembers(
+                    from: members,
+                    with: accessLevel,
+                    in: protocolDeclaration
+                )
+
+                return IfConfigClauseSyntax(
+                    poundKeyword: clause.poundKeyword.trimmed,
+                    condition: clause.condition?.trimmed,
+                    elements: .decls(mockMembers)
+                )
+            }
+        )
+
+        let allClausesEmpty = clauses.allSatisfy { clause in
+            guard case let .decls(members) = clause.elements else {
+                return true
+            }
+
+            return members.isEmpty
+        }
+
+        guard !allClausesEmpty else {
+            return nil
+        }
+
+        return IfConfigDeclSyntax(
+            clauses: clauses,
+            poundEndif: ifConfigDeclaration.poundEndif.trimmed
+        )
+    }
+
     // MARK: Modifiers
 
     /// Returns modifiers to apply to override declarations, generated using the
@@ -603,59 +664,5 @@ extension MockedMacro {
                 modifier.trimmed
             }
         }
-    }
-
-    // MARK: Conditional Compilation
-
-    /// Returns an `IfConfigDeclSyntax` containing mocked member declarations,
-    /// preserving the conditional compilation structure from the protocol.
-    ///
-    /// - Parameters:
-    ///   - ifConfigDecl: The `IfConfigDeclSyntax` from the protocol containing
-    ///     member declarations.
-    ///   - accessLevel: The access level to apply to the mocked declarations.
-    ///   - protocolDeclaration: The protocol being mocked.
-    /// - Returns: An `IfConfigDeclSyntax` with mocked member declarations,
-    ///   or `nil` if all clauses are empty (e.g., only contained associated types).
-    private static func mockIfConfigDeclaration(
-        from ifConfigDecl: IfConfigDeclSyntax,
-        with accessLevel: AccessLevelSyntax,
-        in protocolDeclaration: ProtocolDeclSyntax
-    ) throws -> IfConfigDeclSyntax? {
-        let transformedClauses = try IfConfigClauseListSyntax(
-            ifConfigDecl.clauses.map { clause in
-                guard case let .decls(memberBlockItems) = clause.elements else {
-                    return clause
-                }
-
-                let transformedMembers = try self.mockMemberBlockItems(
-                    from: memberBlockItems,
-                    with: accessLevel,
-                    in: protocolDeclaration
-                )
-
-                return IfConfigClauseSyntax(
-                    poundKeyword: clause.poundKeyword.trimmed,
-                    condition: clause.condition?.trimmed,
-                    elements: .decls(transformedMembers)
-                )
-            }
-        )
-
-        let allClausesEmpty = transformedClauses.allSatisfy { clause in
-            guard case let .decls(members) = clause.elements else {
-                return true
-            }
-            return members.isEmpty
-        }
-
-        guard !allClausesEmpty else {
-            return nil
-        }
-
-        return IfConfigDeclSyntax(
-            clauses: transformedClauses,
-            poundEndif: ifConfigDecl.poundEndif.trimmed
-        )
     }
 }
