@@ -742,11 +742,11 @@ extension MockedMacro {
                     })
                 }
 
-                let hasConflictingConstraints = constraintSetsByTypeName.values
-                    .contains { constraints in
-                        constraints.count > 1
-                    }
-                return hasConflictingConstraints ? clauses : nil
+                guard constraintSetsByTypeName.values.contains(where: { $0.count > 1 }) else {
+                    return nil
+                }
+
+                return clauses
             }
             .first
     }
