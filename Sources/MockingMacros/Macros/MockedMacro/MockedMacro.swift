@@ -24,7 +24,7 @@ public struct MockedMacro: PeerMacro {
 
         let macroArguments = MacroArguments(node: node)
         let mockName = self.mockName(from: protocolDeclaration)
-        let mockGenericSpecialization = self.mockGenericSpecialization(
+        let mockGenericConfiguration = self.mockGenericConfiguration(
             mockName: mockName,
             protocolDeclaration: protocolDeclaration
         )
@@ -32,13 +32,13 @@ public struct MockedMacro: PeerMacro {
             from: protocolDeclaration,
             macroArguments: macroArguments,
             mockName: mockName,
-            mockGenericParameterClause: mockGenericSpecialization.genericParameterClause,
-            mockGenericWhereClause: mockGenericSpecialization.genericWhereClause,
-            shouldMockConformToProtocol: mockGenericSpecialization.peerIfConfigDeclarations.isEmpty
+            mockGenericParameterClause: mockGenericConfiguration.genericParameterClause,
+            mockGenericWhereClause: mockGenericConfiguration.genericWhereClause,
+            shouldMockConformToProtocol: mockGenericConfiguration.peerIfConfigDeclarations.isEmpty
         )
 
         let declarations = [DeclSyntax(mockDeclaration)]
-            + mockGenericSpecialization.peerIfConfigDeclarations.map(DeclSyntax.init)
+            + mockGenericConfiguration.peerIfConfigDeclarations.map(DeclSyntax.init)
 
         guard let compilationCondition = macroArguments.compilationCondition.rawValue else {
             return declarations
@@ -153,7 +153,7 @@ extension MockedMacro {
         }
     }
 
-    // MARK: Generic Specialization
+    // MARK: Generic Configuration
 
     /// Returns a tuple containing a generic parameter clause, a generic where
     /// clause, and zero or more `IfConfigDeclSyntax` objects containing
@@ -167,7 +167,7 @@ extension MockedMacro {
     ///   where clause, and zero or more `IfConfigDeclSyntax` objects containing
     ///   extensions that conditionally conform the mock to the provided
     ///   `protocolDeclaration`.
-    private static func mockGenericSpecialization(
+    private static func mockGenericConfiguration(
         mockName: TokenSyntax,
         protocolDeclaration: ProtocolDeclSyntax
     ) -> (
