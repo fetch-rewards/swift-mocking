@@ -10,10 +10,10 @@ import Testing
 
 struct Mocked_IfConfigDeclarationTests {
 
-    // MARK: Initializer in #if Block Tests
+    // MARK: Initializers in #if Statement Tests
 
     @Test(arguments: mockedTestConfigurations)
-    func initializerInIfBlock(
+    func initializersInIfStatement(
         interface: InterfaceConfiguration,
         mock: MockConfiguration
     ) {
@@ -42,10 +42,10 @@ struct Mocked_IfConfigDeclarationTests {
         )
     }
 
-    // MARK: Initializer in #if/#else Block Tests
+    // MARK: Initializers in #if/#else Statement Tests
 
     @Test(arguments: mockedTestConfigurations)
-    func initializerInIfElseBlock(
+    func initializersInIfElseStatement(
         interface: InterfaceConfiguration,
         mock: MockConfiguration
     ) {
@@ -76,10 +76,10 @@ struct Mocked_IfConfigDeclarationTests {
         )
     }
 
-    // MARK: Property in #if Block Tests
+    // MARK: Properties in #if Statement Tests
 
     @Test(arguments: mockedTestConfigurations)
-    func propertyInIfBlock(
+    func propertiesInIfStatement(
         interface: InterfaceConfiguration,
         mock: MockConfiguration
     ) {
@@ -108,10 +108,10 @@ struct Mocked_IfConfigDeclarationTests {
         )
     }
 
-    // MARK: Property in #if/#else Block Tests
+    // MARK: Properties in #if/#else Statement Tests
 
     @Test(arguments: mockedTestConfigurations)
-    func propertyInIfElseBlock(
+    func propertiesInIfElseStatement(
         interface: InterfaceConfiguration,
         mock: MockConfiguration
     ) {
@@ -142,10 +142,10 @@ struct Mocked_IfConfigDeclarationTests {
         )
     }
 
-    // MARK: Method in #if Block Tests
+    // MARK: Methods in #if Statement Tests
 
     @Test(arguments: mockedTestConfigurations)
-    func methodInIfBlock(
+    func methodsInIfStatement(
         interface: InterfaceConfiguration,
         mock: MockConfiguration
     ) {
@@ -172,10 +172,10 @@ struct Mocked_IfConfigDeclarationTests {
         )
     }
 
-    // MARK: Method in #if/#else Block Tests
+    // MARK: Methods in #if/#else Statement Tests
 
     @Test(arguments: mockedTestConfigurations)
-    func methodInIfElseBlock(
+    func methodsInIfElseStatement(
         interface: InterfaceConfiguration,
         mock: MockConfiguration
     ) {
@@ -204,41 +204,10 @@ struct Mocked_IfConfigDeclarationTests {
         )
     }
 
-    // MARK: Multiple Members in #if Block Tests
+    // MARK: Methods in #if/#elseif/#else Statement Tests
 
     @Test(arguments: mockedTestConfigurations)
-    func multipleMembersInIfBlock(
-        interface: InterfaceConfiguration,
-        mock: MockConfiguration
-    ) {
-        assertMocked(
-            """
-            \(interface.accessLevel) protocol Dependency {
-                #if DEBUG
-                var debugProperty: Int { get }
-                func debugMethod()
-                #endif
-            }
-            """,
-            generates: """
-            #if SWIFT_MOCKING_ENABLED
-            @MockedMembers
-            \(mock.modifiers)class DependencyMock: Dependency {
-                #if DEBUG
-                @MockableProperty(.readOnly)
-                \(mock.memberModifiers)var debugProperty: Int
-                \(mock.memberModifiers)func debugMethod()
-                #endif
-            }
-            #endif
-            """
-        )
-    }
-
-    // MARK: #if/#elseif/#else Chain Tests
-
-    @Test(arguments: mockedTestConfigurations)
-    func ifElseifElseChain(
+    func methodsInIfElseifElseStatement(
         interface: InterfaceConfiguration,
         mock: MockConfiguration
     ) {
@@ -271,10 +240,10 @@ struct Mocked_IfConfigDeclarationTests {
         )
     }
 
-    // MARK: Associated Type with Same Declaration in #if/#else Block Tests
+    // MARK: Associated Types with Same Declaration in #if/#else Statement Tests
 
     @Test(arguments: mockedTestConfigurations)
-    func associatedTypeWithSameDeclarationInIfElseBlock(
+    func associatedTypesWithSameDeclarationInIfElseStatement(
         interface: InterfaceConfiguration,
         mock: MockConfiguration
     ) {
@@ -298,10 +267,10 @@ struct Mocked_IfConfigDeclarationTests {
         )
     }
 
-    // MARK: Associated Type with Different Constraints in #if/#else Tests
+    // MARK: Associated Types with Different Constraints in #if/#else Statement Tests
 
     @Test(arguments: mockedTestConfigurations)
-    func associatedTypeWithDifferentConstraintsInIfElseBlock(
+    func associatedTypesWithDifferentConstraintsInIfElseStatement(
         interface: InterfaceConfiguration,
         mock: MockConfiguration
     ) {
@@ -332,14 +301,17 @@ struct Mocked_IfConfigDeclarationTests {
         )
     }
 
+    // MARK: Associated Types with Different Constraints in #if/#elseif/#else Statement Tests
+
     @Test(arguments: mockedTestConfigurations)
-    func associatedTypeWithDifferentConstraintsInIfElseifElseChain(
+    func associatedTypesWithDifferentConstraintsInIfElseifElseStatement(
         interface: InterfaceConfiguration,
         mock: MockConfiguration
     ) {
         assertMocked(
             """
-            \(interface.accessLevel) protocol PlatformCollection {
+            \(interface.accessLevel) protocol SomeCollection {
+                associatedtype Key: Hashable
                 #if os(iOS)
                 associatedtype Element: Equatable
                 #elseif os(macOS)
@@ -352,16 +324,16 @@ struct Mocked_IfConfigDeclarationTests {
             generates: """
             #if SWIFT_MOCKING_ENABLED
             @MockedMembers
-            \(mock.modifiers)class PlatformCollectionMock<Element> {
+            \(mock.modifiers)class SomeCollectionMock<Key: Hashable, Element> {
             }
             #if os(iOS)
-            extension PlatformCollectionMock: PlatformCollection where Element: Equatable {
+            extension SomeCollectionMock: SomeCollection where Element: Equatable {
             }
             #elseif os(macOS)
-            extension PlatformCollectionMock: PlatformCollection where Element: Hashable {
+            extension SomeCollectionMock: SomeCollection where Element: Hashable {
             }
             #else
-            extension PlatformCollectionMock: PlatformCollection where Element: Codable {
+            extension SomeCollectionMock: SomeCollection where Element: Codable {
             }
             #endif
             #endif
@@ -369,14 +341,17 @@ struct Mocked_IfConfigDeclarationTests {
         )
     }
 
+    // MARK: Associated Types with Multiple Constraints in #if/#else Statement Tests
+
     @Test(arguments: mockedTestConfigurations)
-    func associatedTypeWithMultipleConstraintsInIfElseBlock(
+    func associatedTypeWithMultipleConstraintsInIfElseStatement(
         interface: InterfaceConfiguration,
         mock: MockConfiguration
     ) {
         assertMocked(
             """
-            \(interface.accessLevel) protocol MultiConstraintCollection {
+            \(interface.accessLevel) protocol SomeCollection {
+                associatedtype Key: Hashable
                 #if DEBUG
                 associatedtype Item: Equatable & Sendable
                 #else
@@ -387,15 +362,127 @@ struct Mocked_IfConfigDeclarationTests {
             generates: """
             #if SWIFT_MOCKING_ENABLED
             @MockedMembers
-            \(mock.modifiers)class MultiConstraintCollectionMock<Item> {
+            \(mock.modifiers)class SomeCollectionMock<Key: Hashable, Item> {
             }
             #if DEBUG
-            extension MultiConstraintCollectionMock: MultiConstraintCollection where Item: Equatable, Item: Sendable {
+            extension SomeCollectionMock: SomeCollection where Item: Equatable & Sendable {
             }
             #else
-            extension MultiConstraintCollectionMock: MultiConstraintCollection where Item: Hashable, Item: Codable {
+            extension SomeCollectionMock: SomeCollection where Item: Hashable & Codable {
             }
             #endif
+            #endif
+            """
+        )
+    }
+
+    // MARK: Associated Types with Different Generic Where Clauses in #if/#else Statement Tests
+
+    @Test(arguments: mockedTestConfigurations)
+    func associatedTypesWithDifferentGenericWhereClausesInIfElseStatement(
+        interface: InterfaceConfiguration,
+        mock: MockConfiguration
+    ) {
+        assertMocked(
+            """
+            \(interface.accessLevel) protocol SomeCollection {
+                associatedtype Key: Hashable
+                #if DEBUG
+                associatedtype Base: RandomAccessCollection & Equatable where Base.Element: Equatable
+                #else
+                associatedtype Base: RandomAccessCollection, Codable where Base.Element: Codable
+                #endif
+            }
+            """,
+            generates: """
+            #if SWIFT_MOCKING_ENABLED
+            @MockedMembers
+            \(mock.modifiers)class SomeCollectionMock<Key: Hashable, Base> {
+            }
+            #if DEBUG
+            extension SomeCollectionMock: SomeCollection \
+            where Base: RandomAccessCollection & Equatable, Base.Element: Equatable {
+            }
+            #else
+            extension SomeCollectionMock: SomeCollection \
+            where Base: RandomAccessCollection & Codable, Base.Element: Codable {
+            }
+            #endif
+            #endif
+            """
+        )
+    }
+
+    // MARK: Associated Types with Different Generic Where Clauses in #if/#elseif/#else Statement Tests
+
+    @Test(arguments: mockedTestConfigurations)
+    func associatedTypesWithDifferentGenericWhereClausesInIfElseifElseStatement(
+        interface: InterfaceConfiguration,
+        mock: MockConfiguration
+    ) {
+        assertMocked(
+            """
+            \(interface.accessLevel) protocol SomeCollection {
+                associatedtype Key: Hashable
+                #if os(iOS)
+                associatedtype Base: RandomAccessCollection where Base.Element: Equatable
+                #elseif os(macOS)
+                associatedtype Base: RandomAccessCollection where Base.Element: Hashable
+                #else
+                associatedtype Base: RandomAccessCollection where Base.Element: Codable
+                #endif
+            }
+            """,
+            generates: """
+            #if SWIFT_MOCKING_ENABLED
+            @MockedMembers
+            \(mock.modifiers)class SomeCollectionMock<Key: Hashable, Base> {
+            }
+            #if os(iOS)
+            extension SomeCollectionMock: SomeCollection \
+            where Base: RandomAccessCollection, Base.Element: Equatable {
+            }
+            #elseif os(macOS)
+            extension SomeCollectionMock: SomeCollection \
+            where Base: RandomAccessCollection, Base.Element: Hashable {
+            }
+            #else
+            extension SomeCollectionMock: SomeCollection \
+            where Base: RandomAccessCollection, Base.Element: Codable {
+            }
+            #endif
+            #endif
+            """
+        )
+    }
+
+
+    // MARK: Multiple Members in #if Statement Tests
+
+    @Test(arguments: mockedTestConfigurations)
+    func multipleMembersInIfStatement(
+        interface: InterfaceConfiguration,
+        mock: MockConfiguration
+    ) {
+        assertMocked(
+            """
+            \(interface.accessLevel) protocol Dependency {
+                #if DEBUG
+                var debugProperty: Int { get }
+                func debugMethod()
+                #endif
+            }
+            """,
+            generates: """
+            #if SWIFT_MOCKING_ENABLED
+            @MockedMembers
+            \(mock.modifiers)class DependencyMock: Dependency {
+                #if DEBUG
+                @MockableProperty(.readOnly)
+                \(mock.memberModifiers)var debugProperty: Int
+                \(mock.memberModifiers)func debugMethod()
+                #endif
+            }
             #endif
             """
         )

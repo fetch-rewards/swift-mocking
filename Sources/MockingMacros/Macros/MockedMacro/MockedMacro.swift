@@ -23,47 +23,25 @@ public struct MockedMacro: PeerMacro {
         }
 
         let macroArguments = MacroArguments(node: node)
-
-        if let conflictingConditionalClauses = self.conflictingConditionalClauses(
-            from: protocolDeclaration.memberBlock.members
-        ) {
-            return try self.expansionWithConditionalConformance(
-                protocolDeclaration: protocolDeclaration,
-                macroArguments: macroArguments,
-                clauses: conflictingConditionalClauses
-            )
-        }
-
-        let mockDeclaration = DeclSyntax(
-            ClassDeclSyntax(
-                attributes: AttributeListSyntax {
-                    AttributeSyntax(
-                        atSign: .atSignToken(),
-                        attributeName: IdentifierTypeSyntax(name: "MockedMembers"),
-                        trailingTrivia: .newline
-                    )
-                },
-                modifiers: self.mockModifiers(from: protocolDeclaration),
-                classKeyword: .keyword(
-                    protocolDeclaration.isActorConstrained ? .actor : .class
-                ),
-                name: self.mockName(from: protocolDeclaration),
-                genericParameterClause: self.mockGenericParameterClause(
-                    from: protocolDeclaration
-                ),
-                inheritanceClause: self.mockInheritanceClause(
-                    from: protocolDeclaration,
-                    sendableConformance: macroArguments.sendableConformance
-                ),
-                genericWhereClause: self.mockGenericWhereClause(
-                    from: protocolDeclaration
-                ),
-                memberBlock: try self.mockMemberBlock(from: protocolDeclaration)
-            )
+        let mockName = self.mockName(from: protocolDeclaration)
+        let mockGenericSpecialization = self.mockGenericSpecialization(
+            mockName: mockName,
+            protocolDeclaration: protocolDeclaration
+        )
+        let mockDeclaration = try self.mockDeclaration(
+            from: protocolDeclaration,
+            macroArguments: macroArguments,
+            mockName: mockName,
+            mockGenericParameterClause: mockGenericSpecialization.mockGenericParameterClause,
+            mockGenericWhereClause: mockGenericSpecialization.mockGenericWhereClause,
+            shouldMockConformToProtocol: mockGenericSpecialization.mockConditionalConformanceDeclarations.isEmpty
         )
 
+        let declarations = [DeclSyntax(mockDeclaration)]
+            + mockGenericSpecialization.mockConditionalConformanceDeclarations.map(DeclSyntax.init)
+
         guard let compilationCondition = macroArguments.compilationCondition.rawValue else {
-            return [mockDeclaration]
+            return declarations
         }
 
         let ifConfigDeclaration = IfConfigDeclSyntax(
@@ -75,7 +53,9 @@ public struct MockedMacro: PeerMacro {
                     ),
                     elements: .statements(
                         CodeBlockItemListSyntax {
-                            CodeBlockItemSyntax(item: .decl(mockDeclaration))
+                            for declaration in declarations {
+                                CodeBlockItemSyntax(item: .decl(declaration))
+                            }
                         }
                     )
                 )
@@ -90,9 +70,56 @@ public struct MockedMacro: PeerMacro {
 
 extension MockedMacro {
 
+    // MARK: Declaration
+
+    /// Returns a mock declaration, generated from the provided protocol.
+    ///
+    /// - Parameters:
+    ///   - protocolDeclaration: The protocol to which the mock must conform.
+    ///   - macroArguments: The arguments passed to the macro.
+    ///   - mockName: The name of the mock.
+    ///   - mockGenericParameterClause: The mock's generic parameter clause.
+    ///   - mockGenericWhereClause: The mock's generic where clause.
+    ///   - shouldMockConformToProtocol: A Boolean value indicating whether the
+    ///     mock should conform to the protocol. If the mock has extensions that
+    ///     handle conditional conformance, this value should be `false`.
+    /// - Returns: A mock declaration.
+    private static func mockDeclaration(
+        from protocolDeclaration: ProtocolDeclSyntax,
+        macroArguments: MacroArguments,
+        mockName: TokenSyntax,
+        mockGenericParameterClause: GenericParameterClauseSyntax?,
+        mockGenericWhereClause: GenericWhereClauseSyntax?,
+        shouldMockConformToProtocol: Bool
+    ) throws -> ClassDeclSyntax {
+        ClassDeclSyntax(
+            attributes: AttributeListSyntax {
+                AttributeSyntax(
+                    atSign: .atSignToken(),
+                    attributeName: IdentifierTypeSyntax(name: "MockedMembers"),
+                    trailingTrivia: .newline
+                )
+            },
+            modifiers: self.mockModifiers(from: protocolDeclaration),
+            classKeyword: .keyword(protocolDeclaration.isActorConstrained ? .actor : .class),
+            name: mockName,
+            genericParameterClause: mockGenericParameterClause,
+            inheritanceClause: self.mockInheritanceClause(
+                from: protocolDeclaration,
+                shouldConformToProtocol: shouldMockConformToProtocol,
+                sendableConformance: macroArguments.sendableConformance
+            ),
+            genericWhereClause: mockGenericWhereClause,
+            memberBlock: try self.mockMemberBlock(from: protocolDeclaration)
+        )
+    }
+
     // MARK: Name
 
-    /// Returns the type name of the mock.
+    /// Returns the name of the mock, generated from the provided protocol.
+    ///
+    /// - Parameter protocolDeclaration: The protocol being mocked.
+    /// - Returns: The name of the mock.
     private static func mockName(
         from protocolDeclaration: ProtocolDeclSyntax
     ) -> TokenSyntax {
@@ -126,128 +153,253 @@ extension MockedMacro {
         }
     }
 
-    // MARK: Generic Parameter Clause
+    // MARK: Generic Specialization
 
-    /// Returns the generic parameter clause to apply to the mock declaration,
-    /// generated from the associated types defined by the provided protocol.
-    ///
-    /// The clause supports associated types with comma-separated constraints,
-    /// composition (`&`), or a combination of both. Associated types inside
-    /// `#if` blocks are also extracted.
-    ///
-    /// ```swift
-    /// @Mocked
-    /// protocol Dependency {
-    ///     associatedtype Item: Equatable & Identifiable, Sendable
-    /// }
-    ///
-    /// final class DependencyMock<Item: Sendable & Equatable & Identifiable>: Dependency {}
-    /// ```
+    /// Returns a tuple containing a generic parameter clause, a generic where
+    /// clause, and any conditional conformance declarations needed to conform
+    /// the mock declaration to the provided `protocolDeclaration`.
     ///
     /// - Parameters:
+    ///   - mockName: The name of the mock.
     ///   - protocolDeclaration: The protocol to which the mock must conform.
-    ///   - excludingConstraintsFor: Names of associated types whose constraints
-    ///     should be excluded (used for conditional conformance).
-    /// - Returns: The generic parameter clause to apply to the mock declaration.
-    private static func mockGenericParameterClause(
-        from protocolDeclaration: ProtocolDeclSyntax,
-        excludingConstraintsFor excludedNames: Set<String> = []
-    ) -> GenericParameterClauseSyntax? {
-        let memberBlock = protocolDeclaration.memberBlock
-        let associatedTypeDeclarations = self.associatedTypeDeclarations(
-            from: memberBlock.members
-        )
+    /// - Returns: A tuple containing a generic parameter clause, a generic
+    ///   where clause, and any conditional conformance declarations needed to
+    ///   conform the mock declaration to the provided `protocolDeclaration`.
+    private static func mockGenericSpecialization(
+        mockName: TokenSyntax,
+        protocolDeclaration: ProtocolDeclSyntax
+    ) -> (
+        mockGenericParameterClause: GenericParameterClauseSyntax?,
+        mockGenericWhereClause: GenericWhereClauseSyntax?,
+        mockConditionalConformanceDeclarations: [IfConfigDeclSyntax]
+    ) {
+        let protocolGenericRequirements = protocolDeclaration.genericWhereClause?.requirements
 
-        guard !associatedTypeDeclarations.isEmpty else {
+        var mockGenericParameters: [GenericParameterSyntax] = []
+        var mockGenericWhereClauseRequirements = protocolGenericRequirements?.map(\.requirement) ?? []
+        var mockConditionalConformanceDeclarations: [IfConfigDeclSyntax] = []
+
+        for member in protocolDeclaration.memberBlock.members {
+            if let associatedTypeDeclaration = member.decl.as(AssociatedTypeDeclSyntax.self) {
+                let mockGenericParameter = self.mockGenericParameter(from: associatedTypeDeclaration)
+
+                self.appendGenericParameter(mockGenericParameter, to: &mockGenericParameters)
+
+                if let associatedTypeGenericWhereClause = associatedTypeDeclaration.genericWhereClause {
+                    mockGenericWhereClauseRequirements.append(
+                        contentsOf: associatedTypeGenericWhereClause.requirements.map(\.requirement)
+                    )
+                }
+            } else if
+                let ifConfigDeclaration = member.decl.as(IfConfigDeclSyntax.self),
+                let mockConditionalConformanceDeclaration = self.mockConditionalConformanceDeclaration(
+                    from: ifConfigDeclaration,
+                    in: protocolDeclaration,
+                    mockName: mockName,
+                    mockGenericParameters: &mockGenericParameters
+                )
+            {
+                mockConditionalConformanceDeclarations.append(mockConditionalConformanceDeclaration)
+            }
+        }
+
+        let mockGenericParameterClause = self.genericParameterClause(parameters: mockGenericParameters)
+        let mockGenericWhereClause = self.genericWhereClause(requirements: mockGenericWhereClauseRequirements)
+
+        return (
+            mockGenericParameterClause,
+            mockGenericWhereClause,
+            mockConditionalConformanceDeclarations
+        )
+    }
+
+    /// Returns an `IfConfigDeclSyntax` containing extensions that conditionally
+    /// conform the mock to the provided `protocolDeclaration`, or `nil` if the
+    /// mock does not need to conditionally conform to the provided
+    /// `protocolDeclaration`.
+    ///
+    /// This method maintains the structure and conditions of the provided
+    /// `ifConfigDeclaration`.
+    ///
+    /// - Parameters:
+    ///   - ifConfigDeclaration: An `IfConfigDeclSyntax` from the provided
+    ///     `protocolDeclaration`.
+    ///   - protocolDeclaration: The protocol to which the mock must conform.
+    ///   - mockName: The name of the mock.
+    ///   - mockGenericParameters: The mock's generic parameters.
+    /// - Returns: An `IfConfigDeclSyntax` containing extensions that
+    ///   conditionally conform the mock to the provided `protocolDeclaration`,
+    ///   or `nil` if the mock does not need to conditionally conform to the
+    ///   provided `protocolDeclaration`.
+    private static func mockConditionalConformanceDeclaration(
+        from ifConfigDeclaration: IfConfigDeclSyntax,
+        in protocolDeclaration: ProtocolDeclSyntax,
+        mockName: TokenSyntax,
+        mockGenericParameters: inout [GenericParameterSyntax]
+    ) -> IfConfigDeclSyntax? {
+        var ifConfigClauses: [IfConfigClauseSyntax] = []
+        var mockNeedsConditionalConformance = false
+
+        for clause in ifConfigDeclaration.clauses {
+            var mockExtensionGenericWhereClauseRequirements: [GenericRequirementSyntax.Requirement] = []
+
+            if case let .decls(members) = clause.elements {
+                for member in members {
+                    guard
+                        let associatedTypeDeclaration = member.decl.as(AssociatedTypeDeclSyntax.self)
+                    else {
+                        continue
+                    }
+
+                    let mockGenericParameter = self.mockGenericParameter(from: associatedTypeDeclaration)
+
+                    self.appendGenericParameter(
+                        GenericParameterSyntax(name: mockGenericParameter.name),
+                        to: &mockGenericParameters
+                    )
+
+                    if let mockGenericParameterInheritedType = mockGenericParameter.inheritedType {
+                        mockExtensionGenericWhereClauseRequirements.append(
+                            .conformanceRequirement(
+                                ConformanceRequirementSyntax(
+                                    leftType: IdentifierTypeSyntax(
+                                        name: mockGenericParameter.name
+                                    ),
+                                    rightType: mockGenericParameterInheritedType
+                                )
+                            )
+                        )
+                    }
+
+                    if let associatedTypeGenericWhereClause = associatedTypeDeclaration.genericWhereClause {
+                        mockExtensionGenericWhereClauseRequirements.append(
+                            contentsOf: associatedTypeGenericWhereClause.requirements.map(\.requirement)
+                        )
+                    }
+                }
+            }
+
+            if !mockExtensionGenericWhereClauseRequirements.isEmpty {
+                mockNeedsConditionalConformance = true
+            }
+
+            let mockExtensionGenericWhereClause = self.genericWhereClause(
+                requirements: mockExtensionGenericWhereClauseRequirements
+            )
+            let mockExtensionDeclaration = ExtensionDeclSyntax(
+                extendedType: IdentifierTypeSyntax(name: mockName),
+                inheritanceClause: InheritanceClauseSyntax {
+                    InheritedTypeSyntax(type: protocolDeclaration.type)
+                },
+                genericWhereClause: mockExtensionGenericWhereClause
+            ) {}
+            let ifConfigClause = IfConfigClauseSyntax(
+                poundKeyword: clause.poundKeyword.trimmed,
+                condition: clause.condition?.trimmed,
+                elements: .decls(
+                    MemberBlockItemListSyntax {
+                        MemberBlockItemSyntax(decl: mockExtensionDeclaration)
+                    }
+                )
+            )
+
+            ifConfigClauses.append(ifConfigClause)
+        }
+
+        guard mockNeedsConditionalConformance else {
             return nil
         }
 
-        // Deduplicate by name (same associated type may appear in multiple #if branches)
-        var seenNames: Set<String> = []
-        let uniqueAssociatedTypes = associatedTypeDeclarations.filter { decl in
-            let name = decl.name.text
-            if seenNames.contains(name) {
-                return false
+        return IfConfigDeclSyntax(clauses: IfConfigClauseListSyntax(ifConfigClauses))
+    }
+
+    // MARK: Generic Parameter Clause
+
+    /// Returns a generic parameter to apply to the mock, generated from the
+    /// provided `associatedTypeDeclaration`.
+    ///
+    /// - Parameter associatedTypeDeclaration: An associated type declaration
+    ///   from the protocol to which the mock must conform.
+    /// - Returns: A generic parameter to apply to the mock.
+    private static func mockGenericParameter(
+        from associatedTypeDeclaration: AssociatedTypeDeclSyntax
+    ) -> GenericParameterSyntax {
+        let genericParameterName = associatedTypeDeclaration.name.trimmed
+
+        guard let inheritanceClause = associatedTypeDeclaration.inheritanceClause else {
+            return GenericParameterSyntax(name: genericParameterName)
+        }
+
+        let commaSeparatedInheritedTypes = inheritanceClause
+            .inheritedTypes(ofType: IdentifierTypeSyntax.self)
+            .compactMap { CompositionTypeElementSyntax(type: $0) }
+
+        let composedInheritedTypes = inheritanceClause
+            .inheritedTypes(ofType: CompositionTypeSyntax.self)
+            .flatMap(\.elements)
+
+        let inheritedTypes = commaSeparatedInheritedTypes + composedInheritedTypes
+        let lastIndex = inheritedTypes.count - 1
+        let inheritedTypeElements = CompositionTypeElementListSyntax {
+            for (index, inheritedType) in inheritedTypes.enumerated() {
+                inheritedType
+                    .trimmed
+                    .with(\.ampersand, index < lastIndex ? .binaryOperator("&") : nil)
             }
-            seenNames.insert(name)
-            return true
+        }
+
+        return GenericParameterSyntax(
+            name: genericParameterName,
+            colon: .colonToken(),
+            inheritedType: CompositionTypeSyntax(elements: inheritedTypeElements)
+        )
+    }
+
+    /// Appends the provided `genericParameter` to the provided
+    /// `genericParameters`, unless another generic parameter of the same name
+    /// already exists, in which case this method does nothing.
+    ///
+    /// - Parameters:
+    ///   - genericParameter: The generic parameter to append to the provided
+    ///     `genericParameters`.
+    ///   - genericParameters: The generic parameters to which to append the
+    ///     provided `genericParameter`.
+    private static func appendGenericParameter(
+        _ genericParameter: GenericParameterSyntax,
+        to genericParameters: inout [GenericParameterSyntax]
+    ) {
+        let isDuplicate = genericParameters.contains { existingGenericParameter in
+            genericParameter.name.tokenKind == existingGenericParameter.name.tokenKind
+        }
+
+        guard !isDuplicate else {
+            return
+        }
+
+        genericParameters.append(genericParameter)
+    }
+
+    /// Returns a generic parameter clause with the provided `parameters`, or
+    /// `nil` if `parameters` is empty.
+    ///
+    /// - Parameter parameters: The generic parameters to include in the generic
+    ///   parameter clause.
+    /// - Returns: A generic parameter clause with the provided `parameters`, or
+    ///   `nil` if `parameters` is empty.
+    private static func genericParameterClause(
+        parameters: [GenericParameterSyntax]
+    ) -> GenericParameterClauseSyntax? {
+        guard !parameters.isEmpty else {
+            return nil
         }
 
         return GenericParameterClauseSyntax {
-            for associatedTypeDeclaration in uniqueAssociatedTypes {
-                let genericParameterName = associatedTypeDeclaration.name.trimmed
-                let shouldExcludeConstraints = excludedNames
-                    .contains(associatedTypeDeclaration.name.text)
-
-                if !shouldExcludeConstraints,
-                   let inheritanceClause = associatedTypeDeclaration.inheritanceClause
-                {
-                    let commaSeparatedInheritedTypes = inheritanceClause
-                        .inheritedTypes(ofType: IdentifierTypeSyntax.self)
-                        .compactMap { CompositionTypeElementSyntax(type: $0) }
-
-                    let composedInheritedTypes = inheritanceClause
-                        .inheritedTypes(ofType: CompositionTypeSyntax.self)
-                        .flatMap(\.elements)
-
-                    let inheritedTypes = commaSeparatedInheritedTypes + composedInheritedTypes
-                    let lastIndex = inheritedTypes.count - 1
-                    let inheritedTypeElements = CompositionTypeElementListSyntax {
-                        for (index, inheritedType) in inheritedTypes.enumerated() {
-                            inheritedType
-                                .trimmed
-                                .with(\.ampersand, index < lastIndex ? .binaryOperator("&") : nil)
-                        }
-                    }
-
-                    GenericParameterSyntax(
-                        name: genericParameterName,
-                        colon: .colonToken(),
-                        inheritedType: CompositionTypeSyntax(elements: inheritedTypeElements)
-                    )
-                } else {
-                    GenericParameterSyntax(name: genericParameterName)
-                }
+            for (index, parameter) in parameters.enumerated() {
+                parameter.with(
+                    \.trailingComma,
+                     index < parameters.count - 1 ? .commaToken() : nil
+                )
             }
-        }
-    }
-
-    /// Returns the associated type declarations from the provided `members`,
-    /// including those inside `#if` declarations.
-    ///
-    /// - Parameter members: The members to search.
-    /// - Returns: The associated type declarations from the provided `members`.
-    private static func associatedTypeDeclarations(
-        from members: MemberBlockItemListSyntax
-    ) -> [AssociatedTypeDeclSyntax] {
-        members.flatMap { member -> [AssociatedTypeDeclSyntax] in
-            if let associatedTypeDeclaration = member.decl.as(AssociatedTypeDeclSyntax.self) {
-                return [associatedTypeDeclaration]
-            } else if let ifConfigDeclaration = member.decl.as(IfConfigDeclSyntax.self) {
-                return self.associatedTypeDeclarations(from: ifConfigDeclaration)
-            } else {
-                return []
-            }
-        }
-    }
-
-    /// Returns the associated type declarations from the provided
-    /// `ifConfigDeclaration`.
-    ///
-    /// This method recursively searches nested `#if` declarations.
-    ///
-    /// - Parameter ifConfigDeclaration: The `#if` declaration to search.
-    /// - Returns: The associated type declarations from the provided
-    ///   `ifConfigDeclaration`.
-    private static func associatedTypeDeclarations(
-        from ifConfigDeclaration: IfConfigDeclSyntax
-    ) -> [AssociatedTypeDeclSyntax] {
-        ifConfigDeclaration.clauses.flatMap { clause -> [AssociatedTypeDeclSyntax] in
-            guard case let .decls(members) = clause.elements else {
-                return []
-            }
-
-            return self.associatedTypeDeclarations(from: members)
         }
     }
 
@@ -264,46 +416,66 @@ extension MockedMacro {
     /// ```
     ///
     /// - Parameters:
-    ///   - protocolDeclaration: The protocol to which the mock must
-    ///     conform.
+    ///   - protocolDeclaration: The protocol to which the mock must conform.
+    ///   - shouldConformToProtocol: A Boolean value indicating whether the mock
+    ///     should conform to the protocol. If the mock has extensions that
+    ///     handle conditional conformance, this value should be `false`.
     ///   - sendableConformance: The `Sendable` conformance the mock should have.
     ///     If `.unchecked`, the inheritance clause will include `@unchecked Sendable`.
     /// - Returns: The inheritance clause to apply to the mock declaration.
     private static func mockInheritanceClause(
         from protocolDeclaration: ProtocolDeclSyntax,
+        shouldConformToProtocol: Bool,
         sendableConformance: MockSendableConformance
-    ) -> InheritanceClauseSyntax {
-        InheritanceClauseSyntax {
+    ) -> InheritanceClauseSyntax? {
+        var inheritedTypes: [InheritedTypeSyntax] = []
+
+        if case .unchecked = sendableConformance {
+            inheritedTypes.append(.uncheckedSendable)
+        }
+
+        if shouldConformToProtocol {
+            inheritedTypes.append(InheritedTypeSyntax(type: protocolDeclaration.type))
+        }
+
+        guard !inheritedTypes.isEmpty else {
+            return nil
+        }
+
+        return InheritanceClauseSyntax {
             InheritedTypeListSyntax {
-                if case .unchecked = sendableConformance {
-                    .uncheckedSendable
-                        .with(\.trailingComma, .commaToken())
+                for (index, inheritedType) in inheritedTypes.enumerated() {
+                    inheritedType.with(
+                        \.trailingComma,
+                         index < inheritedTypes.count - 1 ? .commaToken() : nil
+                    )
                 }
-                InheritedTypeSyntax(type: protocolDeclaration.type)
             }
         }
     }
 
     // MARK: Generic Where Clause
 
-    /// Returns the generic `where` clause to apply to the mock declaration,
-    /// generated from the generic `where` clause of the provided protocol and
-    /// the generic `where` clauses of the provided protocol's associated types.
+    /// Returns a generic `where` clause generated from the provided generic
+    /// requirements.
     ///
-    /// - Parameter protocolDeclaration: The protocol to which the mock must
-    ///   conform.
-    /// - Returns: The generic `where` clause to apply to the mock declaration.
-    private static func mockGenericWhereClause(
-        from protocolDeclaration: ProtocolDeclSyntax
+    /// - Parameter requirements: The requirements to apply to the generic
+    ///   `where` clause.
+    /// - Returns: A generic `where` clause.
+    private static func genericWhereClause(
+        requirements: [GenericRequirementSyntax.Requirement]
     ) -> GenericWhereClauseSyntax? {
-        guard !protocolDeclaration.genericWhereClauses.isEmpty else {
+        guard !requirements.isEmpty else {
             return nil
         }
 
         return GenericWhereClauseSyntax {
-            protocolDeclaration.genericWhereClauses
-                .flatMap(\.requirements)
-                .map(\.trimmed)
+            for (index, requirement) in requirements.enumerated() {
+                GenericRequirementSyntax(
+                    requirement: requirement.trimmed,
+                    trailingComma: index < requirements.count - 1 ? .commaToken() : nil
+                )
+            }
         }
     }
 
@@ -675,242 +847,6 @@ extension MockedMacro {
 
             for modifier in modifiers where !modifier.isAccessLevel {
                 modifier.trimmed
-            }
-        }
-    }
-}
-
-// MARK: - Conditional Associated Type Conformance
-
-extension MockedMacro {
-
-    /// A tuple representing one clause of an `#if` block containing associated
-    /// types with their conditional compilation condition.
-    ///
-    /// - `condition`: The conditional compilation expression (e.g., `DEBUG`),
-    ///   or `nil` for `#else` clauses.
-    /// - `associatedTypes`: The associated type declarations within this clause.
-    private typealias ConditionalClause = (
-        condition: ExprSyntax?,
-        associatedTypes: [AssociatedTypeDeclSyntax]
-    )
-
-    /// Returns conditional clauses containing associated types with conflicting
-    /// constraints across different `#if` branches.
-    ///
-    /// This method detects when the same associated type has different constraints
-    /// in different conditional compilation branches, requiring conditional conformance.
-    ///
-    /// - Parameter members: The protocol members to search for conflicting
-    ///   conditional associated types.
-    /// - Returns: An array of conditional clauses if conflicts are found, or
-    ///   `nil` if there are no conflicts.
-    private static func conflictingConditionalClauses(
-        from members: MemberBlockItemListSyntax
-    ) -> [ConditionalClause]? {
-        members
-            .compactMap { member in member.decl.as(IfConfigDeclSyntax.self) }
-            .compactMap { ifConfigDeclaration -> [ConditionalClause]? in
-                let clauses = ifConfigDeclaration.clauses
-                    .compactMap { clause -> ConditionalClause? in
-                        guard case let .decls(declarations) = clause.elements else {
-                            return nil
-                        }
-
-                        let associatedTypes = declarations.compactMap { declaration in
-                            declaration.decl.as(AssociatedTypeDeclSyntax.self)
-                        }
-
-                        guard !associatedTypes.isEmpty else {
-                            return nil
-                        }
-
-                        return (clause.condition, associatedTypes)
-                    }
-
-                guard !clauses.isEmpty else {
-                    return nil
-                }
-
-                let constraintSetsByTypeName = Dictionary(
-                    grouping: clauses.flatMap(\.associatedTypes),
-                    by: \.name.text
-                ).mapValues { types in
-                    Set(types.map { type in
-                        type.inheritanceClause?.description
-                            .trimmingCharacters(in: .whitespaces) ?? ""
-                    })
-                }
-
-                guard constraintSetsByTypeName.values.contains(where: { $0.count > 1 }) else {
-                    return nil
-                }
-
-                return clauses
-            }
-            .first
-    }
-
-    /// Returns the macro expansion with conditional conformance extensions
-    /// for protocols with conflicting associated type constraints in `#if` blocks.
-    ///
-    /// This method generates a mock class without associated type constraints,
-    /// along with conditional extensions that conform to the protocol under
-    /// specific compilation conditions with the appropriate constraints applied.
-    ///
-    /// - Parameters:
-    ///   - protocolDeclaration: The protocol to which the mock must conform.
-    ///   - macroArguments: The macro arguments provided to the `@Mocked` attribute.
-    ///   - clauses: The conditional clauses containing conflicting associated
-    ///     type constraints.
-    /// - Returns: The declarations to generate, including the mock class and
-    ///   conditional conformance extensions.
-    private static func expansionWithConditionalConformance(
-        protocolDeclaration: ProtocolDeclSyntax,
-        macroArguments: MacroArguments,
-        clauses: [ConditionalClause]
-    ) throws -> [DeclSyntax] {
-        let mockName = self.mockName(from: protocolDeclaration)
-        let associatedTypeNamesToExclude = Set(clauses.flatMap { clause in
-            clause.associatedTypes.map(\.name.text)
-        })
-
-        let mockDeclaration = ClassDeclSyntax(
-            attributes: AttributeListSyntax {
-                AttributeSyntax(
-                    atSign: .atSignToken(),
-                    attributeName: IdentifierTypeSyntax(name: "MockedMembers"),
-                    trailingTrivia: .newline
-                )
-            },
-            modifiers: self.mockModifiers(from: protocolDeclaration),
-            classKeyword: .keyword(protocolDeclaration.isActorConstrained ? .actor : .class),
-            name: mockName,
-            genericParameterClause: self.mockGenericParameterClause(
-                from: protocolDeclaration,
-                excludingConstraintsFor: associatedTypeNamesToExclude
-            ),
-            inheritanceClause: macroArguments.sendableConformance == .unchecked
-                ? InheritanceClauseSyntax { InheritedTypeSyntax.uncheckedSendable }
-                : nil,
-            genericWhereClause: self.mockGenericWhereClause(from: protocolDeclaration),
-            memberBlock: try self.mockMemberBlock(from: protocolDeclaration)
-        )
-
-        let ifConfigDeclaration = IfConfigDeclSyntax(
-            clauses: IfConfigClauseListSyntax(
-                clauses.enumerated().map { index, clause in
-                    IfConfigClauseSyntax(
-                        poundKeyword: index == 0
-                            ? .poundIfToken()
-                            : clause.condition != nil ? .poundElseifToken() : .poundElseToken(),
-                        condition: clause.condition,
-                        elements: .decls(MemberBlockItemListSyntax {
-                            MemberBlockItemSyntax(decl: ExtensionDeclSyntax(
-                                extendedType: IdentifierTypeSyntax(name: mockName),
-                                inheritanceClause: InheritanceClauseSyntax {
-                                    InheritedTypeSyntax(type: protocolDeclaration.type)
-                                },
-                                genericWhereClause: self.whereClause(from: clause.associatedTypes),
-                                memberBlock: MemberBlockSyntax(members: [])
-                            ))
-                        })
-                    )
-                }
-            )
-        )
-
-        let declarations: [DeclSyntax] = [
-            DeclSyntax(mockDeclaration),
-            DeclSyntax(ifConfigDeclaration),
-        ]
-
-        guard let condition = macroArguments.compilationCondition.rawValue else {
-            return declarations
-        }
-
-        return [DeclSyntax(IfConfigDeclSyntax(clauses: IfConfigClauseListSyntax {
-            IfConfigClauseSyntax(
-                poundKeyword: .poundIfToken(),
-                condition: DeclReferenceExprSyntax(baseName: .identifier(condition)),
-                elements: .statements(CodeBlockItemListSyntax(
-                    declarations.map { declaration in
-                        CodeBlockItemSyntax(item: .decl(declaration))
-                    }
-                ))
-            )
-        }))]
-    }
-
-    /// Builds a generic `where` clause from associated type constraints.
-    ///
-    /// This method extracts all constraints from the provided associated types
-    /// and combines them into a single `where` clause. It handles both simple
-    /// constraints (e.g., `Item: Equatable`) and composition constraints
-    /// (e.g., `Item: Equatable & Sendable`).
-    ///
-    /// For example, given these associated types:
-    ///
-    /// ```swift
-    /// associatedtype Item: Equatable
-    /// associatedtype Value: Codable & Sendable
-    /// ```
-    ///
-    /// This method generates:
-    ///
-    /// ```swift
-    /// where Item: Equatable, Value: Codable, Value: Sendable
-    /// ```
-    ///
-    /// This is used when creating conditional conformance extensions for mocks
-    /// where different `#if` branches define conflicting constraints for the
-    /// same associated type.
-    ///
-    /// - Parameter associatedTypes: The associated type declarations from which
-    ///   to extract constraints.
-    /// - Returns: A generic `where` clause containing all the constraints, or
-    ///   `nil` if no constraints are found.
-    private static func whereClause(
-        from associatedTypes: [AssociatedTypeDeclSyntax]
-    ) -> GenericWhereClauseSyntax? {
-        let allConstraints = associatedTypes.flatMap { associatedType -> [(
-            name: TokenSyntax,
-            type: TypeSyntax
-        )] in
-            guard let inheritanceClause = associatedType.inheritanceClause else {
-                return []
-            }
-
-            let identifierTypes = inheritanceClause
-                .inheritedTypes(ofType: IdentifierTypeSyntax.self)
-                .map(TypeSyntax.init)
-
-            let compositionTypes = inheritanceClause
-                .inheritedTypes(ofType: CompositionTypeSyntax.self)
-                .flatMap(\.elements)
-                .map { compositionType in
-                    TypeSyntax(compositionType.type)
-                }
-
-            return (identifierTypes + compositionTypes).map { type in (
-                associatedType.name.trimmed,
-                type
-            ) }
-        }
-
-        guard !allConstraints.isEmpty else {
-            return nil
-        }
-
-        return GenericWhereClauseSyntax {
-            allConstraints.map { constraint in
-                GenericRequirementSyntax(requirement: .conformanceRequirement(
-                    ConformanceRequirementSyntax(
-                        leftType: IdentifierTypeSyntax(name: constraint.name),
-                        colon: .colonToken(),
-                        rightType: constraint.type.trimmed
-                    )
-                ))
             }
         }
     }
