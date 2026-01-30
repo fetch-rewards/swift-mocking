@@ -32,13 +32,13 @@ public struct MockedMacro: PeerMacro {
             from: protocolDeclaration,
             macroArguments: macroArguments,
             mockName: mockName,
-            mockGenericParameterClause: mockGenericSpecialization.mockGenericParameterClause,
-            mockGenericWhereClause: mockGenericSpecialization.mockGenericWhereClause,
-            shouldMockConformToProtocol: mockGenericSpecialization.mockPeerIfConfigDeclarations.isEmpty
+            mockGenericParameterClause: mockGenericSpecialization.genericParameterClause,
+            mockGenericWhereClause: mockGenericSpecialization.genericWhereClause,
+            shouldMockConformToProtocol: mockGenericSpecialization.peerIfConfigDeclarations.isEmpty
         )
 
         let declarations = [DeclSyntax(mockDeclaration)]
-            + mockGenericSpecialization.mockPeerIfConfigDeclarations.map(DeclSyntax.init)
+            + mockGenericSpecialization.peerIfConfigDeclarations.map(DeclSyntax.init)
 
         guard let compilationCondition = macroArguments.compilationCondition.rawValue else {
             return declarations
@@ -171,9 +171,9 @@ extension MockedMacro {
         mockName: TokenSyntax,
         protocolDeclaration: ProtocolDeclSyntax
     ) -> (
-        mockGenericParameterClause: GenericParameterClauseSyntax?,
-        mockGenericWhereClause: GenericWhereClauseSyntax?,
-        mockPeerIfConfigDeclarations: [IfConfigDeclSyntax]
+        genericParameterClause: GenericParameterClauseSyntax?,
+        genericWhereClause: GenericWhereClauseSyntax?,
+        peerIfConfigDeclarations: [IfConfigDeclSyntax]
     ) {
         let protocolGenericRequirements = protocolDeclaration.genericWhereClause?.requirements
 
