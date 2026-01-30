@@ -191,7 +191,9 @@ extension MockedMacro {
 
                 self.appendGenericParameter(mockGenericParameter, to: &mockGenericParameters)
 
-                if let associatedTypeGenericWhereClause = associatedTypeDeclaration.genericWhereClause {
+                if let associatedTypeGenericWhereClause = associatedTypeDeclaration
+                    .genericWhereClause
+                {
                     mockGenericWhereClauseRequirements.append(
                         contentsOf: associatedTypeGenericWhereClause.requirements.map(
                             \.requirement
@@ -289,7 +291,9 @@ extension MockedMacro {
                         )
                     }
 
-                    if let associatedTypeGenericWhereClause = associatedTypeDeclaration.genericWhereClause {
+                    if let associatedTypeGenericWhereClause = associatedTypeDeclaration
+                        .genericWhereClause
+                    {
                         mockExtensionGenericWhereClauseRequirements.append(
                             contentsOf: associatedTypeGenericWhereClause.requirements.map(
                                 \.requirement
