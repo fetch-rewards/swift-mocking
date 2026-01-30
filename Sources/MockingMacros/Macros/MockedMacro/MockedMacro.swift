@@ -34,11 +34,11 @@ public struct MockedMacro: PeerMacro {
             mockName: mockName,
             mockGenericParameterClause: mockGenericSpecialization.mockGenericParameterClause,
             mockGenericWhereClause: mockGenericSpecialization.mockGenericWhereClause,
-            shouldMockConformToProtocol: mockGenericSpecialization.mockConditionalConformanceDeclarations.isEmpty
+            shouldMockConformToProtocol: mockGenericSpecialization.mockPeerIfConfigDeclarations.isEmpty
         )
 
         let declarations = [DeclSyntax(mockDeclaration)]
-            + mockGenericSpecialization.mockConditionalConformanceDeclarations.map(DeclSyntax.init)
+            + mockGenericSpecialization.mockPeerIfConfigDeclarations.map(DeclSyntax.init)
 
         guard let compilationCondition = macroArguments.compilationCondition.rawValue else {
             return declarations
@@ -156,60 +156,72 @@ extension MockedMacro {
     // MARK: Generic Specialization
 
     /// Returns a tuple containing a generic parameter clause, a generic where
-    /// clause, and any conditional conformance declarations needed to conform
-    /// the mock declaration to the provided `protocolDeclaration`.
+    /// clause, and zero or more `IfConfigDeclSyntax` objects containing
+    /// extensions that conditionally conform the mock to the provided
+    /// `protocolDeclaration`.
     ///
     /// - Parameters:
     ///   - mockName: The name of the mock.
     ///   - protocolDeclaration: The protocol to which the mock must conform.
     /// - Returns: A tuple containing a generic parameter clause, a generic
-    ///   where clause, and any conditional conformance declarations needed to
-    ///   conform the mock declaration to the provided `protocolDeclaration`.
+    ///   where clause, and zero or more `IfConfigDeclSyntax` objects containing
+    ///   extensions that conditionally conform the mock to the provided
+    ///   `protocolDeclaration`.
     private static func mockGenericSpecialization(
         mockName: TokenSyntax,
         protocolDeclaration: ProtocolDeclSyntax
     ) -> (
         mockGenericParameterClause: GenericParameterClauseSyntax?,
         mockGenericWhereClause: GenericWhereClauseSyntax?,
-        mockConditionalConformanceDeclarations: [IfConfigDeclSyntax]
+        mockPeerIfConfigDeclarations: [IfConfigDeclSyntax]
     ) {
         let protocolGenericRequirements = protocolDeclaration.genericWhereClause?.requirements
 
         var mockGenericParameters: [GenericParameterSyntax] = []
-        var mockGenericWhereClauseRequirements = protocolGenericRequirements?.map(\.requirement) ?? []
-        var mockConditionalConformanceDeclarations: [IfConfigDeclSyntax] = []
+        var mockGenericWhereClauseRequirements = protocolGenericRequirements?.map(
+            \.requirement
+        ) ?? []
+        var mockPeerIfConfigDeclarations: [IfConfigDeclSyntax] = []
 
         for member in protocolDeclaration.memberBlock.members {
             if let associatedTypeDeclaration = member.decl.as(AssociatedTypeDeclSyntax.self) {
-                let mockGenericParameter = self.mockGenericParameter(from: associatedTypeDeclaration)
+                let mockGenericParameter = self.mockGenericParameter(
+                    from: associatedTypeDeclaration
+                )
 
                 self.appendGenericParameter(mockGenericParameter, to: &mockGenericParameters)
 
                 if let associatedTypeGenericWhereClause = associatedTypeDeclaration.genericWhereClause {
                     mockGenericWhereClauseRequirements.append(
-                        contentsOf: associatedTypeGenericWhereClause.requirements.map(\.requirement)
+                        contentsOf: associatedTypeGenericWhereClause.requirements.map(
+                            \.requirement
+                        )
                     )
                 }
             } else if
                 let ifConfigDeclaration = member.decl.as(IfConfigDeclSyntax.self),
-                let mockConditionalConformanceDeclaration = self.mockConditionalConformanceDeclaration(
+                let mockPeerIfConfigDeclaration = self.mockPeerIfConfigDeclaration(
                     from: ifConfigDeclaration,
                     in: protocolDeclaration,
                     mockName: mockName,
                     mockGenericParameters: &mockGenericParameters
                 )
             {
-                mockConditionalConformanceDeclarations.append(mockConditionalConformanceDeclaration)
+                mockPeerIfConfigDeclarations.append(mockPeerIfConfigDeclaration)
             }
         }
 
-        let mockGenericParameterClause = self.genericParameterClause(parameters: mockGenericParameters)
-        let mockGenericWhereClause = self.genericWhereClause(requirements: mockGenericWhereClauseRequirements)
+        let mockGenericParameterClause = self.genericParameterClause(
+            parameters: mockGenericParameters
+        )
+        let mockGenericWhereClause = self.genericWhereClause(
+            requirements: mockGenericWhereClauseRequirements
+        )
 
         return (
             mockGenericParameterClause,
             mockGenericWhereClause,
-            mockConditionalConformanceDeclarations
+            mockPeerIfConfigDeclarations
         )
     }
 
@@ -222,8 +234,8 @@ extension MockedMacro {
     /// `ifConfigDeclaration`.
     ///
     /// - Parameters:
-    ///   - ifConfigDeclaration: An `IfConfigDeclSyntax` from the provided
-    ///     `protocolDeclaration`.
+    ///   - protocolIfConfigDeclaration: An `IfConfigDeclSyntax` from the
+    ///     provided `protocolDeclaration`.
     ///   - protocolDeclaration: The protocol to which the mock must conform.
     ///   - mockName: The name of the mock.
     ///   - mockGenericParameters: The mock's generic parameters.
@@ -231,27 +243,33 @@ extension MockedMacro {
     ///   conditionally conform the mock to the provided `protocolDeclaration`,
     ///   or `nil` if the mock does not need to conditionally conform to the
     ///   provided `protocolDeclaration`.
-    private static func mockConditionalConformanceDeclaration(
-        from ifConfigDeclaration: IfConfigDeclSyntax,
+    private static func mockPeerIfConfigDeclaration(
+        from protocolIfConfigDeclaration: IfConfigDeclSyntax,
         in protocolDeclaration: ProtocolDeclSyntax,
         mockName: TokenSyntax,
         mockGenericParameters: inout [GenericParameterSyntax]
     ) -> IfConfigDeclSyntax? {
-        var ifConfigClauses: [IfConfigClauseSyntax] = []
+        var mockPeerIfConfigClauses: [IfConfigClauseSyntax] = []
         var mockNeedsConditionalConformance = false
 
-        for clause in ifConfigDeclaration.clauses {
-            var mockExtensionGenericWhereClauseRequirements: [GenericRequirementSyntax.Requirement] = []
+        for protocolIfConfigClause in protocolIfConfigDeclaration.clauses {
+            var mockExtensionGenericWhereClauseRequirements: [
+                GenericRequirementSyntax.Requirement
+            ] = []
 
-            if case let .decls(members) = clause.elements {
+            if case let .decls(members) = protocolIfConfigClause.elements {
                 for member in members {
                     guard
-                        let associatedTypeDeclaration = member.decl.as(AssociatedTypeDeclSyntax.self)
+                        let associatedTypeDeclaration = member.decl.as(
+                            AssociatedTypeDeclSyntax.self
+                        )
                     else {
                         continue
                     }
 
-                    let mockGenericParameter = self.mockGenericParameter(from: associatedTypeDeclaration)
+                    let mockGenericParameter = self.mockGenericParameter(
+                        from: associatedTypeDeclaration
+                    )
 
                     self.appendGenericParameter(
                         GenericParameterSyntax(name: mockGenericParameter.name),
@@ -273,7 +291,9 @@ extension MockedMacro {
 
                     if let associatedTypeGenericWhereClause = associatedTypeDeclaration.genericWhereClause {
                         mockExtensionGenericWhereClauseRequirements.append(
-                            contentsOf: associatedTypeGenericWhereClause.requirements.map(\.requirement)
+                            contentsOf: associatedTypeGenericWhereClause.requirements.map(
+                                \.requirement
+                            )
                         )
                     }
                 }
@@ -293,9 +313,9 @@ extension MockedMacro {
                 },
                 genericWhereClause: mockExtensionGenericWhereClause
             ) {}
-            let ifConfigClause = IfConfigClauseSyntax(
-                poundKeyword: clause.poundKeyword.trimmed,
-                condition: clause.condition?.trimmed,
+            let mockPeerIfConfigClause = IfConfigClauseSyntax(
+                poundKeyword: protocolIfConfigClause.poundKeyword.trimmed,
+                condition: protocolIfConfigClause.condition?.trimmed,
                 elements: .decls(
                     MemberBlockItemListSyntax {
                         MemberBlockItemSyntax(decl: mockExtensionDeclaration)
@@ -303,14 +323,16 @@ extension MockedMacro {
                 )
             )
 
-            ifConfigClauses.append(ifConfigClause)
+            mockPeerIfConfigClauses.append(mockPeerIfConfigClause)
         }
 
         guard mockNeedsConditionalConformance else {
             return nil
         }
 
-        return IfConfigDeclSyntax(clauses: IfConfigClauseListSyntax(ifConfigClauses))
+        return IfConfigDeclSyntax(
+            clauses: IfConfigClauseListSyntax(mockPeerIfConfigClauses)
+        )
     }
 
     // MARK: Generic Parameter Clause
@@ -397,7 +419,7 @@ extension MockedMacro {
             for (index, parameter) in parameters.enumerated() {
                 parameter.with(
                     \.trailingComma,
-                     index < parameters.count - 1 ? .commaToken() : nil
+                    index < parameters.count - 1 ? .commaToken() : nil
                 )
             }
         }
@@ -447,7 +469,7 @@ extension MockedMacro {
                 for (index, inheritedType) in inheritedTypes.enumerated() {
                     inheritedType.with(
                         \.trailingComma,
-                         index < inheritedTypes.count - 1 ? .commaToken() : nil
+                        index < inheritedTypes.count - 1 ? .commaToken() : nil
                     )
                 }
             }

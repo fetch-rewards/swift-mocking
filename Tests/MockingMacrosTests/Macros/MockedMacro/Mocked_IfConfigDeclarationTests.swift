@@ -456,7 +456,6 @@ struct Mocked_IfConfigDeclarationTests {
         )
     }
 
-
     // MARK: Multiple Members in #if Statement Tests
 
     @Test(arguments: mockedTestConfigurations)
