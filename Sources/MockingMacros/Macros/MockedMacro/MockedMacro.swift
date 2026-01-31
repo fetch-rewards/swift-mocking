@@ -23,36 +23,25 @@ public struct MockedMacro: PeerMacro {
         }
 
         let macroArguments = MacroArguments(node: node)
-        let mockDeclaration = DeclSyntax(
-            ClassDeclSyntax(
-                attributes: AttributeListSyntax {
-                    AttributeSyntax(
-                        atSign: .atSignToken(),
-                        attributeName: IdentifierTypeSyntax(name: "MockedMembers"),
-                        trailingTrivia: .newline
-                    )
-                },
-                modifiers: self.mockModifiers(from: protocolDeclaration),
-                classKeyword: .keyword(
-                    protocolDeclaration.isActorConstrained ? .actor : .class
-                ),
-                name: self.mockName(from: protocolDeclaration),
-                genericParameterClause: self.mockGenericParameterClause(
-                    from: protocolDeclaration
-                ),
-                inheritanceClause: self.mockInheritanceClause(
-                    from: protocolDeclaration,
-                    sendableConformance: macroArguments.sendableConformance
-                ),
-                genericWhereClause: self.mockGenericWhereClause(
-                    from: protocolDeclaration
-                ),
-                memberBlock: try self.mockMemberBlock(from: protocolDeclaration)
-            )
+        let mockName = self.mockName(from: protocolDeclaration)
+        let mockGenericConfiguration = self.mockGenericConfiguration(
+            mockName: mockName,
+            protocolDeclaration: protocolDeclaration
+        )
+        let mockDeclaration = try self.mockDeclaration(
+            from: protocolDeclaration,
+            macroArguments: macroArguments,
+            mockName: mockName,
+            mockGenericParameterClause: mockGenericConfiguration.genericParameterClause,
+            mockGenericWhereClause: mockGenericConfiguration.genericWhereClause,
+            shouldMockConformToProtocol: mockGenericConfiguration.peerIfConfigDeclarations.isEmpty
         )
 
+        let declarations = [DeclSyntax(mockDeclaration)]
+            + mockGenericConfiguration.peerIfConfigDeclarations.map(DeclSyntax.init)
+
         guard let compilationCondition = macroArguments.compilationCondition.rawValue else {
-            return [mockDeclaration]
+            return declarations
         }
 
         let ifConfigDeclaration = IfConfigDeclSyntax(
@@ -64,7 +53,9 @@ public struct MockedMacro: PeerMacro {
                     ),
                     elements: .statements(
                         CodeBlockItemListSyntax {
-                            CodeBlockItemSyntax(item: .decl(mockDeclaration))
+                            for declaration in declarations {
+                                CodeBlockItemSyntax(item: .decl(declaration))
+                            }
                         }
                     )
                 )
@@ -79,9 +70,56 @@ public struct MockedMacro: PeerMacro {
 
 extension MockedMacro {
 
+    // MARK: Declaration
+
+    /// Returns a mock declaration, generated from the provided protocol.
+    ///
+    /// - Parameters:
+    ///   - protocolDeclaration: The protocol to which the mock must conform.
+    ///   - macroArguments: The arguments passed to the macro.
+    ///   - mockName: The name of the mock.
+    ///   - mockGenericParameterClause: The mock's generic parameter clause.
+    ///   - mockGenericWhereClause: The mock's generic where clause.
+    ///   - shouldMockConformToProtocol: A Boolean value indicating whether the
+    ///     mock should conform to the protocol. If the mock has extensions that
+    ///     handle conditional conformance, this value should be `false`.
+    /// - Returns: A mock declaration.
+    private static func mockDeclaration(
+        from protocolDeclaration: ProtocolDeclSyntax,
+        macroArguments: MacroArguments,
+        mockName: TokenSyntax,
+        mockGenericParameterClause: GenericParameterClauseSyntax?,
+        mockGenericWhereClause: GenericWhereClauseSyntax?,
+        shouldMockConformToProtocol: Bool
+    ) throws -> ClassDeclSyntax {
+        ClassDeclSyntax(
+            attributes: AttributeListSyntax {
+                AttributeSyntax(
+                    atSign: .atSignToken(),
+                    attributeName: IdentifierTypeSyntax(name: "MockedMembers"),
+                    trailingTrivia: .newline
+                )
+            },
+            modifiers: self.mockModifiers(from: protocolDeclaration),
+            classKeyword: .keyword(protocolDeclaration.isActorConstrained ? .actor : .class),
+            name: mockName,
+            genericParameterClause: mockGenericParameterClause,
+            inheritanceClause: self.mockInheritanceClause(
+                from: protocolDeclaration,
+                shouldConformToProtocol: shouldMockConformToProtocol,
+                sendableConformance: macroArguments.sendableConformance
+            ),
+            genericWhereClause: mockGenericWhereClause,
+            memberBlock: try self.mockMemberBlock(from: protocolDeclaration)
+        )
+    }
+
     // MARK: Name
 
-    /// Returns the type name of the mock.
+    /// Returns the name of the mock, generated from the provided protocol.
+    ///
+    /// - Parameter protocolDeclaration: The protocol being mocked.
+    /// - Returns: The name of the mock.
     private static func mockName(
         from protocolDeclaration: ProtocolDeclSyntax
     ) -> TokenSyntax {
@@ -115,70 +153,278 @@ extension MockedMacro {
         }
     }
 
-    // MARK: Generic Parameter Clause
+    // MARK: Generic Configuration
 
-    /// Returns the generic parameter clause to apply to the mock declaration,
-    /// generated from the associated types defined by the provided protocol.
+    /// Returns a tuple containing a generic parameter clause, a generic where
+    /// clause, and zero or more `IfConfigDeclSyntax` objects containing
+    /// extensions that conditionally conform the mock to the provided
+    /// `protocolDeclaration`.
     ///
-    /// The clause supports associated types with comma-separated constraints,
-    /// composition (`&`), or a combination of both.
-    ///
-    /// ```swift
-    /// @Mocked
-    /// protocol Dependency {
-    ///     associatedtype Item: Equatable & Identifiable, Sendable
-    /// }
-    ///
-    /// final class DependencyMock<Item: Sendable & Equatable & Identifiable>: Dependency {}
-    /// ```
-    ///
-    /// - Parameter protocolDeclaration: The protocol to which the mock must
-    ///   conform.
-    /// - Returns: The generic parameter clause to apply to the mock
-    ///   declaration.
-    private static func mockGenericParameterClause(
-        from protocolDeclaration: ProtocolDeclSyntax
-    ) -> GenericParameterClauseSyntax? {
-        let memberBlock = protocolDeclaration.memberBlock
-        let associatedTypeDeclarations = memberBlock.memberDeclarations(
-            ofType: AssociatedTypeDeclSyntax.self
+    /// - Parameters:
+    ///   - mockName: The name of the mock.
+    ///   - protocolDeclaration: The protocol to which the mock must conform.
+    /// - Returns: A tuple containing a generic parameter clause, a generic
+    ///   where clause, and zero or more `IfConfigDeclSyntax` objects containing
+    ///   extensions that conditionally conform the mock to the provided
+    ///   `protocolDeclaration`.
+    private static func mockGenericConfiguration(
+        mockName: TokenSyntax,
+        protocolDeclaration: ProtocolDeclSyntax
+    ) -> (
+        genericParameterClause: GenericParameterClauseSyntax?,
+        genericWhereClause: GenericWhereClauseSyntax?,
+        peerIfConfigDeclarations: [IfConfigDeclSyntax]
+    ) {
+        let protocolGenericRequirements = protocolDeclaration.genericWhereClause?.requirements
+
+        var mockGenericParameters: [GenericParameterSyntax] = []
+        var mockGenericWhereClauseRequirements = protocolGenericRequirements?.map(
+            \.requirement
+        ) ?? []
+        var mockPeerIfConfigDeclarations: [IfConfigDeclSyntax] = []
+
+        for member in protocolDeclaration.memberBlock.members {
+            if let associatedTypeDeclaration = member.decl.as(AssociatedTypeDeclSyntax.self) {
+                let mockGenericParameter = self.mockGenericParameter(
+                    from: associatedTypeDeclaration
+                )
+
+                self.appendGenericParameter(mockGenericParameter, to: &mockGenericParameters)
+
+                if let associatedTypeGenericWhereClause = associatedTypeDeclaration
+                    .genericWhereClause
+                {
+                    mockGenericWhereClauseRequirements.append(
+                        contentsOf: associatedTypeGenericWhereClause.requirements.map(
+                            \.requirement
+                        )
+                    )
+                }
+            } else if
+                let ifConfigDeclaration = member.decl.as(IfConfigDeclSyntax.self),
+                let mockPeerIfConfigDeclaration = self.mockPeerIfConfigDeclaration(
+                    from: ifConfigDeclaration,
+                    in: protocolDeclaration,
+                    mockName: mockName,
+                    mockGenericParameters: &mockGenericParameters
+                )
+            {
+                mockPeerIfConfigDeclarations.append(mockPeerIfConfigDeclaration)
+            }
+        }
+
+        let mockGenericParameterClause = self.genericParameterClause(
+            parameters: mockGenericParameters
+        )
+        let mockGenericWhereClause = self.genericWhereClause(
+            requirements: mockGenericWhereClauseRequirements
         )
 
-        guard !associatedTypeDeclarations.isEmpty else {
+        return (
+            mockGenericParameterClause,
+            mockGenericWhereClause,
+            mockPeerIfConfigDeclarations
+        )
+    }
+
+    /// Returns an `IfConfigDeclSyntax` containing extensions that conditionally
+    /// conform the mock to the provided `protocolDeclaration`, or `nil` if the
+    /// mock does not need to conditionally conform to the provided
+    /// `protocolDeclaration`.
+    ///
+    /// This method maintains the structure and conditions of the provided
+    /// `ifConfigDeclaration`.
+    ///
+    /// - Parameters:
+    ///   - protocolIfConfigDeclaration: An `IfConfigDeclSyntax` from the
+    ///     provided `protocolDeclaration`.
+    ///   - protocolDeclaration: The protocol to which the mock must conform.
+    ///   - mockName: The name of the mock.
+    ///   - mockGenericParameters: The mock's generic parameters.
+    /// - Returns: An `IfConfigDeclSyntax` containing extensions that
+    ///   conditionally conform the mock to the provided `protocolDeclaration`,
+    ///   or `nil` if the mock does not need to conditionally conform to the
+    ///   provided `protocolDeclaration`.
+    private static func mockPeerIfConfigDeclaration(
+        from protocolIfConfigDeclaration: IfConfigDeclSyntax,
+        in protocolDeclaration: ProtocolDeclSyntax,
+        mockName: TokenSyntax,
+        mockGenericParameters: inout [GenericParameterSyntax]
+    ) -> IfConfigDeclSyntax? {
+        var mockPeerIfConfigClauses: [IfConfigClauseSyntax] = []
+        var mockNeedsConditionalConformance = false
+
+        for protocolIfConfigClause in protocolIfConfigDeclaration.clauses {
+            var mockExtensionGenericWhereClauseRequirements: [
+                GenericRequirementSyntax.Requirement
+            ] = []
+
+            if case let .decls(members) = protocolIfConfigClause.elements {
+                for member in members {
+                    guard
+                        let associatedTypeDeclaration = member.decl.as(
+                            AssociatedTypeDeclSyntax.self
+                        )
+                    else {
+                        continue
+                    }
+
+                    let mockGenericParameter = self.mockGenericParameter(
+                        from: associatedTypeDeclaration
+                    )
+
+                    self.appendGenericParameter(
+                        GenericParameterSyntax(name: mockGenericParameter.name),
+                        to: &mockGenericParameters
+                    )
+
+                    if let mockGenericParameterInheritedType = mockGenericParameter.inheritedType {
+                        mockExtensionGenericWhereClauseRequirements.append(
+                            .conformanceRequirement(
+                                ConformanceRequirementSyntax(
+                                    leftType: IdentifierTypeSyntax(
+                                        name: mockGenericParameter.name
+                                    ),
+                                    rightType: mockGenericParameterInheritedType
+                                )
+                            )
+                        )
+                    }
+
+                    if let associatedTypeGenericWhereClause = associatedTypeDeclaration
+                        .genericWhereClause
+                    {
+                        mockExtensionGenericWhereClauseRequirements.append(
+                            contentsOf: associatedTypeGenericWhereClause.requirements.map(
+                                \.requirement
+                            )
+                        )
+                    }
+                }
+            }
+
+            if !mockExtensionGenericWhereClauseRequirements.isEmpty {
+                mockNeedsConditionalConformance = true
+            }
+
+            let mockExtensionGenericWhereClause = self.genericWhereClause(
+                requirements: mockExtensionGenericWhereClauseRequirements
+            )
+            let mockExtensionDeclaration = ExtensionDeclSyntax(
+                extendedType: IdentifierTypeSyntax(name: mockName),
+                inheritanceClause: InheritanceClauseSyntax {
+                    InheritedTypeSyntax(type: protocolDeclaration.type)
+                },
+                genericWhereClause: mockExtensionGenericWhereClause
+            ) {}
+            let mockPeerIfConfigClause = IfConfigClauseSyntax(
+                poundKeyword: protocolIfConfigClause.poundKeyword.trimmed,
+                condition: protocolIfConfigClause.condition?.trimmed,
+                elements: .decls(
+                    MemberBlockItemListSyntax {
+                        MemberBlockItemSyntax(decl: mockExtensionDeclaration)
+                    }
+                )
+            )
+
+            mockPeerIfConfigClauses.append(mockPeerIfConfigClause)
+        }
+
+        guard mockNeedsConditionalConformance else {
+            return nil
+        }
+
+        return IfConfigDeclSyntax(
+            clauses: IfConfigClauseListSyntax(mockPeerIfConfigClauses)
+        )
+    }
+
+    // MARK: Generic Parameter Clause
+
+    /// Returns a generic parameter to apply to the mock, generated from the
+    /// provided `associatedTypeDeclaration`.
+    ///
+    /// - Parameter associatedTypeDeclaration: An associated type declaration
+    ///   from the protocol to which the mock must conform.
+    /// - Returns: A generic parameter to apply to the mock.
+    private static func mockGenericParameter(
+        from associatedTypeDeclaration: AssociatedTypeDeclSyntax
+    ) -> GenericParameterSyntax {
+        let genericParameterName = associatedTypeDeclaration.name.trimmed
+
+        guard let inheritanceClause = associatedTypeDeclaration.inheritanceClause else {
+            return GenericParameterSyntax(name: genericParameterName)
+        }
+
+        let commaSeparatedInheritedTypes = inheritanceClause
+            .inheritedTypes(ofType: IdentifierTypeSyntax.self)
+            .compactMap { CompositionTypeElementSyntax(type: $0) }
+
+        let composedInheritedTypes = inheritanceClause
+            .inheritedTypes(ofType: CompositionTypeSyntax.self)
+            .flatMap(\.elements)
+
+        let inheritedTypes = commaSeparatedInheritedTypes + composedInheritedTypes
+        let lastIndex = inheritedTypes.count - 1
+        let inheritedTypeElements = CompositionTypeElementListSyntax {
+            for (index, inheritedType) in inheritedTypes.enumerated() {
+                inheritedType
+                    .trimmed
+                    .with(\.ampersand, index < lastIndex ? .binaryOperator("&") : nil)
+            }
+        }
+
+        return GenericParameterSyntax(
+            name: genericParameterName,
+            colon: .colonToken(),
+            inheritedType: CompositionTypeSyntax(elements: inheritedTypeElements)
+        )
+    }
+
+    /// Appends the provided `genericParameter` to the provided
+    /// `genericParameters`, unless another generic parameter of the same name
+    /// already exists, in which case this method does nothing.
+    ///
+    /// - Parameters:
+    ///   - genericParameter: The generic parameter to append to the provided
+    ///     `genericParameters`.
+    ///   - genericParameters: The generic parameters to which to append the
+    ///     provided `genericParameter`.
+    private static func appendGenericParameter(
+        _ genericParameter: GenericParameterSyntax,
+        to genericParameters: inout [GenericParameterSyntax]
+    ) {
+        let isDuplicate = genericParameters.contains { existingGenericParameter in
+            genericParameter.name.tokenKind == existingGenericParameter.name.tokenKind
+        }
+
+        guard !isDuplicate else {
+            return
+        }
+
+        genericParameters.append(genericParameter)
+    }
+
+    /// Returns a generic parameter clause with the provided `parameters`, or
+    /// `nil` if `parameters` is empty.
+    ///
+    /// - Parameter parameters: The generic parameters to include in the generic
+    ///   parameter clause.
+    /// - Returns: A generic parameter clause with the provided `parameters`, or
+    ///   `nil` if `parameters` is empty.
+    private static func genericParameterClause(
+        parameters: [GenericParameterSyntax]
+    ) -> GenericParameterClauseSyntax? {
+        guard !parameters.isEmpty else {
             return nil
         }
 
         return GenericParameterClauseSyntax {
-            for associatedTypeDeclaration in associatedTypeDeclarations {
-                let genericParameterName = associatedTypeDeclaration.name.trimmed
-
-                if let inheritanceClause = associatedTypeDeclaration.inheritanceClause {
-                    let commaSeparatedInheritedTypes = inheritanceClause
-                        .inheritedTypes(ofType: IdentifierTypeSyntax.self)
-                        .compactMap { CompositionTypeElementSyntax(type: $0) }
-
-                    let composedInheritedTypes = inheritanceClause
-                        .inheritedTypes(ofType: CompositionTypeSyntax.self)
-                        .flatMap(\.elements)
-
-                    let inheritedTypes = commaSeparatedInheritedTypes + composedInheritedTypes
-                    let lastIndex = inheritedTypes.count - 1
-                    let inheritedTypeElements = CompositionTypeElementListSyntax {
-                        for (index, inheritedType) in inheritedTypes.enumerated() {
-                            inheritedType
-                                .trimmed
-                                .with(\.ampersand, index < lastIndex ? .binaryOperator("&") : nil)
-                        }
-                    }
-
-                    GenericParameterSyntax(
-                        name: genericParameterName,
-                        colon: .colonToken(),
-                        inheritedType: CompositionTypeSyntax(elements: inheritedTypeElements)
-                    )
-                } else {
-                    GenericParameterSyntax(name: genericParameterName)
-                }
+            for (index, parameter) in parameters.enumerated() {
+                parameter.with(
+                    \.trailingComma,
+                    index < parameters.count - 1 ? .commaToken() : nil
+                )
             }
         }
     }
@@ -196,49 +442,65 @@ extension MockedMacro {
     /// ```
     ///
     /// - Parameters:
-    ///   - protocolDeclaration: The protocol to which the mock must
-    ///     conform.
+    ///   - protocolDeclaration: The protocol to which the mock must conform.
+    ///   - shouldConformToProtocol: A Boolean value indicating whether the mock
+    ///     should conform to the protocol. If the mock has extensions that
+    ///     handle conditional conformance, this value should be `false`.
     ///   - sendableConformance: The `Sendable` conformance the mock should have.
     ///     If `.unchecked`, the inheritance clause will include `@unchecked Sendable`.
     /// - Returns: The inheritance clause to apply to the mock declaration.
     private static func mockInheritanceClause(
         from protocolDeclaration: ProtocolDeclSyntax,
+        shouldConformToProtocol: Bool,
         sendableConformance: MockSendableConformance
-    ) -> InheritanceClauseSyntax {
-        InheritanceClauseSyntax {
+    ) -> InheritanceClauseSyntax? {
+        var inheritedTypes: [InheritedTypeSyntax] = []
+
+        if case .unchecked = sendableConformance {
+            inheritedTypes.append(.uncheckedSendable)
+        }
+
+        if shouldConformToProtocol {
+            inheritedTypes.append(InheritedTypeSyntax(type: protocolDeclaration.type))
+        }
+
+        guard !inheritedTypes.isEmpty else {
+            return nil
+        }
+
+        return InheritanceClauseSyntax {
             InheritedTypeListSyntax {
-                if case .unchecked = sendableConformance {
-                    .uncheckedSendable
-                        .with(\.trailingComma, .commaToken())
+                for (index, inheritedType) in inheritedTypes.enumerated() {
+                    inheritedType.with(
+                        \.trailingComma,
+                        index < inheritedTypes.count - 1 ? .commaToken() : nil
+                    )
                 }
-                InheritedTypeSyntax(type: protocolDeclaration.type)
             }
         }
     }
 
     // MARK: Generic Where Clause
 
-    /// Returns the generic `where` clause to apply to the mock declaration,
-    /// generated from the generic `where` clause of the provided protocol and
-    /// the generic `where` clauses of the provided protocol's associated types.
+    /// Returns a generic `where` clause generated from the provided generic
+    /// requirements.
     ///
-    /// - Parameter protocolDeclaration: The protocol to which the mock must
-    ///   conform.
-    /// - Returns: The generic `where` clause to apply to the mock declaration.
-    private static func mockGenericWhereClause(
-        from protocolDeclaration: ProtocolDeclSyntax
+    /// - Parameter requirements: The requirements to apply to the generic
+    ///   `where` clause.
+    /// - Returns: A generic `where` clause.
+    private static func genericWhereClause(
+        requirements: [GenericRequirementSyntax.Requirement]
     ) -> GenericWhereClauseSyntax? {
-        let genericWhereClauses = protocolDeclaration.genericWhereClauses
-
-        guard !genericWhereClauses.isEmpty else {
+        guard !requirements.isEmpty else {
             return nil
         }
 
         return GenericWhereClauseSyntax {
-            for genericWhereClause in genericWhereClauses {
-                for requirement in genericWhereClause.requirements {
-                    requirement.trimmed
-                }
+            for (index, requirement) in requirements.enumerated() {
+                GenericRequirementSyntax(
+                    requirement: requirement.trimmed,
+                    trailingComma: index < requirements.count - 1 ? .commaToken() : nil
+                )
             }
         }
     }
@@ -246,50 +508,76 @@ extension MockedMacro {
     // MARK: Members
 
     /// Returns the member block to apply to the mock, generated from the
-    /// properties and methods of the provided protocol.
+    /// members from the provided `protocolDeclaration`.
     ///
-    /// - Parameter protocolDeclaration: The protocol to which the mock must
-    ///   conform.
+    /// - Parameter protocolDeclaration: The protocol being mocked.
     /// - Returns: The member block to apply to the mock.
     private static func mockMemberBlock(
         from protocolDeclaration: ProtocolDeclSyntax
     ) throws -> MemberBlockSyntax {
         let accessLevel = protocolDeclaration.minimumConformingAccessLevel
-        let memberBlock = protocolDeclaration.memberBlock
-        let initializerDeclarations = memberBlock.memberDeclarations(
-            ofType: InitializerDeclSyntax.self
-        )
-        let propertyDeclarations = memberBlock.memberDeclarations(
-            ofType: VariableDeclSyntax.self
-        )
-        let methodDeclarations = memberBlock.memberDeclarations(
-            ofType: FunctionDeclSyntax.self
+        let members = try self.mockMembers(
+            from: protocolDeclaration.memberBlock.members,
+            with: accessLevel,
+            in: protocolDeclaration
         )
 
-        return try MemberBlockSyntax {
-            for initializerDeclaration in initializerDeclarations {
-                try self.mockInitializerConformanceDeclaration(
-                    with: accessLevel,
-                    from: initializerDeclaration
-                )
-            }
+        return MemberBlockSyntax(members: members)
+    }
 
-            for propertyDeclaration in propertyDeclarations {
-                for binding in propertyDeclaration.bindings {
-                    try self.mockPropertyConformanceDeclaration(
-                        with: accessLevel,
-                        for: binding,
-                        from: propertyDeclaration
+    /// Returns the members to apply to the mock, generated from the provided
+    /// `members` from the provided `protocolDeclaration` and marked with the
+    /// provided `accessLevel`.
+    ///
+    /// Associated types are skipped since they become generic parameters for
+    /// the mock class rather than member declarations.
+    ///
+    /// - Parameters:
+    ///   - members: The members from the protocol being mocked.
+    ///   - accessLevel: The access level to apply to the mock's members.
+    ///   - protocolDeclaration: The protocol being mocked.
+    /// - Returns: The members to apply to the mock.
+    private static func mockMembers(
+        from members: MemberBlockItemListSyntax,
+        with accessLevel: AccessLevelSyntax,
+        in protocolDeclaration: ProtocolDeclSyntax
+    ) throws -> MemberBlockItemListSyntax {
+        try MemberBlockItemListSyntax {
+            for member in members {
+                if let initializerDeclaration = member.decl.as(InitializerDeclSyntax.self) {
+                    MemberBlockItemSyntax(
+                        decl: try self.mockInitializerConformanceDeclaration(
+                            with: accessLevel,
+                            from: initializerDeclaration
+                        )
                     )
+                } else if let propertyDeclaration = member.decl.as(VariableDeclSyntax.self) {
+                    for binding in propertyDeclaration.bindings {
+                        MemberBlockItemSyntax(
+                            decl: try self.mockPropertyConformanceDeclaration(
+                                with: accessLevel,
+                                for: binding,
+                                from: propertyDeclaration
+                            )
+                        )
+                    }
+                } else if let methodDeclaration = member.decl.as(FunctionDeclSyntax.self) {
+                    MemberBlockItemSyntax(
+                        decl: try self.mockMethodConformanceDeclaration(
+                            with: accessLevel,
+                            for: methodDeclaration,
+                            in: protocolDeclaration
+                        )
+                    )
+                } else if let ifConfigDeclaration = member.decl.as(IfConfigDeclSyntax.self) {
+                    if let mockIfConfigDeclaration = try self.mockIfConfigDeclaration(
+                        from: ifConfigDeclaration,
+                        with: accessLevel,
+                        in: protocolDeclaration
+                    ) {
+                        MemberBlockItemSyntax(decl: mockIfConfigDeclaration)
+                    }
                 }
-            }
-
-            for methodDeclaration in methodDeclarations {
-                try self.mockMethodConformanceDeclaration(
-                    with: accessLevel,
-                    for: methodDeclaration,
-                    in: protocolDeclaration
-                )
             }
         }
     }
@@ -466,6 +754,65 @@ extension MockedMacro {
                     modifier
                 }
             }
+    }
+
+    // MARK: If Configs
+
+    /// Returns an `IfConfigDeclSyntax` containing mock member declarations,
+    /// generated from the provided `ifConfigDeclaration` from the provided
+    /// `protocolDeclaration` and marked with the provided `accessLevel`.
+    ///
+    /// This method preserves the conditional compilation structure from the
+    /// provided `ifConfigDeclaration` in the returned `IfConfigDeclSyntax`.
+    ///
+    /// - Parameters:
+    ///   - ifConfigDeclaration: The `IfConfigDeclSyntax` from the protocol.
+    ///   - accessLevel: The access level to apply to the mock declarations.
+    ///   - protocolDeclaration: The protocol being mocked.
+    /// - Returns: An `IfConfigDeclSyntax` containing mock member declarations,
+    ///   or `nil` if none of the clauses contain member declarations (e.g., are
+    ///   empty or contain only associated type declarations).
+    private static func mockIfConfigDeclaration(
+        from ifConfigDeclaration: IfConfigDeclSyntax,
+        with accessLevel: AccessLevelSyntax,
+        in protocolDeclaration: ProtocolDeclSyntax
+    ) throws -> IfConfigDeclSyntax? {
+        let clauses = try IfConfigClauseListSyntax(
+            ifConfigDeclaration.clauses.map { clause in
+                guard case let .decls(members) = clause.elements else {
+                    return clause
+                }
+
+                let mockMembers = try self.mockMembers(
+                    from: members,
+                    with: accessLevel,
+                    in: protocolDeclaration
+                )
+
+                return IfConfigClauseSyntax(
+                    poundKeyword: clause.poundKeyword.trimmed,
+                    condition: clause.condition?.trimmed,
+                    elements: .decls(mockMembers)
+                )
+            }
+        )
+
+        let allClausesEmpty = clauses.allSatisfy { clause in
+            guard case let .decls(members) = clause.elements else {
+                return true
+            }
+
+            return members.isEmpty
+        }
+
+        guard !allClausesEmpty else {
+            return nil
+        }
+
+        return IfConfigDeclSyntax(
+            clauses: clauses,
+            poundEndif: ifConfigDeclaration.poundEndif.trimmed
+        )
     }
 
     // MARK: Modifiers
