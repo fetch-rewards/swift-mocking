@@ -33,7 +33,7 @@ extension MockedMethodMacro {
         _ type: any TypeSyntaxProtocol,
         typeErasedIfNecessaryUsing genericParameters: GenericParameterListSyntax?,
         typeConstrainedBy genericWhereClause: GenericWhereClauseSyntax?,
-        typeErasedType: (some Any).Type = Any.self
+        typeErasedType: any Any.Type = Any.self
     ) -> (
         newType: TypeSyntax,
         didTypeErase: Bool
@@ -287,7 +287,7 @@ extension MockedMethodMacro {
         typeErasedAt typeKeyPath: WritableKeyPath<Syntax, TypeSyntax>,
         ifTypeIsContainedIn genericParameters: GenericParameterListSyntax?,
         typeConstrainedBy genericWhereClause: GenericWhereClauseSyntax?,
-        typeErasedType: (some Any).Type = Any.self
+        typeErasedType: any Any.Type = Any.self
     ) -> (Syntax, Bool) {
         let (type, didTypeErase) = self.type(
             syntax[keyPath: typeKeyPath],
@@ -438,7 +438,7 @@ extension MockedMethodMacro {
         >,
         areContainedIn genericParameters: GenericParameterListSyntax?,
         typeConstrainedBy genericWhereClause: GenericWhereClauseSyntax?,
-        typeErasedType: (some Any).Type
+        typeErasedType: any Any.Type
     ) -> (
         newType: any TypeSyntaxProtocol,
         didTypeErase: Bool
