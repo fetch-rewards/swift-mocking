@@ -255,7 +255,7 @@ extension MockReturningParameterizedAsyncThrowingMethod: Sendable
         closure: @Sendable () -> Closure,
         recordOutput: @Sendable (Result<ReturnValue, Error>) -> Void,
         reset: @Sendable () -> Void
-    ) {
+    ) where Arguments: Sendable, ReturnValue: Sendable, Implementation: SendableMetatype {
         let method = MockReturningParameterizedAsyncThrowingMethod(
             exposedMethodDescription: exposedMethodDescription
         )

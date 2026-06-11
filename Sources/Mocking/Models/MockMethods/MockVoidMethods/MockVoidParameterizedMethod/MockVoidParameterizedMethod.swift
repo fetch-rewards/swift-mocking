@@ -175,7 +175,7 @@ extension MockVoidParameterizedMethod: Sendable where Arguments: Sendable {
         recordInput: @Sendable (Arguments) -> Void,
         closure: @Sendable () -> Closure?,
         reset: @Sendable () -> Void
-    ) {
+    ) where Arguments: Sendable, Implementation: SendableMetatype {
         let method = MockVoidParameterizedMethod()
 
         return (

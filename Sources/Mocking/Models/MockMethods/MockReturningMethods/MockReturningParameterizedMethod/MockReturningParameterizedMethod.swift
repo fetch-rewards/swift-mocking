@@ -243,7 +243,7 @@ extension MockReturningParameterizedMethod: Sendable
         closure: @Sendable () -> Closure,
         recordOutput: @Sendable (ReturnValue) -> Void,
         reset: @Sendable () -> Void
-    ) {
+    ) where Arguments: Sendable, ReturnValue: Sendable, Implementation: SendableMetatype {
         let method = MockReturningParameterizedMethod(
             exposedMethodDescription: exposedMethodDescription
         )

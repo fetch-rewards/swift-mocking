@@ -212,7 +212,7 @@ extension MockVoidParameterizedThrowingMethod: Sendable where Arguments: Sendabl
         closure: @Sendable () -> Closure?,
         recordOutput: @Sendable (Error) -> Void,
         reset: @Sendable () -> Void
-    ) {
+    ) where Arguments: Sendable, Implementation: SendableMetatype {
         let method = MockVoidParameterizedThrowingMethod()
 
         return (
