@@ -167,7 +167,9 @@ public final class MockVoidParameterizedAsyncThrowingMethod<
 
 // MARK: - Sendable
 
-extension MockVoidParameterizedAsyncThrowingMethod: Sendable where Arguments: Sendable, Implementation: Sendable {
+extension MockVoidParameterizedAsyncThrowingMethod: Sendable where Arguments: Sendable,
+    Implementation: Sendable
+{
 
     // MARK: Factories
 
