@@ -198,7 +198,7 @@ public final class MockReturningParameterizedThrowingMethod<
 // MARK: - Sendable
 
 extension MockReturningParameterizedThrowingMethod: Sendable
-    where Arguments: Sendable, ReturnValue: Sendable
+    where Arguments: Sendable, ReturnValue: Sendable, Implementation: Sendable
 {
 
     // MARK: Factories
@@ -254,7 +254,7 @@ extension MockReturningParameterizedThrowingMethod: Sendable
         closure: @Sendable () -> Closure,
         recordOutput: @Sendable (Result<ReturnValue, Error>) -> Void,
         reset: @Sendable () -> Void
-    ) where Arguments: Sendable, ReturnValue: Sendable, Implementation: SendableMetatype {
+    ) {
         let method = MockReturningParameterizedThrowingMethod(
             exposedMethodDescription: exposedMethodDescription
         )

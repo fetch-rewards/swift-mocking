@@ -167,7 +167,7 @@ public final class MockVoidParameterizedAsyncThrowingMethod<
 
 // MARK: - Sendable
 
-extension MockVoidParameterizedAsyncThrowingMethod: Sendable where Arguments: Sendable {
+extension MockVoidParameterizedAsyncThrowingMethod: Sendable where Arguments: Sendable, Implementation: Sendable {
 
     // MARK: Factories
 
@@ -212,7 +212,7 @@ extension MockVoidParameterizedAsyncThrowingMethod: Sendable where Arguments: Se
         closure: @Sendable () -> Closure?,
         recordOutput: @Sendable (Error) -> Void,
         reset: @Sendable () -> Void
-    ) where Arguments: Sendable, Implementation: SendableMetatype {
+    ) {
         let method = MockVoidParameterizedAsyncThrowingMethod()
 
         return (
