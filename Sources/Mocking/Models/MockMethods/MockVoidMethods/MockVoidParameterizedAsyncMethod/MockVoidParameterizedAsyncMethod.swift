@@ -136,7 +136,7 @@ public final class MockVoidParameterizedAsyncMethod<
 
 // MARK: - Sendable
 
-extension MockVoidParameterizedAsyncMethod: Sendable 
+extension MockVoidParameterizedAsyncMethod: Sendable
     where Arguments: Sendable, Implementation: Sendable
 {
 
