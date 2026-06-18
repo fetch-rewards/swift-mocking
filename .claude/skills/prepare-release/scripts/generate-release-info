@@ -43,13 +43,19 @@ trap 'rm -rf "$TMP"' EXIT
 BUMP=0
 
 for PR in $PR_NUMBERS; do
-    DATA=$(gh pr view "$PR" --repo "$REPO" --json title,labels,number 2>/dev/null) || {
+    DATA=$(gh pr view "$PR" --repo "$REPO" --json title,labels,number,headRefName 2>/dev/null) || {
         echo "warning: could not fetch PR #${PR}, skipping" >&2
         continue
     }
     TITLE=$(echo "$DATA" | jq -r '.title')
     NUMBER=$(echo "$DATA" | jq -r '.number')
+    BRANCH=$(echo "$DATA" | jq -r '.headRefName')
     LABELS=$(echo "$DATA" | jq -r '.labels[].name')
+
+    # Skip changelog update PRs
+    case "$BRANCH" in
+        documentation/changelog-*) continue ;;
+    esac
     ENTRY="- ${TITLE} ([#${NUMBER}](${REPO_URL}/pull/${NUMBER}))"
 
     MATCHED=false
