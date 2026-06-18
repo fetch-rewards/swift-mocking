@@ -27,4 +27,4 @@ Package.resolved
 Brewfile.lock.json
 
 # Claude
-.claude/settings.local.json
+**/.claude/settings.local.json

@@ -1,0 +1,118 @@
+#!/bin/bash
+# Collects merged PRs since the last release tag, determines the next version,
+# and outputs pre-formatted changelog entries ready to paste into CHANGELOG.md
+# and GitHub release notes.
+#
+# Usage: .claude/skills/prepare-release/scripts/generate-release-info
+#
+# Output:
+#   last_version: X.X.X
+#   next_version: X.X.X
+#
+#   ### ✨ Features
+#   - PR title ([#NNN](https://github.com/fetch-rewards/swift-mocking/pull/NNN))
+#   ...
+set -uo pipefail
+
+REPO="fetch-rewards/swift-mocking"
+REPO_URL="https://github.com/${REPO}"
+
+# Find last release tag
+LAST_VERSION=$(git tag --sort=-version:refname | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | head -1)
+if [ -z "$LAST_VERSION" ]; then
+    echo "error: no release tags found" >&2
+    exit 1
+fi
+
+# Extract PR numbers from commits on origin/main since the last tag
+PR_NUMBERS=$(git log "${LAST_VERSION}..origin/main" --oneline \
+    | grep -oE '\(#[0-9]+\)' \
+    | tr -d '(#)' \
+    | sort -un)
+
+if [ -z "$PR_NUMBERS" ]; then
+    echo "No new PRs found since ${LAST_VERSION}." >&2
+    exit 0
+fi
+
+# Temp dir for per-section entry files
+TMP=$(mktemp -d)
+trap 'rm -rf "$TMP"' EXIT
+
+# Version bump precedence: 0=patch, 1=minor, 2=major
+BUMP=0
+
+for PR in $PR_NUMBERS; do
+    DATA=$(gh pr view "$PR" --repo "$REPO" --json title,labels,number 2>/dev/null) || {
+        echo "warning: could not fetch PR #${PR}, skipping" >&2
+        continue
+    }
+    TITLE=$(echo "$DATA" | jq -r '.title')
+    NUMBER=$(echo "$DATA" | jq -r '.number')
+    LABELS=$(echo "$DATA" | jq -r '.labels[].name')
+    ENTRY="- ${TITLE} ([#${NUMBER}](${REPO_URL}/pull/${NUMBER}))"
+
+    MATCHED=false
+    while IFS= read -r LABEL; do
+        [ -z "$LABEL" ] && continue
+        case "$LABEL" in
+            "breaking change")
+                [ $BUMP -lt 2 ] && BUMP=2
+                echo "$ENTRY" >> "$TMP/breaking_change"
+                MATCHED=true ;;
+            "enhancement")
+                [ $BUMP -lt 1 ] && BUMP=1
+                echo "$ENTRY" >> "$TMP/enhancement"
+                MATCHED=true ;;
+            "bug")           echo "$ENTRY" >> "$TMP/bug";           MATCHED=true ;;
+            "documentation") echo "$ENTRY" >> "$TMP/documentation"; MATCHED=true ;;
+            "testing")       echo "$ENTRY" >> "$TMP/testing";       MATCHED=true ;;
+            "refactoring")   echo "$ENTRY" >> "$TMP/refactoring";   MATCHED=true ;;
+            "formatting")    echo "$ENTRY" >> "$TMP/formatting";    MATCHED=true ;;
+            "dependencies")  echo "$ENTRY" >> "$TMP/dependencies";  MATCHED=true ;;
+            "ci")            echo "$ENTRY" >> "$TMP/ci";            MATCHED=true ;;
+            "chore")         echo "$ENTRY" >> "$TMP/chore";         MATCHED=true ;;
+        esac
+    done <<< "$LABELS"
+
+    # Default to chore if no recognized label matched
+    if [ "$MATCHED" = "false" ]; then
+        echo "$ENTRY" >> "$TMP/chore"
+    fi
+done
+
+# Compute next version
+IFS='.' read -r MAJOR MINOR PATCH <<< "$LAST_VERSION"
+case $BUMP in
+    2) NEXT_VERSION="$((MAJOR + 1)).0.0" ;;
+    1) NEXT_VERSION="${MAJOR}.$((MINOR + 1)).0" ;;
+    0) NEXT_VERSION="${MAJOR}.${MINOR}.$((PATCH + 1))" ;;
+esac
+
+echo "last_version: ${LAST_VERSION}"
+echo "next_version: ${NEXT_VERSION}"
+echo ""
+
+section_header() {
+    case "$1" in
+        breaking_change) echo "### 💥 Breaking Changes" ;;
+        enhancement)     echo "### ✨ Features" ;;
+        bug)             echo "### 🐛 Bug Fixes" ;;
+        documentation)   echo "### 📝 Documentation" ;;
+        testing)         echo "### 🧪 Testing" ;;
+        refactoring)     echo "### 🔨 Refactoring" ;;
+        formatting)      echo "### 🎨 Formatting" ;;
+        dependencies)    echo "### 📦 Dependencies" ;;
+        ci)              echo "### 🛠️ CI/CD" ;;
+        chore)           echo "### 🧹 Chores" ;;
+    esac
+}
+
+for SECTION in breaking_change enhancement bug documentation testing refactoring formatting dependencies ci chore; do
+    if [ -f "$TMP/$SECTION" ]; then
+        section_header "$SECTION"
+        echo ""
+        cat "$TMP/$SECTION"
+        echo ""
+    fi
+done
