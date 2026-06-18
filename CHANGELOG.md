@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org).
 
+## 🚀 [Version 0.3.0](https://github.com/fetch-rewards/swift-mocking/releases/tag/0.3.0) - June 18, 2026 ([Full Changelog](https://github.com/fetch-rewards/swift-mocking/compare/0.2.2...0.3.0))
+
+### ✨ Features
+
+- Add support for conditionally compiled protocol members ([#137](https://github.com/fetch-rewards/swift-mocking/pull/137))
+
+### 🐛 Bug Fixes
+
+- Ensure Package can build with Xcode 27 ([#141](https://github.com/fetch-rewards/swift-mocking/pull/141))
+
+### 🎨 Formatting
+
+- Run swiftformat ([#138](https://github.com/fetch-rewards/swift-mocking/pull/138))
+
 ## 🚀 [Version 0.2.2](https://github.com/fetch-rewards/swift-mocking/releases/tag/0.2.2) - August 8, 2025 ([Full Changelog](https://github.com/fetch-rewards/swift-mocking/compare/0.2.1...0.2.2))
 
 ### 🐛 Bug Fixes
