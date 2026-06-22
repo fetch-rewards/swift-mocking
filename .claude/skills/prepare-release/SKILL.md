@@ -14,7 +14,7 @@ When done, report the PR URL and tell the user to invoke `/publish-release` once
 Fetch origin and hard-reset to `origin/main`. Do not use `git pull` — it can produce merge commits that the repo's branch protection rules reject on push.
 
 ```sh
-git fetch origin main
+git fetch origin
 git checkout main
 git reset --hard origin/main
 ```
@@ -60,7 +60,7 @@ Once all unlabeled PRs have been labeled, re-run the script. Repeat until the sc
 
 ## 4. Review output for changelog PRs
 
-Scan the script output for any entry whose title contains "changelog" (case-insensitive). The script already filters PRs from `documentation/changelog-*` branches, but one may slip through if the branch was named differently.
+Scan the most recent script output for any entry whose title contains "changelog" (case-insensitive). The script already filters PRs from `documentation/changelog-*` branches, but one may slip through if the branch was named differently.
 
 For each flagged entry, ask the user: "PR #NNN ('title') looks like a changelog update — exclude it?" Do not proceed until the user has confirmed or dismissed each one. Remove any confirmed changelog PRs from the output before using it in subsequent steps.
 
@@ -101,23 +101,28 @@ Use the repo's PR template at `.github/pull_request_template.md`. Set the summar
 
 ## 9. Create or update the draft GitHub release notes
 
-The release draft notes must end with a blank line followed by the full-changelog link. The body is the script's section output (no version header line, with any entries removed per step 4):
+Assemble the notes body: the script's section output (no version header line, with any entries removed per step 4), followed by a blank line, followed by the full-changelog link. The assembled body looks like:
 
 ```markdown
+### ✨ Features
+
+- Example entry ([#NNN](https://github.com/fetch-rewards/swift-mocking/pull/NNN))
+
 [Full Changelog](https://github.com/fetch-rewards/swift-mocking/compare/<last_version>...<next_version>)
 ```
 
-Write to a temp file, then check whether a draft already exists for `<next_version>`:
+Write the assembled body to a temp file, then check whether a release already exists for `<next_version>`:
 
 ```sh
-gh release view <next_version> --repo fetch-rewards/swift-mocking
+gh release list --repo fetch-rewards/swift-mocking
 ```
 
-- **Draft exists:** update it:
+- **Listed as Draft:** update it:
   ```sh
   gh release edit <next_version> --repo fetch-rewards/swift-mocking --notes-file <path>
   ```
-- **No draft:** create one:
+- **Listed but not a draft (already published):** warn the user — do not overwrite a published release.
+- **Not listed:** create a draft:
   ```sh
   gh release create <next_version> --repo fetch-rewards/swift-mocking --draft --title "Version <next_version>" --notes-file <path>
   ```
