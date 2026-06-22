@@ -101,7 +101,7 @@ Use the repo's PR template at `.github/pull_request_template.md`. Set the summar
 
 ## 9. Create or update the draft GitHub release notes
 
-The release notes body is the script's section output (no version header line, with any entries removed per step 4), followed by a full-changelog link:
+The release draft notes must end with a blank line followed by the full-changelog link. The body is the script's section output (no version header line, with any entries removed per step 4):
 
 ```markdown
 [Full Changelog](https://github.com/fetch-rewards/swift-mocking/compare/<last_version>...<next_version>)

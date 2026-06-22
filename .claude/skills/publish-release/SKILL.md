@@ -23,7 +23,7 @@ git show origin/main:CHANGELOG.md
 git tag --sort=-version:refname
 ```
 
-Only look at the single topmost version in `CHANGELOG.md`. If that version has no corresponding git tag (i.e. the changelog PR merged but the draft was lost), recreate the draft. Extract the release notes from that version's section — everything between its header and the next version's header, excluding the version header line itself. The notes must end with a blank line followed by the full-changelog link:
+Only look at the single topmost version in `CHANGELOG.md`. If that version has no corresponding git tag (i.e. the changelog PR merged but the draft was lost), recreate the draft. Extract the release notes from that version's section — everything between its header and the next version's header, excluding the version header line itself. The release draft notes must end with a blank line followed by the full-changelog link:
 
 ```markdown
 [Full Changelog](https://github.com/fetch-rewards/swift-mocking/compare/<previous_version>...<version>)
