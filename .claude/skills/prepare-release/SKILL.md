@@ -29,13 +29,39 @@ This outputs:
 - `last_version` and `next_version` on the first two lines
 - Pre-formatted changelog sections (section headings + bullet entries with markdown links) ready to paste directly into `CHANGELOG.md` and the release notes
 
-## 3. Review output for changelog PRs
+## 3. Resolve unlabeled PRs
+
+If the output contains a `### ⚠️ Needs Label` section, those PRs had no recognized label and must be labeled before proceeding.
+
+For each unlabeled PR, present its title and number, then ask the user to pick a label:
+
+```
+1. enhancement
+2. bug
+3. documentation
+4. testing
+5. refactoring
+6. formatting
+7. dependencies
+8. ci
+9. chore
+```
+
+Apply the chosen label:
+
+```sh
+gh pr edit <number> --repo fetch-rewards/swift-mocking --add-label <label>
+```
+
+Once all unlabeled PRs are resolved, re-run the script and use the fresh output for all subsequent steps.
+
+## 5. Review output for changelog PRs
 
 Scan the script output for any entry whose title contains "changelog" (case-insensitive). The script already filters PRs from `documentation/changelog-*` branches, but one may slip through if the branch was named differently.
 
 For each flagged entry, ask the user: "PR #NNN ('title') looks like a changelog update — exclude it?" Do not proceed until the user has confirmed or dismissed each one. Remove any confirmed changelog PRs from the output before using it in subsequent steps.
 
-## 4. Create a branch from origin/main
+## 6. Create a branch from origin/main
 
 Branch name convention: `documentation/changelog-<next_version>`
 
@@ -43,7 +69,7 @@ Branch name convention: `documentation/changelog-<next_version>`
 git checkout -b documentation/changelog-<next_version> origin/main
 ```
 
-## 5. Update CHANGELOG.md
+## 7. Update CHANGELOG.md
 
 Insert a new section above the previous version entry. The version header format is:
 
@@ -53,7 +79,7 @@ Insert a new section above the previous version entry. The version header format
 
 Paste the sections from the script output beneath it verbatim.
 
-## 6. Commit and push
+## 8. Commit and push
 
 ```sh
 git add CHANGELOG.md
@@ -61,7 +87,7 @@ git commit -m "Update changelog for Version <next_version>"
 git push -u origin documentation/changelog-<next_version>
 ```
 
-## 7. Create the PR
+## 9. Create the PR
 
 - **Title:** `Update changelog`
 - **Base branch:** `main`
@@ -70,7 +96,7 @@ git push -u origin documentation/changelog-<next_version>
 
 Use the repo's PR template at `.github/pull_request_template.md`. Set the summary to "Updated `CHANGELOG.md` for Version `<next_version>`.", check the Documentation checkbox, and check all Checklist items. Write the body to a temp file and pass it via `--body-file` to avoid multiline escaping issues.
 
-## 8. Update the draft GitHub release notes
+## 10. Update the draft GitHub release notes
 
 The release notes body is the script's section output (no version header line), followed by a full-changelog link:
 

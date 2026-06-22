@@ -81,9 +81,9 @@ for PR in $PR_NUMBERS; do
         esac
     done <<< "$LABELS"
 
-    # Default to chore if no recognized label matched
+    # Track unlabeled PRs separately so the skill can prompt for labels
     if [ "$MATCHED" = "false" ]; then
-        echo "$ENTRY" >> "$TMP/chore"
+        echo "$ENTRY" >> "$TMP/unlabeled"
     fi
 done
 
@@ -122,3 +122,10 @@ for SECTION in breaking_change enhancement bug documentation testing refactoring
         echo ""
     fi
 done
+
+if [ -f "$TMP/unlabeled" ]; then
+    echo "### ⚠️ Needs Label"
+    echo ""
+    cat "$TMP/unlabeled"
+    echo ""
+fi
