@@ -13,9 +13,29 @@ Publishes the draft GitHub release prepared by `/prepare-release`. Run this afte
 gh release list --repo fetch-rewards/swift-mocking
 ```
 
-If no draft exists, stop and tell the user to run `/prepare-release` first.
+**If a draft exists:** note its version (e.g. `0.3.0`) and continue to step 2.
 
-Note the version of the draft (e.g. `0.3.0`).
+**If no draft exists:** fetch main and check whether the topmost (most recent) version entry in `CHANGELOG.md` has a corresponding git tag:
+
+```sh
+git fetch origin main
+git show origin/main:CHANGELOG.md
+git tag --sort=-version:refname
+```
+
+Only look at the single topmost version in `CHANGELOG.md`. If that version has no corresponding git tag (i.e. the changelog PR merged but the draft was lost), recreate the draft. Extract the release notes from that version's section — everything between its header and the next version's header, excluding the version header line itself. The notes must end with a blank line followed by the full-changelog link:
+
+```markdown
+[Full Changelog](https://github.com/fetch-rewards/swift-mocking/compare/<previous_version>...<version>)
+```
+
+where `<previous_version>` is the version entry directly below it in `CHANGELOG.md`. Write the notes to a temp file and create the draft:
+
+```sh
+gh release create <version> --repo fetch-rewards/swift-mocking --draft --title "Version <version>" --notes-file <path>
+```
+
+If `CHANGELOG.md` has no unreleased version, stop and tell the user to run `/prepare-release` first.
 
 ## 2. Validate the changelog is in place
 

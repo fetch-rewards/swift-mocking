@@ -58,13 +58,13 @@ gh pr edit <number> --repo fetch-rewards/swift-mocking --add-label <label>
 
 Once all unlabeled PRs have been labeled, re-run the script. Repeat until the script exits successfully, then continue to the next step.
 
-## 5. Review output for changelog PRs
+## 4. Review output for changelog PRs
 
 Scan the script output for any entry whose title contains "changelog" (case-insensitive). The script already filters PRs from `documentation/changelog-*` branches, but one may slip through if the branch was named differently.
 
 For each flagged entry, ask the user: "PR #NNN ('title') looks like a changelog update — exclude it?" Do not proceed until the user has confirmed or dismissed each one. Remove any confirmed changelog PRs from the output before using it in subsequent steps.
 
-## 6. Create a branch from origin/main
+## 5. Create a branch from origin/main
 
 Branch name convention: `documentation/changelog-<next_version>`
 
@@ -72,7 +72,7 @@ Branch name convention: `documentation/changelog-<next_version>`
 git checkout -b documentation/changelog-<next_version> origin/main
 ```
 
-## 7. Update CHANGELOG.md
+## 6. Update CHANGELOG.md
 
 Insert a new section above the previous version entry. The version header format is:
 
@@ -80,9 +80,9 @@ Insert a new section above the previous version entry. The version header format
 ## 🚀 [Version <next_version>](https://github.com/fetch-rewards/swift-mocking/releases/tag/<next_version>) - <Month Day, Year> ([Full Changelog](https://github.com/fetch-rewards/swift-mocking/compare/<last_version>...<next_version>))
 ```
 
-Paste the sections from the script output beneath it verbatim.
+Paste the sections from the script output (with any entries removed per step 4) beneath it verbatim.
 
-## 8. Commit and push
+## 7. Commit and push
 
 ```sh
 git add CHANGELOG.md
@@ -90,7 +90,7 @@ git commit -m "Update changelog for Version <next_version>"
 git push -u origin documentation/changelog-<next_version>
 ```
 
-## 9. Create the PR
+## 8. Create the PR
 
 - **Title:** `Update changelog`
 - **Base branch:** `main`
@@ -99,16 +99,25 @@ git push -u origin documentation/changelog-<next_version>
 
 Use the repo's PR template at `.github/pull_request_template.md`. Set the summary to "Updated `CHANGELOG.md` for Version `<next_version>`.", check the Documentation checkbox, and check all Checklist items. Write the body to a temp file and pass it via `--body-file` to avoid multiline escaping issues.
 
-## 10. Update the draft GitHub release notes
+## 9. Create or update the draft GitHub release notes
 
-The release notes body is the script's section output (no version header line), followed by a full-changelog link:
+The release notes body is the script's section output (no version header line, with any entries removed per step 4), followed by a full-changelog link:
 
 ```markdown
 [Full Changelog](https://github.com/fetch-rewards/swift-mocking/compare/<last_version>...<next_version>)
 ```
 
-Write to a temp file and update the draft:
+Write to a temp file, then check whether a draft already exists for `<next_version>`:
 
 ```sh
-gh release edit <next_version> --repo fetch-rewards/swift-mocking --notes-file <path>
+gh release view <next_version> --repo fetch-rewards/swift-mocking
 ```
+
+- **Draft exists:** update it:
+  ```sh
+  gh release edit <next_version> --repo fetch-rewards/swift-mocking --notes-file <path>
+  ```
+- **No draft:** create one:
+  ```sh
+  gh release create <next_version> --repo fetch-rewards/swift-mocking --draft --title "Version <next_version>" --notes-file <path>
+  ```

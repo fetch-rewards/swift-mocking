@@ -82,7 +82,7 @@ for PR in $PR_NUMBERS; do
         ENTRY="- ${TITLE} ([#${NUMBER}](${REPO_URL}/pull/${NUMBER}))"
     fi
 
-    # Categorize by the first non-breaking-change label found
+    # Categorize by all matching labels — a PR may appear in multiple sections
     MATCHED=false
     while IFS= read -r LABEL; do
         [ -z "$LABEL" ] && continue
