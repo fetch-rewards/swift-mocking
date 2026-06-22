@@ -25,13 +25,16 @@ git reset --hard origin/main
 .claude/skills/prepare-release/scripts/generate-release-info
 ```
 
-This outputs:
-- `last_version` and `next_version` on the first two lines
-- Pre-formatted changelog sections (section headings + bullet entries with markdown links) ready to paste directly into `CHANGELOG.md` and the release notes
+This outputs one of two things:
+
+- **Unlabeled PRs (exit 1):** Only a `### ⚠️ Needs Label` section — no version or changelog sections. Handle this in step 3 before proceeding.
+- **Success (exit 0):** `last_version` and `next_version` on the first two lines, followed by pre-formatted changelog sections ready to paste directly into `CHANGELOG.md` and the release notes.
+
+PRs labeled `breaking change` appear in their categorization section with a `⚠️ **[BREAKING]**` prefix and cause a major version bump.
 
 ## 3. Resolve unlabeled PRs
 
-If the output contains a `### ⚠️ Needs Label` section, those PRs had no recognized label and must be labeled before proceeding.
+If the script exited with `### ⚠️ Needs Label`, those PRs had no categorization label. The script produces no version number or changelog output until this is resolved — do not proceed to later steps.
 
 For each unlabeled PR, present its title and number, then ask the user to pick a label:
 
@@ -53,7 +56,7 @@ Apply the chosen label:
 gh pr edit <number> --repo fetch-rewards/swift-mocking --add-label <label>
 ```
 
-Once all unlabeled PRs are resolved, re-run the script and use the fresh output for all subsequent steps.
+Once all unlabeled PRs have been labeled, re-run the script. Repeat until the script exits successfully, then continue to the next step.
 
 ## 5. Review output for changelog PRs
 

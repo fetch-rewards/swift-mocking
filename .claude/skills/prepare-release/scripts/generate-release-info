@@ -3,15 +3,23 @@
 # and outputs pre-formatted changelog entries ready to paste into CHANGELOG.md
 # and GitHub release notes.
 #
+# Exits 1 with only a "### ⚠️ Needs Label" section if any PRs lack a
+# categorization label — no version or changelog output is produced until
+# all PRs are labeled.
+#
 # Usage: .claude/skills/prepare-release/scripts/generate-release-info
 #
-# Output:
+# Output (success):
 #   last_version: X.X.X
 #   next_version: X.X.X
 #
 #   ### ✨ Features
 #   - PR title ([#NNN](https://github.com/fetch-rewards/swift-mocking/pull/NNN))
 #   ...
+#
+# Output (unlabeled PRs):
+#   ### ⚠️ Needs Label
+#   - PR title ([#NNN](...))
 set -uo pipefail
 
 REPO="fetch-rewards/swift-mocking"
@@ -56,16 +64,29 @@ for PR in $PR_NUMBERS; do
     case "$BRANCH" in
         documentation/changelog-*) continue ;;
     esac
-    ENTRY="- ${TITLE} ([#${NUMBER}](${REPO_URL}/pull/${NUMBER}))"
 
+    # Check for breaking change label — affects version bump and entry prefix,
+    # but is not itself a categorization label
+    IS_BREAKING=false
+    while IFS= read -r LABEL; do
+        [ -z "$LABEL" ] && continue
+        if [ "$LABEL" = "breaking change" ]; then
+            IS_BREAKING=true
+            [ $BUMP -lt 2 ] && BUMP=2
+        fi
+    done <<< "$LABELS"
+
+    if [ "$IS_BREAKING" = "true" ]; then
+        ENTRY="- ⚠️ **[BREAKING]** ${TITLE} ([#${NUMBER}](${REPO_URL}/pull/${NUMBER}))"
+    else
+        ENTRY="- ${TITLE} ([#${NUMBER}](${REPO_URL}/pull/${NUMBER}))"
+    fi
+
+    # Categorize by the first non-breaking-change label found
     MATCHED=false
     while IFS= read -r LABEL; do
         [ -z "$LABEL" ] && continue
         case "$LABEL" in
-            "breaking change")
-                [ $BUMP -lt 2 ] && BUMP=2
-                echo "$ENTRY" >> "$TMP/breaking_change"
-                MATCHED=true ;;
             "enhancement")
                 [ $BUMP -lt 1 ] && BUMP=1
                 echo "$ENTRY" >> "$TMP/enhancement"
@@ -81,11 +102,19 @@ for PR in $PR_NUMBERS; do
         esac
     done <<< "$LABELS"
 
-    # Track unlabeled PRs separately so the skill can prompt for labels
     if [ "$MATCHED" = "false" ]; then
         echo "$ENTRY" >> "$TMP/unlabeled"
     fi
 done
+
+# Early exit if any PRs are unlabeled — do not output version or changelog sections
+if [ -f "$TMP/unlabeled" ]; then
+    echo "### ⚠️ Needs Label"
+    echo ""
+    cat "$TMP/unlabeled"
+    echo ""
+    exit 1
+fi
 
 # Compute next version
 IFS='.' read -r MAJOR MINOR PATCH <<< "$LAST_VERSION"
@@ -101,20 +130,19 @@ echo ""
 
 section_header() {
     case "$1" in
-        breaking_change) echo "### 💥 Breaking Changes" ;;
-        enhancement)     echo "### ✨ Features" ;;
-        bug)             echo "### 🐛 Bug Fixes" ;;
-        documentation)   echo "### 📝 Documentation" ;;
-        testing)         echo "### 🧪 Testing" ;;
-        refactoring)     echo "### 🔨 Refactoring" ;;
-        formatting)      echo "### 🎨 Formatting" ;;
-        dependencies)    echo "### 📦 Dependencies" ;;
-        ci)              echo "### 🛠️ CI/CD" ;;
-        chore)           echo "### 🧹 Chores" ;;
+        enhancement)   echo "### ✨ Features" ;;
+        bug)           echo "### 🐛 Bug Fixes" ;;
+        documentation) echo "### 📝 Documentation" ;;
+        testing)       echo "### 🧪 Testing" ;;
+        refactoring)   echo "### 🔨 Refactoring" ;;
+        formatting)    echo "### 🎨 Formatting" ;;
+        dependencies)  echo "### 📦 Dependencies" ;;
+        ci)            echo "### 🛠️ CI/CD" ;;
+        chore)         echo "### 🧹 Chores" ;;
     esac
 }
 
-for SECTION in breaking_change enhancement bug documentation testing refactoring formatting dependencies ci chore; do
+for SECTION in enhancement bug documentation testing refactoring formatting dependencies ci chore; do
     if [ -f "$TMP/$SECTION" ]; then
         section_header "$SECTION"
         echo ""
@@ -122,10 +150,3 @@ for SECTION in breaking_change enhancement bug documentation testing refactoring
         echo ""
     fi
 done
-
-if [ -f "$TMP/unlabeled" ]; then
-    echo "### ⚠️ Needs Label"
-    echo ""
-    cat "$TMP/unlabeled"
-    echo ""
-fi
