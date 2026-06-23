@@ -33,7 +33,7 @@ Only look at the single topmost version in `CHANGELOG.md`. If that version has n
 [Full Changelog](https://github.com/fetch-rewards/swift-mocking/compare/<previous_version>...<version>)
 ```
 
-where `<previous_version>` is the version entry directly below it in `CHANGELOG.md`. The release draft notes must end with a blank line followed by the full-changelog link. Write the assembled body to a temp file and create the draft:
+where `<previous_version>` is the version entry directly below it in `CHANGELOG.md`. The extracted content already ends with a blank line; append just the full-changelog link directly. Write the assembled body to a temp file and create the draft:
 
 ```sh
 gh release create <version> --repo fetch-rewards/swift-mocking --draft --title "Version <version>" --notes-file <path>
