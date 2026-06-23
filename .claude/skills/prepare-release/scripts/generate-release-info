@@ -19,7 +19,7 @@
 #
 # Output (unlabeled PRs):
 #   ### ⚠️ Needs Label
-#   - PR title ([#NNN](...))
+#   - PR title ([#NNN](...))          ← always plain format, even if PR has breaking change label
 set -uo pipefail
 
 REPO="fetch-rewards/swift-mocking"
@@ -76,10 +76,11 @@ for PR in $PR_NUMBERS; do
         fi
     done <<< "$LABELS"
 
+    PLAIN_ENTRY="- ${TITLE} ([#${NUMBER}](${REPO_URL}/pull/${NUMBER}))"
     if [ "$IS_BREAKING" = "true" ]; then
         ENTRY="- ⚠️ **[BREAKING]** ${TITLE} ([#${NUMBER}](${REPO_URL}/pull/${NUMBER}))"
     else
-        ENTRY="- ${TITLE} ([#${NUMBER}](${REPO_URL}/pull/${NUMBER}))"
+        ENTRY="$PLAIN_ENTRY"
     fi
 
     # Categorize by all matching labels — a PR may appear in multiple sections
@@ -103,7 +104,7 @@ for PR in $PR_NUMBERS; do
     done <<< "$LABELS"
 
     if [ "$MATCHED" = "false" ]; then
-        echo "$ENTRY" >> "$TMP/unlabeled"
+        echo "$PLAIN_ENTRY" >> "$TMP/unlabeled"
     fi
 done
 

@@ -18,7 +18,7 @@ gh release list --repo fetch-rewards/swift-mocking
 **If no draft exists:** fetch main and check whether the topmost (most recent) version entry in `CHANGELOG.md` has a corresponding git tag:
 
 ```sh
-git fetch origin main
+git fetch origin
 git show origin/main:CHANGELOG.md
 git tag --sort=-version:refname
 ```
@@ -41,14 +41,14 @@ gh release create <version> --repo fetch-rewards/swift-mocking --draft --title "
 
 The draft is now recreated. Continue to step 2 using the `<version>` just determined from `CHANGELOG.md`.
 
-If `CHANGELOG.md` has no unreleased version, stop and tell the user to run `/prepare-release` first.
+If the topmost `CHANGELOG.md` version already has a corresponding git tag (i.e. it is already released), stop and tell the user to run `/prepare-release` first.
 
 ## 2. Validate the changelog is in place
 
 Fetch the latest `main` and check that `CHANGELOG.md` contains a version entry matching the draft release version:
 
 ```sh
-git fetch origin main
+git fetch origin
 git show origin/main:CHANGELOG.md | grep "Version <version>"
 ```
 

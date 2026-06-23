@@ -62,7 +62,7 @@ Once all unlabeled PRs have been labeled, re-run the script. Repeat until the sc
 
 Scan the most recent script output for any entry whose title contains "changelog" (case-insensitive). The script already filters PRs from `documentation/changelog-*` branches, but one may slip through if the branch was named differently.
 
-For each flagged entry, ask the user: "PR #NNN ('title') looks like a changelog update — exclude it?" Do not proceed until the user has confirmed or dismissed each one. Remove any confirmed changelog PRs from the output before using it in subsequent steps.
+For each flagged entry, ask the user: "PR #NNN ('title') looks like a changelog update — exclude it?" Do not proceed until the user has confirmed or dismissed each one. Remove any confirmed changelog PRs from the output before using it in subsequent steps. If no entries are flagged, continue immediately to step 5.
 
 ## 5. Create a branch from origin/main
 
@@ -101,7 +101,7 @@ Use the repo's PR template at `.github/pull_request_template.md`. Set the summar
 
 ## 9. Create or update the draft GitHub release notes
 
-Assemble the notes body: the script's section output (no version header line, with any entries removed per step 4), followed by a blank line, followed by the full-changelog link. The assembled body looks like:
+Assemble the notes body: the script's section output (no version header line, with any entries removed per step 4), followed by the full-changelog link. The script output already ends with a blank line, so append the link directly. The assembled body looks like:
 
 ```markdown
 ### ✨ Features
