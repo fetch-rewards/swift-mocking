@@ -27,19 +27,35 @@ public final class MockReturningParameterizedThrowingMethod<
     /// The method's closure type.
     public typealias Closure = Implementation.Closure
 
+    // MARK: State
+
+    private struct State {
+        var callCount: Int = .zero
+        var invocations: [Arguments] = []
+        var returnedValues: [Result<ReturnValue, Error>] = []
+    }
+
     // MARK: Properties
 
     /// The method's implementation.
     @Locked(.unchecked)
     public var implementation: Implementation = .unimplemented
 
+    private let _state = OSAllocatedUnfairLock(uncheckedState: State())
+
     /// The number of times the method has been called.
-    @Locked(.checked)
-    public private(set) var callCount: Int = .zero
+    public var callCount: Int {
+        self._state.withLockUnchecked { state in
+            state.callCount
+        }
+    }
 
     /// All the arguments with which the method has been invoked.
-    @Locked(.unchecked)
-    public private(set) var invocations: [Arguments] = []
+    public var invocations: [Arguments] {
+        self._state.withLockUnchecked { state in
+            state.invocations
+        }
+    }
 
     /// The last arguments with which the method has been invoked.
     public var lastInvocation: Arguments? {
@@ -47,8 +63,11 @@ public final class MockReturningParameterizedThrowingMethod<
     }
 
     /// All the values that have been returned by the method.
-    @Locked(.unchecked)
-    public private(set) var returnedValues: [Result<ReturnValue, Error>] = []
+    public var returnedValues: [Result<ReturnValue, Error>] {
+        self._state.withLockUnchecked { state in
+            state.returnedValues
+        }
+    }
 
     /// The last value returned by the method.
     public var lastReturnedValue: Result<ReturnValue, Error>? {
@@ -147,11 +166,9 @@ public final class MockReturningParameterizedThrowingMethod<
     /// - Parameter arguments: The arguments with which the method is being
     ///   invoked.
     private func recordInput(arguments: Arguments) {
-        self._callCount.withLock { callCount in
-            callCount += 1
-        }
-        self._invocations.withLockUnchecked { invocations in
-            invocations.append(arguments)
+        self._state.withLockUnchecked { state in
+            state.callCount += 1
+            state.invocations.append(arguments)
         }
     }
 
@@ -171,8 +188,8 @@ public final class MockReturningParameterizedThrowingMethod<
     ///
     /// - Parameter returnValue: The value returned by the method.
     private func recordOutput(returnValue: Result<ReturnValue, Error>) {
-        self._returnedValues.withLockUnchecked { returnedValues in
-            returnedValues.append(returnValue)
+        self._state.withLockUnchecked { state in
+            state.returnedValues.append(returnValue)
         }
     }
 
@@ -183,14 +200,10 @@ public final class MockReturningParameterizedThrowingMethod<
         self._implementation.withLockUnchecked { implementation in
             implementation = .unimplemented
         }
-        self._callCount.withLock { callCount in
-            callCount = .zero
-        }
-        self._invocations.withLockUnchecked { invocations in
-            invocations.removeAll()
-        }
-        self._returnedValues.withLockUnchecked { returnedValues in
-            returnedValues.removeAll()
+        self._state.withLockUnchecked { state in
+            state.callCount = .zero
+            state.invocations.removeAll()
+            state.returnedValues.removeAll()
         }
     }
 }

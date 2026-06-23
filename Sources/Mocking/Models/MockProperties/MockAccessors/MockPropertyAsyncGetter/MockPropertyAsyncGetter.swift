@@ -11,19 +11,34 @@ import Locking
 /// records for an async property getter.
 public final class MockPropertyAsyncGetter<Value> {
 
+    // MARK: State
+
+    private struct State {
+        var callCount: Int = .zero
+        var returnedValues: [Value] = []
+    }
+
     // MARK: Properties
 
     /// The getter's implementation.
     @Locked(.unchecked)
     public var implementation: Implementation = .unimplemented
 
+    private let _state = OSAllocatedUnfairLock(uncheckedState: State())
+
     /// The number of times the getter has been called.
-    @Locked(.checked)
-    public private(set) var callCount: Int = .zero
+    public var callCount: Int {
+        self._state.withLockUnchecked { state in
+            state.callCount
+        }
+    }
 
     /// All the values that have been returned by the getter.
-    @Locked(.unchecked)
-    public private(set) var returnedValues: [Value] = []
+    public var returnedValues: [Value] {
+        self._state.withLockUnchecked { state in
+            state.returnedValues
+        }
+    }
 
     /// The last value returned by the getter.
     public var lastReturnedValue: Value? {
@@ -56,16 +71,13 @@ public final class MockPropertyAsyncGetter<Value> {
     /// - Returns: A value, if ``implementation-swift.property`` returns a
     ///   value.
     func get() async -> Value {
-        self._callCount.withLock { callCount in
-            callCount += 1
-        }
-
         guard let value = await self.implementation() else {
             fatalError("Unimplemented: \(self.exposedPropertyDescription)")
         }
 
-        self._returnedValues.withLockUnchecked { returnedValues in
-            returnedValues.append(value)
+        self._state.withLockUnchecked { state in
+            state.callCount += 1
+            state.returnedValues.append(value)
         }
 
         return value
@@ -78,11 +90,9 @@ public final class MockPropertyAsyncGetter<Value> {
         self._implementation.withLockUnchecked { implementation in
             implementation = .unimplemented
         }
-        self._callCount.withLock { callCount in
-            callCount = .zero
-        }
-        self._returnedValues.withLockUnchecked { returnedValues in
-            returnedValues.removeAll()
+        self._state.withLockUnchecked { state in
+            state.callCount = .zero
+            state.returnedValues.removeAll()
         }
     }
 }
