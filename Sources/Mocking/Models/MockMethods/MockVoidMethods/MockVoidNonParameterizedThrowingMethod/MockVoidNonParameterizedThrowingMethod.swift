@@ -11,19 +11,34 @@ import Locking
 /// for a void, non-parameterized, throwing method.
 public final class MockVoidNonParameterizedThrowingMethod: Sendable {
 
+    // MARK: State
+
+    private struct State {
+        var callCount: Int = .zero
+        var thrownErrors: [any Error] = []
+    }
+
     // MARK: Properties
 
     /// The method's implementation.
     @Locked(.unchecked)
     public var implementation: Implementation = .unimplemented
 
+    private let _state = OSAllocatedUnfairLock(uncheckedState: State())
+
     /// The number of times the method has been called.
-    @Locked(.checked)
-    public private(set) var callCount: Int = .zero
+    public var callCount: Int {
+        self._state.withLockUnchecked { state in
+            state.callCount
+        }
+    }
 
     /// All the errors that have been thrown by the method.
-    @Locked(.checked)
-    public private(set) var thrownErrors: [any Error] = []
+    public var thrownErrors: [any Error] {
+        self._state.withLockUnchecked { state in
+            state.thrownErrors
+        }
+    }
 
     /// The last error thrown by the method.
     public var lastThrownError: (any Error)? {
@@ -76,17 +91,24 @@ public final class MockVoidNonParameterizedThrowingMethod: Sendable {
     /// Records the invocation of the method and invokes
     /// ``implementation-swift.property``.
     private func invoke() throws {
-        self._callCount.withLock { callCount in
-            callCount += 1
-        }
+        var caughtError: (any Error)?
 
         do {
             try self.implementation()
         } catch {
-            self._thrownErrors.withLock { thrownErrors in
-                thrownErrors.append(error)
+            caughtError = error
+        }
+
+        self._state.withLockUnchecked { state in
+            state.callCount += 1
+
+            if let caughtError {
+                state.thrownErrors.append(caughtError)
             }
-            throw error
+        }
+
+        if let caughtError {
+            throw caughtError
         }
     }
 
@@ -97,11 +119,9 @@ public final class MockVoidNonParameterizedThrowingMethod: Sendable {
         self._implementation.withLockUnchecked { implementation in
             implementation = .unimplemented
         }
-        self._callCount.withLock { callCount in
-            callCount = .zero
-        }
-        self._thrownErrors.withLock { thrownErrors in
-            thrownErrors.removeAll()
+        self._state.withLockUnchecked { state in
+            state.callCount = .zero
+            state.thrownErrors.removeAll()
         }
     }
 }

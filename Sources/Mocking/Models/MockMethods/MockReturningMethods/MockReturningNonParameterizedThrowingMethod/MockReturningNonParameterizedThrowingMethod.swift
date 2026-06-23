@@ -11,19 +11,34 @@ import Locking
 /// for a returning, non-parameterized, throwing method.
 public final class MockReturningNonParameterizedThrowingMethod<ReturnValue> {
 
+    // MARK: State
+
+    private struct State {
+        var callCount: Int = .zero
+        var returnedValues: [Result<ReturnValue, any Error>] = []
+    }
+
     // MARK: Properties
 
     /// The method's implementation.
     @Locked(.unchecked)
     public var implementation: Implementation = .unimplemented
 
+    private let _state = OSAllocatedUnfairLock(uncheckedState: State())
+
     /// The number of times the method has been called.
-    @Locked(.checked)
-    public private(set) var callCount: Int = .zero
+    public var callCount: Int {
+        self._state.withLockUnchecked { state in
+            state.callCount
+        }
+    }
 
     /// All the values that have been returned by the method.
-    @Locked(.unchecked)
-    public private(set) var returnedValues: [Result<ReturnValue, any Error>] = []
+    public var returnedValues: [Result<ReturnValue, any Error>] {
+        self._state.withLockUnchecked { state in
+            state.returnedValues
+        }
+    }
 
     /// The last value returned by the method.
     public var lastReturnedValue: Result<ReturnValue, any Error>? {
@@ -105,10 +120,6 @@ public final class MockReturningNonParameterizedThrowingMethod<ReturnValue> {
     /// - Returns: A value, if ``implementation-swift.property`` returns a
     ///   value.
     private func invoke() throws -> ReturnValue {
-        self._callCount.withLock { callCount in
-            callCount += 1
-        }
-
         let returnValue = Result {
             guard let returnValue = try self.implementation() else {
                 fatalError("Unimplemented: \(self.exposedMethodDescription)")
@@ -117,8 +128,9 @@ public final class MockReturningNonParameterizedThrowingMethod<ReturnValue> {
             return returnValue
         }
 
-        self._returnedValues.withLockUnchecked { returnedValues in
-            returnedValues.append(returnValue)
+        self._state.withLockUnchecked { state in
+            state.callCount += 1
+            state.returnedValues.append(returnValue)
         }
 
         return try returnValue.get()
@@ -131,11 +143,9 @@ public final class MockReturningNonParameterizedThrowingMethod<ReturnValue> {
         self._implementation.withLockUnchecked { implementation in
             implementation = .unimplemented
         }
-        self._callCount.withLock { callCount in
-            callCount = .zero
-        }
-        self._returnedValues.withLockUnchecked { returnedValues in
-            returnedValues.removeAll()
+        self._state.withLockUnchecked { state in
+            state.callCount = .zero
+            state.returnedValues.removeAll()
         }
     }
 }
