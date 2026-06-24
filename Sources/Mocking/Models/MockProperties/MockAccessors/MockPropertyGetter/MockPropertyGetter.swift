@@ -19,10 +19,10 @@ public final class MockPropertyGetter<Value> {
         var returnedValues: [Value] = []
     }
 
+    // MARK: Properties
+
     /// Lock protecting all invocation state.
     private let _state = OSAllocatedUnfairLock(uncheckedState: State())
-
-    // MARK: Properties
 
     /// The getter's implementation.
     @Locked(.unchecked)

@@ -36,10 +36,10 @@ public final class MockReturningParameterizedThrowingMethod<
         var returnedValues: [Result<ReturnValue, Error>] = []
     }
 
+    // MARK: Properties
+
     /// Lock protecting all invocation state.
     private let _state = OSAllocatedUnfairLock(uncheckedState: State())
-
-    // MARK: Properties
 
     /// The method's implementation.
     @Locked(.unchecked)
