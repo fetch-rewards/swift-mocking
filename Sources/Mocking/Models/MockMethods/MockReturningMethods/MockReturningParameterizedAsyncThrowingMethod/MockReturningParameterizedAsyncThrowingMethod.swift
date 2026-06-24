@@ -29,7 +29,7 @@ public final class MockReturningParameterizedAsyncThrowingMethod<
 
     // MARK: State
 
-    /// Invocation tracking state.
+    /// All invocation counters and records; grouped so reads and writes across them are atomic.
     private struct State {
         var callCount: Int = .zero
         var invocations: [Arguments] = []
@@ -38,7 +38,7 @@ public final class MockReturningParameterizedAsyncThrowingMethod<
 
     // MARK: Properties
 
-    /// Lock protecting all invocation state.
+    /// Single lock for all invocation state; prevents torn reads between `callCount` and companion arrays.
     private let _state = OSAllocatedUnfairLock(uncheckedState: State())
 
     /// The method's implementation.

@@ -13,7 +13,7 @@ public final class MockPropertyAsyncThrowingGetter<Value> {
 
     // MARK: State
 
-    /// Invocation tracking state.
+    /// All invocation counters and records; grouped so reads and writes across them are atomic.
     private struct State {
         var callCount: Int = .zero
         var returnedValues: [Result<Value, any Error>] = []
@@ -21,7 +21,7 @@ public final class MockPropertyAsyncThrowingGetter<Value> {
 
     // MARK: Properties
 
-    /// Lock protecting all invocation state.
+    /// Single lock for all invocation state; prevents torn reads between `callCount` and companion arrays.
     private let _state = OSAllocatedUnfairLock(uncheckedState: State())
 
     /// The getter's implementation.
