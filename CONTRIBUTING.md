@@ -18,6 +18,7 @@
 - [Code Formatting](#code-formatting)
 - [Signed Commits Required](#signed-commits-required)
 - [Commit Messages & PR Titles](#commit-messages--pr-titles)
+- [Creating a Release](#creating-a-release)
 
 ## Homebrew
 
@@ -83,3 +84,22 @@ contributors.
 1. The subject and body are free of whitespace errors and typos.
 1. The body uses proper punctuation and capitalization.
 1. The body has a line length of 72 characters or less.
+
+## Creating a Release
+
+Releases are created using two [Claude Code](https://claude.ai/code) skills. You will need Claude Code installed to run them.
+
+**Step 1 — Prepare the release**
+
+Run the `/prepare-release` skill. It will:
+- Analyze merged PRs since the last release tag and determine the next version
+- Update `CHANGELOG.md` and open a documentation PR for review
+- Populate the draft GitHub release notes
+
+**Step 2 — Merge the changelog PR**
+
+Review and merge the PR that `/prepare-release` opened. The skill assigns it to you and labels it `documentation`.
+
+**Step 3 — Publish the release**
+
+Once the changelog PR is merged, run the `/publish-release` skill. It will verify that the draft release version matches the changelog entry on `main`, then create the git tag and publish the release.
