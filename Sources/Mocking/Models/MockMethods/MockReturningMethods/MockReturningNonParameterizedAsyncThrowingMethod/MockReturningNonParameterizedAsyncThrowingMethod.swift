@@ -13,7 +13,7 @@ public final class MockReturningNonParameterizedAsyncThrowingMethod<ReturnValue>
 
     // MARK: State
 
-    /// All invocation counters and records; grouped so reads and writes across them are atomic.
+    /// All invocation records; grouped so reads and writes across them are atomic.
     private struct State {
         var callCount: Int = .zero
         var returnedValues: [Result<ReturnValue, any Error>] = []
@@ -21,7 +21,7 @@ public final class MockReturningNonParameterizedAsyncThrowingMethod<ReturnValue>
 
     // MARK: Properties
 
-    /// Single lock for all invocation state; prevents torn reads between `callCount` and companion arrays.
+    /// Single lock for all invocation state; prevents torn reads between state properties.
     private let _state = OSAllocatedUnfairLock(uncheckedState: State())
 
     /// The method's implementation.
