@@ -11,23 +11,42 @@ import Locking
 /// for a returning, non-parameterized, async method.
 public final class MockReturningNonParameterizedAsyncMethod<ReturnValue> {
 
+    // MARK: State
+
+    /// All invocation records; grouped so reads and writes across them are atomic.
+    private struct State {
+        var callCount: Int = .zero
+        var returnedValues: [ReturnValue] = []
+    }
+
     // MARK: Properties
+
+    /// Single lock for all invocation state; prevents torn reads between state properties.
+    private let _state = OSAllocatedUnfairLock(uncheckedState: State())
 
     /// The method's implementation.
     @Locked(.unchecked)
     public var implementation: Implementation = .unimplemented
 
     /// The number of times the method has been called.
-    @Locked(.checked)
-    public private(set) var callCount: Int = .zero
+    public var callCount: Int {
+        self._state.withLockUnchecked { state in
+            state.callCount
+        }
+    }
 
     /// All the values that have been returned by the method.
-    @Locked(.unchecked)
-    public private(set) var returnedValues: [ReturnValue] = []
+    public var returnedValues: [ReturnValue] {
+        self._state.withLockUnchecked { state in
+            state.returnedValues
+        }
+    }
 
     /// The last value returned by the method.
     public var lastReturnedValue: ReturnValue? {
-        self.returnedValues.last
+        self._state.withLockUnchecked { state in
+            state.returnedValues.last
+        }
     }
 
     /// The description of the mock's exposed method.
@@ -103,16 +122,13 @@ public final class MockReturningNonParameterizedAsyncMethod<ReturnValue> {
     /// - Returns: A value, if ``implementation-swift.property`` returns a
     ///   value.
     private func invoke() async -> ReturnValue {
-        self._callCount.withLock { callCount in
-            callCount += 1
-        }
-
         guard let returnValue = await self.implementation() else {
             fatalError("Unimplemented: \(self.exposedMethodDescription)")
         }
 
-        self._returnedValues.withLockUnchecked { returnedValues in
-            returnedValues.append(returnValue)
+        self._state.withLockUnchecked { state in
+            state.callCount += 1
+            state.returnedValues.append(returnValue)
         }
 
         return returnValue
@@ -125,11 +141,9 @@ public final class MockReturningNonParameterizedAsyncMethod<ReturnValue> {
         self._implementation.withLockUnchecked { implementation in
             implementation = .unimplemented
         }
-        self._callCount.withLock { callCount in
-            callCount = .zero
-        }
-        self._returnedValues.withLockUnchecked { returnedValues in
-            returnedValues.removeAll()
+        self._state.withLockUnchecked { state in
+            state.callCount = .zero
+            state.returnedValues.removeAll()
         }
     }
 }

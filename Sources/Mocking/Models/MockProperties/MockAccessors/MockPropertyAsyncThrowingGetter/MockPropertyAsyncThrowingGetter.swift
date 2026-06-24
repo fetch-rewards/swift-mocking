@@ -11,23 +11,42 @@ import Locking
 /// records for an async, throwing property getter.
 public final class MockPropertyAsyncThrowingGetter<Value> {
 
+    // MARK: State
+
+    /// All invocation records; grouped so reads and writes across them are atomic.
+    private struct State {
+        var callCount: Int = .zero
+        var returnedValues: [Result<Value, any Error>] = []
+    }
+
     // MARK: Properties
+
+    /// Single lock for all invocation state; prevents torn reads between state properties.
+    private let _state = OSAllocatedUnfairLock(uncheckedState: State())
 
     /// The getter's implementation.
     @Locked(.unchecked)
     public var implementation: Implementation = .unimplemented
 
     /// The number of times the getter has been called.
-    @Locked(.checked)
-    public private(set) var callCount: Int = .zero
+    public var callCount: Int {
+        self._state.withLockUnchecked { state in
+            state.callCount
+        }
+    }
 
     /// All the values that have been returned by the getter.
-    @Locked(.unchecked)
-    public private(set) var returnedValues: [Result<Value, any Error>] = []
+    public var returnedValues: [Result<Value, any Error>] {
+        self._state.withLockUnchecked { state in
+            state.returnedValues
+        }
+    }
 
     /// The last value returned by the getter.
     public var lastReturnedValue: Result<Value, any Error>? {
-        self.returnedValues.last
+        self._state.withLockUnchecked { state in
+            state.returnedValues.last
+        }
     }
 
     /// The description of the mock's exposed property.
@@ -58,10 +77,6 @@ public final class MockPropertyAsyncThrowingGetter<Value> {
     /// - Returns: A value, if ``implementation-swift.property`` returns a
     ///   value.
     func get() async throws -> Value {
-        self._callCount.withLock { callCount in
-            callCount += 1
-        }
-
         let value = await Result {
             guard let value = try await self.implementation() else {
                 fatalError("Unimplemented: \(self.exposedPropertyDescription)")
@@ -70,8 +85,9 @@ public final class MockPropertyAsyncThrowingGetter<Value> {
             return value
         }
 
-        self._returnedValues.withLockUnchecked { returnedValues in
-            returnedValues.append(value)
+        self._state.withLockUnchecked { state in
+            state.callCount += 1
+            state.returnedValues.append(value)
         }
 
         return try value.get()
@@ -84,11 +100,9 @@ public final class MockPropertyAsyncThrowingGetter<Value> {
         self._implementation.withLockUnchecked { implementation in
             implementation = .unimplemented
         }
-        self._callCount.withLock { callCount in
-            callCount = .zero
-        }
-        self._returnedValues.withLockUnchecked { returnedValues in
-            returnedValues.removeAll()
+        self._state.withLockUnchecked { state in
+            state.callCount = .zero
+            state.returnedValues.removeAll()
         }
     }
 }

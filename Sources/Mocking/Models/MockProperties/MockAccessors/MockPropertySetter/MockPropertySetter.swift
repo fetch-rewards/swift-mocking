@@ -11,23 +11,42 @@ import Locking
 /// records for a property setter.
 public final class MockPropertySetter<Value> {
 
+    // MARK: State
+
+    /// All invocation records; grouped so reads and writes across them are atomic.
+    private struct State {
+        var callCount: Int = .zero
+        var invocations: [Value] = []
+    }
+
     // MARK: Properties
+
+    /// Single lock for all invocation state; prevents torn reads between state properties.
+    private let _state = OSAllocatedUnfairLock(uncheckedState: State())
 
     /// The setter's implementation.
     @Locked(.unchecked)
     public var implementation: Implementation = .unimplemented
 
     /// The number of times the setter has been called.
-    @Locked(.checked)
-    public private(set) var callCount: Int = .zero
+    public var callCount: Int {
+        self._state.withLockUnchecked { state in
+            state.callCount
+        }
+    }
 
     /// All the values with which the setter has been invoked.
-    @Locked(.unchecked)
-    public private(set) var invocations: [Value] = []
+    public var invocations: [Value] {
+        self._state.withLockUnchecked { state in
+            state.invocations
+        }
+    }
 
     /// The last value with which the setter has been invoked.
     public var lastInvocation: Value? {
-        self.invocations.last
+        self._state.withLockUnchecked { state in
+            state.invocations.last
+        }
     }
 
     // MARK: Set
@@ -37,11 +56,9 @@ public final class MockPropertySetter<Value> {
     ///
     /// - Parameter value: The value with which the setter is being invoked.
     func set(_ value: Value) {
-        self._callCount.withLock { callCount in
-            callCount += 1
-        }
-        self._invocations.withLockUnchecked { invocations in
-            invocations.append(value)
+        self._state.withLockUnchecked { state in
+            state.callCount += 1
+            state.invocations.append(value)
         }
         self.implementation(value)
     }
@@ -53,11 +70,9 @@ public final class MockPropertySetter<Value> {
         self._implementation.withLockUnchecked { implementation in
             implementation = .unimplemented
         }
-        self._callCount.withLock { callCount in
-            callCount = .zero
-        }
-        self._invocations.withLockUnchecked { invocations in
-            invocations.removeAll()
+        self._state.withLockUnchecked { state in
+            state.callCount = .zero
+            state.invocations.removeAll()
         }
     }
 }

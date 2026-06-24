@@ -11,23 +11,42 @@ import Locking
 /// records for a property getter.
 public final class MockPropertyGetter<Value> {
 
+    // MARK: State
+
+    /// All invocation records; grouped so reads and writes across them are atomic.
+    private struct State {
+        var callCount: Int = .zero
+        var returnedValues: [Value] = []
+    }
+
     // MARK: Properties
+
+    /// Single lock for all invocation state; prevents torn reads between state properties.
+    private let _state = OSAllocatedUnfairLock(uncheckedState: State())
 
     /// The getter's implementation.
     @Locked(.unchecked)
     public var implementation: Implementation = .unimplemented
 
     /// The number of times the getter has been called.
-    @Locked(.checked)
-    public private(set) var callCount: Int = .zero
+    public var callCount: Int {
+        self._state.withLockUnchecked { state in
+            state.callCount
+        }
+    }
 
     /// All the values that have been returned by the getter.
-    @Locked(.unchecked)
-    public private(set) var returnedValues: [Value] = []
+    public var returnedValues: [Value] {
+        self._state.withLockUnchecked { state in
+            state.returnedValues
+        }
+    }
 
     /// The last value returned by the getter.
     public var lastReturnedValue: Value? {
-        self.returnedValues.last
+        self._state.withLockUnchecked { state in
+            state.returnedValues.last
+        }
     }
 
     /// The description of the mock's exposed property.
@@ -56,16 +75,13 @@ public final class MockPropertyGetter<Value> {
     /// - Returns: A value, if ``implementation-swift.property`` returns a
     ///   value.
     func get() -> Value {
-        self._callCount.withLock { callCount in
-            callCount += 1
-        }
-
         guard let value = self.implementation() else {
             fatalError("Unimplemented: \(self.exposedPropertyDescription)")
         }
 
-        self._returnedValues.withLockUnchecked { returnedValues in
-            returnedValues.append(value)
+        self._state.withLockUnchecked { state in
+            state.callCount += 1
+            state.returnedValues.append(value)
         }
 
         return value
@@ -78,11 +94,9 @@ public final class MockPropertyGetter<Value> {
         self._implementation.withLockUnchecked { implementation in
             implementation = .unimplemented
         }
-        self._callCount.withLock { callCount in
-            callCount = .zero
-        }
-        self._returnedValues.withLockUnchecked { returnedValues in
-            returnedValues.removeAll()
+        self._state.withLockUnchecked { state in
+            state.callCount = .zero
+            state.returnedValues.removeAll()
         }
     }
 }

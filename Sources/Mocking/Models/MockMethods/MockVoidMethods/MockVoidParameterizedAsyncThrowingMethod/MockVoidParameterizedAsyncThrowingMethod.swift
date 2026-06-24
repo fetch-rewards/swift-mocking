@@ -24,32 +24,57 @@ public final class MockVoidParameterizedAsyncThrowingMethod<
     /// The method's closure type.
     public typealias Closure = Implementation.Closure
 
+    // MARK: State
+
+    /// All invocation records; grouped so reads and writes across them are atomic.
+    private struct State {
+        var callCount: Int = .zero
+        var invocations: [Arguments] = []
+        var thrownErrors: [Error] = []
+    }
+
     // MARK: Properties
+
+    /// Single lock for all invocation state; prevents torn reads between state properties.
+    private let _state = OSAllocatedUnfairLock(uncheckedState: State())
 
     /// The method's implementation.
     @Locked(.unchecked)
     public var implementation: Implementation = .unimplemented
 
     /// The number of times the method has been called.
-    @Locked(.checked)
-    public private(set) var callCount: Int = .zero
+    public var callCount: Int {
+        self._state.withLockUnchecked { state in
+            state.callCount
+        }
+    }
 
     /// All the arguments with which the method has been invoked.
-    @Locked(.unchecked)
-    public private(set) var invocations: [Arguments] = []
+    public var invocations: [Arguments] {
+        self._state.withLockUnchecked { state in
+            state.invocations
+        }
+    }
 
     /// The last arguments with which the method has been invoked.
     public var lastInvocation: Arguments? {
-        self.invocations.last
+        self._state.withLockUnchecked { state in
+            state.invocations.last
+        }
     }
 
     /// All the errors that have been thrown by the method.
-    @Locked(.checked)
-    public private(set) var thrownErrors: [Error] = []
+    public var thrownErrors: [Error] {
+        self._state.withLockUnchecked { state in
+            state.thrownErrors
+        }
+    }
 
     /// The last error thrown by the method.
     public var lastThrownError: Error? {
-        self.thrownErrors.last
+        self._state.withLockUnchecked { state in
+            state.thrownErrors.last
+        }
     }
 
     // MARK: Initializers
@@ -120,11 +145,9 @@ public final class MockVoidParameterizedAsyncThrowingMethod<
     /// - Parameter arguments: The arguments with which the method is being
     ///   invoked.
     private func recordInput(arguments: Arguments) {
-        self._callCount.withLock { callCount in
-            callCount += 1
-        }
-        self._invocations.withLockUnchecked { invocations in
-            invocations.append(arguments)
+        self._state.withLockUnchecked { state in
+            state.callCount += 1
+            state.invocations.append(arguments)
         }
     }
 
@@ -141,8 +164,8 @@ public final class MockVoidParameterizedAsyncThrowingMethod<
     ///
     /// - Parameter error: The error thrown by the method.
     private func recordOutput(error: Error) {
-        self._thrownErrors.withLock { thrownErrors in
-            thrownErrors.append(error)
+        self._state.withLockUnchecked { state in
+            state.thrownErrors.append(error)
         }
     }
 
@@ -153,14 +176,10 @@ public final class MockVoidParameterizedAsyncThrowingMethod<
         self._implementation.withLockUnchecked { implementation in
             implementation = .unimplemented
         }
-        self._callCount.withLock { callCount in
-            callCount = .zero
-        }
-        self._invocations.withLockUnchecked { invocations in
-            invocations.removeAll()
-        }
-        self._thrownErrors.withLock { thrownErrors in
-            thrownErrors.removeAll()
+        self._state.withLockUnchecked { state in
+            state.callCount = .zero
+            state.invocations.removeAll()
+            state.thrownErrors.removeAll()
         }
     }
 }
