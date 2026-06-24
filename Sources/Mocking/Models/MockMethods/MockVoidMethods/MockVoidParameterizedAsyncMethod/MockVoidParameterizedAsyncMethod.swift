@@ -23,18 +23,20 @@ public final class MockVoidParameterizedAsyncMethod<
 
     // MARK: State
 
+    /// Invocation tracking state.
     private struct State {
         var callCount: Int = .zero
         var invocations: [Arguments] = []
     }
+
+    /// Lock protecting all invocation state.
+    private let _state = OSAllocatedUnfairLock(uncheckedState: State())
 
     // MARK: Properties
 
     /// The method's implementation.
     @Locked(.unchecked)
     public var implementation: Implementation = .unimplemented
-
-    private let _state = OSAllocatedUnfairLock(uncheckedState: State())
 
     /// The number of times the method has been called.
     public var callCount: Int {
@@ -52,7 +54,9 @@ public final class MockVoidParameterizedAsyncMethod<
 
     /// The last arguments with which the method has been invoked.
     public var lastInvocation: Arguments? {
-        self.invocations.last
+        self._state.withLockUnchecked { state in
+            state.invocations.last
+        }
     }
 
     // MARK: Initializers

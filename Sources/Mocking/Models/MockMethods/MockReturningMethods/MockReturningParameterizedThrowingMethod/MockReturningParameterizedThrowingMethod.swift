@@ -29,19 +29,21 @@ public final class MockReturningParameterizedThrowingMethod<
 
     // MARK: State
 
+    /// Invocation tracking state.
     private struct State {
         var callCount: Int = .zero
         var invocations: [Arguments] = []
         var returnedValues: [Result<ReturnValue, Error>] = []
     }
 
+    /// Lock protecting all invocation state.
+    private let _state = OSAllocatedUnfairLock(uncheckedState: State())
+
     // MARK: Properties
 
     /// The method's implementation.
     @Locked(.unchecked)
     public var implementation: Implementation = .unimplemented
-
-    private let _state = OSAllocatedUnfairLock(uncheckedState: State())
 
     /// The number of times the method has been called.
     public var callCount: Int {
@@ -59,7 +61,9 @@ public final class MockReturningParameterizedThrowingMethod<
 
     /// The last arguments with which the method has been invoked.
     public var lastInvocation: Arguments? {
-        self.invocations.last
+        self._state.withLockUnchecked { state in
+            state.invocations.last
+        }
     }
 
     /// All the values that have been returned by the method.
@@ -71,7 +75,9 @@ public final class MockReturningParameterizedThrowingMethod<
 
     /// The last value returned by the method.
     public var lastReturnedValue: Result<ReturnValue, Error>? {
-        self.returnedValues.last
+        self._state.withLockUnchecked { state in
+            state.returnedValues.last
+        }
     }
 
     /// The description of the mock's exposed method.

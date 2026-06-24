@@ -13,18 +13,20 @@ public final class MockPropertyThrowingGetter<Value> {
 
     // MARK: State
 
+    /// Invocation tracking state.
     private struct State {
         var callCount: Int = .zero
         var returnedValues: [Result<Value, any Error>] = []
     }
+
+    /// Lock protecting all invocation state.
+    private let _state = OSAllocatedUnfairLock(uncheckedState: State())
 
     // MARK: Properties
 
     /// The getter's implementation.
     @Locked(.unchecked)
     public var implementation: Implementation = .unimplemented
-
-    private let _state = OSAllocatedUnfairLock(uncheckedState: State())
 
     /// The number of times the getter has been called.
     public var callCount: Int {
@@ -42,7 +44,9 @@ public final class MockPropertyThrowingGetter<Value> {
 
     /// The last value returned by the getter.
     public var lastReturnedValue: Result<Value, any Error>? {
-        self.returnedValues.last
+        self._state.withLockUnchecked { state in
+            state.returnedValues.last
+        }
     }
 
     /// The description of the mock's exposed property.

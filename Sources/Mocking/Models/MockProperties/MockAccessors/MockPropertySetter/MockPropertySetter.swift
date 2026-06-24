@@ -13,18 +13,20 @@ public final class MockPropertySetter<Value> {
 
     // MARK: State
 
+    /// Invocation tracking state.
     private struct State {
         var callCount: Int = .zero
         var invocations: [Value] = []
     }
+
+    /// Lock protecting all invocation state.
+    private let _state = OSAllocatedUnfairLock(uncheckedState: State())
 
     // MARK: Properties
 
     /// The setter's implementation.
     @Locked(.unchecked)
     public var implementation: Implementation = .unimplemented
-
-    private let _state = OSAllocatedUnfairLock(uncheckedState: State())
 
     /// The number of times the setter has been called.
     public var callCount: Int {
@@ -42,7 +44,9 @@ public final class MockPropertySetter<Value> {
 
     /// The last value with which the setter has been invoked.
     public var lastInvocation: Value? {
-        self.invocations.last
+        self._state.withLockUnchecked { state in
+            state.invocations.last
+        }
     }
 
     // MARK: Set
