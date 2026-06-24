@@ -104,12 +104,15 @@ extension MockedMethodMacro: PeerMacro {
 
                 let attributedType = parameterType.as(AttributedTypeSyntax.self)
                 let unattributedType = attributedType?.baseType ?? parameterType
+                let sendablePreservingType = Self.sendablePreservingType(
+                    from: attributedType
+                ) ?? unattributedType
                 let argumentsTypeElementType: any TypeSyntaxProtocol
                 let closureTypeElementType: any TypeSyntaxProtocol
 
                 if parameter.isVariadic {
                     argumentsTypeElementType = ArrayTypeSyntax(
-                        element: unattributedType
+                        element: sendablePreservingType
                     )
                     closureTypeElementType = ArrayTypeSyntax(
                         element: didTypeEraseParameter
@@ -117,7 +120,7 @@ extension MockedMethodMacro: PeerMacro {
                             : parameterType
                     )
                 } else {
-                    argumentsTypeElementType = unattributedType
+                    argumentsTypeElementType = sendablePreservingType
                     closureTypeElementType = didTypeEraseParameter
                         ? unattributedType
                         : parameterType
@@ -841,6 +844,50 @@ extension MockedMethodMacro: PeerMacro {
         return IdentifierTypeSyntax(
             name: .identifier(name),
             genericArgumentClause: genericArgumentClause
+        )
+    }
+
+    // MARK: Sendable
+
+    /// Returns a copy of the provided `attributedType` with only its `@Sendable`
+    /// attribute, or `nil` if the type has no `@Sendable` attribute.
+    ///
+    /// Specifiers (e.g. `inout`, `consuming`) and other type attributes (e.g.
+    /// `@escaping`, `@autoclosure`) are stripped so that the result can be used
+    /// as an `Arguments` element type whose Sendable conformance is preserved.
+    ///
+    /// - Parameter attributedType: The attributed type from which to extract the
+    ///   `@Sendable` attribute.
+    /// - Returns: A copy of the provided `attributedType` with only its
+    ///   `@Sendable` attribute, or `nil` if the type has no `@Sendable`
+    ///   attribute.
+    private static func sendablePreservingType(
+        from attributedType: AttributedTypeSyntax?
+    ) -> TypeSyntax? {
+        guard
+            let attributedType,
+            let sendableAttribute = attributedType.attributes.first(where: { element in
+                guard
+                    case let .attribute(attribute) = element,
+                    let identifierType = attribute.attributeName.as(
+                        IdentifierTypeSyntax.self
+                    )
+                else {
+                    return false
+                }
+
+                return identifierType.name.tokenKind == .identifier("Sendable")
+            })
+        else {
+            return nil
+        }
+
+        return TypeSyntax(
+            AttributedTypeSyntax(
+                specifiers: TypeSpecifierListSyntax([]),
+                attributes: AttributeListSyntax([sendableAttribute]),
+                baseType: attributedType.baseType
+            )
         )
     }
 }
