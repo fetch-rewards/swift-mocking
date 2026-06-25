@@ -14,8 +14,12 @@ public import Mocking
 ///   expansion, use the `Playground` protocol in `main.swift`.
 @Mocked(compilationCondition: .none)
 public protocol AutoClosures {
-//    func methodWithVoidAutoClosure(autoClosure: @escaping @autoclosure () -> Void)
-    func methodWithNonVoidAutoClosure(autoClosure: @escaping @autoclosure () async -> Int) async
-//    func methodWithConsumingVoidAutoClosure(autoClosure: consuming @escaping @autoclosure () -> Void)
-//    func methodWithConsumingNonVoidAutoClosure(autoClosure: consuming @escaping @autoclosure () -> Int)
+    func methodWithVoidAutoClosure(autoClosure: @escaping @autoclosure () -> Void)
+    func methodWithNonVoidAutoClosure(autoClosure: @escaping @autoclosure () -> Int)
+    func methodWithVoidAsyncAutoClosure(autoClosure: @escaping @autoclosure () async -> Void) async
+    func methodWithNonVoidAsyncAutoClosure(autoClosure: @escaping @autoclosure () async -> Int) async
+    func methodWithVoidThrowingAutoClosure(autoClosure: @escaping @autoclosure () throws -> Void) throws
+    func methodWithNonVoidThrowingAutoClosure(autoClosure: @escaping @autoclosure () throws -> Int) throws
+    func methodWithVoidAsyncThrowingAutoClosure(autoClosure: @escaping @autoclosure () async throws -> Void) async throws
+    func methodWithNonVoidAsyncThrowingAutoClosure(autoClosure: @escaping @autoclosure () async throws -> Int) async throws
 }
