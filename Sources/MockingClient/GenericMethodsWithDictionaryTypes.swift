@@ -14,7 +14,7 @@ public import Mocking
 ///   Mocked's handling of generic methods with `Dictionary` types. For
 ///   temporary testing of Mocked's expansion, use the `Playground` protocol in
 ///   `main.swift`.
-@Mocked
+@Mocked(compilationCondition: .none)
 public protocol GenericMethodsWithDictionaryTypes {
     func genericMethodWithDictionaryTypeAndUnconstrainedGenericParameters<Key, Value>(
         parameter: [Key: Value]
