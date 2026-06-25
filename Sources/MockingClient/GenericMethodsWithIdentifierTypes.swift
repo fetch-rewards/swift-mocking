@@ -16,7 +16,7 @@ public import Mocking
 ///   Mocked's handling of generic methods with identifier types. For temporary
 ///   testing of Mocked's expansion, use the `Playground` protocol in
 ///   `main.swift`.
-@Mocked(compilationCondition: .none)
+@Mocked
 public protocol GenericMethodsWithIdentifierTypes {
     func genericMethodWithArrayIdentifierTypeAndUnconstrainedGenericParameter<Value>(
         parameter: Array<Value>

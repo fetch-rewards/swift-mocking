@@ -16,7 +16,7 @@ public import Mocking
 ///   Mocked's handling of generic methods with member types. For temporary
 ///   testing of Mocked's expansion, use the `Playground` protocol in
 ///   `main.swift`.
-@Mocked(compilationCondition: .none)
+@Mocked
 public protocol GenericMethodsWithMemberTypes {
     func genericMethodWithArrayMemberTypeAndUnconstrainedGenericParameter<Value>(
         parameter: Swift.Array<Value>

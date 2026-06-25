@@ -12,7 +12,7 @@ public import Mocking
 /// - Important: Please only use this protocol for permanent verification of
 ///   Mocked's handling of parameterized methods. For temporary testing of
 ///   Mocked's expansion, use the `Playground` protocol in `main.swift`.
-@Mocked(compilationCondition: .none)
+@Mocked
 public protocol ParameterizedMethods {
     func voidMethod(string: String, integer: Int)
     func voidAsyncMethod(string: String, integer: Int) async

@@ -12,7 +12,7 @@ public import Mocking
 /// - Important: Please only use this protocol for permanent verification of
 ///   Mocked's handling of autoclosures. For temporary testing of Mocked's
 ///   expansion, use the `Playground` protocol in `main.swift`.
-@Mocked(compilationCondition: .none)
+@Mocked
 public protocol AutoClosures {
     func methodWithVoidAutoClosure(autoClosure: @escaping @autoclosure () -> Void)
     func methodWithNonVoidAutoClosure(autoClosure: @escaping @autoclosure () -> Int)

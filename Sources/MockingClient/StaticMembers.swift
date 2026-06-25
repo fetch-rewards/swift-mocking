@@ -12,7 +12,7 @@ public import Mocking
 /// - Important: Please only use this protocol for permanent verification of
 ///   Mocked's handling of static properties and methods. For temporary testing
 ///   of Mocked's expansion, use the `Playground` protocol in `main.swift`.
-@Mocked(compilationCondition: .none)
+@Mocked
 public protocol StaticMembers {
     static var staticReadOnlyAsyncProperty: Int { get async }
     static var staticReadOnlyAsyncThrowingProperty: Int { get async throws }

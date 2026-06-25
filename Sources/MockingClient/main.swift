@@ -12,5 +12,5 @@ public import Mocking
 /// - Important: Only use this for temporary testing/verification of Mocked's
 ///   expansion. Assume that anything added to this protocol can and will be
 ///   removed or replaced at some point in the future.
-@Mocked(compilationCondition: .none)
+@Mocked
 public protocol Playground {}

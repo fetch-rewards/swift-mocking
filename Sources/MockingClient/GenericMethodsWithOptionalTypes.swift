@@ -14,7 +14,7 @@ public import Mocking
 ///   Mocked's handling of generic methods with `Optional` types. For temporary
 ///   testing of Mocked's expansion, use the `Playground` protocol in
 ///   `main.swift`.
-@Mocked(compilationCondition: .none)
+@Mocked
 public protocol GenericMethodsWithOptionalTypes {
     func genericMethodWithOptionalTypeAndUnconstrainedGenericParameter<Value>(
         parameter: Value?

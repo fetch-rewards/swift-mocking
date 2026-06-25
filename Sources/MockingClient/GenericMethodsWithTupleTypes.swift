@@ -14,7 +14,7 @@ public import Mocking
 ///   Mocked's handling of generic methods with tuple types. For temporary
 ///   testing of Mocked's expansion, use the `Playground` protocol in
 ///   `main.swift`.
-@Mocked(compilationCondition: .none)
+@Mocked
 public protocol GenericMethodsWithTupleTypes {
     func genericMethodWithTupleTypeAndUnconstrainedGenericParameters<Value1, Value2>(
         parameter: (Value1, Value2)
