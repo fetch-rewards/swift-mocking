@@ -1,7 +1,7 @@
 //
 //  AutoClosures.swift
 //
-//  Copyright © 2025 Fetch.
+//  Copyright © 2026 Fetch.
 //
 
 import Foundation
@@ -17,9 +17,16 @@ public protocol AutoClosures {
     func methodWithVoidAutoClosure(autoClosure: @escaping @autoclosure () -> Void)
     func methodWithNonVoidAutoClosure(autoClosure: @escaping @autoclosure () -> Int)
     func methodWithVoidAsyncAutoClosure(autoClosure: @escaping @autoclosure () async -> Void) async
-    func methodWithNonVoidAsyncAutoClosure(autoClosure: @escaping @autoclosure () async -> Int) async
-    func methodWithVoidThrowingAutoClosure(autoClosure: @escaping @autoclosure () throws -> Void) throws
-    func methodWithNonVoidThrowingAutoClosure(autoClosure: @escaping @autoclosure () throws -> Int) throws
-    func methodWithVoidAsyncThrowingAutoClosure(autoClosure: @escaping @autoclosure () async throws -> Void) async throws
-    func methodWithNonVoidAsyncThrowingAutoClosure(autoClosure: @escaping @autoclosure () async throws -> Int) async throws
+    func methodWithNonVoidAsyncAutoClosure(autoClosure: @escaping @autoclosure () async
+        -> Int) async
+    func methodWithVoidThrowingAutoClosure(autoClosure: @escaping @autoclosure () throws
+        -> Void) throws
+    func methodWithNonVoidThrowingAutoClosure(autoClosure: @escaping @autoclosure () throws
+        -> Int) throws
+    func methodWithVoidAsyncThrowingAutoClosure(autoClosure: @escaping @autoclosure () async throws
+        -> Void) async throws
+    func methodWithNonVoidAsyncThrowingAutoClosure(
+        autoClosure: @escaping @autoclosure () async throws
+            -> Int
+    ) async throws
 }
