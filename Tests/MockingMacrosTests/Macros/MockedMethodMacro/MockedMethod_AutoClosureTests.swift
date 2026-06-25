@@ -186,35 +186,35 @@ struct MockedMethod_AutoClosureTests {
             \tArguments
             >: @unchecked Sendable, MockVoidParameterizedAsyncMethodImplementation {
 
-            \t/// The implementation's closure type.
-            \ttypealias Closure = (Void) async -> Void
+                /// The implementation's closure type.
+                typealias Closure = (Void) async -> Void
 
-            \t/// Does nothing when invoked.
-            \tcase unimplemented
+                /// Does nothing when invoked.
+                case unimplemented
 
-            \t/// Invokes the provided closure when invoked.
-            \t///
-            \t/// - Parameter closure: The closure to invoke.
-            \tcase uncheckedInvokes(_ closure: Closure)
+                /// Invokes the provided closure when invoked.
+                ///
+                /// - Parameter closure: The closure to invoke.
+                case uncheckedInvokes(_ closure: Closure)
 
-            \t/// Invokes the provided closure when invoked.
-            \t///
-            \t/// - Parameter closure: The closure to invoke.
-            \tstatic func invokes(
-            \t\t_ closure: @Sendable @escaping (Void) async -> Void
-            \t) -> Self where Arguments: Sendable {
-            \t\t.uncheckedInvokes(closure)
-            \t}
+                /// Invokes the provided closure when invoked.
+                ///
+                /// - Parameter closure: The closure to invoke.
+                static func invokes(
+                \t_ closure: @Sendable @escaping (Void) async -> Void
+                ) -> Self where Arguments: Sendable {
+                    .uncheckedInvokes(closure)
+                }
 
-            \t/// The implementation as a closure, or `nil` if unimplemented.
-            \tvar _closure: Closure? {
-            \t\tswitch self {
-            \t\tcase .unimplemented:
-            \t\t\tnil
-            \t\tcase let .uncheckedInvokes(closure):
-            \t\t\tclosure
-            \t\t}
-            \t}
+                /// The implementation as a closure, or `nil` if unimplemented.
+                var _closure: Closure? {
+                    switch self {
+                    case .unimplemented:
+                        nil
+                    case let .uncheckedInvokes(closure):
+                        closure
+                    }
+                }
             }
 
             private let __method = MockVoidParameterizedAsyncMethod<
@@ -228,7 +228,7 @@ struct MockedMethod_AutoClosureTests {
             \t\t(Void)
             \t>
             > {
-            \tself.__method.method
+                self.__method.method
             }
             """
         )
@@ -260,35 +260,35 @@ struct MockedMethod_AutoClosureTests {
             \tArguments
             >: @unchecked Sendable, MockVoidParameterizedAsyncMethodImplementation {
 
-            \t/// The implementation's closure type.
-            \ttypealias Closure = (Int) async -> Void
+                /// The implementation's closure type.
+                typealias Closure = (Int) async -> Void
 
-            \t/// Does nothing when invoked.
-            \tcase unimplemented
+                /// Does nothing when invoked.
+                case unimplemented
 
-            \t/// Invokes the provided closure when invoked.
-            \t///
-            \t/// - Parameter closure: The closure to invoke.
-            \tcase uncheckedInvokes(_ closure: Closure)
+                /// Invokes the provided closure when invoked.
+                ///
+                /// - Parameter closure: The closure to invoke.
+                case uncheckedInvokes(_ closure: Closure)
 
-            \t/// Invokes the provided closure when invoked.
-            \t///
-            \t/// - Parameter closure: The closure to invoke.
-            \tstatic func invokes(
-            \t\t_ closure: @Sendable @escaping (Int) async -> Void
-            \t) -> Self where Arguments: Sendable {
-            \t\t.uncheckedInvokes(closure)
-            \t}
+                /// Invokes the provided closure when invoked.
+                ///
+                /// - Parameter closure: The closure to invoke.
+                static func invokes(
+                \t_ closure: @Sendable @escaping (Int) async -> Void
+                ) -> Self where Arguments: Sendable {
+                    .uncheckedInvokes(closure)
+                }
 
-            \t/// The implementation as a closure, or `nil` if unimplemented.
-            \tvar _closure: Closure? {
-            \t\tswitch self {
-            \t\tcase .unimplemented:
-            \t\t\tnil
-            \t\tcase let .uncheckedInvokes(closure):
-            \t\t\tclosure
-            \t\t}
-            \t}
+                /// The implementation as a closure, or `nil` if unimplemented.
+                var _closure: Closure? {
+                    switch self {
+                    case .unimplemented:
+                        nil
+                    case let .uncheckedInvokes(closure):
+                        closure
+                    }
+                }
             }
 
             private let __method = MockVoidParameterizedAsyncMethod<
@@ -302,7 +302,7 @@ struct MockedMethod_AutoClosureTests {
             \t\t(Int)
             \t>
             > {
-            \tself.__method.method
+                self.__method.method
             }
             """
         )
@@ -341,46 +341,46 @@ struct MockedMethod_AutoClosureTests {
             \tArguments
             >: @unchecked Sendable, MockVoidParameterizedThrowingMethodImplementation {
 
-            \t/// The implementation's closure type.
-            \ttypealias Closure = (Void) throws -> Void
+                /// The implementation's closure type.
+                typealias Closure = (Void) throws -> Void
 
-            \t/// Does nothing when invoked.
-            \tcase unimplemented
+                /// Does nothing when invoked.
+                case unimplemented
 
-            \t/// Invokes the provided closure when invoked.
-            \t///
-            \t/// - Parameter closure: The closure to invoke.
-            \tcase uncheckedInvokes(_ closure: Closure)
+                /// Invokes the provided closure when invoked.
+                ///
+                /// - Parameter closure: The closure to invoke.
+                case uncheckedInvokes(_ closure: Closure)
 
-            \t/// Invokes the provided closure when invoked.
-            \t///
-            \t/// - Parameter closure: The closure to invoke.
-            \tstatic func invokes(
-            \t\t_ closure: @Sendable @escaping (Void) throws -> Void
-            \t) -> Self where Arguments: Sendable {
-            \t\t.uncheckedInvokes(closure)
-            \t}
+                /// Invokes the provided closure when invoked.
+                ///
+                /// - Parameter closure: The closure to invoke.
+                static func invokes(
+                \t_ closure: @Sendable @escaping (Void) throws -> Void
+                ) -> Self where Arguments: Sendable {
+                    .uncheckedInvokes(closure)
+                }
 
-            \t/// Throws the provided error when invoked.
-            \t///
-            \t/// - Parameter error: The error to throw.
-            \tstatic func `throws`(
-            \t\t_ error: any Error
-            \t) -> Self {
-            \t\t.uncheckedInvokes { _ in
-            \t\t\tthrow error
-            \t\t}
-            \t}
+                /// Throws the provided error when invoked.
+                ///
+                /// - Parameter error: The error to throw.
+                static func `throws`(
+                \t_ error: any Error
+                ) -> Self {
+                    .uncheckedInvokes { _ in
+                        throw error
+                    }
+                }
 
-            \t/// The implementation as a closure, or `nil` if unimplemented.
-            \tvar _closure: Closure? {
-            \t\tswitch self {
-            \t\tcase .unimplemented:
-            \t\t\tnil
-            \t\tcase let .uncheckedInvokes(closure):
-            \t\t\tclosure
-            \t\t}
-            \t}
+                /// The implementation as a closure, or `nil` if unimplemented.
+                var _closure: Closure? {
+                    switch self {
+                    case .unimplemented:
+                        nil
+                    case let .uncheckedInvokes(closure):
+                        closure
+                    }
+                }
             }
 
             private let __method = MockVoidParameterizedThrowingMethod<
@@ -394,7 +394,7 @@ struct MockedMethod_AutoClosureTests {
             \t\t(Void)
             \t>
             > {
-            \tself.__method.method
+                self.__method.method
             }
             """
         )
@@ -433,46 +433,46 @@ struct MockedMethod_AutoClosureTests {
             \tArguments
             >: @unchecked Sendable, MockVoidParameterizedThrowingMethodImplementation {
 
-            \t/// The implementation's closure type.
-            \ttypealias Closure = (Int) throws -> Void
+                /// The implementation's closure type.
+                typealias Closure = (Int) throws -> Void
 
-            \t/// Does nothing when invoked.
-            \tcase unimplemented
+                /// Does nothing when invoked.
+                case unimplemented
 
-            \t/// Invokes the provided closure when invoked.
-            \t///
-            \t/// - Parameter closure: The closure to invoke.
-            \tcase uncheckedInvokes(_ closure: Closure)
+                /// Invokes the provided closure when invoked.
+                ///
+                /// - Parameter closure: The closure to invoke.
+                case uncheckedInvokes(_ closure: Closure)
 
-            \t/// Invokes the provided closure when invoked.
-            \t///
-            \t/// - Parameter closure: The closure to invoke.
-            \tstatic func invokes(
-            \t\t_ closure: @Sendable @escaping (Int) throws -> Void
-            \t) -> Self where Arguments: Sendable {
-            \t\t.uncheckedInvokes(closure)
-            \t}
+                /// Invokes the provided closure when invoked.
+                ///
+                /// - Parameter closure: The closure to invoke.
+                static func invokes(
+                \t_ closure: @Sendable @escaping (Int) throws -> Void
+                ) -> Self where Arguments: Sendable {
+                    .uncheckedInvokes(closure)
+                }
 
-            \t/// Throws the provided error when invoked.
-            \t///
-            \t/// - Parameter error: The error to throw.
-            \tstatic func `throws`(
-            \t\t_ error: any Error
-            \t) -> Self {
-            \t\t.uncheckedInvokes { _ in
-            \t\t\tthrow error
-            \t\t}
-            \t}
+                /// Throws the provided error when invoked.
+                ///
+                /// - Parameter error: The error to throw.
+                static func `throws`(
+                \t_ error: any Error
+                ) -> Self {
+                    .uncheckedInvokes { _ in
+                        throw error
+                    }
+                }
 
-            \t/// The implementation as a closure, or `nil` if unimplemented.
-            \tvar _closure: Closure? {
-            \t\tswitch self {
-            \t\tcase .unimplemented:
-            \t\t\tnil
-            \t\tcase let .uncheckedInvokes(closure):
-            \t\t\tclosure
-            \t\t}
-            \t}
+                /// The implementation as a closure, or `nil` if unimplemented.
+                var _closure: Closure? {
+                    switch self {
+                    case .unimplemented:
+                        nil
+                    case let .uncheckedInvokes(closure):
+                        closure
+                    }
+                }
             }
 
             private let __method = MockVoidParameterizedThrowingMethod<
@@ -486,7 +486,7 @@ struct MockedMethod_AutoClosureTests {
             \t\t(Int)
             \t>
             > {
-            \tself.__method.method
+                self.__method.method
             }
             """
         )
@@ -525,46 +525,46 @@ struct MockedMethod_AutoClosureTests {
             \tArguments
             >: @unchecked Sendable, MockVoidParameterizedAsyncThrowingMethodImplementation {
 
-            \t/// The implementation's closure type.
-            \ttypealias Closure = (Void) async throws -> Void
+                /// The implementation's closure type.
+                typealias Closure = (Void) async throws -> Void
 
-            \t/// Does nothing when invoked.
-            \tcase unimplemented
+                /// Does nothing when invoked.
+                case unimplemented
 
-            \t/// Invokes the provided closure when invoked.
-            \t///
-            \t/// - Parameter closure: The closure to invoke.
-            \tcase uncheckedInvokes(_ closure: Closure)
+                /// Invokes the provided closure when invoked.
+                ///
+                /// - Parameter closure: The closure to invoke.
+                case uncheckedInvokes(_ closure: Closure)
 
-            \t/// Invokes the provided closure when invoked.
-            \t///
-            \t/// - Parameter closure: The closure to invoke.
-            \tstatic func invokes(
-            \t\t_ closure: @Sendable @escaping (Void) async throws -> Void
-            \t) -> Self where Arguments: Sendable {
-            \t\t.uncheckedInvokes(closure)
-            \t}
+                /// Invokes the provided closure when invoked.
+                ///
+                /// - Parameter closure: The closure to invoke.
+                static func invokes(
+                \t_ closure: @Sendable @escaping (Void) async throws -> Void
+                ) -> Self where Arguments: Sendable {
+                    .uncheckedInvokes(closure)
+                }
 
-            \t/// Throws the provided error when invoked.
-            \t///
-            \t/// - Parameter error: The error to throw.
-            \tstatic func `throws`(
-            \t\t_ error: any Error
-            \t) -> Self {
-            \t\t.uncheckedInvokes { _ in
-            \t\t\tthrow error
-            \t\t}
-            \t}
+                /// Throws the provided error when invoked.
+                ///
+                /// - Parameter error: The error to throw.
+                static func `throws`(
+                \t_ error: any Error
+                ) -> Self {
+                    .uncheckedInvokes { _ in
+                        throw error
+                    }
+                }
 
-            \t/// The implementation as a closure, or `nil` if unimplemented.
-            \tvar _closure: Closure? {
-            \t\tswitch self {
-            \t\tcase .unimplemented:
-            \t\t\tnil
-            \t\tcase let .uncheckedInvokes(closure):
-            \t\t\tclosure
-            \t\t}
-            \t}
+                /// The implementation as a closure, or `nil` if unimplemented.
+                var _closure: Closure? {
+                    switch self {
+                    case .unimplemented:
+                        nil
+                    case let .uncheckedInvokes(closure):
+                        closure
+                    }
+                }
             }
 
             private let __method = MockVoidParameterizedAsyncThrowingMethod<
@@ -578,7 +578,7 @@ struct MockedMethod_AutoClosureTests {
             \t\t(Void)
             \t>
             > {
-            \tself.__method.method
+                self.__method.method
             }
             """
         )
@@ -617,46 +617,46 @@ struct MockedMethod_AutoClosureTests {
             \tArguments
             >: @unchecked Sendable, MockVoidParameterizedAsyncThrowingMethodImplementation {
 
-            \t/// The implementation's closure type.
-            \ttypealias Closure = (Int) async throws -> Void
+                /// The implementation's closure type.
+                typealias Closure = (Int) async throws -> Void
 
-            \t/// Does nothing when invoked.
-            \tcase unimplemented
+                /// Does nothing when invoked.
+                case unimplemented
 
-            \t/// Invokes the provided closure when invoked.
-            \t///
-            \t/// - Parameter closure: The closure to invoke.
-            \tcase uncheckedInvokes(_ closure: Closure)
+                /// Invokes the provided closure when invoked.
+                ///
+                /// - Parameter closure: The closure to invoke.
+                case uncheckedInvokes(_ closure: Closure)
 
-            \t/// Invokes the provided closure when invoked.
-            \t///
-            \t/// - Parameter closure: The closure to invoke.
-            \tstatic func invokes(
-            \t\t_ closure: @Sendable @escaping (Int) async throws -> Void
-            \t) -> Self where Arguments: Sendable {
-            \t\t.uncheckedInvokes(closure)
-            \t}
+                /// Invokes the provided closure when invoked.
+                ///
+                /// - Parameter closure: The closure to invoke.
+                static func invokes(
+                \t_ closure: @Sendable @escaping (Int) async throws -> Void
+                ) -> Self where Arguments: Sendable {
+                    .uncheckedInvokes(closure)
+                }
 
-            \t/// Throws the provided error when invoked.
-            \t///
-            \t/// - Parameter error: The error to throw.
-            \tstatic func `throws`(
-            \t\t_ error: any Error
-            \t) -> Self {
-            \t\t.uncheckedInvokes { _ in
-            \t\t\tthrow error
-            \t\t}
-            \t}
+                /// Throws the provided error when invoked.
+                ///
+                /// - Parameter error: The error to throw.
+                static func `throws`(
+                \t_ error: any Error
+                ) -> Self {
+                    .uncheckedInvokes { _ in
+                        throw error
+                    }
+                }
 
-            \t/// The implementation as a closure, or `nil` if unimplemented.
-            \tvar _closure: Closure? {
-            \t\tswitch self {
-            \t\tcase .unimplemented:
-            \t\t\tnil
-            \t\tcase let .uncheckedInvokes(closure):
-            \t\t\tclosure
-            \t\t}
-            \t}
+                /// The implementation as a closure, or `nil` if unimplemented.
+                var _closure: Closure? {
+                    switch self {
+                    case .unimplemented:
+                        nil
+                    case let .uncheckedInvokes(closure):
+                        closure
+                    }
+                }
             }
 
             private let __method = MockVoidParameterizedAsyncThrowingMethod<
@@ -670,7 +670,7 @@ struct MockedMethod_AutoClosureTests {
             \t\t(Int)
             \t>
             > {
-            \tself.__method.method
+                self.__method.method
             }
             """
         )
