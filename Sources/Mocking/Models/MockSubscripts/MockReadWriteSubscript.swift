@@ -9,17 +9,17 @@ import Locking
 
 /// A mock subscript that contains implementation details and invocation records
 /// for a read-write subscript.
-public final class MockReadWriteSubscript<Key, Value> {
+public final class MockReadWriteSubscript<Arguments, Value> {
 
     // MARK: Properties
 
     /// The subscript's getter.
     @Locked(.unchecked)
-    public var getter: MockSubscriptGetter<Key, Value>
+    public var getter: MockSubscriptGetter<Arguments, Value>
 
     /// The subscript's setter.
     @Locked(.unchecked)
-    public var setter = MockSubscriptSetter<Key, Value>()
+    public var setter = MockSubscriptSetter<Arguments, Value>()
 
     // MARK: Initializers
 
@@ -74,8 +74,8 @@ public final class MockReadWriteSubscript<Key, Value> {
         exposedSubscriptDescription: MockImplementationDescription
     ) -> (
         subscript: MockReadWriteSubscript,
-        get: (Key) -> Value,
-        set: (Key, Value) -> Void,
+        get: (Arguments) -> Value,
+        set: (Arguments, Value) -> Void,
         reset: () -> Void
     ) {
         let mock = MockReadWriteSubscript(
@@ -101,7 +101,7 @@ public final class MockReadWriteSubscript<Key, Value> {
 
 // MARK: - Sendable
 
-extension MockReadWriteSubscript: Sendable where Key: Sendable, Value: Sendable {
+extension MockReadWriteSubscript: Sendable where Arguments: Sendable, Value: Sendable {
 
     // MARK: Factories
 
@@ -143,8 +143,8 @@ extension MockReadWriteSubscript: Sendable where Key: Sendable, Value: Sendable 
         exposedSubscriptDescription: MockImplementationDescription
     ) -> (
         subscript: MockReadWriteSubscript,
-        get: @Sendable (Key) -> Value,
-        set: @Sendable (Key, Value) -> Void,
+        get: @Sendable (Arguments) -> Value,
+        set: @Sendable (Arguments, Value) -> Void,
         reset: @Sendable () -> Void
     ) {
         let mock = MockReadWriteSubscript(

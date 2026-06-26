@@ -9,14 +9,14 @@ import Locking
 
 /// A mock subscript getter that contains implementation details and invocation
 /// records for a subscript getter.
-public final class MockSubscriptGetter<Key, Value> {
+public final class MockSubscriptGetter<Arguments, Value> {
 
     // MARK: State
 
     /// All invocation records; grouped so reads and writes across them are atomic.
     private struct State {
         var callCount: Int = .zero
-        var invocations: [Key] = []
+        var invocations: [Arguments] = []
         var returnedValues: [Value] = []
     }
 
@@ -36,8 +36,8 @@ public final class MockSubscriptGetter<Key, Value> {
         }
     }
 
-    /// All the keys with which the getter has been invoked.
-    public var invocations: [Key] {
+    /// All the arguments with which the getter has been invoked.
+    public var invocations: [Arguments] {
         self._state.withLockUnchecked { state in
             state.invocations
         }
@@ -50,8 +50,8 @@ public final class MockSubscriptGetter<Key, Value> {
         }
     }
 
-    /// The last key with which the getter was invoked.
-    public var lastInvocation: Key? {
+    /// The last arguments with which the getter was invoked.
+    public var lastInvocation: Arguments? {
         self._state.withLockUnchecked { state in
             state.invocations.last
         }
@@ -87,16 +87,16 @@ public final class MockSubscriptGetter<Key, Value> {
     /// Records the invocation of the getter and invokes
     /// ``implementation-swift.property``.
     ///
-    /// - Parameter key: The key with which the getter is being invoked.
+    /// - Parameter arguments: The arguments with which the getter is being invoked.
     /// - Returns: A value, if ``implementation-swift.property`` returns a value.
-    func get(_ key: Key) -> Value {
-        guard let value = self.implementation(key) else {
+    func get(_ arguments: Arguments) -> Value {
+        guard let value = self.implementation(arguments) else {
             fatalError("Unimplemented: \(self.exposedSubscriptDescription)")
         }
 
         self._state.withLockUnchecked { state in
             state.callCount += 1
-            state.invocations.append(key)
+            state.invocations.append(arguments)
             state.returnedValues.append(value)
         }
 
@@ -120,4 +120,4 @@ public final class MockSubscriptGetter<Key, Value> {
 
 // MARK: - Sendable
 
-extension MockSubscriptGetter: Sendable where Key: Sendable, Value: Sendable {}
+extension MockSubscriptGetter: Sendable where Arguments: Sendable, Value: Sendable {}

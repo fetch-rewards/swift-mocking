@@ -11,8 +11,8 @@ struct MockReadWriteSubscriptTests {
 
     // MARK: Typealiases
 
-    typealias SUT = MockReadWriteSubscript<Key, Value>
-    typealias Key = String
+    typealias SUT = MockReadWriteSubscript<Arguments, Value>
+    typealias Arguments = String
     typealias Value = Int
 
     // MARK: Getter Tests
@@ -87,8 +87,8 @@ struct MockReadWriteSubscriptTests {
 extension MockReadWriteSubscriptTests {
     private func sut() -> (
         subscript: SUT,
-        get: @Sendable (Key) -> Value,
-        set: @Sendable (Key, Value) -> Void,
+        get: @Sendable (Arguments) -> Value,
+        set: @Sendable (Arguments, Value) -> Void,
         reset: @Sendable () -> Void
     ) {
         SUT.makeSubscript(

@@ -19,7 +19,7 @@ extension MockSubscriptSetter {
         /// Invokes the provided closure when invoked.
         ///
         /// - Parameter closure: The closure to invoke.
-        case uncheckedInvokes(_ closure: (Key, Value) -> Void)
+        case uncheckedInvokes(_ closure: (Arguments, Value) -> Void)
 
         // MARK: Constructors
 
@@ -27,8 +27,8 @@ extension MockSubscriptSetter {
         ///
         /// - Parameter closure: The closure to invoke.
         public static func invokes(
-            _ closure: @Sendable @escaping (Key, Value) -> Void
-        ) -> Self where Key: Sendable, Value: Sendable {
+            _ closure: @Sendable @escaping (Arguments, Value) -> Void
+        ) -> Self where Arguments: Sendable, Value: Sendable {
             .uncheckedInvokes(closure)
         }
 
@@ -37,14 +37,14 @@ extension MockSubscriptSetter {
         /// Invokes the implementation.
         ///
         /// - Parameters:
-        ///   - key: The key with which to invoke the implementation.
+        ///   - arguments: The arguments with which to invoke the implementation.
         ///   - newValue: The new value with which to invoke the implementation.
-        func callAsFunction(_ key: Key, _ newValue: Value) {
+        func callAsFunction(_ arguments: Arguments, _ newValue: Value) {
             switch self {
             case .unimplemented:
                 return
             case let .uncheckedInvokes(closure):
-                closure(key, newValue)
+                closure(arguments, newValue)
             }
         }
     }

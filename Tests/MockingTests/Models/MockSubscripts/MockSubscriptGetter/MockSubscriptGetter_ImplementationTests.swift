@@ -12,8 +12,8 @@ struct MockSubscriptGetter_ImplementationTests {
     // MARK: Typealiases
 
     typealias SUT = Getter.Implementation
-    typealias Getter = MockSubscriptGetter<Key, Value>
-    typealias Key = String
+    typealias Getter = MockSubscriptGetter<Arguments, Value>
+    typealias Arguments = String
     typealias Value = Int
 
     // MARK: Call As Function Tests

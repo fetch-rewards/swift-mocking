@@ -11,8 +11,8 @@ struct MockSubscriptSetterTests {
 
     // MARK: Typealiases
 
-    typealias SUT = MockSubscriptSetter<Key, Value>
-    typealias Key = String
+    typealias SUT = MockSubscriptSetter<Arguments, Value>
+    typealias Arguments = String
     typealias Value = Int
 
     // MARK: Implementation Tests
@@ -132,7 +132,7 @@ struct MockSubscriptSetterTests {
 extension MockSubscriptSetterTests {
     private func sut() -> (
         setter: SUT,
-        set: @Sendable (Key, Value) -> Void,
+        set: @Sendable (Arguments, Value) -> Void,
         reset: @Sendable () -> Void
     ) {
         let setter = SUT()

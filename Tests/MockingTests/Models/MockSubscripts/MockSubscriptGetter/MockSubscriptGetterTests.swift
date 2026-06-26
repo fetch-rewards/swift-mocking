@@ -11,8 +11,8 @@ struct MockSubscriptGetterTests {
 
     // MARK: Typealiases
 
-    typealias SUT = MockSubscriptGetter<Key, Value>
-    typealias Key = String
+    typealias SUT = MockSubscriptGetter<Arguments, Value>
+    typealias Arguments = String
     typealias Value = Int
 
     // MARK: Implementation Tests
@@ -208,7 +208,7 @@ struct MockSubscriptGetterTests {
 extension MockSubscriptGetterTests {
     private func sut() -> (
         getter: SUT,
-        get: @Sendable (Key) -> Value,
+        get: @Sendable (Arguments) -> Value,
         reset: @Sendable () -> Void
     ) {
         let getter = SUT(

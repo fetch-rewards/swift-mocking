@@ -9,13 +9,13 @@ import Locking
 
 /// A mock subscript that contains implementation details and invocation records
 /// for a read-only subscript.
-public final class MockReadOnlySubscript<Key, Value> {
+public final class MockReadOnlySubscript<Arguments, Value> {
 
     // MARK: Properties
 
     /// The subscript's getter.
     @Locked(.unchecked)
-    public var getter: MockSubscriptGetter<Key, Value>
+    public var getter: MockSubscriptGetter<Arguments, Value>
 
     // MARK: Initializers
 
@@ -62,7 +62,7 @@ public final class MockReadOnlySubscript<Key, Value> {
         exposedSubscriptDescription: MockImplementationDescription
     ) -> (
         subscript: MockReadOnlySubscript,
-        get: (Key) -> Value,
+        get: (Arguments) -> Value,
         reset: () -> Void
     ) {
         let mock = MockReadOnlySubscript(
@@ -86,7 +86,7 @@ public final class MockReadOnlySubscript<Key, Value> {
 
 // MARK: - Sendable
 
-extension MockReadOnlySubscript: Sendable where Key: Sendable, Value: Sendable {
+extension MockReadOnlySubscript: Sendable where Arguments: Sendable, Value: Sendable {
 
     // MARK: Factories
 
@@ -120,7 +120,7 @@ extension MockReadOnlySubscript: Sendable where Key: Sendable, Value: Sendable {
         exposedSubscriptDescription: MockImplementationDescription
     ) -> (
         subscript: MockReadOnlySubscript,
-        get: @Sendable (Key) -> Value,
+        get: @Sendable (Arguments) -> Value,
         reset: @Sendable () -> Void
     ) {
         let mock = MockReadOnlySubscript(
