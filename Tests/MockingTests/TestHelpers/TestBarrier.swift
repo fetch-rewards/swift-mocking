@@ -4,22 +4,15 @@
 //  Copyright © 2026 Fetch.
 //
 
-import Foundation
-
 /// A synchronization primitive that ensures a specific number of async tasks
 /// all start executing simultaneously, useful for testing race conditions.
 ///
-/// The barrier works by dispatching each task's wait to a GCD thread, which
-/// blocks at the OS level on an `NSCondition`. Once all expected tasks have
-/// arrived, the last thread broadcasts to release all blocked threads
-/// simultaneously. Each GCD thread then resumes its async continuation,
-/// submitting all tasks to the Swift cooperative executor at the same time.
-///
-/// This guarantees true concurrent execution because:
-/// - GCD threads block at the OS level, not the cooperative scheduler level
-/// - `NSCondition.broadcast()` releases all threads simultaneously
-/// - Continuations are resumed asynchronously from separate OS threads, so the
-///   cooperative executor receives all tasks as runnable at the same moment
+/// The barrier works by collecting continuations from tasks as they arrive, and
+/// only releasing all of them once the specified count is reached. When the
+/// last task arrives, it spawns a detached task per continuation to resume
+/// them asynchronously. This ensures the `wait()` call genuinely suspends
+/// every task (including the last one), and that all continuations are resumed
+/// on the global cooperative executor without passing through a serial context.
 ///
 /// ```swift
 /// let taskCount = 100
@@ -34,21 +27,18 @@ import Foundation
 ///     }
 /// }
 /// ```
-final class TestBarrier: @unchecked Sendable {
+actor TestBarrier {
 
     // MARK: Properties
 
     /// The default number of tasks used when no task count is specified.
     static let defaultTaskCount = 100
 
-    /// The condition variable used to block and release GCD threads.
-    private let condition = NSCondition()
+    /// The continuations waiting to be resumed once all tasks arrive.
+    private var continuations: [CheckedContinuation<Void, Never>] = []
 
-    /// The number of tasks that have arrived at the barrier so far.
-    private var arrivedCount: Int = .zero
-
-    /// The total number of tasks that must arrive before any are released.
-    private let totalTasks: Int
+    /// The number of tasks still expected to arrive at the barrier.
+    private var remainingTasks: Int
 
     // MARK: Initializers
 
@@ -58,7 +48,7 @@ final class TestBarrier: @unchecked Sendable {
     /// - Parameter totalTasks: The number of tasks that must call `wait()`
     ///   before any are released.
     init(totalTasks: Int) {
-        self.totalTasks = totalTasks
+        self.remainingTasks = totalTasks
     }
 
     // MARK: Wait
@@ -66,11 +56,13 @@ final class TestBarrier: @unchecked Sendable {
     /// Suspends the current task until all expected tasks have called this
     /// method.
     ///
-    /// This method dispatches to a GCD global queue thread, which blocks at the
-    /// OS level on an `NSCondition`. When the last expected task arrives, all
-    /// blocked GCD threads are released simultaneously via `broadcast()`. Each
-    /// thread then resumes its async continuation, returning all tasks to the
-    /// cooperative executor at the same time.
+    /// This method stores the current task's continuation and, when the last
+    /// expected task arrives, spawns a detached task for each stored
+    /// continuation to resume them asynchronously. Resuming via detached tasks
+    /// ensures the `withCheckedContinuation` body returns without calling
+    /// `resume()` synchronously, so every task genuinely suspends rather than
+    /// executing inline. The resumed tasks run on the global cooperative
+    /// executor and are scheduled concurrently.
     ///
     /// - Warning: This method should only be called by the exact number of
     ///   tasks specified in `totalTasks`. Calling it more times will have no
@@ -78,22 +70,21 @@ final class TestBarrier: @unchecked Sendable {
     ///   indefinitely.
     func wait() async {
         await withCheckedContinuation { continuation in
-            DispatchQueue.global(qos: .userInitiated).async { [self] in
-                self.condition.lock()
-                self.arrivedCount += 1
+            self.remainingTasks -= 1
+            self.continuations.append(continuation)
 
-                if self.arrivedCount == self.totalTasks {
-                    // Last task to arrive: release everyone, including self.
-                    self.condition.broadcast()
+            guard self.remainingTasks == .zero else {
+                return
+            }
+
+            let continuationsToResume = self.continuations
+
+            self.continuations.removeAll()
+
+            for continuation in continuationsToResume {
+                Task.detached(priority: .userInitiated) {
+                    continuation.resume()
                 }
-
-                // Loop guards against spurious wakeups.
-                while self.arrivedCount < self.totalTasks {
-                    self.condition.wait()
-                }
-
-                self.condition.unlock()
-                continuation.resume()
             }
         }
     }
