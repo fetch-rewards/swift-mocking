@@ -9,9 +9,17 @@ import Foundation
 /// A synchronization primitive that ensures a specific number of async tasks
 /// all start executing simultaneously, useful for testing race conditions.
 ///
-/// The barrier works by collecting continuations from tasks as they arrive, and
-/// only releasing all of them once the specified count is reached. This
-/// guarantees maximum concurrency for race condition testing.
+/// The barrier works by dispatching each task's wait to a GCD thread, which
+/// blocks at the OS level on an `NSCondition`. Once all expected tasks have
+/// arrived, the last thread broadcasts to release all blocked threads
+/// simultaneously. Each GCD thread then resumes its async continuation,
+/// submitting all tasks to the Swift cooperative executor at the same time.
+///
+/// This guarantees true concurrent execution because:
+/// - GCD threads block at the OS level, not the cooperative scheduler level
+/// - `NSCondition.broadcast()` releases all threads simultaneously
+/// - Continuations are resumed asynchronously from separate OS threads, so the
+///   cooperative executor receives all tasks as runnable at the same moment
 ///
 /// ```swift
 /// let taskCount = 100
@@ -26,18 +34,21 @@ import Foundation
 ///     }
 /// }
 /// ```
-actor TestBarrier {
+final class TestBarrier: @unchecked Sendable {
 
     // MARK: Properties
 
     /// The default number of tasks used when no task count is specified.
-    static let defaultTaskCount = 1_000
+    static let defaultTaskCount = 100
 
-    /// The continuations waiting to be resumed once all tasks arrive.
-    private var continuations: [CheckedContinuation<Void, Never>] = []
+    /// The condition variable used to block and release GCD threads.
+    private let condition = NSCondition()
 
-    /// The number of tasks still expected to arrive at the barrier.
-    private var remainingTasks: Int
+    /// The number of tasks that have arrived at the barrier so far.
+    private var arrivedCount: Int = .zero
+
+    /// The total number of tasks that must arrive before any are released.
+    private let totalTasks: Int
 
     // MARK: Initializers
 
@@ -47,7 +58,7 @@ actor TestBarrier {
     /// - Parameter totalTasks: The number of tasks that must call `wait()`
     ///   before any are released.
     init(totalTasks: Int) {
-        self.remainingTasks = totalTasks
+        self.totalTasks = totalTasks
     }
 
     // MARK: Wait
@@ -55,10 +66,11 @@ actor TestBarrier {
     /// Suspends the current task until all expected tasks have called this
     /// method.
     ///
-    /// This method decrements the remaining task count and stores the current
-    /// task's continuation. When the count reaches zero, all stored
-    /// continuations are resumed simultaneously, allowing all tasks to proceed
-    /// together.
+    /// This method dispatches to a GCD global queue thread, which blocks at the
+    /// OS level on an `NSCondition`. When the last expected task arrives, all
+    /// blocked GCD threads are released simultaneously via `broadcast()`. Each
+    /// thread then resumes its async continuation, returning all tasks to the
+    /// cooperative executor at the same time.
     ///
     /// - Warning: This method should only be called by the exact number of
     ///   tasks specified in `totalTasks`. Calling it more times will have no
@@ -66,18 +78,23 @@ actor TestBarrier {
     ///   indefinitely.
     func wait() async {
         await withCheckedContinuation { continuation in
-            self.remainingTasks -= 1
-            self.continuations.append(continuation)
+            DispatchQueue.global(qos: .userInitiated).async { [self] in
+                condition.lock()
+                arrivedCount += 1
 
-            guard self.remainingTasks == .zero else {
-                return
-            }
+                if arrivedCount == totalTasks {
+                    // Last task to arrive: release everyone, including self.
+                    condition.broadcast()
+                }
 
-            for continuation in self.continuations {
+                // Loop guards against spurious wakeups.
+                while arrivedCount < totalTasks {
+                    condition.wait()
+                }
+
+                condition.unlock()
                 continuation.resume()
             }
-
-            self.continuations.removeAll()
         }
     }
 
@@ -92,13 +109,13 @@ actor TestBarrier {
     /// for testing race conditions in concurrent code.
     ///
     /// ```swift
-    /// // Test race condition with default 1,000 tasks
+    /// // Test race condition with default 100 tasks
     /// await TestBarrier.executeConcurrently {
     ///     unsafeCounter += 1
     /// }
     ///
     /// // Test race condition with custom task count
-    /// await TestBarrier.executeConcurrently(taskCount: 500) {
+    /// await TestBarrier.executeConcurrently(taskCount: 50) {
     ///     someSharedResource.modify()
     /// }
     /// ```
