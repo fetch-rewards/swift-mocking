@@ -1,0 +1,679 @@
+//
+//  MockedMethod_AutoClosureTests.swift
+//
+//  Copyright © 2026 Fetch.
+//
+
+#if canImport(MockingMacros)
+import Testing
+@testable import MockingMacros
+
+struct MockedMethod_AutoClosureTests {
+
+    // MARK: Autoclosure Tests
+
+    @Test
+    func autoClosureWithVoidReturnType() {
+        assertMockedMethod(
+            """
+            func method(autoClosure: @escaping @autoclosure () -> Void)
+            """,
+            named: "method",
+            generates: """
+            func method(autoClosure: @escaping @autoclosure () -> Void) {
+                let autoClosure = autoClosure()
+                self.__method.recordInput(
+                    (
+                        autoClosure
+                    )
+                )
+                let _invoke = self.__method.closure()
+                _invoke?(
+                    autoClosure
+                )
+            }
+
+            /// An implementation for `DependencyMock._method`.
+            enum MethodImplementation<
+            \tArguments
+            >: @unchecked Sendable, MockVoidParameterizedMethodImplementation {
+
+                /// The implementation's closure type.
+                typealias Closure = (Void) -> Void
+
+                /// Does nothing when invoked.
+                case unimplemented
+
+                /// Invokes the provided closure when invoked.
+                ///
+                /// - Parameter closure: The closure to invoke.
+                case uncheckedInvokes(_ closure: Closure)
+
+                /// Invokes the provided closure when invoked.
+                ///
+                /// - Parameter closure: The closure to invoke.
+                static func invokes(
+                \t_ closure: @Sendable @escaping (Void) -> Void
+                ) -> Self where Arguments: Sendable {
+                    .uncheckedInvokes(closure)
+                }
+
+                /// The implementation as a closure, or `nil` if unimplemented.
+                var _closure: Closure? {
+                    switch self {
+                    case .unimplemented:
+                        nil
+                    case let .uncheckedInvokes(closure):
+                        closure
+                    }
+                }
+            }
+
+            private let __method = MockVoidParameterizedMethod<
+            \tMethodImplementation<
+            \t\t(Void)
+            \t>
+            >.makeMethod()
+
+            var _method: MockVoidParameterizedMethod<
+            \tMethodImplementation<
+            \t\t(Void)
+            \t>
+            > {
+                self.__method.method
+            }
+            """
+        )
+    }
+
+    @Test
+    func autoClosureWithNonVoidReturnType() {
+        assertMockedMethod(
+            """
+            func method(autoClosure: @escaping @autoclosure () -> Int)
+            """,
+            named: "method",
+            generates: """
+            func method(autoClosure: @escaping @autoclosure () -> Int) {
+                let autoClosure = autoClosure()
+                self.__method.recordInput(
+                    (
+                        autoClosure
+                    )
+                )
+                let _invoke = self.__method.closure()
+                _invoke?(
+                    autoClosure
+                )
+            }
+
+            /// An implementation for `DependencyMock._method`.
+            enum MethodImplementation<
+            \tArguments
+            >: @unchecked Sendable, MockVoidParameterizedMethodImplementation {
+
+                /// The implementation's closure type.
+                typealias Closure = (Int) -> Void
+
+                /// Does nothing when invoked.
+                case unimplemented
+
+                /// Invokes the provided closure when invoked.
+                ///
+                /// - Parameter closure: The closure to invoke.
+                case uncheckedInvokes(_ closure: Closure)
+
+                /// Invokes the provided closure when invoked.
+                ///
+                /// - Parameter closure: The closure to invoke.
+                static func invokes(
+                \t_ closure: @Sendable @escaping (Int) -> Void
+                ) -> Self where Arguments: Sendable {
+                    .uncheckedInvokes(closure)
+                }
+
+                /// The implementation as a closure, or `nil` if unimplemented.
+                var _closure: Closure? {
+                    switch self {
+                    case .unimplemented:
+                        nil
+                    case let .uncheckedInvokes(closure):
+                        closure
+                    }
+                }
+            }
+
+            private let __method = MockVoidParameterizedMethod<
+            \tMethodImplementation<
+            \t\t(Int)
+            \t>
+            >.makeMethod()
+
+            var _method: MockVoidParameterizedMethod<
+            \tMethodImplementation<
+            \t\t(Int)
+            \t>
+            > {
+                self.__method.method
+            }
+            """
+        )
+    }
+
+    @Test
+    func asyncAutoClosureWithVoidReturnType() {
+        assertMockedMethod(
+            """
+            func method(autoClosure: @escaping @autoclosure () async -> Void) async
+            """,
+            named: "method",
+            generates: """
+            func method(autoClosure: @escaping @autoclosure () async -> Void) async {
+                let autoClosure = await autoClosure()
+                self.__method.recordInput(
+                    (
+                        autoClosure
+                    )
+                )
+                let _invoke = self.__method.closure()
+                await _invoke?(
+                    autoClosure
+                )
+            }
+
+            /// An implementation for `DependencyMock._method`.
+            enum MethodImplementation<
+            \tArguments
+            >: @unchecked Sendable, MockVoidParameterizedAsyncMethodImplementation {
+
+                /// The implementation's closure type.
+                typealias Closure = (Void) async -> Void
+
+                /// Does nothing when invoked.
+                case unimplemented
+
+                /// Invokes the provided closure when invoked.
+                ///
+                /// - Parameter closure: The closure to invoke.
+                case uncheckedInvokes(_ closure: Closure)
+
+                /// Invokes the provided closure when invoked.
+                ///
+                /// - Parameter closure: The closure to invoke.
+                static func invokes(
+                \t_ closure: @Sendable @escaping (Void) async -> Void
+                ) -> Self where Arguments: Sendable {
+                    .uncheckedInvokes(closure)
+                }
+
+                /// The implementation as a closure, or `nil` if unimplemented.
+                var _closure: Closure? {
+                    switch self {
+                    case .unimplemented:
+                        nil
+                    case let .uncheckedInvokes(closure):
+                        closure
+                    }
+                }
+            }
+
+            private let __method = MockVoidParameterizedAsyncMethod<
+            \tMethodImplementation<
+            \t\t(Void)
+            \t>
+            >.makeMethod()
+
+            var _method: MockVoidParameterizedAsyncMethod<
+            \tMethodImplementation<
+            \t\t(Void)
+            \t>
+            > {
+                self.__method.method
+            }
+            """
+        )
+    }
+
+    @Test
+    func asyncAutoClosureWithNonVoidReturnType() {
+        assertMockedMethod(
+            """
+            func method(autoClosure: @escaping @autoclosure () async -> Int) async
+            """,
+            named: "method",
+            generates: """
+            func method(autoClosure: @escaping @autoclosure () async -> Int) async {
+                let autoClosure = await autoClosure()
+                self.__method.recordInput(
+                    (
+                        autoClosure
+                    )
+                )
+                let _invoke = self.__method.closure()
+                await _invoke?(
+                    autoClosure
+                )
+            }
+
+            /// An implementation for `DependencyMock._method`.
+            enum MethodImplementation<
+            \tArguments
+            >: @unchecked Sendable, MockVoidParameterizedAsyncMethodImplementation {
+
+                /// The implementation's closure type.
+                typealias Closure = (Int) async -> Void
+
+                /// Does nothing when invoked.
+                case unimplemented
+
+                /// Invokes the provided closure when invoked.
+                ///
+                /// - Parameter closure: The closure to invoke.
+                case uncheckedInvokes(_ closure: Closure)
+
+                /// Invokes the provided closure when invoked.
+                ///
+                /// - Parameter closure: The closure to invoke.
+                static func invokes(
+                \t_ closure: @Sendable @escaping (Int) async -> Void
+                ) -> Self where Arguments: Sendable {
+                    .uncheckedInvokes(closure)
+                }
+
+                /// The implementation as a closure, or `nil` if unimplemented.
+                var _closure: Closure? {
+                    switch self {
+                    case .unimplemented:
+                        nil
+                    case let .uncheckedInvokes(closure):
+                        closure
+                    }
+                }
+            }
+
+            private let __method = MockVoidParameterizedAsyncMethod<
+            \tMethodImplementation<
+            \t\t(Int)
+            \t>
+            >.makeMethod()
+
+            var _method: MockVoidParameterizedAsyncMethod<
+            \tMethodImplementation<
+            \t\t(Int)
+            \t>
+            > {
+                self.__method.method
+            }
+            """
+        )
+    }
+
+    @Test
+    func throwingAutoClosureWithVoidReturnType() {
+        assertMockedMethod(
+            """
+            func method(autoClosure: @escaping @autoclosure () throws -> Void) throws
+            """,
+            named: "method",
+            generates: """
+            func method(autoClosure: @escaping @autoclosure () throws -> Void) throws {
+                do {
+                    let autoClosure = try autoClosure()
+                    self.__method.recordInput(
+                        (
+                            autoClosure
+                        )
+                    )
+                    let _invoke = self.__method.closure()
+                    try _invoke?(
+                        autoClosure
+                    )
+                } catch {
+                    self.__method.recordOutput(
+                        error
+                    )
+                    throw error
+                }
+            }
+
+            /// An implementation for `DependencyMock._method`.
+            enum MethodImplementation<
+            \tArguments
+            >: @unchecked Sendable, MockVoidParameterizedThrowingMethodImplementation {
+
+                /// The implementation's closure type.
+                typealias Closure = (Void) throws -> Void
+
+                /// Does nothing when invoked.
+                case unimplemented
+
+                /// Invokes the provided closure when invoked.
+                ///
+                /// - Parameter closure: The closure to invoke.
+                case uncheckedInvokes(_ closure: Closure)
+
+                /// Invokes the provided closure when invoked.
+                ///
+                /// - Parameter closure: The closure to invoke.
+                static func invokes(
+                \t_ closure: @Sendable @escaping (Void) throws -> Void
+                ) -> Self where Arguments: Sendable {
+                    .uncheckedInvokes(closure)
+                }
+
+                /// Throws the provided error when invoked.
+                ///
+                /// - Parameter error: The error to throw.
+                static func `throws`(
+                \t_ error: any Error
+                ) -> Self {
+                    .uncheckedInvokes { _ in
+                        throw error
+                    }
+                }
+
+                /// The implementation as a closure, or `nil` if unimplemented.
+                var _closure: Closure? {
+                    switch self {
+                    case .unimplemented:
+                        nil
+                    case let .uncheckedInvokes(closure):
+                        closure
+                    }
+                }
+            }
+
+            private let __method = MockVoidParameterizedThrowingMethod<
+            \tMethodImplementation<
+            \t\t(Void)
+            \t>
+            >.makeMethod()
+
+            var _method: MockVoidParameterizedThrowingMethod<
+            \tMethodImplementation<
+            \t\t(Void)
+            \t>
+            > {
+                self.__method.method
+            }
+            """
+        )
+    }
+
+    @Test
+    func throwingAutoClosureWithNonVoidReturnType() {
+        assertMockedMethod(
+            """
+            func method(autoClosure: @escaping @autoclosure () throws -> Int) throws
+            """,
+            named: "method",
+            generates: """
+            func method(autoClosure: @escaping @autoclosure () throws -> Int) throws {
+                do {
+                    let autoClosure = try autoClosure()
+                    self.__method.recordInput(
+                        (
+                            autoClosure
+                        )
+                    )
+                    let _invoke = self.__method.closure()
+                    try _invoke?(
+                        autoClosure
+                    )
+                } catch {
+                    self.__method.recordOutput(
+                        error
+                    )
+                    throw error
+                }
+            }
+
+            /// An implementation for `DependencyMock._method`.
+            enum MethodImplementation<
+            \tArguments
+            >: @unchecked Sendable, MockVoidParameterizedThrowingMethodImplementation {
+
+                /// The implementation's closure type.
+                typealias Closure = (Int) throws -> Void
+
+                /// Does nothing when invoked.
+                case unimplemented
+
+                /// Invokes the provided closure when invoked.
+                ///
+                /// - Parameter closure: The closure to invoke.
+                case uncheckedInvokes(_ closure: Closure)
+
+                /// Invokes the provided closure when invoked.
+                ///
+                /// - Parameter closure: The closure to invoke.
+                static func invokes(
+                \t_ closure: @Sendable @escaping (Int) throws -> Void
+                ) -> Self where Arguments: Sendable {
+                    .uncheckedInvokes(closure)
+                }
+
+                /// Throws the provided error when invoked.
+                ///
+                /// - Parameter error: The error to throw.
+                static func `throws`(
+                \t_ error: any Error
+                ) -> Self {
+                    .uncheckedInvokes { _ in
+                        throw error
+                    }
+                }
+
+                /// The implementation as a closure, or `nil` if unimplemented.
+                var _closure: Closure? {
+                    switch self {
+                    case .unimplemented:
+                        nil
+                    case let .uncheckedInvokes(closure):
+                        closure
+                    }
+                }
+            }
+
+            private let __method = MockVoidParameterizedThrowingMethod<
+            \tMethodImplementation<
+            \t\t(Int)
+            \t>
+            >.makeMethod()
+
+            var _method: MockVoidParameterizedThrowingMethod<
+            \tMethodImplementation<
+            \t\t(Int)
+            \t>
+            > {
+                self.__method.method
+            }
+            """
+        )
+    }
+
+    @Test
+    func asyncThrowingAutoClosureWithVoidReturnType() {
+        assertMockedMethod(
+            """
+            func method(autoClosure: @escaping @autoclosure () async throws -> Void) async throws
+            """,
+            named: "method",
+            generates: """
+            func method(autoClosure: @escaping @autoclosure () async throws -> Void) async throws {
+                do {
+                    let autoClosure = try await autoClosure()
+                    self.__method.recordInput(
+                        (
+                            autoClosure
+                        )
+                    )
+                    let _invoke = self.__method.closure()
+                    try await _invoke?(
+                        autoClosure
+                    )
+                } catch {
+                    self.__method.recordOutput(
+                        error
+                    )
+                    throw error
+                }
+            }
+
+            /// An implementation for `DependencyMock._method`.
+            enum MethodImplementation<
+            \tArguments
+            >: @unchecked Sendable, MockVoidParameterizedAsyncThrowingMethodImplementation {
+
+                /// The implementation's closure type.
+                typealias Closure = (Void) async throws -> Void
+
+                /// Does nothing when invoked.
+                case unimplemented
+
+                /// Invokes the provided closure when invoked.
+                ///
+                /// - Parameter closure: The closure to invoke.
+                case uncheckedInvokes(_ closure: Closure)
+
+                /// Invokes the provided closure when invoked.
+                ///
+                /// - Parameter closure: The closure to invoke.
+                static func invokes(
+                \t_ closure: @Sendable @escaping (Void) async throws -> Void
+                ) -> Self where Arguments: Sendable {
+                    .uncheckedInvokes(closure)
+                }
+
+                /// Throws the provided error when invoked.
+                ///
+                /// - Parameter error: The error to throw.
+                static func `throws`(
+                \t_ error: any Error
+                ) -> Self {
+                    .uncheckedInvokes { _ in
+                        throw error
+                    }
+                }
+
+                /// The implementation as a closure, or `nil` if unimplemented.
+                var _closure: Closure? {
+                    switch self {
+                    case .unimplemented:
+                        nil
+                    case let .uncheckedInvokes(closure):
+                        closure
+                    }
+                }
+            }
+
+            private let __method = MockVoidParameterizedAsyncThrowingMethod<
+            \tMethodImplementation<
+            \t\t(Void)
+            \t>
+            >.makeMethod()
+
+            var _method: MockVoidParameterizedAsyncThrowingMethod<
+            \tMethodImplementation<
+            \t\t(Void)
+            \t>
+            > {
+                self.__method.method
+            }
+            """
+        )
+    }
+
+    @Test
+    func asyncThrowingAutoClosureWithNonVoidReturnType() {
+        assertMockedMethod(
+            """
+            func method(autoClosure: @escaping @autoclosure () async throws -> Int) async throws
+            """,
+            named: "method",
+            generates: """
+            func method(autoClosure: @escaping @autoclosure () async throws -> Int) async throws {
+                do {
+                    let autoClosure = try await autoClosure()
+                    self.__method.recordInput(
+                        (
+                            autoClosure
+                        )
+                    )
+                    let _invoke = self.__method.closure()
+                    try await _invoke?(
+                        autoClosure
+                    )
+                } catch {
+                    self.__method.recordOutput(
+                        error
+                    )
+                    throw error
+                }
+            }
+
+            /// An implementation for `DependencyMock._method`.
+            enum MethodImplementation<
+            \tArguments
+            >: @unchecked Sendable, MockVoidParameterizedAsyncThrowingMethodImplementation {
+
+                /// The implementation's closure type.
+                typealias Closure = (Int) async throws -> Void
+
+                /// Does nothing when invoked.
+                case unimplemented
+
+                /// Invokes the provided closure when invoked.
+                ///
+                /// - Parameter closure: The closure to invoke.
+                case uncheckedInvokes(_ closure: Closure)
+
+                /// Invokes the provided closure when invoked.
+                ///
+                /// - Parameter closure: The closure to invoke.
+                static func invokes(
+                \t_ closure: @Sendable @escaping (Int) async throws -> Void
+                ) -> Self where Arguments: Sendable {
+                    .uncheckedInvokes(closure)
+                }
+
+                /// Throws the provided error when invoked.
+                ///
+                /// - Parameter error: The error to throw.
+                static func `throws`(
+                \t_ error: any Error
+                ) -> Self {
+                    .uncheckedInvokes { _ in
+                        throw error
+                    }
+                }
+
+                /// The implementation as a closure, or `nil` if unimplemented.
+                var _closure: Closure? {
+                    switch self {
+                    case .unimplemented:
+                        nil
+                    case let .uncheckedInvokes(closure):
+                        closure
+                    }
+                }
+            }
+
+            private let __method = MockVoidParameterizedAsyncThrowingMethod<
+            \tMethodImplementation<
+            \t\t(Int)
+            \t>
+            >.makeMethod()
+
+            var _method: MockVoidParameterizedAsyncThrowingMethod<
+            \tMethodImplementation<
+            \t\t(Int)
+            \t>
+            > {
+                self.__method.method
+            }
+            """
+        )
+    }
+}
+#endif
