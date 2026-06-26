@@ -4,6 +4,8 @@
 //  Copyright © 2026 Fetch.
 //
 
+import Foundation
+
 /// A synchronization primitive that ensures a specific number of async tasks
 /// all start executing simultaneously, useful for testing race conditions.
 ///
