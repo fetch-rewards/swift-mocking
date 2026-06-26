@@ -47,6 +47,13 @@ extension MockedMembersMacro: MemberAttributeMacro {
                 mockMembers: members,
                 isMockAnActor: isMockAnActor
             )
+        } else if let subscriptDeclaration = member.as(SubscriptDeclSyntax.self) {
+            return try self.attributes(
+                for: subscriptDeclaration,
+                mockName: mockName,
+                mockMembers: members,
+                isMockAnActor: isMockAnActor
+            )
         } else {
             return []
         }
@@ -312,6 +319,180 @@ extension MockedMembersMacro: MemberAttributeMacro {
         return explicitMockMethodName
     }
 
+    // MARK: Subscript Declaration Attributes
+
+    /// Returns attributes to add to the provided `subscriptDeclaration`.
+    ///
+    /// - Parameters:
+    ///   - subscriptDeclaration: A subscript declaration.
+    ///   - mockName: The name of the mock of which the subscript is a member.
+    ///   - mockMembers: The members of the mock of which the subscript is a
+    ///     member.
+    ///   - isMockAnActor: A Boolean value indicating whether the mock, of which
+    ///     the subscript is a member, is an actor.
+    /// - Returns: Attributes to add to the provided `subscriptDeclaration`.
+    private static func attributes(
+        for subscriptDeclaration: SubscriptDeclSyntax,
+        mockName: TokenSyntax,
+        mockMembers: MemberBlockItemListSyntax,
+        isMockAnActor: Bool
+    ) throws -> [AttributeSyntax] {
+        [
+            AttributeSyntax(
+                atSign: .atSignToken(),
+                attributeName: IdentifierTypeSyntax(name: "_MockedSubscript"),
+                leftParen: .leftParenToken(),
+                arguments: .argumentList(
+                    try LabeledExprListSyntax {
+                        self.subscriptTypeArgument(
+                            expression: try self.subscriptTypeArgumentExpression(
+                                from: subscriptDeclaration
+                            )
+                        )
+                        self.mockNameArgument(mockName: mockName)
+                        self.isMockAnActorArgument(
+                            isMockAnActor: isMockAnActor,
+                            trailingComma: .commaToken()
+                        )
+                        self.mockSubscriptNameArgument(
+                            mockSubscriptName: self.mockSubscriptName(
+                                for: subscriptDeclaration,
+                                mockMembers: mockMembers
+                            )
+                        )
+                    }
+                ),
+                rightParen: .rightParenToken(),
+                trailingTrivia: .newline
+            ),
+        ]
+    }
+
+    // MARK: Subscript Type Argument Expression
+
+    /// Returns the `subscriptType` argument's expression, parsed from the
+    /// attributes of the provided `subscriptDeclaration`.
+    ///
+    /// - Parameter subscriptDeclaration: The subscript declaration from which
+    ///   to parse the `subscriptType` argument's expression.
+    /// - Throws: An error if the `subscriptType` argument's expression could
+    ///   not be parsed from the attributes of the provided
+    ///   `subscriptDeclaration`.
+    /// - Returns: The `subscriptType` argument's expression, parsed from the
+    ///   attributes of the provided `subscriptDeclaration`.
+    private static func subscriptTypeArgumentExpression(
+        from subscriptDeclaration: SubscriptDeclSyntax
+    ) throws -> ExprSyntax {
+        var subscriptTypeArgumentExpression: ExprSyntax?
+
+        for attribute in subscriptDeclaration.attributes {
+            guard
+                case let .attribute(attribute) = attribute,
+                let attributeName = attribute.attributeName.as(IdentifierTypeSyntax.self),
+                attributeName.name.tokenKind == .identifier("MockableSubscript")
+            else {
+                continue
+            }
+
+            guard
+                case let .argumentList(arguments) = attribute.arguments,
+                let subscriptTypeArgument = arguments.first
+            else {
+                throw MacroError.unableToDetermineSubscriptType
+            }
+
+            _ = try MockedSubscriptType(argument: subscriptTypeArgument)
+
+            subscriptTypeArgumentExpression = subscriptTypeArgument.expression
+            break
+        }
+
+        guard let subscriptTypeArgumentExpression else {
+            throw MacroError.unableToDetermineSubscriptType
+        }
+
+        return subscriptTypeArgumentExpression
+    }
+
+    // MARK: Mock Subscript Name
+
+    /// Returns a mock subscript name for the provided `subscriptDeclaration`.
+    ///
+    /// - Parameters:
+    ///   - subscriptDeclaration: A subscript declaration.
+    ///   - mockMembers: The members of the mock of which the subscript is a
+    ///     member.
+    /// - Returns: A mock subscript name for the provided
+    ///   `subscriptDeclaration`.
+    private static func mockSubscriptName(
+        for subscriptDeclaration: SubscriptDeclSyntax,
+        mockMembers: MemberBlockItemListSyntax
+    ) -> String {
+        let mockSubscriptNameComponents = MockMethodNameComponents(
+            subscriptDeclaration: subscriptDeclaration
+        )
+        var overloadsNameComponents = self.nameComponentsForSubscriptOverloads(
+            of: subscriptDeclaration,
+            with: mockSubscriptNameComponents,
+            in: mockMembers
+        )
+
+        var mockSubscriptName = subscriptDeclaration.subscriptKeyword.trimmed.text
+
+        guard !overloadsNameComponents.isEmpty else {
+            return mockSubscriptName
+        }
+
+        var index: Int = .zero
+        var hasMockSubscriptNameConflict = true
+
+        while hasMockSubscriptNameConflict {
+            index += 1
+            mockSubscriptName = mockSubscriptNameComponents.name(to: index)
+            overloadsNameComponents.removeAll { nameComponents in
+                nameComponents.name(to: index) != mockSubscriptName
+            }
+            hasMockSubscriptNameConflict = !overloadsNameComponents.isEmpty
+        }
+
+        return mockSubscriptName
+    }
+
+    /// Returns an array of `MockMethodNameComponents` for the subscript
+    /// overloads of the provided `subscriptDeclaration` parsed from the
+    /// provided `members`.
+    ///
+    /// - Parameters:
+    ///   - subscriptDeclaration: A subscript declaration.
+    ///   - mockSubscriptNameComponents: The `MockMethodNameComponents` for the
+    ///     provided `subscriptDeclaration`.
+    ///   - members: The members from which to identify subscript overloads of
+    ///     the provided `subscriptDeclaration`.
+    /// - Returns: An array of `MockMethodNameComponents` for the subscript
+    ///   overloads of the provided `subscriptDeclaration` parsed from the
+    ///   provided `members`.
+    private static func nameComponentsForSubscriptOverloads(
+        of subscriptDeclaration: SubscriptDeclSyntax,
+        with mockSubscriptNameComponents: MockMethodNameComponents,
+        in members: MemberBlockItemListSyntax
+    ) -> [MockMethodNameComponents] {
+        members.compactMap { member in
+            guard let peerSubscriptDeclaration = member.decl.as(SubscriptDeclSyntax.self) else {
+                return nil
+            }
+
+            let peerComponents = MockMethodNameComponents(
+                subscriptDeclaration: peerSubscriptDeclaration
+            )
+
+            guard peerComponents.fullName != mockSubscriptNameComponents.fullName else {
+                return nil
+            }
+
+            return peerComponents
+        }
+    }
+
     // MARK: Macro Arguments
 
     /// Returns a `propertyType` argument with the provided `expression`.
@@ -385,6 +566,42 @@ extension MockedMembersMacro: MemberAttributeMacro {
             expression: StringLiteralExprSyntax(
                 openingQuote: .stringQuoteToken(),
                 content: mockMethodName,
+                closingQuote: .stringQuoteToken()
+            ),
+            trailingTrivia: .newline
+        )
+    }
+
+    /// Returns a `subscriptType` argument with the provided `expression`.
+    ///
+    /// - Parameter expression: The expression to use in the argument.
+    /// - Returns: A `subscriptType` argument with the provided `expression`.
+    private static func subscriptTypeArgument(
+        expression: some ExprSyntaxProtocol
+    ) -> LabeledExprSyntax {
+        LabeledExprSyntax(
+            leadingTrivia: .newline.appending(.tab),
+            expression: expression
+        )
+    }
+
+    /// Returns a `mockSubscriptName` argument with the provided
+    /// `mockSubscriptName`.
+    ///
+    /// - Parameter mockSubscriptName: The mock subscript name to use in the
+    ///   argument.
+    /// - Returns: A `mockSubscriptName` argument with the provided
+    ///   `mockSubscriptName`.
+    private static func mockSubscriptNameArgument(
+        mockSubscriptName: String
+    ) -> LabeledExprSyntax {
+        LabeledExprSyntax(
+            leadingTrivia: .tab,
+            label: "mockSubscriptName",
+            colon: .colonToken(),
+            expression: StringLiteralExprSyntax(
+                openingQuote: .stringQuoteToken(),
+                content: mockSubscriptName,
                 closingQuote: .stringQuoteToken()
             ),
             trailingTrivia: .newline

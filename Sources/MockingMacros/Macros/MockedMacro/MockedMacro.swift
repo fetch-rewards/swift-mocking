@@ -569,6 +569,13 @@ extension MockedMacro {
                             in: protocolDeclaration
                         )
                     )
+                } else if let subscriptDeclaration = member.decl.as(SubscriptDeclSyntax.self) {
+                    MemberBlockItemSyntax(
+                        decl: self.mockSubscriptConformanceDeclaration(
+                            with: accessLevel,
+                            for: subscriptDeclaration
+                        )
+                    )
                 } else if let ifConfigDeclaration = member.decl.as(IfConfigDeclSyntax.self) {
                     if let mockIfConfigDeclaration = try self.mockIfConfigDeclaration(
                         from: ifConfigDeclaration,
@@ -754,6 +761,55 @@ extension MockedMacro {
                     modifier
                 }
             }
+    }
+
+    // MARK: Subscripts
+
+    /// Returns a subscript conformance declaration to apply to the mock,
+    /// generated from the provided protocol `subscriptDeclaration` and marked
+    /// with the provided `accessLevel`.
+    ///
+    /// - Parameters:
+    ///   - accessLevel: The access level to apply to the subscript conformance
+    ///     declaration.
+    ///   - subscriptDeclaration: The subscript declaration from the protocol to
+    ///     which the mock must conform.
+    /// - Returns: A subscript conformance declaration to apply to the mock.
+    private static func mockSubscriptConformanceDeclaration(
+        with accessLevel: AccessLevelSyntax,
+        for subscriptDeclaration: SubscriptDeclSyntax
+    ) -> SubscriptDeclSyntax {
+        let modifiers = self.mockConformanceDeclarationModifiers(
+            from: subscriptDeclaration.modifiers,
+            with: accessLevel
+        )
+        let isReadWrite = subscriptDeclaration.accessorBlock?.setAccessorDeclaration != nil
+        let attributes = AttributeListSyntax {
+            AttributeSyntax(
+                atSign: .atSignToken(),
+                attributeName: IdentifierTypeSyntax(name: "MockableSubscript"),
+                leftParen: .leftParenToken(),
+                arguments: .argumentList(
+                    LabeledExprListSyntax {
+                        LabeledExprSyntax(
+                            expression: MemberAccessExprSyntax(
+                                period: .periodToken(),
+                                name: isReadWrite ? "readWrite" : "readOnly"
+                            )
+                        )
+                    }
+                ),
+                rightParen: .rightParenToken(),
+                trailingTrivia: .newline
+            )
+        }
+
+        return SubscriptDeclSyntax(
+            attributes: attributes,
+            modifiers: modifiers,
+            parameterClause: subscriptDeclaration.parameterClause.trimmed,
+            returnClause: subscriptDeclaration.returnClause
+        )
     }
 
     // MARK: If Configs

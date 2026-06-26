@@ -31,65 +31,12 @@ struct MockMethodNameComponents {
     ///   parse name components.
     init(methodDeclaration: FunctionDeclSyntax) {
         let signature = methodDeclaration.signature
-        let parameters = signature.parameterClause.parameters
 
-        var components: [MockMethodNameComponent] = [
-            MockMethodNameComponent(
-                id: .methodName,
-                value: methodDeclaration.name.trimmedDescription,
-                insertionIndex: .zero
-            ),
-        ]
-
-        for (index, parameter) in parameters.enumerated() {
-            var value = Self.capitalizedDescription(of: parameter.firstName)
-
-            if let secondName = parameter.secondName {
-                value += Self.capitalizedDescription(of: secondName)
-            }
-
-            components.append(
-                MockMethodNameComponent(
-                    id: .parameterName(index),
-                    value: value,
-                    insertionIndex: index + 1
-                )
-            )
-        }
-
-        if
-            let returnClause = signature.returnClause,
-            let returnClauseDescription = Self.capitalizedDescription(of: returnClause)
-        {
-            components.append(
-                MockMethodNameComponent(
-                    id: .returnType,
-                    value: returnClauseDescription,
-                    insertionIndex: components.endIndex
-                )
-            )
-        }
-
-        for (index, parameter) in parameters.enumerated() {
-            let parameterNameDescription = Self.capitalizedDescription(
-                of: parameter.secondName ?? parameter.firstName
-            )
-            var parameterTypeDescription = Self.capitalizedDescription(
-                of: parameter.type
-            )
-
-            if parameterTypeDescription == parameterNameDescription {
-                parameterTypeDescription = ""
-            }
-
-            components.append(
-                MockMethodNameComponent(
-                    id: .parameterType(index),
-                    value: parameterTypeDescription,
-                    insertionIndex: index + (index + 2)
-                )
-            )
-        }
+        var components = Self.baseComponents(
+            baseName: methodDeclaration.name.trimmedDescription,
+            parameters: signature.parameterClause.parameters,
+            returnClause: signature.returnClause
+        )
 
         if let effectSpecifiers = signature.effectSpecifiers {
             if let asyncSpecifier = effectSpecifiers.asyncSpecifier {
@@ -155,6 +102,18 @@ struct MockMethodNameComponents {
         self.components = components
     }
 
+    /// Creates name components from the provided `subscriptDeclaration`.
+    ///
+    /// - Parameter subscriptDeclaration: The subscript declaration from which
+    ///   to parse name components.
+    init(subscriptDeclaration: SubscriptDeclSyntax) {
+        self.components = Self.baseComponents(
+            baseName: subscriptDeclaration.subscriptKeyword.trimmedDescription,
+            parameters: subscriptDeclaration.parameterClause.parameters,
+            returnClause: subscriptDeclaration.returnClause
+        )
+    }
+
     // MARK: Name
 
     /// Returns the name derived from the name components up to and including
@@ -182,6 +141,85 @@ struct MockMethodNameComponents {
 // MARK: - Helpers
 
 extension MockMethodNameComponents {
+
+    // MARK: Base Components
+
+    /// Returns the base name components shared between method and subscript
+    /// declarations: the base name, parameter names, return type, and parameter
+    /// types.
+    ///
+    /// - Parameters:
+    ///   - baseName: The base name for the first component (e.g. method name or
+    ///     `subscript` keyword text).
+    ///   - parameters: The parameter list from which to derive name components.
+    ///   - returnClause: The optional return clause from which to derive a
+    ///     return type component.
+    /// - Returns: The base name components.
+    private static func baseComponents(
+        baseName: String,
+        parameters: FunctionParameterListSyntax,
+        returnClause: ReturnClauseSyntax?
+    ) -> [MockMethodNameComponent] {
+        var components: [MockMethodNameComponent] = [
+            MockMethodNameComponent(
+                id: .methodName,
+                value: baseName,
+                insertionIndex: .zero
+            ),
+        ]
+
+        for (index, parameter) in parameters.enumerated() {
+            var value = Self.capitalizedDescription(of: parameter.firstName)
+
+            if let secondName = parameter.secondName {
+                value += Self.capitalizedDescription(of: secondName)
+            }
+
+            components.append(
+                MockMethodNameComponent(
+                    id: .parameterName(index),
+                    value: value,
+                    insertionIndex: index + 1
+                )
+            )
+        }
+
+        if
+            let returnClause,
+            let returnClauseDescription = Self.capitalizedDescription(of: returnClause)
+        {
+            components.append(
+                MockMethodNameComponent(
+                    id: .returnType,
+                    value: returnClauseDescription,
+                    insertionIndex: components.endIndex
+                )
+            )
+        }
+
+        for (index, parameter) in parameters.enumerated() {
+            let parameterNameDescription = Self.capitalizedDescription(
+                of: parameter.secondName ?? parameter.firstName
+            )
+            var parameterTypeDescription = Self.capitalizedDescription(
+                of: parameter.type
+            )
+
+            if parameterTypeDescription == parameterNameDescription {
+                parameterTypeDescription = ""
+            }
+
+            components.append(
+                MockMethodNameComponent(
+                    id: .parameterType(index),
+                    value: parameterTypeDescription,
+                    insertionIndex: index + (index + 2)
+                )
+            )
+        }
+
+        return components
+    }
 
     // MARK: Is Void
 
