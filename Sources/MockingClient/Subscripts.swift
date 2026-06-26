@@ -17,4 +17,7 @@ public protocol Subscripts {
     subscript(key: String) -> String? { get }
     subscript(key: String, default defaultValue: String) -> String { get set }
     subscript(index: Int) -> String { get set }
+    subscript(asyncKey key: String) -> String? { get async }
+    subscript(throwingKey key: String) -> String? { get throws }
+    subscript(asyncThrowingKey key: String) -> String? { get async throws }
 }

@@ -784,6 +784,59 @@ extension MockedMacro {
             with: accessLevel
         )
         let isReadWrite = subscriptDeclaration.accessorBlock?.setAccessorDeclaration != nil
+        let getAccessorDeclaration = subscriptDeclaration.accessorBlock?.getAccessorDeclaration
+
+        var attributeArgument: LabeledExprSyntax
+
+        if isReadWrite {
+            attributeArgument = LabeledExprSyntax(
+                expression: MemberAccessExprSyntax(
+                    period: .periodToken(),
+                    name: "readWrite"
+                )
+            )
+        } else {
+            let readOnlyArguments = LabeledExprListSyntax {
+                if getAccessorDeclaration?.isAsync == true {
+                    LabeledExprSyntax(
+                        expression: MemberAccessExprSyntax(
+                            period: .periodToken(),
+                            name: "async"
+                        )
+                    )
+                }
+
+                if getAccessorDeclaration?.isThrowing == true {
+                    LabeledExprSyntax(
+                        expression: MemberAccessExprSyntax(
+                            period: .periodToken(),
+                            name: "throws"
+                        )
+                    )
+                }
+            }
+
+            let readOnlyMemberAccessExpression = MemberAccessExprSyntax(
+                period: .periodToken(),
+                name: "readOnly"
+            )
+
+            attributeArgument = if readOnlyArguments.isEmpty {
+                LabeledExprSyntax(
+                    expression: readOnlyMemberAccessExpression
+                )
+            } else {
+                LabeledExprSyntax(
+                    expression: FunctionCallExprSyntax(
+                        calledExpression: readOnlyMemberAccessExpression,
+                        leftParen: .leftParenToken(),
+                        arguments: readOnlyArguments,
+                        rightParen: .rightParenToken()
+                    )
+                )
+            }
+        }
+
         let attributes = AttributeListSyntax {
             AttributeSyntax(
                 atSign: .atSignToken(),
@@ -791,12 +844,7 @@ extension MockedMacro {
                 leftParen: .leftParenToken(),
                 arguments: .argumentList(
                     LabeledExprListSyntax {
-                        LabeledExprSyntax(
-                            expression: MemberAccessExprSyntax(
-                                period: .periodToken(),
-                                name: isReadWrite ? "readWrite" : "readOnly"
-                            )
-                        )
+                        attributeArgument
                     }
                 ),
                 rightParen: .rightParenToken(),

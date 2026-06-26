@@ -14,6 +14,7 @@ func assertMockedSubscript(
     _ declaration: String,
     ofType subscriptType: String,
     named mockSubscriptName: String,
+    isMockAnActor: Bool = false,
     generates expandedSource: String,
     diagnostics: [DiagnosticSpec] = [],
     applyFixIts: [String]? = nil,
@@ -28,7 +29,7 @@ func assertMockedSubscript(
         @_MockedSubscript(
             \(subscriptType),
             mockName: "DependencyMock",
-            isMockAnActor: false,
+            isMockAnActor: \(isMockAnActor),
             mockSubscriptName: "\(mockSubscriptName)"
         )
         \(declaration)

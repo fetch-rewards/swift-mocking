@@ -46,5 +46,116 @@ struct MockedSubscript_ReadOnlySubscriptTests {
             """
         )
     }
+
+    // MARK: Read-Only Async Subscript Tests
+
+    @Test
+    func readOnlyAsyncSubscript() {
+        assertMockedSubscript(
+            """
+            subscript(key: String) -> String?
+            """,
+            ofType: ".readOnly(.async)",
+            named: "subscriptKey",
+            generates: """
+            subscript(key: String) -> String? {
+                get async {
+                    await self.__subscriptKey.get(key)
+                }
+            }
+
+            private let __subscriptKey = MockReadOnlyAsyncSubscript<
+            \tString,
+            \tString?
+            >.makeSubscript(
+                exposedSubscriptDescription: MockImplementationDescription(
+                    type: DependencyMock.self,
+                    member: "_subscriptKey"
+                )
+            )
+
+            var _subscriptKey: MockReadOnlyAsyncSubscript<
+            \tString,
+            \tString?
+            > {
+                self.__subscriptKey.`subscript`
+            }
+            """
+        )
+    }
+
+    // MARK: Read-Only Throwing Subscript Tests
+
+    @Test
+    func readOnlyThrowingSubscript() {
+        assertMockedSubscript(
+            """
+            subscript(key: String) -> String?
+            """,
+            ofType: ".readOnly(.throws)",
+            named: "subscriptKey",
+            generates: """
+            subscript(key: String) -> String? {
+                get throws {
+                    try self.__subscriptKey.get(key)
+                }
+            }
+
+            private let __subscriptKey = MockReadOnlyThrowingSubscript<
+            \tString,
+            \tString?
+            >.makeSubscript(
+                exposedSubscriptDescription: MockImplementationDescription(
+                    type: DependencyMock.self,
+                    member: "_subscriptKey"
+                )
+            )
+
+            var _subscriptKey: MockReadOnlyThrowingSubscript<
+            \tString,
+            \tString?
+            > {
+                self.__subscriptKey.`subscript`
+            }
+            """
+        )
+    }
+
+    // MARK: Read-Only Async Throwing Subscript Tests
+
+    @Test
+    func readOnlyAsyncThrowingSubscript() {
+        assertMockedSubscript(
+            """
+            subscript(key: String) -> String?
+            """,
+            ofType: ".readOnly(.async, .throws)",
+            named: "subscriptKey",
+            generates: """
+            subscript(key: String) -> String? {
+                get async throws {
+                    try await self.__subscriptKey.get(key)
+                }
+            }
+
+            private let __subscriptKey = MockReadOnlyAsyncThrowingSubscript<
+            \tString,
+            \tString?
+            >.makeSubscript(
+                exposedSubscriptDescription: MockImplementationDescription(
+                    type: DependencyMock.self,
+                    member: "_subscriptKey"
+                )
+            )
+
+            var _subscriptKey: MockReadOnlyAsyncThrowingSubscript<
+            \tString,
+            \tString?
+            > {
+                self.__subscriptKey.`subscript`
+            }
+            """
+        )
+    }
 }
 #endif

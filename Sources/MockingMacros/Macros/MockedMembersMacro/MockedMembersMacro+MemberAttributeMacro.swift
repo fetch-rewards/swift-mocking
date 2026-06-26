@@ -81,7 +81,7 @@ extension MockedMembersMacro: MemberAttributeMacro {
                 leftParen: .leftParenToken(),
                 arguments: .argumentList(
                     try LabeledExprListSyntax {
-                        self.propertyTypeArgument(
+                        self.typeArgument(
                             expression: try self.propertyTypeArgumentExpression(
                                 from: propertyDeclaration
                             )
@@ -344,7 +344,7 @@ extension MockedMembersMacro: MemberAttributeMacro {
                 leftParen: .leftParenToken(),
                 arguments: .argumentList(
                     try LabeledExprListSyntax {
-                        self.subscriptTypeArgument(
+                        self.typeArgument(
                             expression: try self.subscriptTypeArgumentExpression(
                                 from: subscriptDeclaration
                             )
@@ -428,6 +428,12 @@ extension MockedMembersMacro: MemberAttributeMacro {
         for subscriptDeclaration: SubscriptDeclSyntax,
         mockMembers: MemberBlockItemListSyntax
     ) -> String {
+        if let explicitMockSubscriptName = self.explicitMockSubscriptName(
+            for: subscriptDeclaration
+        ) {
+            return explicitMockSubscriptName
+        }
+
         let mockSubscriptNameComponents = MockMethodNameComponents(
             subscriptDeclaration: subscriptDeclaration
         )
@@ -477,7 +483,10 @@ extension MockedMembersMacro: MemberAttributeMacro {
         in members: MemberBlockItemListSyntax
     ) -> [MockMethodNameComponents] {
         members.compactMap { member in
-            guard let peerSubscriptDeclaration = member.decl.as(SubscriptDeclSyntax.self) else {
+            guard
+                let peerSubscriptDeclaration = member.decl.as(SubscriptDeclSyntax.self),
+                self.explicitMockSubscriptName(for: peerSubscriptDeclaration) == nil
+            else {
                 return nil
             }
 
@@ -493,13 +502,56 @@ extension MockedMembersMacro: MemberAttributeMacro {
         }
     }
 
+    /// Returns the explicit `mockSubscriptName` parsed from the provided
+    /// `subscriptDeclaration`'s `@MockableSubscript` attribute if it exists,
+    /// otherwise `nil`.
+    ///
+    /// - Parameter subscriptDeclaration: The subscript declaration from which
+    ///   to parse the explicit `mockSubscriptName`.
+    /// - Returns: The explicit `mockSubscriptName` parsed from the provided
+    ///   `subscriptDeclaration`'s `@MockableSubscript` attribute if it exists,
+    ///   otherwise `nil`.
+    private static func explicitMockSubscriptName(
+        for subscriptDeclaration: SubscriptDeclSyntax
+    ) -> String? {
+        var explicitMockSubscriptName: String?
+
+        for attribute in subscriptDeclaration.attributes {
+            guard
+                case let .attribute(attribute) = attribute,
+                let attributeName = attribute.attributeName.as(
+                    IdentifierTypeSyntax.self
+                ),
+                attributeName.name.tokenKind == .identifier("MockableSubscript")
+            else {
+                continue
+            }
+
+            guard
+                case let .argumentList(arguments) = attribute.arguments,
+                let firstArgument = arguments.first,
+                firstArgument.label?.tokenKind == .identifier("mockSubscriptName"),
+                let mockSubscriptNameArgumentExpression = firstArgument.expression.as(
+                    StringLiteralExprSyntax.self
+                )
+            else {
+                break
+            }
+
+            explicitMockSubscriptName = mockSubscriptNameArgumentExpression.representedLiteralValue
+            break
+        }
+
+        return explicitMockSubscriptName
+    }
+
     // MARK: Macro Arguments
 
-    /// Returns a `propertyType` argument with the provided `expression`.
+    /// Returns a type argument with the provided `expression`.
     ///
     /// - Parameter expression: The expression to use in the argument.
-    /// - Returns: A `propertyType` argument with the provided `expression`.
-    private static func propertyTypeArgument(
+    /// - Returns: A type argument with the provided `expression`.
+    private static func typeArgument(
         expression: some ExprSyntaxProtocol
     ) -> LabeledExprSyntax {
         LabeledExprSyntax(
@@ -569,19 +621,6 @@ extension MockedMembersMacro: MemberAttributeMacro {
                 closingQuote: .stringQuoteToken()
             ),
             trailingTrivia: .newline
-        )
-    }
-
-    /// Returns a `subscriptType` argument with the provided `expression`.
-    ///
-    /// - Parameter expression: The expression to use in the argument.
-    /// - Returns: A `subscriptType` argument with the provided `expression`.
-    private static func subscriptTypeArgument(
-        expression: some ExprSyntaxProtocol
-    ) -> LabeledExprSyntax {
-        LabeledExprSyntax(
-            leadingTrivia: .newline.appending(.tab),
-            expression: expression
         )
     }
 

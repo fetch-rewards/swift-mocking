@@ -29,7 +29,8 @@ extension MockedSubscriptMacro: AccessorMacro {
         var accessors: [AccessorDeclSyntax] = [
             self.getAccessor(
                 subscriptName: subscriptName,
-                keyArgument: keyArgument
+                keyArgument: keyArgument,
+                subscriptType: macroArguments.subscriptType
             ),
         ]
 
@@ -48,32 +49,74 @@ extension MockedSubscriptMacro: AccessorMacro {
     // MARK: Get Accessor
 
     /// Returns a `get` accessor for a subscript with the provided
-    /// `subscriptName` and `keyArgument`.
+    /// `subscriptName`, `keyArgument`, and `subscriptType`.
     ///
     /// - Parameters:
     ///   - subscriptName: The disambiguated name of the mock subscript backing.
     ///   - keyArgument: The key argument expression to pass to `get(_:)`.
+    ///   - subscriptType: The type of subscript being mocked.
     /// - Returns: A `get` accessor.
     private static func getAccessor(
         subscriptName: String,
-        keyArgument: ExprSyntax
+        keyArgument: ExprSyntax,
+        subscriptType: MockedSubscriptType
     ) -> AccessorDeclSyntax {
-        AccessorDeclSyntax(accessorSpecifier: .keyword(.get)) {
-            FunctionCallExprSyntax(
-                calledExpression: MemberAccessExprSyntax(
-                    base: MemberAccessExprSyntax(
-                        base: DeclReferenceExprSyntax(baseName: .keyword(.self)),
-                        period: .periodToken(),
-                        name: "__\(raw: subscriptName)"
-                    ),
+        var asyncSpecifier: TokenSyntax?
+        var throwsClause: ThrowsClauseSyntax?
+        var getterInvocationExpression: any ExprSyntaxProtocol
+
+        getterInvocationExpression = FunctionCallExprSyntax(
+            calledExpression: MemberAccessExprSyntax(
+                base: MemberAccessExprSyntax(
+                    base: DeclReferenceExprSyntax(baseName: .keyword(.self)),
                     period: .periodToken(),
-                    name: "get"
+                    name: "__\(raw: subscriptName)"
                 ),
-                leftParen: .leftParenToken(),
-                rightParen: .rightParenToken()
-            ) {
-                LabeledExprSyntax(expression: keyArgument)
-            }
+                period: .periodToken(),
+                name: "get"
+            ),
+            leftParen: .leftParenToken(),
+            rightParen: .rightParenToken()
+        ) {
+            LabeledExprSyntax(expression: keyArgument)
+        }
+
+        if case .async = subscriptType.getterAsyncSpecifier {
+            asyncSpecifier = .keyword(.async)
+            getterInvocationExpression = AwaitExprSyntax(
+                awaitKeyword: .keyword(.await),
+                expression: getterInvocationExpression
+            )
+        }
+
+        if case .throws = subscriptType.getterThrowsSpecifier {
+            throwsClause = ThrowsClauseSyntax(
+                throwsSpecifier: .keyword(.throws)
+            )
+            getterInvocationExpression = TryExprSyntax(
+                tryKeyword: .keyword(.try),
+                expression: getterInvocationExpression
+            )
+        }
+
+        let effectSpecifiers: AccessorEffectSpecifiersSyntax? = switch (
+            asyncSpecifier,
+            throwsClause
+        ) {
+        case (_, .some), (.some, _):
+            AccessorEffectSpecifiersSyntax(
+                asyncSpecifier: asyncSpecifier,
+                throwsClause: throwsClause
+            )
+        case (.none, .none):
+            nil
+        }
+
+        return AccessorDeclSyntax(
+            accessorSpecifier: .keyword(.get),
+            effectSpecifiers: effectSpecifiers
+        ) {
+            getterInvocationExpression
         }
     }
 
