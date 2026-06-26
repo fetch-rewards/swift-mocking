@@ -79,20 +79,20 @@ final class TestBarrier: @unchecked Sendable {
     func wait() async {
         await withCheckedContinuation { continuation in
             DispatchQueue.global(qos: .userInitiated).async { [self] in
-                condition.lock()
-                arrivedCount += 1
+                self.condition.lock()
+                self.arrivedCount += 1
 
-                if arrivedCount == totalTasks {
+                if self.arrivedCount == self.totalTasks {
                     // Last task to arrive: release everyone, including self.
-                    condition.broadcast()
+                    self.condition.broadcast()
                 }
 
                 // Loop guards against spurious wakeups.
-                while arrivedCount < totalTasks {
-                    condition.wait()
+                while self.arrivedCount < self.totalTasks {
+                    self.condition.wait()
                 }
 
-                condition.unlock()
+                self.condition.unlock()
                 continuation.resume()
             }
         }
