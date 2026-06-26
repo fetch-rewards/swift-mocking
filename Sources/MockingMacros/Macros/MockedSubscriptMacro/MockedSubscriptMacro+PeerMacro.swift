@@ -238,7 +238,7 @@ extension MockedSubscriptMacro: PeerMacro {
         from subscriptDeclaration: SubscriptDeclSyntax,
         subscriptType: MockedSubscriptType
     ) -> IdentifierTypeSyntax {
-        let typeName: String = switch subscriptType {
+        let typeName = switch subscriptType {
         case .readOnly:
             "MockReadOnlySubscript"
         case .readWrite:

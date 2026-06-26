@@ -78,7 +78,8 @@ struct Mocked_SubscriptTests {
             @MockedMembers
             \(mock.modifiers)class DependencyMock: Dependency {
                 @MockableSubscript(.readWrite)
-                \(mock.memberModifiers)subscript(key: String, default defaultValue: String) -> String
+                \(mock
+                .memberModifiers)subscript(key: String, default defaultValue: String) -> String
             }
             #endif
             """

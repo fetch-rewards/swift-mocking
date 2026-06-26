@@ -16,7 +16,7 @@ public final class MockSubscriptGetter<Key, Value> {
     /// All invocation records; grouped so reads and writes across them are atomic.
     private struct State {
         var callCount: Int = .zero
-        var inputs: [Key] = []
+        var invocations: [Key] = []
         var returnedValues: [Value] = []
     }
 
@@ -37,9 +37,9 @@ public final class MockSubscriptGetter<Key, Value> {
     }
 
     /// All the keys with which the getter has been invoked.
-    public var inputs: [Key] {
+    public var invocations: [Key] {
         self._state.withLockUnchecked { state in
-            state.inputs
+            state.invocations
         }
     }
 
@@ -51,9 +51,9 @@ public final class MockSubscriptGetter<Key, Value> {
     }
 
     /// The last key with which the getter was invoked.
-    public var lastInput: Key? {
+    public var lastInvocation: Key? {
         self._state.withLockUnchecked { state in
-            state.inputs.last
+            state.invocations.last
         }
     }
 
@@ -96,7 +96,7 @@ public final class MockSubscriptGetter<Key, Value> {
 
         self._state.withLockUnchecked { state in
             state.callCount += 1
-            state.inputs.append(key)
+            state.invocations.append(key)
             state.returnedValues.append(value)
         }
 
@@ -112,7 +112,7 @@ public final class MockSubscriptGetter<Key, Value> {
         }
         self._state.withLockUnchecked { state in
             state.callCount = .zero
-            state.inputs.removeAll()
+            state.invocations.removeAll()
             state.returnedValues.removeAll()
         }
     }

@@ -73,7 +73,7 @@ public final class MockReadWriteSubscript<Key, Value> {
     public static func makeSubscript(
         exposedSubscriptDescription: MockImplementationDescription
     ) -> (
-        `subscript`: MockReadWriteSubscript,
+        subscript: MockReadWriteSubscript,
         get: (Key) -> Value,
         set: (Key, Value) -> Void,
         reset: () -> Void
@@ -83,7 +83,7 @@ public final class MockReadWriteSubscript<Key, Value> {
         )
 
         return (
-            `subscript`: mock,
+            subscript: mock,
             get: mock.getter.get,
             set: mock.setter.set,
             reset: mock.reset
@@ -142,7 +142,7 @@ extension MockReadWriteSubscript: Sendable where Key: Sendable, Value: Sendable 
     public static func makeSubscript(
         exposedSubscriptDescription: MockImplementationDescription
     ) -> (
-        `subscript`: MockReadWriteSubscript,
+        subscript: MockReadWriteSubscript,
         get: @Sendable (Key) -> Value,
         set: @Sendable (Key, Value) -> Void,
         reset: @Sendable () -> Void
@@ -152,7 +152,7 @@ extension MockReadWriteSubscript: Sendable where Key: Sendable, Value: Sendable 
         )
 
         return (
-            `subscript`: mock,
+            subscript: mock,
             get: mock.getter.get,
             set: mock.setter.set,
             reset: mock.reset
