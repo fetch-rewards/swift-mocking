@@ -595,7 +595,7 @@ case, you can provide an explicit name for the subscript's backing property usin
 ```swift
 @MockedMembers
 final class DependencyMock: Dependency {
-    @MockableSubscript(mockSubscriptName: "someUniqueName")
+    @MockableSubscript(.readWrite, mockSubscriptName: "someUniqueName")
     subscript(key: String) -> String?
 }
 ```
