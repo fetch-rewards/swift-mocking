@@ -24,16 +24,8 @@ struct MockedSubscriptTypeTests {
     }
 
     @Test
-    func readOnlyNoSpecifiers() {
-        guard case .readOnly(nil, nil) = MockedSubscriptType.readOnly() else {
-            Issue.record("Expected .readOnly(nil, nil)")
-            return
-        }
-    }
-
-    @Test
     func readOnlyAsyncSpecifier() {
-        guard case .readOnly(.async, nil) = MockedSubscriptType.readOnly(.async, nil) else {
+        guard case .readOnly(.async, nil) = MockedSubscriptType.readOnly(.async) else {
             Issue.record("Expected .readOnly(.async, nil)")
             return
         }

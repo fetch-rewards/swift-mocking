@@ -16,7 +16,7 @@ public enum MockedSubscriptType {
     /// - Parameters:
     ///   - asyncSpecifier: The getter's `async` specifier.
     ///   - throwsSpecifier: The getter's `throws` specifier.
-    case readOnly(AsyncSpecifier? = nil, ThrowsSpecifier? = nil)
+    case readOnly(AsyncSpecifier?, ThrowsSpecifier?)
 
     /// A read-write subscript.
     case readWrite
@@ -25,10 +25,19 @@ public enum MockedSubscriptType {
 
     /// A read-only subscript without any effect specifiers.
     public static var readOnly: MockedSubscriptType {
-        .readOnly()
+        .readOnly(nil, nil)
     }
 
     // MARK: Constructors
+
+    /// Returns a read-only subscript with the provided `asyncSpecifier`.
+    ///
+    /// - Returns: A read-only subscript with the provided `asyncSpecifier`.
+    public static func readOnly(
+        _ asyncSpecifier: AsyncSpecifier
+    ) -> MockedSubscriptType {
+        .readOnly(asyncSpecifier, nil)
+    }
 
     /// Returns a read-only subscript with the provided `throwsSpecifier`.
     ///
