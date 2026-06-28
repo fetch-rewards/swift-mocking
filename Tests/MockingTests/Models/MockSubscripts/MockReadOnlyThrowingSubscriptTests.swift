@@ -1,0 +1,74 @@
+//
+//  MockReadOnlyThrowingSubscriptTests.swift
+//
+//  Copyright © 2026 Fetch.
+//
+
+import Testing
+@testable import Mocking
+
+struct MockReadOnlyThrowingSubscriptTests {
+
+    // MARK: Typealiases
+
+    typealias SUT = MockReadOnlyThrowingSubscript<Arguments, Value>
+    typealias Arguments = String
+    typealias Value = Int
+
+    // MARK: Getter Tests
+
+    @Test
+    func getter() async throws {
+        let (sut, get, _) = self.sut()
+
+        try await confirmation(expectedCount: 1) { confirmation in
+            sut.getter.implementation = .uncheckedInvokes { _ in
+                confirmation.confirm()
+                return 5
+            }
+
+            _ = try get("a")
+        }
+    }
+
+    // MARK: Reset Tests
+
+    @Test
+    func reset() async throws {
+        let (sut, get, reset) = self.sut()
+
+        sut.getter.implementation = .uncheckedInvokes { _ in 5 }
+
+        try await TestBarrier.executeConcurrently {
+            _ = try get("a")
+        }
+        #expect(sut.getter.callCount == TestBarrier.defaultTaskCount)
+
+        try await TestBarrier.executeConcurrently {
+            reset()
+        }
+        #expect(sut.getter.callCount == .zero)
+
+        guard case .unimplemented = sut.getter.implementation else {
+            Issue.record("Expected getter implementation to equal .unimplemented")
+            return
+        }
+    }
+}
+
+// MARK: - Helpers
+
+extension MockReadOnlyThrowingSubscriptTests {
+    private func sut() -> (
+        subscript: SUT,
+        get: @Sendable (Arguments) throws -> Value,
+        reset: @Sendable () -> Void
+    ) {
+        SUT.makeSubscript(
+            exposedSubscriptDescription: MockImplementationDescription(
+                type: Self.self,
+                member: "sut"
+            )
+        )
+    }
+}
