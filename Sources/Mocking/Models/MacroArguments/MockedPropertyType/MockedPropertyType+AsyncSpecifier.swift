@@ -9,7 +9,7 @@ import Foundation
 extension MockedPropertyType {
 
     /// The `async` specifier to apply to a mocked property's accessor.
-    public enum AsyncSpecifier: String, CaseIterable {
+    public enum AsyncSpecifier {
 
         // MARK: Cases
 

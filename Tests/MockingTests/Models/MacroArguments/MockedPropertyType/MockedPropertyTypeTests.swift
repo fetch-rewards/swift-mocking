@@ -24,7 +24,7 @@ struct MockedPropertyTypeTests {
     }
 
     @Test
-    func readOnlyAsyncSpecifierFactory() {
+    func readOnlyAsyncSpecifier() {
         guard case .readOnly(.async, nil) = MockedPropertyType.readOnly(.async) else {
             Issue.record("Expected .readOnly(.async, nil)")
             return
@@ -40,7 +40,15 @@ struct MockedPropertyTypeTests {
     }
 
     @Test
-    func readOnlyBothSpecifiersDirect() {
+    func readOnlyThrowsSpecifierDirect() {
+        guard case .readOnly(nil, .throws) = MockedPropertyType.readOnly(nil, .throws) else {
+            Issue.record("Expected .readOnly(nil, .throws)")
+            return
+        }
+    }
+
+    @Test
+    func readOnlyAsyncAndThrows() {
         guard case .readOnly(.async, .throws) = MockedPropertyType.readOnly(.async, .throws) else {
             Issue.record("Expected .readOnly(.async, .throws)")
             return
@@ -55,17 +63,5 @@ struct MockedPropertyTypeTests {
             Issue.record("Expected .readWrite")
             return
         }
-    }
-
-    // MARK: AsyncSpecifier Tests
-
-    @Test
-    func asyncSpecifierRawValue() {
-        #expect(MockedPropertyType.AsyncSpecifier.async.rawValue == "async")
-    }
-
-    @Test
-    func asyncSpecifierAllCases() {
-        #expect(MockedPropertyType.AsyncSpecifier.allCases == [.async])
     }
 }
