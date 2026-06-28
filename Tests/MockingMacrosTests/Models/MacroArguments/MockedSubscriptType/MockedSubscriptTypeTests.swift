@@ -44,28 +44,46 @@ struct MockedSubscriptTypeTests {
 
     @Test("Initializes as .readOnly(.async, nil) from a factory argument with an async specifier.")
     func initReadOnlyWithAsyncSpecifier() throws {
-        let sut = try SUT(argument: .macroArgumentSyntax(label: "subscriptType", name: "readOnly", arguments: [
-            .macroArgumentSyntax(label: "", base: nil, name: "async"),
-        ]))
+        let sut = try SUT(
+            argument: .macroArgumentSyntax(
+                label: "subscriptType",
+                name: "readOnly",
+                arguments: [
+                    .macroArgumentSyntax(label: "", base: nil, name: "async"),
+                ]
+            )
+        )
 
         #expect(sut == .readOnly(.async, nil))
     }
 
     @Test("Initializes as .readOnly(nil, .throws) from a factory argument with a throws specifier.")
     func initReadOnlyWithThrowsSpecifier() throws {
-        let sut = try SUT(argument: .macroArgumentSyntax(label: "subscriptType", name: "readOnly", arguments: [
-            .macroArgumentSyntax(label: "", base: nil, name: "throws"),
-        ]))
+        let sut = try SUT(
+            argument: .macroArgumentSyntax(
+                label: "subscriptType",
+                name: "readOnly",
+                arguments: [
+                    .macroArgumentSyntax(label: "", base: nil, name: "throws"),
+                ]
+            )
+        )
 
         #expect(sut == .readOnly(nil, .throws))
     }
 
     @Test("Initializes as .readOnly(.async, .throws) from a factory argument with both specifiers.")
     func initReadOnlyWithAsyncAndThrowsSpecifiers() throws {
-        let sut = try SUT(argument: .macroArgumentSyntax(label: "subscriptType", name: "readOnly", arguments: [
-            .macroArgumentSyntax(label: "", base: nil, name: "async"),
-            .macroArgumentSyntax(label: "", base: nil, name: "throws"),
-        ]))
+        let sut = try SUT(
+            argument: .macroArgumentSyntax(
+                label: "subscriptType",
+                name: "readOnly",
+                arguments: [
+                    .macroArgumentSyntax(label: "", base: nil, name: "async"),
+                    .macroArgumentSyntax(label: "", base: nil, name: "throws"),
+                ]
+            )
+        )
 
         #expect(sut == .readOnly(.async, .throws))
     }
