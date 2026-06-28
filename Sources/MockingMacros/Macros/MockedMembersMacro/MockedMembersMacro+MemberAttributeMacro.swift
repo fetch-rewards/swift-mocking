@@ -434,7 +434,7 @@ extension MockedMembersMacro: MemberAttributeMacro {
             return explicitMockSubscriptName
         }
 
-        let mockSubscriptNameComponents = MockMethodNameComponents(
+        let mockSubscriptNameComponents = MockMemberNameComponents(
             subscriptDeclaration: subscriptDeclaration
         )
         var overloadsNameComponents = self.nameComponentsForSubscriptOverloads(
@@ -464,24 +464,24 @@ extension MockedMembersMacro: MemberAttributeMacro {
         return mockSubscriptName
     }
 
-    /// Returns an array of `MockMethodNameComponents` for the subscript
+    /// Returns an array of `MockMemberNameComponents` for the subscript
     /// overloads of the provided `subscriptDeclaration` parsed from the
     /// provided `members`.
     ///
     /// - Parameters:
     ///   - subscriptDeclaration: A subscript declaration.
-    ///   - mockSubscriptNameComponents: The `MockMethodNameComponents` for the
+    ///   - mockSubscriptNameComponents: The `MockMemberNameComponents` for the
     ///     provided `subscriptDeclaration`.
     ///   - members: The members from which to identify subscript overloads of
     ///     the provided `subscriptDeclaration`.
-    /// - Returns: An array of `MockMethodNameComponents` for the subscript
+    /// - Returns: An array of `MockMemberNameComponents` for the subscript
     ///   overloads of the provided `subscriptDeclaration` parsed from the
     ///   provided `members`.
     private static func nameComponentsForSubscriptOverloads(
         of subscriptDeclaration: SubscriptDeclSyntax,
-        with mockSubscriptNameComponents: MockMethodNameComponents,
+        with mockSubscriptNameComponents: MockMemberNameComponents,
         in members: MemberBlockItemListSyntax
-    ) -> [MockMethodNameComponents] {
+    ) -> [MockMemberNameComponents] {
         members.compactMap { member in
             guard
                 let peerSubscriptDeclaration = member.decl.as(SubscriptDeclSyntax.self),
@@ -490,7 +490,7 @@ extension MockedMembersMacro: MemberAttributeMacro {
                 return nil
             }
 
-            let peerComponents = MockMethodNameComponents(
+            let peerComponents = MockMemberNameComponents(
                 subscriptDeclaration: peerSubscriptDeclaration
             )
 
