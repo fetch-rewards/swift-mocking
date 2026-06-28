@@ -9,7 +9,7 @@ import Foundation
 extension MockedSubscriptType {
 
     /// The `async` specifier to apply to a mocked subscript's accessor.
-    public enum AsyncSpecifier: String, CaseIterable {
+    public enum AsyncSpecifier {
 
         // MARK: Cases
 

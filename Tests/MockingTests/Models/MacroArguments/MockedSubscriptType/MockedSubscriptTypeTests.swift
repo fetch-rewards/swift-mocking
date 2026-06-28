@@ -65,15 +65,4 @@ struct MockedSubscriptTypeTests {
         }
     }
 
-    // MARK: AsyncSpecifier Tests
-
-    @Test
-    func asyncSpecifierRawValue() {
-        #expect(MockedSubscriptType.AsyncSpecifier.async.rawValue == "async")
-    }
-
-    @Test
-    func asyncSpecifierAllCases() {
-        #expect(MockedSubscriptType.AsyncSpecifier.allCases == [.async])
-    }
 }
