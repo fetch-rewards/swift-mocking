@@ -529,9 +529,10 @@ extension MockedMembersMacro: MemberAttributeMacro {
 
             guard
                 case let .argumentList(arguments) = attribute.arguments,
-                let firstArgument = arguments.first,
-                firstArgument.label?.tokenKind == .identifier("mockSubscriptName"),
-                let mockSubscriptNameArgumentExpression = firstArgument.expression.as(
+                let mockSubscriptNameArgument = arguments.first(where: { argument in
+                    argument.label?.tokenKind == .identifier("mockSubscriptName")
+                }),
+                let mockSubscriptNameArgumentExpression = mockSubscriptNameArgument.expression.as(
                     StringLiteralExprSyntax.self
                 )
             else {
