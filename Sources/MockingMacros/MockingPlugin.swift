@@ -15,5 +15,7 @@ struct MockingPlugin: CompilerPlugin {
         MockedMethodMacro.self,
         MockablePropertyMacro.self,
         MockedPropertyMacro.self,
+        MockableSubscriptMacro.self,
+        MockedSubscriptMacro.self,
     ]
 }
