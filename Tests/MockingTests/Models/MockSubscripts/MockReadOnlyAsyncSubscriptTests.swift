@@ -54,6 +54,25 @@ struct MockReadOnlyAsyncSubscriptTests {
             return
         }
     }
+
+    // MARK: Non-Sendable Overload Tests
+
+    @Test
+    func makeSubscript_nonSendable() async {
+        let box = NonSendableBox()
+        let (sut, get, reset) = MockReadOnlyAsyncSubscript<String, NonSendableBox>.makeSubscript(
+            exposedSubscriptDescription: MockImplementationDescription(
+                type: Self.self,
+                member: "sut"
+            )
+        )
+
+        sut.getter.implementation = .uncheckedInvokes { _ in box }
+        _ = await get("a")
+        #expect(sut.getter.callCount == 1)
+        reset()
+        #expect(sut.getter.callCount == .zero)
+    }
 }
 
 // MARK: - Helpers
@@ -71,4 +90,6 @@ extension MockReadOnlyAsyncSubscriptTests {
             )
         )
     }
+
+    private final class NonSendableBox {}
 }
