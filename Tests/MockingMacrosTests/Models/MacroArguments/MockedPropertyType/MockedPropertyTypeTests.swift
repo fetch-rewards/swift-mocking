@@ -88,6 +88,8 @@ struct MockedPropertyTypeTests {
         #expect(sut == .readOnly(.async, .throws))
     }
 
+    // MARK: Getter Async Specifier Tests
+
     @Test("Returns the async specifier for a .readOnly case.")
     func getterAsyncSpecifierForReadOnly() {
         #expect(SUT.readOnly(.async, nil).getterAsyncSpecifier == .async)
@@ -103,6 +105,8 @@ struct MockedPropertyTypeTests {
         #expect(SUT.readOnly.getterAsyncSpecifier == nil)
     }
 
+    // MARK: Getter Throws Specifier Tests
+
     @Test("Returns the throws specifier for a .readOnly case.")
     func getterThrowsSpecifierForReadOnly() {
         #expect(SUT.readOnly(nil, .throws).getterThrowsSpecifier == .throws)
@@ -117,6 +121,8 @@ struct MockedPropertyTypeTests {
     func getterThrowsSpecifierAbsent() {
         #expect(SUT.readOnly.getterThrowsSpecifier == nil)
     }
+
+    // MARK: Parsing Error Tests
 
     @Test("Throws when initialized from an argument with an unknown name.")
     func initThrowsForUnknownName() {
