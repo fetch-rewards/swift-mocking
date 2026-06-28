@@ -199,7 +199,7 @@ extension MockedMembersMacro: MemberAttributeMacro {
             return explicitMockMethodName
         }
 
-        let mockMethodNameComponents = MockMethodNameComponents(
+        let mockMethodNameComponents = MockMemberNameComponents(
             methodDeclaration: methodDeclaration
         )
         var methodOverloadsNameComponents = self.nameComponentsForMethodOverloads(
@@ -229,23 +229,23 @@ extension MockedMembersMacro: MemberAttributeMacro {
         return mockMethodName
     }
 
-    /// Returns an array of `MockMethodNameComponents` for the method overloads
+    /// Returns an array of `MockMemberNameComponents` for the method overloads
     /// of the provided `methodDeclaration` parsed from the provided `members`.
     ///
     /// - Parameters:
     ///   - methodDeclaration: A method declaration.
-    ///   - mockMethodNameComponents: The `MockMethodNameComponents` for the
+    ///   - mockMethodNameComponents: The `MockMemberNameComponents` for the
     ///     provided `methodDeclaration`.
     ///   - members: The members from which to identify method overloads of the
     ///     provided `methodDeclaration`.
-    /// - Returns: An array of `MockMethodNameComponents` for the method
+    /// - Returns: An array of `MockMemberNameComponents` for the method
     ///   overloads of the provided `methodDeclaration` parsed from the provided
     ///   `members`.
     private static func nameComponentsForMethodOverloads(
         of methodDeclaration: FunctionDeclSyntax,
-        with mockMethodNameComponents: MockMethodNameComponents,
+        with mockMethodNameComponents: MockMemberNameComponents,
         in members: MemberBlockItemListSyntax
-    ) -> [MockMethodNameComponents] {
+    ) -> [MockMemberNameComponents] {
         let methodDeclarationName = methodDeclaration.name.trimmed.text
 
         return members.compactMap { member in
@@ -257,17 +257,17 @@ extension MockedMembersMacro: MemberAttributeMacro {
                 return nil
             }
 
-            let peerMockMethodNameComponents = MockMethodNameComponents(
+            let peerMockMemberNameComponents = MockMemberNameComponents(
                 methodDeclaration: peerMethodDeclaration
             )
 
             guard
-                peerMockMethodNameComponents.fullName != mockMethodNameComponents.fullName
+                peerMockMemberNameComponents.fullName != mockMethodNameComponents.fullName
             else {
                 return nil
             }
 
-            return peerMockMethodNameComponents
+            return peerMockMemberNameComponents
         }
     }
 
