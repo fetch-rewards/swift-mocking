@@ -16,7 +16,7 @@ public enum MockedPropertyType {
     /// - Parameters:
     ///   - asyncSpecifier: The getter's `async` specifier.
     ///   - throwsSpecifier: The getter's `throws` specifier.
-    case readOnly(AsyncSpecifier? = nil, ThrowsSpecifier? = nil)
+    case readOnly(AsyncSpecifier?, ThrowsSpecifier?)
 
     /// A read-write property.
     case readWrite
@@ -25,10 +25,19 @@ public enum MockedPropertyType {
 
     /// A read-only property without any effect specifiers.
     public static var readOnly: MockedPropertyType {
-        .readOnly()
+        .readOnly(nil, nil)
     }
 
     // MARK: Constructors
+
+    /// Returns a read-only property with the provided `asyncSpecifier`.
+    ///
+    /// - Returns: A read-only property with the provided `asyncSpecifier`.
+    public static func readOnly(
+        _ asyncSpecifier: AsyncSpecifier
+    ) -> MockedPropertyType {
+        .readOnly(asyncSpecifier, nil)
+    }
 
     /// Returns a read-only property with the provided `throwsSpecifier`.
     ///

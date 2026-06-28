@@ -7,7 +7,7 @@
 import SwiftSyntax
 
 /// The type of property being mocked.
-enum MockedPropertyType: MacroArgumentValue {
+enum MockedPropertyType: MacroArgumentValue, Equatable {
 
     // MARK: Cases
 
@@ -16,12 +16,17 @@ enum MockedPropertyType: MacroArgumentValue {
     /// - Parameters:
     ///   - asyncSpecifier: The getter's `async` specifier.
     ///   - throwsSpecifier: The getter's `throws` specifier.
-    case readOnly(AsyncSpecifier? = nil, ThrowsSpecifier? = nil)
+    case readOnly(AsyncSpecifier?, ThrowsSpecifier?)
 
     /// A read-write property.
     case readWrite
 
     // MARK: Properties
+
+    /// A read-only property without any effect specifiers.
+    static var readOnly: MockedPropertyType {
+        .readOnly(nil, nil)
+    }
 
     /// The getter's `async` specifier, if there is one.
     var getterAsyncSpecifier: AsyncSpecifier? {
