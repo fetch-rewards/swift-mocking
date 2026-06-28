@@ -9,10 +9,14 @@ import Testing
 
 struct MockedSubscriptTypeTests {
 
+    // MARK: Typealiases
+
+    typealias SUT = MockedSubscriptType
+
     // MARK: Read-Only Tests
 
     @Test
-    func readOnly_staticProperty() {
+    func readOnlyStaticProperty() {
         guard case .readOnly(nil, nil) = MockedSubscriptType.readOnly else {
             Issue.record("Expected .readOnly(nil, nil)")
             return
@@ -20,7 +24,7 @@ struct MockedSubscriptTypeTests {
     }
 
     @Test
-    func readOnly_noSpecifiers() {
+    func readOnlyNoSpecifiers() {
         guard case .readOnly(nil, nil) = MockedSubscriptType.readOnly() else {
             Issue.record("Expected .readOnly(nil, nil)")
             return
@@ -28,7 +32,7 @@ struct MockedSubscriptTypeTests {
     }
 
     @Test
-    func readOnly_asyncSpecifier() {
+    func readOnlyAsyncSpecifier() {
         guard case .readOnly(.async, nil) = MockedSubscriptType.readOnly(.async, nil) else {
             Issue.record("Expected .readOnly(.async, nil)")
             return
@@ -36,7 +40,7 @@ struct MockedSubscriptTypeTests {
     }
 
     @Test
-    func readOnly_throwsSpecifier_factory() {
+    func readOnlyThrowsSpecifierFactory() {
         guard case .readOnly(nil, .throws) = MockedSubscriptType.readOnly(.throws) else {
             Issue.record("Expected .readOnly(nil, .throws)")
             return
@@ -44,7 +48,7 @@ struct MockedSubscriptTypeTests {
     }
 
     @Test
-    func readOnly_throwsSpecifier_direct() {
+    func readOnlyThrowsSpecifierDirect() {
         guard case .readOnly(nil, .throws) = MockedSubscriptType.readOnly(nil, .throws) else {
             Issue.record("Expected .readOnly(nil, .throws)")
             return
@@ -52,7 +56,7 @@ struct MockedSubscriptTypeTests {
     }
 
     @Test
-    func readOnly_asyncAndThrows() {
+    func readOnlyAsyncAndThrows() {
         guard case .readOnly(.async, .throws) = MockedSubscriptType.readOnly(.async, .throws) else {
             Issue.record("Expected .readOnly(.async, .throws)")
             return
@@ -72,12 +76,12 @@ struct MockedSubscriptTypeTests {
     // MARK: AsyncSpecifier Tests
 
     @Test
-    func asyncSpecifier_rawValue() {
+    func asyncSpecifierRawValue() {
         #expect(MockedSubscriptType.AsyncSpecifier.async.rawValue == "async")
     }
 
     @Test
-    func asyncSpecifier_allCases() {
+    func asyncSpecifierAllCases() {
         #expect(MockedSubscriptType.AsyncSpecifier.allCases == [.async])
     }
 }
