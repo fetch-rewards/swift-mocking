@@ -589,6 +589,24 @@ final class DependencyMock: Dependency {
 #endif
 ```
 
+While `@Mocked` and `@MockedMembers` do an excellent job of dealing with name conflicts caused by subscript
+overloads, there's always a possibility that a name conflict may arise between two backing properties. In this
+case, you can provide an explicit name for the subscript's backing property using `@MockableSubscript`:
+```swift
+@MockedMembers
+final class DependencyMock: Dependency {
+    @MockableSubscript(mockSubscriptName: "someUniqueName")
+    subscript(key: String) -> String?
+}
+```
+
+In other cases, you may simply dislike the name that `@Mocked` or `@MockedMembers` generates for a
+subscript's backing property and wish to give the backing property a different name.
+
+If you believe that `@Mocked` or `@MockedMembers` should have been able to resolve a name conflict,
+or if you think the name conflict resolution logic can be improved in any way, please let us know by
+[opening an issue](https://github.com/fetch-rewards/swift-mocking/issues/new).
+
 ### `@MockableMethod`
 
 Unlike `@MockableProperty` and `@MockableSubscript`, `@MockableMethod` is not required when using `@MockedMembers` directly. 
