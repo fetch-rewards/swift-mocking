@@ -33,9 +33,14 @@ public macro MockableSubscript(_ subscriptType: MockedSubscriptType) = #external
 /// conflicts, this macro may be used to provide a unique `mockSubscriptName`
 /// for a subscript.
 ///
-/// - Parameter mockSubscriptName: The name to use for the mock subscript.
+/// - Parameters:
+///   - subscriptType: The type of subscript being mocked.
+///   - mockSubscriptName: The name to use for the mock subscript.
 @attached(accessor)
-public macro MockableSubscript(mockSubscriptName: String) = #externalMacro(
+public macro MockableSubscript(
+    _ subscriptType: MockedSubscriptType,
+    mockSubscriptName: String
+) = #externalMacro(
     module: "MockingMacros",
     type: "MockableSubscriptMacro"
 )
