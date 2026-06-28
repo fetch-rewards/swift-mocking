@@ -57,8 +57,6 @@ struct MockReadOnlyAsyncSubscriptTests {
 
     // MARK: Non-Sendable Overload Tests
 
-    private final class NonSendableBox {}
-
     @Test
     func makeSubscriptNonSendable() async {
         let box = NonSendableBox()
@@ -80,6 +78,13 @@ struct MockReadOnlyAsyncSubscriptTests {
 // MARK: - Helpers
 
 extension MockReadOnlyAsyncSubscriptTests {
+
+    // MARK: NonSendableBox
+
+    private final class NonSendableBox {}
+
+    // MARK: SUT
+
     private func sut() -> (
         subscript: SUT,
         get: @Sendable (Arguments) async -> Value,
