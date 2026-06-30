@@ -29,7 +29,7 @@ struct MockedSubscript_ReadOnlySubscriptTests {
 
             private let __subscriptKey = MockReadOnlySubscript<
             \tString,
-            \tString?
+            \t(String)?
             >.makeSubscript(
                 exposedSubscriptDescription: MockImplementationDescription(
                     type: DependencyMock.self,
@@ -39,7 +39,7 @@ struct MockedSubscript_ReadOnlySubscriptTests {
 
             var _subscriptKey: MockReadOnlySubscript<
             \tString,
-            \tString?
+            \t(String)?
             > {
                 self.__subscriptKey.`subscript`
             }
@@ -66,7 +66,7 @@ struct MockedSubscript_ReadOnlySubscriptTests {
 
             private let __subscriptKey = MockReadOnlyAsyncSubscript<
             \tString,
-            \tString?
+            \t(String)?
             >.makeSubscript(
                 exposedSubscriptDescription: MockImplementationDescription(
                     type: DependencyMock.self,
@@ -76,7 +76,7 @@ struct MockedSubscript_ReadOnlySubscriptTests {
 
             var _subscriptKey: MockReadOnlyAsyncSubscript<
             \tString,
-            \tString?
+            \t(String)?
             > {
                 self.__subscriptKey.`subscript`
             }
@@ -103,7 +103,7 @@ struct MockedSubscript_ReadOnlySubscriptTests {
 
             private let __subscriptKey = MockReadOnlyThrowingSubscript<
             \tString,
-            \tString?
+            \t(String)?
             >.makeSubscript(
                 exposedSubscriptDescription: MockImplementationDescription(
                     type: DependencyMock.self,
@@ -113,7 +113,7 @@ struct MockedSubscript_ReadOnlySubscriptTests {
 
             var _subscriptKey: MockReadOnlyThrowingSubscript<
             \tString,
-            \tString?
+            \t(String)?
             > {
                 self.__subscriptKey.`subscript`
             }
@@ -140,7 +140,7 @@ struct MockedSubscript_ReadOnlySubscriptTests {
 
             private let __subscriptKey = MockReadOnlyAsyncThrowingSubscript<
             \tString,
-            \tString?
+            \t(String)?
             >.makeSubscript(
                 exposedSubscriptDescription: MockImplementationDescription(
                     type: DependencyMock.self,
@@ -150,7 +150,7 @@ struct MockedSubscript_ReadOnlySubscriptTests {
 
             var _subscriptKey: MockReadOnlyAsyncThrowingSubscript<
             \tString,
-            \tString?
+            \t(String)?
             > {
                 self.__subscriptKey.`subscript`
             }

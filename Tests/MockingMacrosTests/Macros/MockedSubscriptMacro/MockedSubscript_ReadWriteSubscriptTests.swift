@@ -32,7 +32,7 @@ struct MockedSubscript_ReadWriteSubscriptTests {
 
             private let __subscriptKey = MockReadWriteSubscript<
             \tString,
-            \tString?
+            \t(String)?
             >.makeSubscript(
                 exposedSubscriptDescription: MockImplementationDescription(
                     type: DependencyMock.self,
@@ -42,7 +42,7 @@ struct MockedSubscript_ReadWriteSubscriptTests {
 
             var _subscriptKey: MockReadWriteSubscript<
             \tString,
-            \tString?
+            \t(String)?
             > {
                 self.__subscriptKey.`subscript`
             }

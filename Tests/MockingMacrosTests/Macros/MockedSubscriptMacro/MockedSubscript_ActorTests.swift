@@ -30,7 +30,7 @@ struct MockedSubscript_ActorTests {
 
             private nonisolated let __subscriptKey = MockReadOnlySubscript<
             \tString,
-            \tString?
+            \t(String)?
             >.makeSubscript(
                 exposedSubscriptDescription: MockImplementationDescription(
                     type: DependencyMock.self,
@@ -40,7 +40,7 @@ struct MockedSubscript_ActorTests {
 
             nonisolated var _subscriptKey: MockReadOnlySubscript<
             \tString,
-            \tString?
+            \t(String)?
             > {
                 self.__subscriptKey.`subscript`
             }
@@ -69,7 +69,7 @@ struct MockedSubscript_ActorTests {
 
             private nonisolated let __subscriptKey = MockReadWriteSubscript<
             \tString,
-            \tString?
+            \t(String)?
             >.makeSubscript(
                 exposedSubscriptDescription: MockImplementationDescription(
                     type: DependencyMock.self,
@@ -79,7 +79,7 @@ struct MockedSubscript_ActorTests {
 
             nonisolated var _subscriptKey: MockReadWriteSubscript<
             \tString,
-            \tString?
+            \t(String)?
             > {
                 self.__subscriptKey.`subscript`
             }

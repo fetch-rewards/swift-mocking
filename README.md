@@ -142,7 +142,7 @@ final class DependencyMock: Dependency {
     var _property: MockReadWriteProperty<Int>
 
     subscript(key: String) -> String?
-    var _subscriptKey: MockReadWriteSubscript<String, String?>
+    var _subscriptKey: MockReadWriteSubscript<String, (String)?>
 
     func method(x: Int, y: Int) async throws -> Int
     var _method: MockReturningParameterizedAsyncThrowingMethod<...>
