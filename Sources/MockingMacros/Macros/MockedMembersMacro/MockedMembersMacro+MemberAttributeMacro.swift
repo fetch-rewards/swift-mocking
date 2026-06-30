@@ -257,17 +257,17 @@ extension MockedMembersMacro: MemberAttributeMacro {
                 return nil
             }
 
-            let peerMockMemberNameComponents = MockMemberNameComponents(
+            let peerMockMethodNameComponents = MockMemberNameComponents(
                 methodDeclaration: peerMethodDeclaration
             )
 
             guard
-                peerMockMemberNameComponents.fullName != mockMethodNameComponents.fullName
+                peerMockMethodNameComponents.fullName != mockMethodNameComponents.fullName
             else {
                 return nil
             }
 
-            return peerMockMemberNameComponents
+            return peerMockMethodNameComponents
         }
     }
 
