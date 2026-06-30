@@ -93,13 +93,21 @@ struct MockMemberNameComponentsTests {
 
     @Test
     func subscriptOneParamWithReturn() {
-        let sut = SUT(subscriptDeclaration: subscriptDecl("subscript(key: String) -> Int { get {} }"))
+        let sut = SUT(
+            subscriptDeclaration: subscriptDecl(
+                "subscript(key: String) -> Int { get {} }"
+            )
+        )
         #expect(sut.fullName == "subscriptKeyStringReturningInt")
     }
 
     @Test
     func subscriptTwoParamsWithReturn() {
-        let sut = SUT(subscriptDeclaration: subscriptDecl("subscript(row: Int, col: Int) -> String { get {} }"))
+        let sut = SUT(
+            subscriptDeclaration: subscriptDecl(
+                "subscript(row: Int, col: Int) -> String { get {} }"
+            )
+        )
         #expect(sut.fullName == "subscriptRowIntColIntReturningString")
     }
 

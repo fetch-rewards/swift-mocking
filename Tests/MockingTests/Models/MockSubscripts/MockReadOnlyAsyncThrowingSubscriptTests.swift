@@ -60,12 +60,13 @@ struct MockReadOnlyAsyncThrowingSubscriptTests {
     @Test
     func makeSubscriptNonSendable() async throws {
         let box = NonSendableBox()
-        let (sut, get, reset) = MockReadOnlyAsyncThrowingSubscript<String, NonSendableBox>.makeSubscript(
-            exposedSubscriptDescription: MockImplementationDescription(
-                type: Self.self,
-                member: "sut"
+        let (sut, get, reset) = MockReadOnlyAsyncThrowingSubscript<String, NonSendableBox>
+            .makeSubscript(
+                exposedSubscriptDescription: MockImplementationDescription(
+                    type: Self.self,
+                    member: "sut"
+                )
             )
-        )
 
         sut.getter.implementation = .uncheckedInvokes { _ in box }
         _ = try await get("a")
