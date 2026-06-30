@@ -14,6 +14,7 @@ extension MockedSubscriptType {
         // MARK: Cases
 
         /// An `async` specifier.
-        case async
+        // swiftformat:disable:next redundantBackticks
+        case `async`
     }
 }

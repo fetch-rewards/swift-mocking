@@ -14,6 +14,7 @@ extension MockedPropertyType {
         // MARK: Cases
 
         /// A `throws` specifier.
+        // swiftformat:disable:next redundantBackticks
         case `throws`
 
         // MARK: Initializers
