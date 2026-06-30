@@ -150,5 +150,4 @@ struct MockedPropertyTypeTests {
     func getterThrowsSpecifierAbsent() {
         #expect(SUT.readOnly.getterThrowsSpecifier == nil)
     }
-
 }
