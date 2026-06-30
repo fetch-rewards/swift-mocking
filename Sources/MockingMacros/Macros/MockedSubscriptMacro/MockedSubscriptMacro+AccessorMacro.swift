@@ -26,10 +26,20 @@ extension MockedSubscriptMacro: AccessorMacro {
         let subscriptName = macroArguments.mockSubscriptName
         let keyArgument = self.keyArgumentExpression(from: subscriptDeclaration)
 
+        let genericParameters = subscriptDeclaration.genericParameterClause?.parameters
+        let genericWhereClause = subscriptDeclaration.genericWhereClause
+        let returnType = subscriptDeclaration.returnClause.type.trimmed
+        let didTypeEraseReturnType = MockedMethodMacro.type(
+            returnType,
+            typeErasedIfNecessaryUsing: genericParameters,
+            typeConstrainedBy: genericWhereClause
+        ).didTypeErase
+
         var accessors: [AccessorDeclSyntax] = [
             self.getAccessor(
                 subscriptName: subscriptName,
                 keyArgument: keyArgument,
+                returnType: didTypeEraseReturnType ? returnType : nil,
                 subscriptType: macroArguments.subscriptType
             ),
         ]
@@ -49,16 +59,21 @@ extension MockedSubscriptMacro: AccessorMacro {
     // MARK: Get Accessor
 
     /// Returns a `get` accessor for a subscript with the provided
-    /// `subscriptName`, `keyArgument`, and `subscriptType`.
+    /// `subscriptName`, `keyArgument`, `returnType`, and `subscriptType`.
     ///
     /// - Parameters:
     ///   - subscriptName: The disambiguated name of the mock subscript backing.
     ///   - keyArgument: The key argument expression to pass to `get(_:)`.
+    ///   - returnType: The original return type of the subscript, or `nil` if
+    ///     the return type does not involve generic type parameters. When
+    ///     non-nil, a guard cast statement is generated to safely cast the
+    ///     type-erased return value to the concrete return type.
     ///   - subscriptType: The type of subscript being mocked.
     /// - Returns: A `get` accessor.
     private static func getAccessor(
         subscriptName: String,
         keyArgument: ExprSyntax,
+        returnType: TypeSyntax?,
         subscriptType: MockedSubscriptType
     ) -> AccessorDeclSyntax {
         var asyncSpecifier: TokenSyntax?
@@ -112,11 +127,118 @@ extension MockedSubscriptMacro: AccessorMacro {
             nil
         }
 
-        return AccessorDeclSyntax(
-            accessorSpecifier: .keyword(.get),
-            effectSpecifiers: effectSpecifiers
+        if let returnType {
+            return AccessorDeclSyntax(
+                accessorSpecifier: .keyword(.get),
+                effectSpecifiers: effectSpecifiers
+            ) {
+                VariableDeclSyntax(
+                    .let,
+                    name: PatternSyntax(
+                        IdentifierPatternSyntax(identifier: "returnValue")
+                    ),
+                    initializer: InitializerClauseSyntax(value: getterInvocationExpression)
+                )
+                self.genericReturnValueGuardStatement(
+                    subscriptName: subscriptName,
+                    returnType: returnType
+                )
+                ReturnStmtSyntax(
+                    expression: DeclReferenceExprSyntax(baseName: "returnValue")
+                )
+            }
+        } else {
+            return AccessorDeclSyntax(
+                accessorSpecifier: .keyword(.get),
+                effectSpecifiers: effectSpecifiers
+            ) {
+                getterInvocationExpression
+            }
+        }
+    }
+
+    // MARK: Generic Return Value Guard Statement
+
+    /// Returns a guard statement for safely casting a type-erased subscript
+    /// return value to its generic type.
+    ///
+    /// - Parameters:
+    ///   - subscriptName: The disambiguated name of the mock subscript backing.
+    ///   - returnType: The subscript's return type.
+    /// - Returns: A guard statement for safely casting a type-erased return
+    ///   value to its generic type.
+    private static func genericReturnValueGuardStatement(
+        subscriptName: String,
+        returnType: TypeSyntax
+    ) -> GuardStmtSyntax {
+        GuardStmtSyntax(
+            guardKeyword: .keyword(
+                .guard,
+                trailingTrivia: .newline.appending(.tab)
+            ),
+            conditions: ConditionElementListSyntax {
+                ConditionElementSyntax(
+                    condition: .optionalBinding(
+                        OptionalBindingConditionSyntax(
+                            bindingSpecifier: .keyword(.let),
+                            pattern: IdentifierPatternSyntax(
+                                identifier: "returnValue"
+                            ),
+                            initializer: InitializerClauseSyntax(
+                                value: AsExprSyntax(
+                                    expression: DeclReferenceExprSyntax(
+                                        baseName: "returnValue"
+                                    ),
+                                    questionOrExclamationMark: .postfixQuestionMarkToken(),
+                                    type: returnType
+                                )
+                            )
+                        )
+                    )
+                )
+            },
+            elseKeyword: .keyword(.else, leadingTrivia: .newline)
         ) {
-            getterInvocationExpression
+            FunctionCallExprSyntax(
+                calledExpression: DeclReferenceExprSyntax(baseName: "fatalError"),
+                leftParen: .leftParenToken(),
+                rightParen: .rightParenToken()
+            ) {
+                LabeledExprSyntax(
+                    expression: StringLiteralExprSyntax(
+                        openingQuote: .multilineStringQuoteToken(
+                            leadingTrivia: .newline.appending(.tab)
+                        ),
+                        segments: StringLiteralSegmentListSyntax {
+                            StringSegmentSyntax(
+                                leadingTrivia: .newline.appending(.tab),
+                                content: .stringSegment(
+                                    "Unable to cast value returned by \\"
+                                )
+                            )
+
+                            StringSegmentSyntax(
+                                leadingTrivia: .newline.appending(.tab),
+                                content: .stringSegment("self._\(subscriptName) \\")
+                            )
+
+                            StringSegmentSyntax(
+                                leadingTrivia: .newline.appending(.tab),
+                                content: .stringSegment("to expected return type \\")
+                            )
+
+                            StringSegmentSyntax(
+                                leadingTrivia: .newline.appending(.tab),
+                                content: .stringSegment("\(returnType).")
+                            )
+                        },
+                        closingQuote: .multilineStringQuoteToken(
+                            leadingTrivia: .newline.appending(.tab),
+                            trailingTrivia: .newline
+                        )
+                    )
+                )
+            }
         }
     }
 
