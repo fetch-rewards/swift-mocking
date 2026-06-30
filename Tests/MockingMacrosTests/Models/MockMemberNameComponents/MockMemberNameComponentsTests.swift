@@ -89,6 +89,25 @@ struct MockMemberNameComponentsTests {
         #expect(sut.fullName == "foo")
     }
 
+    @Test
+    func methodGenericParameterConstraint() {
+        let sut = SUT(methodDeclaration: funcDecl("func foo<T: Foo>(bar: T) -> T {}"))
+        #expect(sut.fullName == "fooBarTReturningTWhereTFoo")
+    }
+
+    @Test
+    func methodGenericWhereClauseConstraint() {
+        let sut = SUT(methodDeclaration: funcDecl("func foo<T>(bar: T) -> T where T: Bar {}"))
+        #expect(sut.fullName == "fooBarTReturningTWhereTBar")
+    }
+
+    @Test
+    func methodGenericConstraintsDisambiguateOtherwiseIdenticalMethods() {
+        let foo = SUT(methodDeclaration: funcDecl("func foo<T: Foo>(bar: T) -> T {}"))
+        let bar = SUT(methodDeclaration: funcDecl("func foo<T: Bar>(bar: T) -> T {}"))
+        #expect(foo.fullName != bar.fullName)
+    }
+
     // MARK: Subscript – Full Name Tests
 
     @Test
@@ -109,6 +128,41 @@ struct MockMemberNameComponentsTests {
             )
         )
         #expect(sut.fullName == "subscriptRowIntColIntReturningString")
+    }
+
+    @Test
+    func subscriptGenericParameterConstraint() {
+        let sut = SUT(
+            subscriptDeclaration: subscriptDecl(
+                "subscript<T: Foo>(key: T) -> T { get {} }"
+            )
+        )
+        #expect(sut.fullName == "subscriptKeyTReturningTWhereTFoo")
+    }
+
+    @Test
+    func subscriptGenericWhereClauseConstraint() {
+        let sut = SUT(
+            subscriptDeclaration: subscriptDecl(
+                "subscript<T>(key: T) -> T where T: Bar { get {} }"
+            )
+        )
+        #expect(sut.fullName == "subscriptKeyTReturningTWhereTBar")
+    }
+
+    @Test
+    func subscriptGenericConstraintsDisambiguateOtherwiseIdenticalSubscripts() {
+        let foo = SUT(
+            subscriptDeclaration: subscriptDecl(
+                "subscript<T: Foo>(key: T) -> T { get {} }"
+            )
+        )
+        let bar = SUT(
+            subscriptDeclaration: subscriptDecl(
+                "subscript<T: Bar>(key: T) -> T { get {} }"
+            )
+        )
+        #expect(foo.fullName != bar.fullName)
     }
 
     // MARK: name(to:) Tests
