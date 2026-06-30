@@ -23,6 +23,7 @@ Swift Mocking is a collection of Swift macros used to generate mock dependencies
   - [`@MockedMembers`](#mockedmembers)
     - [Static Members](#static-members)
   - [`@MockableProperty`](#mockableproperty)
+  - [`@MockableSubscript`](#mockablesubscript)
   - [`@MockableMethod`](#mockablemethod)
   - [`@Mockable` vs. `@_Mocked`](#mockable-vs-_mocked)
 - [Contributing](#contributing)
@@ -40,6 +41,9 @@ Swift Mocking is Swift 6 compatible, fully concurrency-safe, and generates condi
 - Instance members 
 - Read-only properties, including those with getters marked with `async`, `throws`, `mutating`, etc.
 - Read-write properties
+- Read-only subscripts, including those with getters marked with `async` or `throws`
+- Read-write subscripts
+- Generic subscripts
 - Mutating methods
 - Async methods
 - Throwing methods
@@ -111,6 +115,8 @@ Attach the `@Mocked` macro to your protocol:
 protocol Dependency {
     var property: Int { get set }
 
+    subscript(key: String) -> String? { get set }
+
     func method(x: Int, y: Int) async throws -> Int
 }
 ```
@@ -134,6 +140,9 @@ the mock's API:
 final class DependencyMock: Dependency {
     var property: Int
     var _property: MockReadWriteProperty<Int>
+
+    subscript(key: String) -> String?
+    var _subscriptKey: MockReadWriteSubscript<String, String?>
 
     func method(x: Int, y: Int) async throws -> Int
     var _method: MockReturningParameterizedAsyncThrowingMethod<...>
@@ -164,6 +173,30 @@ mock._property.getter.implementation = .uncheckedReturns(5)
 
 mock._property.setter.implementation = .invokes { _ in }
 mock._property.setter.implementation = .uncheckedInvokes { _ in }
+```
+
+And the backing property for `subscript(key:)` from the above mock would have the following structure and
+implementation constructors:
+```swift
+// Invocation Records
+mock._subscriptKey.getter.callCount // Int
+mock._subscriptKey.getter.invocations // [String]
+mock._subscriptKey.getter.lastInvocation // String?
+mock._subscriptKey.getter.returnedValues // [String?]
+mock._subscriptKey.getter.lastReturnedValue // String??
+
+mock._subscriptKey.setter.callCount // Int
+mock._subscriptKey.setter.invocations // [(String, String?)]
+mock._subscriptKey.setter.lastInvocation // (String, String?)?
+
+// Implementation Constructors
+mock._subscriptKey.getter.implementation = .invokes { _ in "value" }
+mock._subscriptKey.getter.implementation = .uncheckedInvokes { _ in "value" }
+mock._subscriptKey.getter.implementation = .returns("value")
+mock._subscriptKey.getter.implementation = .uncheckedReturns("value")
+
+mock._subscriptKey.setter.implementation = .invokes { _, _ in }
+mock._subscriptKey.setter.implementation = .uncheckedInvokes { _, _ in }
 ```
 
 And the backing property for `method` from the above mock would have the following structure and implementation
@@ -207,9 +240,9 @@ mock._method.implementation = .uncheckedReturns(5)
 
 ## Macros
 
-Swift Mocking contains several Swift macros: `@Mocked`, `@MockedMembers`, `@MockableProperty`, and `@MockableMethod`. 
+Swift Mocking contains several Swift macros: `@Mocked`, `@MockedMembers`, `@MockableProperty`, `@MockableSubscript`, and `@MockableMethod`.
 
-It also contains two internal, underscored macros (`@_MockedProperty` and `@_MockedMethod`) which are not meant to be used directly.
+It also contains three internal, underscored macros (`@_MockedProperty`, `@_MockedSubscript`, and `@_MockedMethod`) which are not meant to be used directly.
 
 ### `@Mocked`
 
@@ -367,8 +400,8 @@ final class DependencyMock<Key: Hashable, Value: Equatable>: Dependency {}
 
 #### Members
 
-In addition to the `@MockedMembers` macro that gets applied to the mock declaration, `@Mocked` also 
-utilizes the `@MockableProperty` and `@MockableMethod` macros when defining the mock's members:
+In addition to the `@MockedMembers` macro that gets applied to the mock declaration, `@Mocked` also
+utilizes the `@MockableProperty`, `@MockableSubscript`, and `@MockableMethod` macros when defining the mock's members:
 ```swift
 @Mocked(compilationCondition: .debug)
 protocol Dependency {
@@ -377,6 +410,9 @@ protocol Dependency {
     var readOnlyThrowingProperty: Int { get throws }
     var readOnlyAsyncThrowingProperty: Int { get async throws }
     var readWriteProperty: Int { get set }
+    subscript(key: String) -> String? { get }
+    subscript(key: String) -> String? { get async throws }
+    subscript(key: String) -> String? { get set }
 }
 
 // Generates:
@@ -398,12 +434,21 @@ final class DependencyMock: Dependency {
 
     @MockableProperty(.readWrite)
     var readWriteProperty: Int
+
+    @MockableSubscript(.readOnly)
+    subscript(key: String) -> String?
+
+    @MockableSubscript(.readOnly(.async, .throws))
+    subscript(key: String) -> String?
+
+    @MockableSubscript(.readWrite)
+    subscript(key: String) -> String?
 }
 #endif
 ```
 Because `@MockedMembers` cannot look outward at the protocol declaration to determine whether, for example,
-a property is read-only or read-write, `@Mocked` uses `@MockableProperty` and `@MockableMethod` to provide
-information about each member to `@MockedMembers`. `@MockedMembers` then applies the `@_MockedProperty` and 
+a property is read-only or read-write, `@Mocked` uses `@MockableProperty`, `@MockableSubscript`, and `@MockableMethod` to provide
+information about each member to `@MockedMembers`. `@MockedMembers` then applies the `@_MockedProperty`, `@_MockedSubscript`, and
 `@_MockedMethod` macros to those members, which then generate the mock's backing properties.
 
 > [!NOTE]
@@ -422,6 +467,8 @@ backing properties, you can still easily create and maintain these mocks with mi
 protocol Dependency: SomeProtocol {
     var propertyFromDependency: Int { get }
 
+    subscript(key: String) -> String? { get }
+
     func methodFromDependency()
 }
 
@@ -433,6 +480,9 @@ final class DependencyMock: Dependency {
 
     @MockableProperty(.readWrite)
     var propertyFromSomeProtocol: Int
+
+    @MockableSubscript(.readOnly)
+    subscript(key: String) -> String?
 
     func methodFromDependency()
 
@@ -505,9 +555,62 @@ final class DependencyMock: Dependency {
 #endif
 ```
 
+### `@MockableSubscript`
+
+Like `@MockableProperty`, `@MockableSubscript` is required when using `@MockedMembers` directly.
+`@MockedMembers` cannot infer from a bare subscript declaration whether it is read-only or read-write;
+`@MockableSubscript` supplies that information:
+```swift
+protocol Dependency {
+    subscript(key: String) -> String? { get }
+    subscript(key: String) -> String? { get async }
+    subscript(key: String) -> String? { get throws }
+    subscript(key: String) -> String? { get async throws }
+    subscript(key: String) -> String? { get set }
+}
+
+#if DEBUG
+@MockedMembers
+final class DependencyMock: Dependency {
+    @MockableSubscript(.readOnly)
+    subscript(key: String) -> String?
+
+    @MockableSubscript(.readOnly(.async))
+    subscript(key: String) -> String?
+
+    @MockableSubscript(.readOnly(.throws))
+    subscript(key: String) -> String?
+
+    @MockableSubscript(.readOnly(.async, .throws))
+    subscript(key: String) -> String?
+
+    @MockableSubscript(.readWrite)
+    subscript(key: String) -> String?
+}
+#endif
+```
+
+While `@Mocked` and `@MockedMembers` do an excellent job of dealing with name conflicts caused by subscript
+overloads, there's always a possibility that a name conflict may arise between two backing properties. In this
+case, you can provide an explicit name for the subscript's backing property using `@MockableSubscript`:
+```swift
+@MockedMembers
+final class DependencyMock: Dependency {
+    @MockableSubscript(.readWrite, mockSubscriptName: "someUniqueName")
+    subscript(key: String) -> String?
+}
+```
+
+In other cases, you may simply dislike the name that `@Mocked` or `@MockedMembers` generates for a
+subscript's backing property and wish to give the backing property a different name.
+
+If you believe that `@Mocked` or `@MockedMembers` should have been able to resolve a name conflict,
+or if you think the name conflict resolution logic can be improved in any way, please let us know by
+[opening an issue](https://github.com/fetch-rewards/swift-mocking/issues/new).
+
 ### `@MockableMethod`
 
-Unlike `@MockableProperty`, `@MockableMethod` is not required when using `@MockedMembers` directly. 
+Unlike `@MockableProperty` and `@MockableSubscript`, `@MockableMethod` is not required when using `@MockedMembers` directly. 
 `@MockedMembers` can and will generate backing properties for method conformances within your mock 
 whether they are explicitly marked with `@MockableMethod` or not.
 
@@ -532,13 +635,15 @@ or if you think the name conflict resolution logic can be improved in any way, p
 
 ### `@Mockable` vs. `@_Mocked`
 
-`@MockableProperty` and `@MockableMethod` do not produce expansions. They are simply markers that expose information
-to `@MockedMembers`. `@MockableProperty` exposes `propertyType` (`.readOnly`, `.readWrite`, etc.) and `@MockableMethod`
-exposes `mockMethodName`. `@MockedMembers` then forwards this information to `@_MockedProperty` and `@_MockedMethod` along 
-with other parameters that `@MockedMembers` provides for us. `@_MockedProperty` and `@_MockedMethod` then generate the mock's 
-backing properties. `@MockableProperty` and `@MockableMethod` exist so that the consumer has to provide as little information 
-as possible when manually applying `@MockedMembers`. The usage of the prefix `Mockable` is a deliberate choice to semantically 
-distinguish the macros that serve as markers from those that actually produce mocks.
+`@MockableProperty`, `@MockableSubscript`, and `@MockableMethod` do not produce expansions. They are simply markers
+that expose information to `@MockedMembers`. `@MockableProperty` exposes `propertyType` (`.readOnly`, `.readWrite`, etc.),
+`@MockableSubscript` exposes `subscriptType`, and `@MockableMethod` exposes `mockMethodName`. `@MockedMembers` then
+forwards this information to `@_MockedProperty`, `@_MockedSubscript`, and `@_MockedMethod` along with other parameters
+that `@MockedMembers` provides for us. `@_MockedProperty`, `@_MockedSubscript`, and `@_MockedMethod` then generate the
+mock's backing properties. `@MockableProperty`, `@MockableSubscript`, and `@MockableMethod` exist so that the consumer
+has to provide as little information as possible when manually applying `@MockedMembers`. The usage of the prefix
+`Mockable` is a deliberate choice to semantically distinguish the macros that serve as markers from those that actually
+produce mocks.
 
 ## Contributing
 
