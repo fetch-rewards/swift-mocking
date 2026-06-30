@@ -43,17 +43,17 @@ public final class MockSubscriptThrowingGetter<Arguments, Value> {
         }
     }
 
-    /// All the values that have been returned by the getter.
-    public var returnedValues: [Result<Value, any Error>] {
-        self._state.withLockUnchecked { state in
-            state.returnedValues
-        }
-    }
-
     /// The last arguments with which the getter was invoked.
     public var lastInvocation: Arguments? {
         self._state.withLockUnchecked { state in
             state.invocations.last
+        }
+    }
+
+    /// All the values that have been returned by the getter.
+    public var returnedValues: [Result<Value, any Error>] {
+        self._state.withLockUnchecked { state in
+            state.returnedValues
         }
     }
 
