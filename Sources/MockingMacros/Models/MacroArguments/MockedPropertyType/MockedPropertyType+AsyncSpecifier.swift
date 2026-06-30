@@ -9,7 +9,7 @@ import SwiftSyntax
 extension MockedPropertyType {
 
     /// The `async` specifier to apply to a mocked property's accessor.
-    enum AsyncSpecifier: String, CaseIterable {
+    enum AsyncSpecifier {
 
         // MARK: Cases
 
@@ -29,18 +29,12 @@ extension MockedPropertyType {
                 let memberAccessExpression = argument.expression.as(
                     MemberAccessExprSyntax.self
                 ),
-                let asyncSpecifier = Self.allCases.first(where: { asyncSpecifier in
-                    let declName = memberAccessExpression.declName
-
-                    return declName.baseName.tokenKind == .identifier(
-                        asyncSpecifier.rawValue
-                    )
-                })
+                memberAccessExpression.declName.baseName.tokenKind == .identifier("async")
             else {
                 throw ParsingError.unableToParseAsyncEffectSpecifier
             }
 
-            self = asyncSpecifier
+            self = .async
         }
     }
 }
