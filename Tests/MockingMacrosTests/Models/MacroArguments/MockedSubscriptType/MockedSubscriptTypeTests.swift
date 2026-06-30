@@ -150,5 +150,4 @@ struct MockedSubscriptTypeTests {
     func getterThrowsSpecifierAbsent() {
         #expect(SUT.readOnly.getterThrowsSpecifier == nil)
     }
-
 }
