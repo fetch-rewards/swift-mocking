@@ -1,14 +1,14 @@
 //
-//  MockedPropertyType+ThrowsSpecifier.swift
+//  MockedSubscriptType+ThrowsSpecifier.swift
 //
 //  Copyright © 2026 Fetch.
 //
 
 import Foundation
 
-extension MockedPropertyType {
+extension MockedSubscriptType {
 
-    /// The `throws` specifier to apply to a mocked property's accessor.
+    /// The `throws` specifier to apply to a mocked subscript's accessor.
     public enum ThrowsSpecifier {
 
         // MARK: Cases

@@ -1,14 +1,14 @@
 //
-//  MockedPropertyType+ThrowsSpecifier.swift
+//  MockedSubscriptType+ThrowsSpecifier.swift
 //
 //  Copyright © 2026 Fetch.
 //
 
 import SwiftSyntax
 
-extension MockedPropertyType {
+extension MockedSubscriptType {
 
-    /// The `throws` specifier to apply to a mocked property's accessor.
+    /// The `throws` specifier to apply to a mocked subscript's accessor.
     enum ThrowsSpecifier {
 
         // MARK: Cases
@@ -32,7 +32,7 @@ extension MockedPropertyType {
                 ),
                 memberAccessExpression.declName.baseName.tokenKind == .identifier("throws")
             else {
-                throw ParsingError.unableToParseThrowsEffectSpecifier
+                throw ParsingError.unableToParseSubscriptType
             }
 
             self = .throws
