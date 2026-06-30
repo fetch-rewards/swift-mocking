@@ -32,7 +32,7 @@ extension MockedSubscriptType {
                 ),
                 memberAccessExpression.declName.baseName.tokenKind == .identifier("async")
             else {
-                throw ParsingError.unableToParseSubscriptType
+                throw ParsingError.unableToParseAsyncEffectSpecifier
             }
 
             self = .async

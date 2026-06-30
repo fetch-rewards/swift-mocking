@@ -17,6 +17,14 @@ extension MockedSubscriptType {
         /// a valid instance from the provided macro argument.
         case unableToParseSubscriptType
 
+        /// An error indicating that ``MockedSubscriptType`` was unable to parse
+        /// a valid async effect specifier.
+        case unableToParseAsyncEffectSpecifier
+
+        /// An error indicating that ``MockedSubscriptType`` was unable to parse
+        /// a valid throws effect specifier.
+        case unableToParseThrowsEffectSpecifier
+
         // MARK: Properties
 
         /// The description of the error.
@@ -24,6 +32,10 @@ extension MockedSubscriptType {
             switch self {
             case .unableToParseSubscriptType:
                 "Unable to parse subscript type."
+            case .unableToParseAsyncEffectSpecifier:
+                "Unable to parse async effect specifier."
+            case .unableToParseThrowsEffectSpecifier:
+                "Unable to parse throws effect specifier."
             }
         }
     }

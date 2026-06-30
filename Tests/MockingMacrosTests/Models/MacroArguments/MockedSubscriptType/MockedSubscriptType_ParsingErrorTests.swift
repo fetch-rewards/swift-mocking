@@ -20,6 +20,10 @@ struct MockedSubscriptType_ParsingErrorTests {
         let expectedDescription = switch sut {
         case .unableToParseSubscriptType:
             "Unable to parse subscript type."
+        case .unableToParseAsyncEffectSpecifier:
+            "Unable to parse async effect specifier."
+        case .unableToParseThrowsEffectSpecifier:
+            "Unable to parse throws effect specifier."
         }
 
         #expect(sut.description == expectedDescription)
