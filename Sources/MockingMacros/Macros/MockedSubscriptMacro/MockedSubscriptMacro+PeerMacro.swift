@@ -259,8 +259,11 @@ extension MockedSubscriptMacro: PeerMacro {
 
         typeName += "Subscript"
 
+        let genericParameters = subscriptDeclaration.genericParameterClause?.parameters
+        let genericWhereClause = subscriptDeclaration.genericWhereClause
+
         let parameters = subscriptDeclaration.parameterClause.parameters
-        let keyType: TypeSyntax = if
+        let rawKeyType: TypeSyntax = if
             parameters.count == 1,
             let firstParameter = parameters.first
         {
@@ -282,7 +285,19 @@ extension MockedSubscriptMacro: PeerMacro {
             )
         }
 
-        let valueType = subscriptDeclaration.returnClause.type.trimmed
+        let keyType = MockedMethodMacro.type(
+            rawKeyType,
+            typeErasedIfNecessaryUsing: genericParameters,
+            typeConstrainedBy: genericWhereClause
+        ).newType
+
+        let rawValueType = subscriptDeclaration.returnClause.type.trimmed
+
+        let valueType = MockedMethodMacro.type(
+            rawValueType,
+            typeErasedIfNecessaryUsing: genericParameters,
+            typeConstrainedBy: genericWhereClause
+        ).newType
 
         let genericArgumentClause = GenericArgumentClauseSyntax {
             GenericArgumentSyntax(
