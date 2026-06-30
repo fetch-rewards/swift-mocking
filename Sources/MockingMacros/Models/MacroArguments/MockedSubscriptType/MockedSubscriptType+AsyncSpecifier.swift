@@ -1,15 +1,15 @@
 //
-//  MockedPropertyType+AsyncSpecifier.swift
+//  MockedSubscriptType+AsyncSpecifier.swift
 //
 //  Copyright © 2026 Fetch.
 //
 
 import SwiftSyntax
 
-extension MockedPropertyType {
+extension MockedSubscriptType {
 
-    /// The `async` specifier to apply to a mocked property's accessor.
-    enum AsyncSpecifier: String, CaseIterable {
+    /// The `async` specifier to apply to a mocked subscript's accessor.
+    enum AsyncSpecifier {
 
         // MARK: Cases
 
@@ -30,18 +30,12 @@ extension MockedPropertyType {
                 let memberAccessExpression = argument.expression.as(
                     MemberAccessExprSyntax.self
                 ),
-                let asyncSpecifier = Self.allCases.first(where: { asyncSpecifier in
-                    let declName = memberAccessExpression.declName
-
-                    return declName.baseName.tokenKind == .identifier(
-                        asyncSpecifier.rawValue
-                    )
-                })
+                memberAccessExpression.declName.baseName.tokenKind == .identifier("async")
             else {
-                throw ParsingError.unableToParseAsyncEffectSpecifier
+                throw ParsingError.unableToParseSubscriptType
             }
 
-            self = asyncSpecifier
+            self = .async
         }
     }
 }

@@ -1,15 +1,15 @@
 //
-//  MockedPropertyType+ThrowsSpecifier.swift
+//  MockedSubscriptType+ThrowsSpecifier.swift
 //
 //  Copyright © 2026 Fetch.
 //
 
 import SwiftSyntax
 
-extension MockedPropertyType {
+extension MockedSubscriptType {
 
-    /// The `throws` specifier to apply to a mocked property's accessor.
-    enum ThrowsSpecifier: String, CaseIterable {
+    /// The `throws` specifier to apply to a mocked subscript's accessor.
+    enum ThrowsSpecifier {
 
         // MARK: Cases
 
@@ -30,18 +30,12 @@ extension MockedPropertyType {
                 let memberAccessExpression = argument.expression.as(
                     MemberAccessExprSyntax.self
                 ),
-                let throwsSpecifier = Self.allCases.first(where: { throwsSpecifier in
-                    let declName = memberAccessExpression.declName
-
-                    return declName.baseName.tokenKind == .identifier(
-                        throwsSpecifier.rawValue
-                    )
-                })
+                memberAccessExpression.declName.baseName.tokenKind == .identifier("throws")
             else {
-                throw ParsingError.unableToParseAsyncEffectSpecifier
+                throw ParsingError.unableToParseSubscriptType
             }
 
-            self = throwsSpecifier
+            self = .throws
         }
     }
 }

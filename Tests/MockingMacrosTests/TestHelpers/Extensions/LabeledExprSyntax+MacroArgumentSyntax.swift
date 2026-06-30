@@ -32,4 +32,32 @@ extension LabeledExprSyntax {
             )
         )
     }
+
+    /// Returns the argument syntax for a factory call with the provided label,
+    /// factory name, and inner arguments.
+    ///
+    /// ```swift
+    /// argument(label: "subscriptType", name: "readOnly", arguments: [...])
+    /// // Represents
+    /// subscriptType: .readOnly(...)
+    /// ```
+    static func macroArgumentSyntax(
+        label: String,
+        name: String,
+        arguments: [LabeledExprSyntax]
+    ) -> LabeledExprSyntax {
+        LabeledExprSyntax(
+            label: .identifier(label),
+            colon: .colonToken(),
+            expression: FunctionCallExprSyntax(
+                calledExpression: MemberAccessExprSyntax(
+                    period: .periodToken(),
+                    declName: DeclReferenceExprSyntax(baseName: .identifier(name))
+                ),
+                leftParen: .leftParenToken(),
+                arguments: LabeledExprListSyntax(arguments),
+                rightParen: .rightParenToken()
+            )
+        )
+    }
 }

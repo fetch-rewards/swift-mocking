@@ -1,15 +1,15 @@
 //
-//  MockedPropertyType+AsyncSpecifier.swift
+//  MockedSubscriptType+AsyncSpecifier.swift
 //
 //  Copyright © 2026 Fetch.
 //
 
 import Foundation
 
-extension MockedPropertyType {
+extension MockedSubscriptType {
 
-    /// The `async` specifier to apply to a mocked property's accessor.
-    public enum AsyncSpecifier: String, CaseIterable {
+    /// The `async` specifier to apply to a mocked subscript's accessor.
+    public enum AsyncSpecifier {
 
         // MARK: Cases
 
