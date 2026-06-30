@@ -43,6 +43,7 @@ Swift Mocking is Swift 6 compatible, fully concurrency-safe, and generates condi
 - Read-write properties
 - Read-only subscripts, including those with getters marked with `async` or `throws`
 - Read-write subscripts
+- Generic subscripts
 - Mutating methods
 - Async methods
 - Throwing methods
