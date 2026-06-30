@@ -21,6 +21,10 @@ extension MockedMembersMacro {
         /// determine a property's property type.
         case unableToDeterminePropertyType
 
+        /// An error indicating that the `@MockedMembers` macro was unable to
+        /// determine a subscript's subscript type.
+        case unableToDetermineSubscriptType
+
         // MARK: Properties
 
         /// The description of the error.
@@ -30,6 +34,8 @@ extension MockedMembersMacro {
                 "@MockedMembers can only be applied to classes and actors."
             case .unableToDeterminePropertyType:
                 "@MockedMembers was unable to determine a property's property type."
+            case .unableToDetermineSubscriptType:
+                "@MockedMembers was unable to determine a subscript's subscript type."
             }
         }
     }
