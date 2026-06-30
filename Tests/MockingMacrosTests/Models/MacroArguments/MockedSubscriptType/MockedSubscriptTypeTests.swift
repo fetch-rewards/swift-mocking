@@ -88,6 +88,35 @@ struct MockedSubscriptTypeTests {
         #expect(sut == .readOnly(.async, .throws))
     }
 
+    @Test
+    func initThrowsForUnknownName() {
+        #expect(throws: SUT.ParsingError.unableToParseSubscriptType) {
+            try SUT(
+                argument: .macroArgumentSyntax(
+                    label: "subscriptType",
+                    base: nil,
+                    name: "invalid"
+                )
+            )
+        }
+    }
+
+    @Test
+    func initThrowsForNonMemberAccessExpression() {
+        #expect(throws: SUT.ParsingError.unableToParseSubscriptType) {
+            try SUT(
+                argument: LabeledExprSyntax(
+                    label: .identifier("subscriptType"),
+                    colon: .colonToken(),
+                    expression: MemberAccessExprSyntax(
+                        period: .periodToken(),
+                        declName: DeclReferenceExprSyntax(baseName: .commaToken())
+                    )
+                )
+            )
+        }
+    }
+
     // MARK: Getter Async Specifier Tests
 
     @Test
@@ -122,34 +151,4 @@ struct MockedSubscriptTypeTests {
         #expect(SUT.readOnly.getterThrowsSpecifier == nil)
     }
 
-    // MARK: Parsing Error Tests
-
-    @Test
-    func initThrowsForUnknownName() {
-        #expect(throws: SUT.ParsingError.unableToParseSubscriptType) {
-            try SUT(
-                argument: .macroArgumentSyntax(
-                    label: "subscriptType",
-                    base: nil,
-                    name: "invalid"
-                )
-            )
-        }
-    }
-
-    @Test
-    func initThrowsForNonMemberAccessExpression() {
-        #expect(throws: SUT.ParsingError.unableToParseSubscriptType) {
-            try SUT(
-                argument: LabeledExprSyntax(
-                    label: .identifier("subscriptType"),
-                    colon: .colonToken(),
-                    expression: MemberAccessExprSyntax(
-                        period: .periodToken(),
-                        declName: DeclReferenceExprSyntax(baseName: .commaToken())
-                    )
-                )
-            )
-        }
-    }
 }
