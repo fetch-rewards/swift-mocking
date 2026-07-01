@@ -7,6 +7,8 @@ description: Analyze merged PRs since the last release, determine the next versi
 
 Runs `generate-release-info` to collect PR data and compute the next version, then creates the changelog branch, updates `CHANGELOG.md`, opens a documentation PR, and populates the draft GitHub release notes.
 
+The computed version is a default, not a mandate: if the user asks for a specific target version when invoking the skill (e.g. "bump to 1.0.0"), that overrides the computed value — see step 5.
+
 When done, report the PR URL and tell the user to invoke `/publish-release` once the PR is merged.
 
 ## 1. Sync with main
@@ -64,16 +66,23 @@ Scan the most recent script output for any entry whose title contains "changelog
 
 For each flagged entry, ask the user: "PR #NNN ('title') looks like a changelog update — exclude it?" Do not proceed until the user has confirmed or dismissed each one. Remove any confirmed changelog PRs from the output before using it in subsequent steps. If no entries are flagged, continue immediately to step 5.
 
-## 5. Resolve a pre-1.0 breaking change
+## 5. Determine the version to release
 
-Only applies when the script output includes `breaking_change_pre_1_0: true`. If it does not, skip this step and use `next_version` as-is.
+The script's computed `next_version` is the default, but it can be superseded. Resolve the final version in this priority order, then use it as `next_version` for every subsequent step. The changelog sections are identical regardless of the version chosen — only the version number changes.
 
-When present, the release contains a breaking change but the current version is pre-1.0 (`0.x.y`). By SemVer convention the default is a minor bump (the printed `next_version`, e.g. `0.4.0`), but the user may instead choose to graduate to the `major_version_option` (`1.0.0`) to signal a stable public API. Prompt the user to choose:
+**a. Explicit user override (highest priority).** If the user requested a specific target version when invoking the skill (e.g. "bump to 1.0.0", "release 0.5.0"), honor it — this overrides both the computed `next_version` and the pre-1.0 prompt below. Validate it first:
+
+- It must be a valid `X.Y.Z` version and strictly greater than `last_version`. If it is equal to or less than `last_version`, or not a valid version, tell the user and ask for a valid target instead of proceeding.
+- Graduating to `1.0.0` is valid even with no breaking change label — it is a deliberate stability commitment. Likewise a version that skips numbers (e.g. `0.3.0` → `0.5.0`) is allowed since it was explicitly requested; if the jump looks unintentional, confirm with the user before continuing.
+
+Once validated, use the requested version and skip the rest of this step.
+
+**b. Pre-1.0 breaking change.** Only when there was no explicit override and the script output includes `breaking_change_pre_1_0: true`: the release contains a breaking change but the current version is pre-1.0 (`0.x.y`). By SemVer convention the default is a minor bump (the printed `next_version`, e.g. `0.4.0`), but the user may instead choose to graduate to the `major_version_option` (`1.0.0`) to signal a stable public API. Prompt the user to choose:
 
 - **Minor bump (default):** use the printed `next_version` (e.g. `0.4.0`).
 - **Major bump:** use the `major_version_option` (`1.0.0`).
 
-Use the chosen version as `next_version` for every subsequent step. The changelog sections are identical either way — only the version number changes.
+**c. Default.** Otherwise, use the printed `next_version` as-is.
 
 ## 6. Create a branch from origin/main
 
