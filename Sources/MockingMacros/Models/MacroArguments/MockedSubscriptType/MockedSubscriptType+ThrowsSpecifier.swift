@@ -32,7 +32,7 @@ extension MockedSubscriptType {
                 ),
                 memberAccessExpression.declName.baseName.tokenKind == .identifier("throws")
             else {
-                throw ParsingError.unableToParseSubscriptType
+                throw ParsingError.unableToParseThrowsEffectSpecifier
             }
 
             self = .throws
