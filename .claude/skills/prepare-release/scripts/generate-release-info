@@ -17,6 +17,14 @@
 #   - PR title ([#NNN](https://github.com/fetch-rewards/swift-mocking/pull/NNN))
 #   ...
 #
+# Output (success, pre-1.0 breaking change): as above, but with two extra lines
+# after next_version signaling that the caller must prompt the user to choose
+# between the default minor bump (next_version) and graduating to 1.0.0:
+#   last_version: 0.X.X
+#   next_version: 0.(X+1).0            ← default: breaking change is a minor bump pre-1.0
+#   breaking_change_pre_1_0: true
+#   major_version_option: 1.0.0
+#
 # Output (unlabeled PRs):
 #   ### ⚠️ Needs Label
 #   - PR title ([#NNN](...))          ← always plain format, even if PR has breaking change label
@@ -119,6 +127,18 @@ fi
 
 # Compute next version
 IFS='.' read -r MAJOR MINOR PATCH <<< "$LAST_VERSION"
+
+# Pre-1.0 SemVer: while the major version is 0, the public API is considered
+# unstable and a breaking change is only a minor bump (0.x.0 → 0.(x+1).0), not a
+# major bump to 1.0.0. Graduating to 1.0.0 is a deliberate stability commitment,
+# so treat the minor bump as the default and signal the ambiguity to the caller,
+# which prompts the user to choose between it and 1.0.0.
+BREAKING_PRE_1_0=false
+if [ "$MAJOR" -eq 0 ] && [ $BUMP -eq 2 ]; then
+    BREAKING_PRE_1_0=true
+    BUMP=1
+fi
+
 case $BUMP in
     2) NEXT_VERSION="$((MAJOR + 1)).0.0" ;;
     1) NEXT_VERSION="${MAJOR}.$((MINOR + 1)).0" ;;
@@ -127,6 +147,10 @@ esac
 
 echo "last_version: ${LAST_VERSION}"
 echo "next_version: ${NEXT_VERSION}"
+if [ "$BREAKING_PRE_1_0" = "true" ]; then
+    echo "breaking_change_pre_1_0: true"
+    echo "major_version_option: 1.0.0"
+fi
 echo ""
 
 section_header() {
