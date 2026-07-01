@@ -60,44 +60,13 @@ struct MockMemberNameComponents {
             }
         }
 
-        var genericRequirementIndex: Int = .zero
-        var genericRequirementDescriptionPrefix = "Where"
-        let appendGenericRequirementDescription: (String) -> Void = { description in
-            components.append(
-                MockMethodNameComponent(
-                    id: .genericRequirement(genericRequirementIndex),
-                    value: genericRequirementDescriptionPrefix + description,
-                    insertionIndex: components.endIndex
-                )
+        components.append(
+            contentsOf: Self.genericRequirementComponents(
+                insertionStartIndex: components.endIndex,
+                genericParameterClause: methodDeclaration.genericParameterClause,
+                genericWhereClause: methodDeclaration.genericWhereClause
             )
-            genericRequirementIndex += 1
-            genericRequirementDescriptionPrefix = ""
-        }
-
-        if let genericParameterClause = methodDeclaration.genericParameterClause {
-            for genericParameter in genericParameterClause.parameters {
-                if genericParameter.inheritedType != nil {
-                    appendGenericRequirementDescription(
-                        Self.capitalizedDescription(of: genericParameter)
-                    )
-                }
-            }
-        }
-
-        if let genericWhereClause = methodDeclaration.genericWhereClause {
-            for genericRequirement in genericWhereClause.requirements {
-                let genericRequirementDescription = switch genericRequirement.requirement {
-                case let .conformanceRequirement(requirement):
-                    Self.capitalizedDescription(of: requirement)
-                case let .layoutRequirement(requirement):
-                    Self.capitalizedDescription(of: requirement)
-                case let .sameTypeRequirement(requirement):
-                    Self.capitalizedDescription(of: requirement)
-                }
-
-                appendGenericRequirementDescription(genericRequirementDescription)
-            }
-        }
+        )
 
         self.components = components
     }
@@ -107,11 +76,21 @@ struct MockMemberNameComponents {
     /// - Parameter subscriptDeclaration: The subscript declaration from which
     ///   to parse name components.
     init(subscriptDeclaration: SubscriptDeclSyntax) {
-        self.components = Self.baseComponents(
+        var components = Self.baseComponents(
             baseName: subscriptDeclaration.subscriptKeyword.trimmedDescription,
             parameters: subscriptDeclaration.parameterClause.parameters,
             returnClause: subscriptDeclaration.returnClause
         )
+
+        components.append(
+            contentsOf: Self.genericRequirementComponents(
+                insertionStartIndex: components.endIndex,
+                genericParameterClause: subscriptDeclaration.genericParameterClause,
+                genericWhereClause: subscriptDeclaration.genericWhereClause
+            )
+        )
+
+        self.components = components
     }
 
     // MARK: Name
@@ -216,6 +195,71 @@ extension MockMemberNameComponents {
                     insertionIndex: index + (index + 2)
                 )
             )
+        }
+
+        return components
+    }
+
+    // MARK: Generic Requirement Components
+
+    /// Returns the generic requirement name components shared between method and
+    /// subscript declarations: one component per constrained generic parameter
+    /// and per generic `where` clause requirement.
+    ///
+    /// These components disambiguate overloads that differ only by their generic
+    /// constraints (e.g. `subscript<T: Foo>(key: T) -> T` and
+    /// `subscript<T: Bar>(key: T) -> T`).
+    ///
+    /// - Parameters:
+    ///   - insertionStartIndex: The index at which the first generic requirement
+    ///     component should be inserted into the full name. Subsequent
+    ///     components are inserted at increasing indices.
+    ///   - genericParameterClause: The generic parameter clause from which to
+    ///     derive constrained generic parameter components.
+    ///   - genericWhereClause: The generic where clause from which to derive
+    ///     requirement components.
+    /// - Returns: The generic requirement name components.
+    private static func genericRequirementComponents(
+        insertionStartIndex: Int,
+        genericParameterClause: GenericParameterClauseSyntax?,
+        genericWhereClause: GenericWhereClauseSyntax?
+    ) -> [MockMethodNameComponent] {
+        var components: [MockMethodNameComponent] = []
+        var genericRequirementDescriptionPrefix = "Where"
+        let appendGenericRequirementDescription: (String) -> Void = { description in
+            components.append(
+                MockMethodNameComponent(
+                    id: .genericRequirement(components.endIndex),
+                    value: genericRequirementDescriptionPrefix + description,
+                    insertionIndex: insertionStartIndex + components.endIndex
+                )
+            )
+            genericRequirementDescriptionPrefix = ""
+        }
+
+        if let genericParameterClause {
+            for genericParameter in genericParameterClause.parameters {
+                if genericParameter.inheritedType != nil {
+                    appendGenericRequirementDescription(
+                        Self.capitalizedDescription(of: genericParameter)
+                    )
+                }
+            }
+        }
+
+        if let genericWhereClause {
+            for genericRequirement in genericWhereClause.requirements {
+                let genericRequirementDescription = switch genericRequirement.requirement {
+                case let .conformanceRequirement(requirement):
+                    Self.capitalizedDescription(of: requirement)
+                case let .layoutRequirement(requirement):
+                    Self.capitalizedDescription(of: requirement)
+                case let .sameTypeRequirement(requirement):
+                    Self.capitalizedDescription(of: requirement)
+                }
+
+                appendGenericRequirementDescription(genericRequirementDescription)
+            }
         }
 
         return components

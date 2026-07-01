@@ -13,6 +13,43 @@ struct MockedMembers_SubscriptOverloadsTests {
     // MARK: Subscript Overloads Tests
 
     @Test
+    func subscriptOverloadsWithDifferentGenericConstraints() {
+        assertMockedMembers(
+            """
+            final class Mock {
+                @MockableSubscript(.readOnly)
+                subscript<T: Foo>(key: T) -> T
+                @MockableSubscript(.readOnly)
+                subscript<T: Bar>(key: T) -> T
+            }
+            """,
+            generates: """
+            final class Mock {
+                @MockableSubscript(.readOnly)
+                @_MockedSubscript(
+                \t.readOnly,
+                \tmockName: "Mock",
+                \tisMockAnActor: false,
+                \tmockSubscriptName: "subscriptKeyTReturningTWhereTFoo"
+                )
+                subscript<T: Foo>(key: T) -> T
+                @MockableSubscript(.readOnly)
+                @_MockedSubscript(
+                \t.readOnly,
+                \tmockName: "Mock",
+                \tisMockAnActor: false,
+                \tmockSubscriptName: "subscriptKeyTReturningTWhereTBar"
+                )
+                subscript<T: Bar>(key: T) -> T
+
+                init() {
+                }
+            }
+            """
+        )
+    }
+
+    @Test
     func subscriptOverloadsWithDifferentParameterNames() {
         assertMockedMembers(
             """
