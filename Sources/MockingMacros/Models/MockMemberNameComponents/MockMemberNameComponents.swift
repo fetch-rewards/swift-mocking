@@ -1,5 +1,5 @@
 //
-//  MockMethodNameComponents.swift
+//  MockMemberNameComponents.swift
 //
 //  Copyright © 2026 Fetch.
 //
@@ -10,7 +10,7 @@
 import SwiftSyntax
 
 /// A mock method's name components.
-struct MockMethodNameComponents {
+struct MockMemberNameComponents {
 
     // MARK: Properties
 
@@ -31,12 +31,118 @@ struct MockMethodNameComponents {
     ///   parse name components.
     init(methodDeclaration: FunctionDeclSyntax) {
         let signature = methodDeclaration.signature
-        let parameters = signature.parameterClause.parameters
 
+        var components = Self.baseComponents(
+            baseName: methodDeclaration.name.trimmedDescription,
+            parameters: signature.parameterClause.parameters,
+            returnClause: signature.returnClause
+        )
+
+        if let effectSpecifiers = signature.effectSpecifiers {
+            if let asyncSpecifier = effectSpecifiers.asyncSpecifier {
+                components.append(
+                    MockMethodNameComponent(
+                        id: .asyncSpecifier,
+                        value: Self.capitalizedDescription(of: asyncSpecifier),
+                        insertionIndex: components.endIndex
+                    )
+                )
+            }
+
+            if let throwsSpecifier = effectSpecifiers.throwsClause?.throwsSpecifier {
+                components.append(
+                    MockMethodNameComponent(
+                        id: .throwsSpecifier,
+                        value: Self.capitalizedDescription(of: throwsSpecifier),
+                        insertionIndex: components.endIndex
+                    )
+                )
+            }
+        }
+
+        components.append(
+            contentsOf: Self.genericRequirementComponents(
+                insertionStartIndex: components.endIndex,
+                genericParameterClause: methodDeclaration.genericParameterClause,
+                genericWhereClause: methodDeclaration.genericWhereClause
+            )
+        )
+
+        self.components = components
+    }
+
+    /// Creates name components from the provided `subscriptDeclaration`.
+    ///
+    /// - Parameter subscriptDeclaration: The subscript declaration from which
+    ///   to parse name components.
+    init(subscriptDeclaration: SubscriptDeclSyntax) {
+        var components = Self.baseComponents(
+            baseName: subscriptDeclaration.subscriptKeyword.trimmedDescription,
+            parameters: subscriptDeclaration.parameterClause.parameters,
+            returnClause: subscriptDeclaration.returnClause
+        )
+
+        components.append(
+            contentsOf: Self.genericRequirementComponents(
+                insertionStartIndex: components.endIndex,
+                genericParameterClause: subscriptDeclaration.genericParameterClause,
+                genericWhereClause: subscriptDeclaration.genericWhereClause
+            )
+        )
+
+        self.components = components
+    }
+
+    // MARK: Name
+
+    /// Returns the name derived from the name components up to and including
+    /// the component at the provided `index`.
+    ///
+    /// If the provided `index` is out-of-bounds, this method clamps it to a
+    /// valid range of indices.
+    ///
+    /// - Parameter index: The index of the last name component to include in
+    ///   the returned name.
+    /// - Returns: The name derived from the name components up to and including
+    ///   the component at the provided `index`.
+    func name(to index: Int) -> String {
+        let clampedIndex = max(.zero, min(index, self.components.endIndex - 1))
+        let components = self.components[.zero...clampedIndex]
+
+        let values = components.reduce(into: [String]()) { result, component in
+            result.insert(component.value, at: component.insertionIndex)
+        }
+
+        return values.joined()
+    }
+}
+
+// MARK: - Helpers
+
+extension MockMemberNameComponents {
+
+    // MARK: Base Components
+
+    /// Returns the base name components shared between method and subscript
+    /// declarations: the base name, parameter names, return type, and parameter
+    /// types.
+    ///
+    /// - Parameters:
+    ///   - baseName: The base name for the first component (e.g. method name or
+    ///     `subscript` keyword text).
+    ///   - parameters: The parameter list from which to derive name components.
+    ///   - returnClause: The optional return clause from which to derive a
+    ///     return type component.
+    /// - Returns: The base name components.
+    private static func baseComponents(
+        baseName: String,
+        parameters: FunctionParameterListSyntax,
+        returnClause: ReturnClauseSyntax?
+    ) -> [MockMethodNameComponent] {
         var components: [MockMethodNameComponent] = [
             MockMethodNameComponent(
                 id: .methodName,
-                value: methodDeclaration.name.trimmedDescription,
+                value: baseName,
                 insertionIndex: .zero
             ),
         ]
@@ -58,7 +164,7 @@ struct MockMethodNameComponents {
         }
 
         if
-            let returnClause = signature.returnClause,
+            let returnClause,
             let returnClauseDescription = Self.capitalizedDescription(of: returnClause)
         {
             components.append(
@@ -91,43 +197,47 @@ struct MockMethodNameComponents {
             )
         }
 
-        if let effectSpecifiers = signature.effectSpecifiers {
-            if let asyncSpecifier = effectSpecifiers.asyncSpecifier {
-                components.append(
-                    MockMethodNameComponent(
-                        id: .asyncSpecifier,
-                        value: Self.capitalizedDescription(of: asyncSpecifier),
-                        insertionIndex: components.endIndex
-                    )
-                )
-            }
+        return components
+    }
 
-            if let throwsSpecifier = effectSpecifiers.throwsClause?.throwsSpecifier {
-                components.append(
-                    MockMethodNameComponent(
-                        id: .throwsSpecifier,
-                        value: Self.capitalizedDescription(of: throwsSpecifier),
-                        insertionIndex: components.endIndex
-                    )
-                )
-            }
-        }
+    // MARK: Generic Requirement Components
 
-        var genericRequirementIndex: Int = .zero
+    /// Returns the generic requirement name components shared between method and
+    /// subscript declarations: one component per constrained generic parameter
+    /// and per generic `where` clause requirement.
+    ///
+    /// These components disambiguate overloads that differ only by their generic
+    /// constraints (e.g. `subscript<T: Foo>(key: T) -> T` and
+    /// `subscript<T: Bar>(key: T) -> T`).
+    ///
+    /// - Parameters:
+    ///   - insertionStartIndex: The index at which the first generic requirement
+    ///     component should be inserted into the full name. Subsequent
+    ///     components are inserted at increasing indices.
+    ///   - genericParameterClause: The generic parameter clause from which to
+    ///     derive constrained generic parameter components.
+    ///   - genericWhereClause: The generic where clause from which to derive
+    ///     requirement components.
+    /// - Returns: The generic requirement name components.
+    private static func genericRequirementComponents(
+        insertionStartIndex: Int,
+        genericParameterClause: GenericParameterClauseSyntax?,
+        genericWhereClause: GenericWhereClauseSyntax?
+    ) -> [MockMethodNameComponent] {
+        var components: [MockMethodNameComponent] = []
         var genericRequirementDescriptionPrefix = "Where"
         let appendGenericRequirementDescription: (String) -> Void = { description in
             components.append(
                 MockMethodNameComponent(
-                    id: .genericRequirement(genericRequirementIndex),
+                    id: .genericRequirement(components.endIndex),
                     value: genericRequirementDescriptionPrefix + description,
-                    insertionIndex: components.endIndex
+                    insertionIndex: insertionStartIndex + components.endIndex
                 )
             )
-            genericRequirementIndex += 1
             genericRequirementDescriptionPrefix = ""
         }
 
-        if let genericParameterClause = methodDeclaration.genericParameterClause {
+        if let genericParameterClause {
             for genericParameter in genericParameterClause.parameters {
                 if genericParameter.inheritedType != nil {
                     appendGenericRequirementDescription(
@@ -137,7 +247,7 @@ struct MockMethodNameComponents {
             }
         }
 
-        if let genericWhereClause = methodDeclaration.genericWhereClause {
+        if let genericWhereClause {
             for genericRequirement in genericWhereClause.requirements {
                 let genericRequirementDescription = switch genericRequirement.requirement {
                 case let .conformanceRequirement(requirement):
@@ -152,36 +262,8 @@ struct MockMethodNameComponents {
             }
         }
 
-        self.components = components
+        return components
     }
-
-    // MARK: Name
-
-    /// Returns the name derived from the name components up to and including
-    /// the component at the provided `index`.
-    ///
-    /// If the provided `index` is out-of-bounds, this method clamps it to a
-    /// valid range of indices.
-    ///
-    /// - Parameter index: The index of the last name component to include in
-    ///   the returned name.
-    /// - Returns: The name derived from the name components up to and including
-    ///   the component at the provided `index`.
-    func name(to index: Int) -> String {
-        let clampedIndex = max(.zero, min(index, self.components.endIndex - 1))
-        let components = self.components[.zero...clampedIndex]
-
-        let values = components.reduce(into: [String]()) { result, component in
-            result.insert(component.value, at: component.insertionIndex)
-        }
-
-        return values.joined()
-    }
-}
-
-// MARK: - Helpers
-
-extension MockMethodNameComponents {
 
     // MARK: Is Void
 

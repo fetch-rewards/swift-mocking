@@ -1,14 +1,14 @@
 //
-//  MockedPropertyType+AsyncSpecifier.swift
+//  MockedSubscriptType+AsyncSpecifier.swift
 //
 //  Copyright © 2026 Fetch.
 //
 
 import SwiftSyntax
 
-extension MockedPropertyType {
+extension MockedSubscriptType {
 
-    /// The `async` specifier to apply to a mocked property's accessor.
+    /// The `async` specifier to apply to a mocked subscript's accessor.
     enum AsyncSpecifier {
 
         // MARK: Cases
