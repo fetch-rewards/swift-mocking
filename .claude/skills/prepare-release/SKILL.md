@@ -13,10 +13,12 @@ When done, report the PR URL and tell the user to invoke `/publish-release` once
 
 ## 1. Sync with main
 
-Fetch origin and hard-reset to `origin/main`. Do not use `git pull` — it can produce merge commits that the repo's branch protection rules reject on push.
+Fetch origin — including tags — and hard-reset to `origin/main`. Do not use `git pull` — it can produce merge commits that the repo's branch protection rules reject on push.
+
+Fetch tags explicitly with `--tags`: `generate-release-info` derives `last_version` from local tags, and `publish-release` creates each release tag on GitHub (via `gh release edit --draft=false`), so a just-published tag exists remotely but not locally until fetched. A bare `git fetch` only follows tags reachable from fetched branches; `--tags` guarantees every release tag is present, so `last_version` is never computed from a stale local tag.
 
 ```sh
-git fetch origin
+git fetch origin --tags
 git checkout main
 git reset --hard origin/main
 ```
