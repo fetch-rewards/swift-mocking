@@ -7,6 +7,8 @@ description: Analyze merged PRs since the last release, determine the next versi
 
 Runs `generate-release-info` to collect PR data and compute the next version, then creates the changelog branch, updates `CHANGELOG.md`, opens a documentation PR, and populates the draft GitHub release notes.
 
+The computed version is a default, not a mandate: if the user asks for a specific target version when invoking the skill (e.g. "bump to 1.0.0"), that overrides the computed value — see step 5.
+
 When done, report the PR URL and tell the user to invoke `/publish-release` once the PR is merged.
 
 ## 1. Sync with main
@@ -28,9 +30,9 @@ git reset --hard origin/main
 This outputs one of two things:
 
 - **Unlabeled PRs (exit 1):** Only a `### ⚠️ Needs Label` section — no version or changelog sections. Handle this in step 3 before proceeding.
-- **Success (exit 0):** `last_version` and `next_version` on the first two lines, followed by pre-formatted changelog sections ready to paste directly into `CHANGELOG.md` and the release notes.
+- **Success (exit 0):** `last_version` and `next_version` on the first line(s), followed by pre-formatted changelog sections ready to paste directly into `CHANGELOG.md` and the release notes. When the current version is pre-1.0 and the release contains a breaking change, two extra lines appear after `next_version` (`breaking_change_pre_1_0: true` and `major_version_option: 1.0.0`) — resolve them in step 5 before using `next_version`.
 
-PRs labeled `breaking change` appear in their categorization section with a `⚠️ **[BREAKING]**` prefix and cause a major version bump.
+PRs labeled `breaking change` appear in their categorization section with a `⚠️ **[BREAKING]**` prefix. A breaking change bumps the major version (e.g. `1.4.2` → `2.0.0`) — **except** when the current version is pre-1.0 (`0.x.y`), where the public API is considered unstable and a breaking change is only a minor bump by default (e.g. `0.3.0` → `0.4.0`). See step 5.
 
 ## 3. Resolve unlabeled PRs
 
@@ -64,7 +66,25 @@ Scan the most recent script output for any entry whose title contains "changelog
 
 For each flagged entry, ask the user: "PR #NNN ('title') looks like a changelog update — exclude it?" Do not proceed until the user has confirmed or dismissed each one. Remove any confirmed changelog PRs from the output before using it in subsequent steps. If no entries are flagged, continue immediately to step 5.
 
-## 5. Create a branch from origin/main
+## 5. Determine the version to release
+
+The script's computed `next_version` is the default, but it can be superseded. Resolve the final version in this priority order, then use it as `next_version` for every subsequent step. The changelog sections are identical regardless of the version chosen — only the version number changes.
+
+**a. Explicit user override (highest priority).** If the user requested a specific target version when invoking the skill (e.g. "bump to 1.0.0", "release 0.5.0"), honor it — this overrides both the computed `next_version` and the pre-1.0 prompt below. Validate it first:
+
+- It must be a valid `X.Y.Z` version and strictly greater than `last_version`. If it is equal to or less than `last_version`, or not a valid version, tell the user and ask for a valid target instead of proceeding.
+- Graduating to `1.0.0` is valid even with no breaking change label — it is a deliberate stability commitment. Likewise a version that skips numbers (e.g. `0.3.0` → `0.5.0`) is allowed since it was explicitly requested; if the jump looks unintentional, confirm with the user before continuing.
+
+Once validated, use the requested version and skip the rest of this step.
+
+**b. Pre-1.0 breaking change.** Only when there was no explicit override and the script output includes `breaking_change_pre_1_0: true`: the release contains a breaking change but the current version is pre-1.0 (`0.x.y`). By SemVer convention the default is a minor bump (the printed `next_version`, e.g. `0.4.0`), but the user may instead choose to graduate to the `major_version_option` (`1.0.0`) to signal a stable public API. Prompt the user to choose:
+
+- **Minor bump (default):** use the printed `next_version` (e.g. `0.4.0`).
+- **Major bump:** use the `major_version_option` (`1.0.0`).
+
+**c. Default.** Otherwise, use the printed `next_version` as-is.
+
+## 6. Create a branch from origin/main
 
 Branch name convention: `documentation/changelog-<next_version>`
 
@@ -72,7 +92,7 @@ Branch name convention: `documentation/changelog-<next_version>`
 git checkout -b documentation/changelog-<next_version> origin/main
 ```
 
-## 6. Update CHANGELOG.md
+## 7. Update CHANGELOG.md
 
 Insert a new section above the previous version entry. The version header format is:
 
@@ -82,7 +102,7 @@ Insert a new section above the previous version entry. The version header format
 
 Paste the sections from the script output (with any entries removed per step 4) beneath it verbatim.
 
-## 7. Commit and push
+## 8. Commit and push
 
 ```sh
 git add CHANGELOG.md
@@ -90,7 +110,7 @@ git commit -m "Update changelog for Version <next_version>"
 git push -u origin documentation/changelog-<next_version>
 ```
 
-## 8. Create the PR
+## 9. Create the PR
 
 - **Title:** `Update changelog`
 - **Base branch:** `main`
@@ -99,7 +119,7 @@ git push -u origin documentation/changelog-<next_version>
 
 Use the repo's PR template at `.github/pull_request_template.md`. Set the summary to "Updated `CHANGELOG.md` for Version `<next_version>`.", check the Documentation checkbox, and check all Checklist items. Write the body to a temp file and pass it via `--body-file` to avoid multiline escaping issues.
 
-## 9. Create or update the draft GitHub release notes
+## 10. Create or update the draft GitHub release notes
 
 Assemble the notes body: the script's section output (no version header line, with any entries removed per step 4), followed by the full-changelog link. The script output already ends with a blank line, so append the link directly. The assembled body looks like:
 
