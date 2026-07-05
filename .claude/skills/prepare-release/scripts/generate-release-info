@@ -108,7 +108,7 @@ for PR in $PR_NUMBERS; do
             "refactoring")   echo "$ENTRY" >> "$TMP/refactoring";   MATCHED=true ;;
             "formatting")    echo "$ENTRY" >> "$TMP/formatting";    MATCHED=true ;;
             "dependencies")  echo "$ENTRY" >> "$TMP/dependencies";  MATCHED=true ;;
-            "ci")            echo "$ENTRY" >> "$TMP/ci";            MATCHED=true ;;
+            "ci/cd")         echo "$ENTRY" >> "$TMP/ci";            MATCHED=true ;;
             "chore")         echo "$ENTRY" >> "$TMP/chore";         MATCHED=true ;;
         esac
     done <<< "$LABELS"
