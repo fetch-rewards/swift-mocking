@@ -106,6 +106,11 @@ tiebreaker and apply the higher-ranked label. The order (which also matches how 
 1. `ci/cd`
 1. `chore`
 
+A PR should have a single primary purpose. If it has two *independent* purposes — for example, a feature and an
+unrelated bug fix — split them into separate PRs, stacking them if one depends on the other. A feature that fixes a
+pre-existing bug as an inseparable part of its implementation stays a single `enhancement` PR; note the fix in the PR
+description so it isn't lost, since the changelog groups the PR under its primary purpose.
+
 > [!NOTE]
 > The `breaking changes` label is separate. Apply it **in addition** to the single type-of-change label whenever your
 > changes are not backwards compatible; it does not count toward the one-label rule.
