@@ -34,7 +34,7 @@ This outputs one of two things:
 - **Unlabeled PRs (exit 1):** Only a `### ⚠️ Needs Label` section — no version or changelog sections. Handle this in step 3 before proceeding.
 - **Success (exit 0):** `last_version` and `next_version` on the first line(s), followed by pre-formatted changelog sections ready to paste directly into `CHANGELOG.md` and the release notes. When the current version is pre-1.0 and the release contains a breaking change, two extra lines appear after `next_version` (`breaking_change_pre_1_0: true` and `major_version_option: 1.0.0`) — resolve them in step 5 before using `next_version`.
 
-PRs labeled `breaking change` appear in their categorization section with a `⚠️ **[BREAKING]**` prefix. A breaking change bumps the major version (e.g. `1.4.2` → `2.0.0`) — **except** when the current version is pre-1.0 (`0.x.y`), where the public API is considered unstable and a breaking change is only a minor bump by default (e.g. `0.3.0` → `0.4.0`). See step 5.
+PRs labeled `breaking changes` appear in their categorization section with a `⚠️ **[BREAKING]**` prefix. A breaking change bumps the major version (e.g. `1.4.2` → `2.0.0`) — **except** when the current version is pre-1.0 (`0.x.y`), where the public API is considered unstable and a breaking change is only a minor bump by default (e.g. `0.3.0` → `0.4.0`). See step 5.
 
 ## 3. Resolve unlabeled PRs
 
