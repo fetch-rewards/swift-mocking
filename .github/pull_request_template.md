@@ -5,20 +5,6 @@ Please provide a brief summary of your changes along with any relevant context.
 Include any screenshots, logs, or terminal output you think would be helpful to reviewers.
 -->
 
-## 🛠️ Type of Change
-
-<!-- Check all that apply. -->
-
-- [ ] Bug fix (change that fixes an issue)
-- [ ] New feature (change that adds functionality)
-- [ ] Breaking change (bug fix or feature that is not backwards compatible)
-- [ ] Documentation (DocC, API docs, markdown files, templates, etc.)
-- [ ] Testing (new tests, updated tests, etc.)
-- [ ] Refactoring or code formatting (no logic changes)
-- [ ] Updating dependencies (Swift packages, Homebrew, etc.)
-- [ ] CI/CD (change to automated workflows)
-- [ ] Chore (other maintenance)
-
 ## 🧪 How Has This Been Tested?
 
 <!-- 
