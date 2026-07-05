@@ -91,9 +91,10 @@ contributors.
 Every PR must have **exactly one** type-of-change label, which determines the section it's grouped under in the
 changelog. CI enforces this — a PR with zero or more than one of these labels fails the `PR Labels` check.
 
-A PR often touches several areas — for example, a feature that also adds tests and documentation. When that happens,
-apply the **highest-priority** label: the substantive change takes precedence over the supporting changes it brings
-along. From highest to lowest priority (matching the order the sections appear in the changelog):
+A PR often touches several areas — for example, a feature that also adds tests and documentation. Label it for its
+**primary purpose**, not the supporting changes (tests, docs, formatting, etc.) it brings along — so a feature that
+adds tests and docs is an `enhancement`. When a PR genuinely has two co-equal purposes, use the order below as a
+tiebreaker and apply the higher-ranked label. The order (which also matches how the sections appear in the changelog):
 
 1. `enhancement`
 1. `bug`
