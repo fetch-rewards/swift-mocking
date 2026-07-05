@@ -18,6 +18,7 @@
 - [Code Formatting](#code-formatting)
 - [Signed Commits Required](#signed-commits-required)
 - [Commit Messages & PR Titles](#commit-messages--pr-titles)
+- [Labeling PRs](#labeling-prs)
 - [Creating a Release](#creating-a-release)
 
 ## Homebrew
@@ -84,6 +85,29 @@ contributors.
 1. The subject and body are free of whitespace errors and typos.
 1. The body uses proper punctuation and capitalization.
 1. The body has a line length of 72 characters or less.
+
+## Labeling PRs
+
+Every PR must have **exactly one** type-of-change label, which determines the section it's grouped under in the
+changelog. CI enforces this — a PR with zero or more than one of these labels fails the `PR Labels` check.
+
+A PR often touches several areas — for example, a feature that also adds tests and documentation. When that happens,
+apply the **highest-priority** label: the substantive change takes precedence over the supporting changes it brings
+along. From highest to lowest priority (matching the order the sections appear in the changelog):
+
+1. `enhancement`
+1. `bug`
+1. `dependencies`
+1. `documentation`
+1. `testing`
+1. `refactoring`
+1. `formatting`
+1. `ci/cd`
+1. `chore`
+
+> [!NOTE]
+> The `breaking changes` label is separate. Apply it **in addition** to the single type-of-change label whenever your
+> changes are not backwards compatible; it does not count toward the one-label rule.
 
 ## Creating a Release
 

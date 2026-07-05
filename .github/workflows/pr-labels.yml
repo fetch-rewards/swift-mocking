@@ -17,28 +17,42 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
 
-      - name: Validate PR has required labels
+      - name: Validate PR has exactly one type-of-change label
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           PR_NUMBER=${{ github.event.pull_request.number }}
           REPO=${{ github.repository }}
 
-          REQUIRED_LABELS=("bug" "chore" "ci/cd" "dependencies" "documentation" "enhancement" "formatting" "refactoring" "testing")
+          REQUIRED_LABELS=("enhancement" "bug" "dependencies" "documentation" "testing" "refactoring" "formatting" "ci/cd" "chore")
           LABELS=$(gh pr view "$PR_NUMBER" --repo "$REPO" --json labels --jq '.labels[].name')
 
           echo "PR labels:"
           echo "$LABELS"
 
+          MATCHED=()
           for required in "${REQUIRED_LABELS[@]}"; do
-            if echo "$LABELS" | grep -q "^$required$"; then
-              echo "✅ Found required label: $required"
-              exit 0
+            if echo "$LABELS" | grep -Fxq -- "$required"; then
+              MATCHED+=("$required")
             fi
           done
 
-          echo "❌ PR is missing a required label."
-          echo "At least one of the following labels is required:"
-          printf '%s\n' "${REQUIRED_LABELS[@]}"
+          COUNT=${#MATCHED[@]}
+
+          if [ "$COUNT" -eq 1 ]; then
+            echo "✅ Found exactly one type-of-change label: ${MATCHED[0]}"
+            exit 0
+          fi
+
+          if [ "$COUNT" -eq 0 ]; then
+            echo "❌ PR is missing a type-of-change label."
+            echo "Exactly one of the following labels is required:"
+            printf '%s\n' "${REQUIRED_LABELS[@]}"
+          else
+            echo "❌ PR has $COUNT type-of-change labels: ${MATCHED[*]}"
+            echo "Exactly one is required so the PR maps to a single changelog section."
+            echo "(The 'breaking changes' label is separate and does not count toward this limit.)"
+          fi
+          echo "See the 'Labeling PRs' section of CONTRIBUTING.md for how to choose the right label."
           exit 1
         shell: bash
