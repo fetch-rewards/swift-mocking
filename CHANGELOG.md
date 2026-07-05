@@ -8,7 +8,7 @@ This project adheres to [Semantic Versioning](https://semver.org).
 
 ### ✨ Features
 
-- Remove default values from MockedPropertyType readOnly case ([#180](https://github.com/fetch-rewards/swift-mocking/pull/180))
+- ⚠️ **[BREAKING]** Remove default values from MockedPropertyType readOnly case ([#180](https://github.com/fetch-rewards/swift-mocking/pull/180))
 - Add subscript support ([#184](https://github.com/fetch-rewards/swift-mocking/pull/184))
 
 ### 🐛 Bug Fixes
