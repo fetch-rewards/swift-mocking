@@ -4,6 +4,31 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org).
 
+## 🚀 [Version 0.4.0](https://github.com/fetch-rewards/swift-mocking/releases/tag/0.4.0) - July 6, 2026 ([Full Changelog](https://github.com/fetch-rewards/swift-mocking/compare/0.3.0...0.4.0))
+
+### ✨ Features
+
+- ⚠️ **[BREAKING]** Remove default values from MockedPropertyType readOnly case ([#180](https://github.com/fetch-rewards/swift-mocking/pull/180))
+- Add subscript support ([#184](https://github.com/fetch-rewards/swift-mocking/pull/184))
+
+### 🐛 Bug Fixes
+
+- Fix Sendable closure propagation into generated Arguments type ([#144](https://github.com/fetch-rewards/swift-mocking/pull/144))
+- Replace per-property invocation locks with shared state lock ([#145](https://github.com/fetch-rewards/swift-mocking/pull/145))
+- Fix autoclosure forwarding in generated mock bodies ([#146](https://github.com/fetch-rewards/swift-mocking/pull/146))
+
+### 🛠️ CI/CD
+
+- Enforce exactly one type-of-change label ([#192](https://github.com/fetch-rewards/swift-mocking/pull/192))
+
+### 🧹 Chores
+
+- Add prepare-release and publish-release skills ([#143](https://github.com/fetch-rewards/swift-mocking/pull/143))
+- Treat pre-1.0 breaking changes as minor bumps in prepare-release ([#188](https://github.com/fetch-rewards/swift-mocking/pull/188))
+- Fetch tags explicitly in prepare-release sync step ([#189](https://github.com/fetch-rewards/swift-mocking/pull/189))
+- Fix breaking-changes label detection in prepare-release ([#191](https://github.com/fetch-rewards/swift-mocking/pull/191))
+- Remove Type of Change section from PR template ([#193](https://github.com/fetch-rewards/swift-mocking/pull/193))
+
 ## 🚀 [Version 0.3.0](https://github.com/fetch-rewards/swift-mocking/releases/tag/0.3.0) - June 18, 2026 ([Full Changelog](https://github.com/fetch-rewards/swift-mocking/compare/0.2.2...0.3.0))
 
 ### ✨ Features
