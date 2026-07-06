@@ -104,7 +104,7 @@ extension MockedMethodMacro: PeerMacro {
 
                 let attributedType = parameterType.as(AttributedTypeSyntax.self)
                 let unattributedType = attributedType?.baseType ?? parameterType
-                let sendablePreservingType = Self.sendablePreservingType(
+                let attributePreservingType = Self.attributePreservingType(
                     from: attributedType
                 ) ?? unattributedType
                 let argumentsTypeElementType: any TypeSyntaxProtocol
@@ -112,7 +112,7 @@ extension MockedMethodMacro: PeerMacro {
 
                 if parameter.isVariadic {
                     argumentsTypeElementType = ArrayTypeSyntax(
-                        element: sendablePreservingType
+                        element: attributePreservingType
                     )
                     closureTypeElementType = ArrayTypeSyntax(
                         element: didTypeEraseParameter
@@ -120,7 +120,7 @@ extension MockedMethodMacro: PeerMacro {
                             : parameterType
                     )
                 } else {
-                    argumentsTypeElementType = sendablePreservingType
+                    argumentsTypeElementType = attributePreservingType
                     closureTypeElementType = didTypeEraseParameter
                         ? unattributedType
                         : parameterType
@@ -847,45 +847,63 @@ extension MockedMethodMacro: PeerMacro {
         )
     }
 
-    // MARK: Sendable
+    // MARK: Attribute Preserving Type
 
-    /// Returns a copy of the provided `attributedType` with only its `@Sendable`
-    /// attribute, or `nil` if the type has no `@Sendable` attribute.
+    /// Returns a copy of the provided `attributedType` suitable for use as an
+    /// `Arguments` element type, or `nil` if there are no attributes to preserve.
     ///
-    /// Specifiers (e.g. `inout`, `consuming`) and other type attributes (e.g.
-    /// `@escaping`, `@autoclosure`) are stripped so that the result can be used
-    /// as an `Arguments` element type whose Sendable conformance is preserved.
+    /// Specifiers (e.g. `inout`, `borrowing`, `consuming`) and parameter-position
+    /// attributes (`@escaping`, `@autoclosure`) are stripped because they are not
+    /// part of the parameter's type. All remaining attributes — such as
+    /// `@Sendable` and global actor attributes like `@MainActor` — are preserved
+    /// because they are part of the type's identity and would otherwise be lost
+    /// from the `Arguments` type.
     ///
-    /// - Parameter attributedType: The attributed type from which to extract the
-    ///   `@Sendable` attribute.
+    /// - Parameter attributedType: The attributed type from which to build the
+    ///   `Arguments` element type.
     /// - Returns: A copy of the provided `attributedType` with only its
-    ///   `@Sendable` attribute, or `nil` if the type has no `@Sendable`
-    ///   attribute.
-    private static func sendablePreservingType(
+    ///   type-preserving attributes, or `nil` if there are no attributes to
+    ///   preserve.
+    private static func attributePreservingType(
         from attributedType: AttributedTypeSyntax?
     ) -> TypeSyntax? {
-        guard
-            let attributedType,
-            let sendableAttribute = attributedType.attributes.first(where: { element in
+        guard let attributedType else {
+            return nil
+        }
+
+        let preservedAttributes = attributedType.attributes
+            .compactMap { element -> AttributeListSyntax.Element? in
                 guard
                     case let .attribute(attribute) = element,
                     let identifierType = attribute.attributeName.as(
                         IdentifierTypeSyntax.self
                     )
                 else {
-                    return false
+                    return element
                 }
 
-                return identifierType.name.tokenKind == .identifier("Sendable")
-            })
-        else {
+                let tokenKind = identifierType.name.tokenKind
+
+                if tokenKind == .identifier("escaping") || tokenKind == .identifier("autoclosure") {
+                    return nil
+                }
+
+                let preservedAttribute = attribute.trimmed.with(
+                    \.trailingTrivia,
+                    .space
+                )
+
+                return .attribute(preservedAttribute)
+            }
+
+        guard !preservedAttributes.isEmpty else {
             return nil
         }
 
         return TypeSyntax(
             AttributedTypeSyntax(
                 specifiers: TypeSpecifierListSyntax([]),
-                attributes: AttributeListSyntax([sendableAttribute]),
+                attributes: AttributeListSyntax(preservedAttributes),
                 baseType: attributedType.baseType
             )
         )
