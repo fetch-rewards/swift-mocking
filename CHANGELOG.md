@@ -60,6 +60,11 @@ This project adheres to [Semantic Versioning](https://semver.org).
 
 - Handle composed and mixed associated type constraints ([#108](https://github.com/fetch-rewards/swift-mocking/pull/108))
 
+### 📦 Dependencies
+
+- Update SwiftFormat minimum version and output version in CI ([#110](https://github.com/fetch-rewards/swift-mocking/pull/110))
+- Update Swift Locking, SwiftSyntaxSugar, and SwiftSyntax dependencies ([#114](https://github.com/fetch-rewards/swift-mocking/pull/114))
+
 ### 📝 Documentation
 
 - Add SPI badges to README ([#102](https://github.com/fetch-rewards/swift-mocking/pull/102))
@@ -74,11 +79,6 @@ This project adheres to [Semantic Versioning](https://semver.org).
 ### 🔨 Refactoring
 
 - Refactor MacroArgumentValue, reorganize files, and add unit tests ([#111](https://github.com/fetch-rewards/swift-mocking/pull/111))
-
-### 📦 Dependencies
-
-- Update SwiftFormat minimum version and output version in CI ([#110](https://github.com/fetch-rewards/swift-mocking/pull/110))
-- Update Swift Locking, SwiftSyntaxSugar, and SwiftSyntax dependencies ([#114](https://github.com/fetch-rewards/swift-mocking/pull/114))
 
 ### 🛠️ CI/CD
 
