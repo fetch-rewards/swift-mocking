@@ -167,7 +167,7 @@ section_header() {
     esac
 }
 
-for SECTION in enhancement bug documentation testing refactoring formatting dependencies ci chore; do
+for SECTION in enhancement bug dependencies documentation testing refactoring formatting ci chore; do
     if [ -f "$TMP/$SECTION" ]; then
         section_header "$SECTION"
         echo ""

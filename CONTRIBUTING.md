@@ -18,6 +18,7 @@
 - [Code Formatting](#code-formatting)
 - [Signed Commits Required](#signed-commits-required)
 - [Commit Messages & PR Titles](#commit-messages--pr-titles)
+- [Labeling PRs](#labeling-prs)
 - [Creating a Release](#creating-a-release)
 
 ## Homebrew
@@ -84,6 +85,35 @@ contributors.
 1. The subject and body are free of whitespace errors and typos.
 1. The body uses proper punctuation and capitalization.
 1. The body has a line length of 72 characters or less.
+
+## Labeling PRs
+
+Every PR must have **exactly one** type-of-change label, which determines the section it's grouped under in the
+changelog. CI enforces this — a PR with zero or more than one of these labels fails the `PR Labels` check.
+
+A PR often touches several areas — for example, a feature that also adds tests and documentation. Label it for its
+**primary purpose**, not the supporting changes (tests, docs, formatting, etc.) it brings along — so a feature that
+adds tests and docs is an `enhancement`. When a PR genuinely has two co-equal purposes, use the order below as a
+tiebreaker and apply the higher-ranked label. The order (which also matches how the sections appear in the changelog):
+
+1. `enhancement`
+1. `bug`
+1. `dependencies`
+1. `documentation`
+1. `testing`
+1. `refactoring`
+1. `formatting`
+1. `ci/cd`
+1. `chore`
+
+A PR should have a single primary purpose. If it has two *independent* purposes — for example, a feature and an
+unrelated bug fix — split them into separate PRs, stacking them if one depends on the other. A feature that fixes a
+pre-existing bug as an inseparable part of its implementation stays a single `enhancement` PR; note the fix in the PR
+description so it isn't lost, since the changelog groups the PR under its primary purpose.
+
+> [!NOTE]
+> The `breaking changes` label is separate. Apply it **in addition** to the single type-of-change label whenever your
+> changes are not backwards compatible; it does not count toward the one-label rule.
 
 ## Creating a Release
 
