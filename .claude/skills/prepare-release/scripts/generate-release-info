@@ -78,10 +78,12 @@ for PR in $PR_NUMBERS; do
     IS_BREAKING=false
     while IFS= read -r LABEL; do
         [ -z "$LABEL" ] && continue
-        if [ "$LABEL" = "breaking change" ]; then
-            IS_BREAKING=true
-            [ $BUMP -lt 2 ] && BUMP=2
-        fi
+        case "$LABEL" in
+            "breaking change" | "breaking changes")
+                IS_BREAKING=true
+                [ $BUMP -lt 2 ] && BUMP=2
+                ;;
+        esac
     done <<< "$LABELS"
 
     PLAIN_ENTRY="- ${TITLE} ([#${NUMBER}](${REPO_URL}/pull/${NUMBER}))"
@@ -106,7 +108,7 @@ for PR in $PR_NUMBERS; do
             "refactoring")   echo "$ENTRY" >> "$TMP/refactoring";   MATCHED=true ;;
             "formatting")    echo "$ENTRY" >> "$TMP/formatting";    MATCHED=true ;;
             "dependencies")  echo "$ENTRY" >> "$TMP/dependencies";  MATCHED=true ;;
-            "ci")            echo "$ENTRY" >> "$TMP/ci";            MATCHED=true ;;
+            "ci/cd")         echo "$ENTRY" >> "$TMP/ci";            MATCHED=true ;;
             "chore")         echo "$ENTRY" >> "$TMP/chore";         MATCHED=true ;;
         esac
     done <<< "$LABELS"
