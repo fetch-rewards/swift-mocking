@@ -86,6 +86,79 @@ struct MockedMethod_AttributedClosureTests {
     }
 
     @Test
+    func mainActorClosureParameter() {
+        assertMockedMethod(
+            """
+            func something(work: @escaping @MainActor () -> Void)
+            """,
+            named: "something",
+            generates: """
+            func something(work: @escaping @MainActor () -> Void) {
+                self.__something.recordInput(
+                    (
+                        work
+                    )
+                )
+                let _invoke = self.__something.closure()
+                _invoke?(
+                    work
+                )
+            }
+
+            /// An implementation for `DependencyMock._something`.
+            enum SomethingImplementation<
+            \tArguments
+            >: @unchecked Sendable, MockVoidParameterizedMethodImplementation {
+
+                /// The implementation's closure type.
+                typealias Closure = (@escaping @MainActor () -> Void) -> Void
+
+                /// Does nothing when invoked.
+                case unimplemented
+
+                /// Invokes the provided closure when invoked.
+                ///
+                /// - Parameter closure: The closure to invoke.
+                case uncheckedInvokes(_ closure: Closure)
+
+                /// Invokes the provided closure when invoked.
+                ///
+                /// - Parameter closure: The closure to invoke.
+                static func invokes(
+                \t_ closure: @Sendable @escaping (@escaping @MainActor () -> Void) -> Void
+                ) -> Self where Arguments: Sendable {
+                    .uncheckedInvokes(closure)
+                }
+
+                /// The implementation as a closure, or `nil` if unimplemented.
+                var _closure: Closure? {
+                    switch self {
+                    case .unimplemented:
+                        nil
+                    case let .uncheckedInvokes(closure):
+                        closure
+                    }
+                }
+            }
+
+            private let __something = MockVoidParameterizedMethod<
+            \tSomethingImplementation<
+            \t\t(@MainActor () -> Void)
+            \t>
+            >.makeMethod()
+
+            var _something: MockVoidParameterizedMethod<
+            \tSomethingImplementation<
+            \t\t(@MainActor () -> Void)
+            \t>
+            > {
+                self.__something.method
+            }
+            """
+        )
+    }
+
+    @Test
     func mainActorSendableClosureParameter() {
         assertMockedMethod(
             """

@@ -45,31 +45,59 @@ public protocol AttributedClosures: Sendable {
         work: @escaping @Sendable () -> Void
     ) async throws -> Bool
 
-    // MARK: MainActor Sendable
+    // MARK: MainActor
 
     func mainActorVoidMethod(
-        work: @escaping @MainActor @Sendable () -> Void
+        work: @escaping @MainActor () -> Void
     )
     func mainActorVoidAsyncMethod(
-        work: @escaping @MainActor @Sendable () -> Void
+        work: @escaping @MainActor () -> Void
     ) async
     func mainActorVoidThrowingMethod(
-        work: @escaping @MainActor @Sendable () -> Void
+        work: @escaping @MainActor () -> Void
     ) throws
     func mainActorVoidAsyncThrowingMethod(
-        work: @escaping @MainActor @Sendable () -> Void
+        work: @escaping @MainActor () -> Void
     ) async throws
 
     func mainActorReturningMethod(
-        work: @escaping @MainActor @Sendable () -> Void
+        work: @escaping @MainActor () -> Void
     ) -> Bool
     func mainActorReturningAsyncMethod(
-        work: @escaping @MainActor @Sendable () -> Void
+        work: @escaping @MainActor () -> Void
     ) async -> Bool
     func mainActorReturningThrowingMethod(
-        work: @escaping @MainActor @Sendable () -> Void
+        work: @escaping @MainActor () -> Void
     ) throws -> Bool
     func mainActorReturningAsyncThrowingMethod(
+        work: @escaping @MainActor () -> Void
+    ) async throws -> Bool
+
+    // MARK: MainActor Sendable
+
+    func mainActorSendableVoidMethod(
+        work: @escaping @MainActor @Sendable () -> Void
+    )
+    func mainActorSendableVoidAsyncMethod(
+        work: @escaping @MainActor @Sendable () -> Void
+    ) async
+    func mainActorSendableVoidThrowingMethod(
+        work: @escaping @MainActor @Sendable () -> Void
+    ) throws
+    func mainActorSendableVoidAsyncThrowingMethod(
+        work: @escaping @MainActor @Sendable () -> Void
+    ) async throws
+
+    func mainActorSendableReturningMethod(
+        work: @escaping @MainActor @Sendable () -> Void
+    ) -> Bool
+    func mainActorSendableReturningAsyncMethod(
+        work: @escaping @MainActor @Sendable () -> Void
+    ) async -> Bool
+    func mainActorSendableReturningThrowingMethod(
+        work: @escaping @MainActor @Sendable () -> Void
+    ) throws -> Bool
+    func mainActorSendableReturningAsyncThrowingMethod(
         work: @escaping @MainActor @Sendable () -> Void
     ) async throws -> Bool
 }
