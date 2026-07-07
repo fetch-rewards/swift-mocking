@@ -1,2 +1,12 @@
+coverage:
+  status:
+    project:
+      default:
+        # Absorb small, nondeterministic coverage fluctuations caused by a
+        # coverage-instrumentation race under highly concurrent tests (e.g.
+        # TestBarrier), which otherwise flips a single line covered/uncovered
+        # between runs and blocks merges on a spurious ~0.02% drop.
+        threshold: 0.1%
+
 ignore:
   - "Tests"
