@@ -10,6 +10,10 @@ This project adheres to [Semantic Versioning](https://semver.org).
 
 - Preserve global actor attributes in generated Arguments type ([#195](https://github.com/fetch-rewards/swift-mocking/pull/195))
 
+### 🛠️ CI/CD
+
+- Add project coverage threshold to codecov ([#197](https://github.com/fetch-rewards/swift-mocking/pull/197))
+
 ## 🚀 [Version 0.4.0](https://github.com/fetch-rewards/swift-mocking/releases/tag/0.4.0) - July 6, 2026 ([Full Changelog](https://github.com/fetch-rewards/swift-mocking/compare/0.3.0...0.4.0))
 
 ### ✨ Features
