@@ -41,7 +41,10 @@ jobs:
         run: swift build
 
       - name: Run tests with code coverage
-        run: swift test --enable-code-coverage
+        # Use atomic coverage counters so highly concurrent tests (e.g. those
+        # driven by TestBarrier) don't lose counter increments to data races,
+        # which otherwise produces nondeterministic (flaky) line coverage.
+        run: swift test --enable-code-coverage -Xswiftc -Xllvm -Xswiftc -instrprof-atomic-counter-update-all
 
       - name: Gather code coverage
         run: xcrun llvm-cov export -format="lcov" .build/debug/swift-mockingPackageTests.xctest/Contents/MacOS/swift-mockingPackageTests -instr-profile .build/debug/codecov/default.profdata > coverage_report.lcov
