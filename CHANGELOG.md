@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org).
 
-## 🚀 [Version 0.4.1](https://github.com/fetch-rewards/swift-mocking/releases/tag/0.4.1) - July 6, 2026 ([Full Changelog](https://github.com/fetch-rewards/swift-mocking/compare/0.4.0...0.4.1))
+## 🚀 [Version 0.4.1](https://github.com/fetch-rewards/swift-mocking/releases/tag/0.4.1) - July 7, 2026 ([Full Changelog](https://github.com/fetch-rewards/swift-mocking/compare/0.4.0...0.4.1))
 
 ### 🐛 Bug Fixes
 
