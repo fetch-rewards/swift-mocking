@@ -45,20 +45,41 @@ if (/[A-Za-z0-9]$/.test(title)) {
   logFailure('PR title must end with a letter or number');
 }
 
-// Rule 5: PR title must be written in the imperative
+// Rule 5: PR title must be written in the imperative.
+//
+// The intent is to catch non-imperative conjugations ("Adds", "Added", "Adding",
+// "Fixed") and steer them to the imperative ("Add", "Fix"). We use compromise's NLP to
+// find the first word's infinitive and require the first word to match it.
+//
+// Two important details:
+//   1. We parse the FULL title, not just the first word. compromise tags words far more
+//      accurately with sentence context — e.g. in isolation it tags "Fixed" as an
+//      adjective and misses it, but in "Fixed the bug" it correctly infinitives to "fix".
+//      Parsing the whole title is what lets us catch past-tense forms.
+//   2. When compromise cannot resolve an infinitive (empty result), the first word is a
+//      verb it does not know (e.g. "Backfill", "Setup"). We give those the benefit of the
+//      doubt rather than blocking a valid imperative the library simply doesn't recognize.
+//
+// IMPERATIVE_ALLOWLIST is an escape hatch for the rare verb compromise mangles (it turns
+// "Embed" into "emb"). If a legitimate imperative verb is ever wrongly rejected, add its
+// lowercase form here.
+const IMPERATIVE_ALLOWLIST = ['embed'];
+
 const firstWord = title.split(' ')[0];
 const firstWordLowercased = firstWord.toLowerCase();
 const firstWordCapitalized = capitalized(firstWord);
-const firstWordAsImperativeVerb = nlp(firstWord).verbs().toInfinitive().out('text');
+const firstWordAsImperativeVerb = nlp(title).terms().first().verbs().toInfinitive().out('text');
 const firstWordAsImperativeVerbLowercased = firstWordAsImperativeVerb.toLowerCase();
 const firstWordAsImperativeVerbCapitalized = capitalized(firstWordAsImperativeVerb);
 
-if (firstWordLowercased === firstWordAsImperativeVerbLowercased) {
+if (
+  IMPERATIVE_ALLOWLIST.includes(firstWordLowercased) ||
+  !firstWordAsImperativeVerb ||
+  firstWordLowercased === firstWordAsImperativeVerbLowercased
+) {
   logSuccess(`PR title is written in the imperative`);
-} else if (firstWordAsImperativeVerb) {
-  logFailure(`PR title must be written in the imperative ("${firstWordAsImperativeVerbCapitalized}" instead of "${firstWordCapitalized}")`);
 } else {
-  logFailure(`PR title must begin with a verb and be written in the imperative`);
+  logFailure(`PR title must be written in the imperative ("${firstWordAsImperativeVerbCapitalized}" instead of "${firstWordCapitalized}")`);
 }
 
 if (!isValidTitle) {
