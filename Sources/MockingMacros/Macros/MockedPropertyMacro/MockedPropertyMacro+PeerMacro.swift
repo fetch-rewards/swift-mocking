@@ -39,10 +39,8 @@ extension MockedPropertyMacro: PeerMacro {
 
         // Strip any backticks (e.g. from a property named `default`) so the
         // name can be safely interpolated into generated identifiers.
-        let propertyBindingName = TokenSyntax.identifier(
-            propertyBindingPattern.identifier.identifier?.name
-                ?? propertyBindingPattern.identifier.text
-        )
+        let propertyBindingName = propertyBindingPattern.identifier.identifier?.name
+            ?? propertyBindingPattern.identifier.text
         let macroArguments = try MacroArguments(node: node)
         let overrideDeclarationType = self.overrideDeclarationType(
             from: propertyBinding,
@@ -90,7 +88,7 @@ extension MockedPropertyMacro: PeerMacro {
     private static func backingOverrideDeclaration(
         macroArguments: MacroArguments,
         propertyBinding: PatternBindingSyntax,
-        propertyBindingName: TokenSyntax,
+        propertyBindingName: String,
         propertyDeclaration: VariableDeclSyntax,
         overrideDeclarationType: IdentifierTypeSyntax
     ) -> VariableDeclSyntax {
@@ -99,7 +97,7 @@ extension MockedPropertyMacro: PeerMacro {
             with: AccessLevelSyntax.private,
             isMockAnActor: macroArguments.isMockAnActor
         )
-        let name = IdentifierPatternSyntax(identifier: "__\(propertyBindingName)")
+        let name = IdentifierPatternSyntax(identifier: "__\(raw: propertyBindingName)")
         let typeReference: any ExprSyntaxProtocol = if
             let genericArgumentClause = overrideDeclarationType.genericArgumentClause
         {
@@ -196,7 +194,7 @@ extension MockedPropertyMacro: PeerMacro {
     private static func exposedOverrideDeclaration(
         macroArguments: MacroArguments,
         propertyBinding: PatternBindingSyntax,
-        propertyBindingName: TokenSyntax,
+        propertyBindingName: String,
         propertyDeclaration: VariableDeclSyntax,
         overrideDeclarationType: IdentifierTypeSyntax
     ) -> VariableDeclSyntax {
@@ -206,12 +204,12 @@ extension MockedPropertyMacro: PeerMacro {
             isMockAnActor: macroArguments.isMockAnActor
         )
         let binding = PatternBindingSyntax(
-            pattern: IdentifierPatternSyntax(identifier: "_\(propertyBindingName)"),
+            pattern: IdentifierPatternSyntax(identifier: "_\(raw: propertyBindingName)"),
             typeAnnotation: TypeAnnotationSyntax(type: overrideDeclarationType),
             accessorBlock: AccessorBlockSyntax(
                 accessors: .getter(
                     CodeBlockItemListSyntax {
-                        "self.__\(propertyBindingName).property"
+                        "self.__\(raw: propertyBindingName).property"
                     }
                 )
             )
