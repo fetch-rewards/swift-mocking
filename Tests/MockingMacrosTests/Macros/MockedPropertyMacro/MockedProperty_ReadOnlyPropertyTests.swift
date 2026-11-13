@@ -145,5 +145,39 @@ struct MockedProperty_ReadOnlyPropertyTests {
             """
         )
     }
+
+    // MARK: Backticked Property Name Tests
+
+    @Test
+    func readOnlyPropertyWithBacktickedName() {
+        assertMockedProperty(
+            """
+            var `default`: String
+            """,
+            ofType: ".readOnly",
+            generates: """
+            var `default`: String {
+                get {
+                    self.__default.get()
+                }
+            }
+
+            private let __default = MockReadOnlyProperty<
+            \tString
+            >.makeProperty(
+                exposedPropertyDescription: MockImplementationDescription(
+                    type: DependencyMock.self,
+                    member: "_default"
+                )
+            )
+
+            var _default: MockReadOnlyProperty<
+            \tString
+            > {
+                self.__default.property
+            }
+            """
+        )
+    }
 }
 #endif

@@ -46,5 +46,42 @@ struct MockedProperty_ReadWritePropertyTests {
             """
         )
     }
+
+    // MARK: Backticked Property Name Tests
+
+    @Test
+    func readWritePropertyWithBacktickedName() {
+        assertMockedProperty(
+            """
+            var `default`: String
+            """,
+            ofType: ".readWrite",
+            generates: """
+            var `default`: String {
+                get {
+                    self.__default.get()
+                }
+                set {
+                    self.__default.set(newValue)
+                }
+            }
+
+            private let __default = MockReadWriteProperty<
+            \tString
+            >.makeProperty(
+                exposedPropertyDescription: MockImplementationDescription(
+                    type: DependencyMock.self,
+                    member: "_default"
+                )
+            )
+
+            var _default: MockReadWriteProperty<
+            \tString
+            > {
+                self.__default.property
+            }
+            """
+        )
+    }
 }
 #endif
