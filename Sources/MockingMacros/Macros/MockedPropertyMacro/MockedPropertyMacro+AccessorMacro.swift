@@ -39,8 +39,10 @@ extension MockedPropertyMacro: AccessorMacro {
 
         // Strip any backticks (e.g. from a property named `default`) so the
         // name can be safely interpolated into generated identifiers.
-        let propertyBindingName = propertyBindingPattern.identifier.identifier?.name
-            ?? propertyBindingPattern.identifier.text
+        let propertyBindingName = TokenSyntax.identifier(
+            propertyBindingPattern.identifier.identifier?.name
+                ?? propertyBindingPattern.identifier.text
+        )
         let macroArguments = try MacroArguments(node: node)
 
         var accessors: [AccessorDeclSyntax] = [
@@ -72,7 +74,7 @@ extension MockedPropertyMacro: AccessorMacro {
     ///   `propertyType` and `propertyBindingName`.
     private static func getAccessor(
         propertyType: MockedPropertyType,
-        propertyBindingName: String
+        propertyBindingName: TokenSyntax
     ) -> AccessorDeclSyntax {
         var asyncSpecifier: TokenSyntax?
         var throwsClause: ThrowsClauseSyntax?
@@ -83,7 +85,7 @@ extension MockedPropertyMacro: AccessorMacro {
                 base: MemberAccessExprSyntax(
                     base: DeclReferenceExprSyntax(baseName: .keyword(.self)),
                     period: .periodToken(),
-                    name: "__\(raw: propertyBindingName)"
+                    name: "__\(propertyBindingName)"
                 ),
                 period: .periodToken(),
                 name: "get"
@@ -143,7 +145,7 @@ extension MockedPropertyMacro: AccessorMacro {
     ///   `propertyType` and `propertyBindingName`, if applicable.
     private static func setAccessor(
         propertyType: MockedPropertyType,
-        propertyBindingName: String
+        propertyBindingName: TokenSyntax
     ) -> AccessorDeclSyntax? {
         guard case .readWrite = propertyType else {
             return nil
@@ -157,7 +159,7 @@ extension MockedPropertyMacro: AccessorMacro {
                     base: MemberAccessExprSyntax(
                         base: DeclReferenceExprSyntax(baseName: .keyword(.self)),
                         period: .periodToken(),
-                        name: "__\(raw: propertyBindingName)"
+                        name: "__\(propertyBindingName)"
                     ),
                     period: .periodToken(),
                     name: "set"
