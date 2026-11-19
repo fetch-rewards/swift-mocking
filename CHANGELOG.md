@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org).
 
+## 🚀 [Version 0.4.2](https://github.com/fetch-rewards/swift-mocking/releases/tag/0.4.2) - November 19, 2026 ([Full Changelog](https://github.com/fetch-rewards/swift-mocking/compare/0.4.1...0.4.2))
+
+### 🐛 Bug Fixes
+
+- Strip backticks from property names in generated mock members ([#200](https://github.com/fetch-rewards/swift-mocking/pull/200))
+
+### 🛠️ CI/CD
+
+- Make imperative PR title check more reliable ([#198](https://github.com/fetch-rewards/swift-mocking/pull/198))
+
 ## 🚀 [Version 0.4.1](https://github.com/fetch-rewards/swift-mocking/releases/tag/0.4.1) - July 7, 2026 ([Full Changelog](https://github.com/fetch-rewards/swift-mocking/compare/0.4.0...0.4.1))
 
 ### 🐛 Bug Fixes
