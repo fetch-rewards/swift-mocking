@@ -19,6 +19,7 @@ public protocol StaticMembers {
     static var staticReadOnlyProperty: Int { get }
     static var staticReadOnlyThrowingProperty: Int { get throws }
     static var staticReadWriteProperty: Int { get set }
+    static var `default`: Int { get }
 
     var readOnlyAsyncProperty: Int { get async }
     var readOnlyAsyncThrowingProperty: Int { get async throws }
