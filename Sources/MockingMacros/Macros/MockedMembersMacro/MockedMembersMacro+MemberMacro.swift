@@ -109,7 +109,12 @@ extension MockedMembersMacro: MemberMacro {
                 )
             {
                 modifiers = propertyDeclaration.modifiers
-                memberName = propertyBindingPattern.identifier
+                // Strip any backticks (e.g. from a property named `default`) so
+                // the name can be safely interpolated into generated identifiers.
+                memberName = TokenSyntax.identifier(
+                    propertyBindingPattern.identifier.identifier?.name
+                        ?? propertyBindingPattern.identifier.text
+                )
             } else if let methodDeclaration = member.decl.as(FunctionDeclSyntax.self) {
                 modifiers = methodDeclaration.modifiers
                 memberName = methodDeclaration.name

@@ -37,7 +37,12 @@ extension MockedPropertyMacro: PeerMacro {
             throw MacroError.unableToParsePropertyBindingName
         }
 
-        let propertyBindingName = propertyBindingPattern.identifier
+        // Strip any backticks (e.g. from a property named `default`) so the
+        // name can be safely interpolated into generated identifiers.
+        let propertyBindingName = TokenSyntax.identifier(
+            propertyBindingPattern.identifier.identifier?.name
+                ?? propertyBindingPattern.identifier.text
+        )
         let macroArguments = try MacroArguments(node: node)
         let overrideDeclarationType = self.overrideDeclarationType(
             from: propertyBinding,
