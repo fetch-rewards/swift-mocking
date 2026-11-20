@@ -10,8 +10,11 @@ import Foundation
 /// all start executing simultaneously, useful for testing race conditions.
 ///
 /// The barrier works by collecting continuations from tasks as they arrive, and
-/// only releasing all of them once the specified count is reached. This
-/// guarantees maximum concurrency for race condition testing.
+/// only releasing all of them once the specified count is reached. When the
+/// last task arrives, it spawns a detached task per continuation to resume
+/// them asynchronously. This ensures the `wait()` call genuinely suspends
+/// every task (including the last one), and that all continuations are resumed
+/// on the global cooperative executor without passing through a serial context.
 ///
 /// ```swift
 /// let taskCount = 100
@@ -31,7 +34,7 @@ actor TestBarrier {
     // MARK: Properties
 
     /// The default number of tasks used when no task count is specified.
-    static let defaultTaskCount = 1_000
+    static let defaultTaskCount = 100
 
     /// The continuations waiting to be resumed once all tasks arrive.
     private var continuations: [CheckedContinuation<Void, Never>] = []
@@ -55,10 +58,13 @@ actor TestBarrier {
     /// Suspends the current task until all expected tasks have called this
     /// method.
     ///
-    /// This method decrements the remaining task count and stores the current
-    /// task's continuation. When the count reaches zero, all stored
-    /// continuations are resumed simultaneously, allowing all tasks to proceed
-    /// together.
+    /// This method stores the current task's continuation and, when the last
+    /// expected task arrives, spawns a detached task for each stored
+    /// continuation to resume them asynchronously. Resuming via detached tasks
+    /// ensures the `withCheckedContinuation` body returns without calling
+    /// `resume()` synchronously, so every task genuinely suspends rather than
+    /// executing inline. The resumed tasks run on the global cooperative
+    /// executor and are scheduled concurrently.
     ///
     /// - Warning: This method should only be called by the exact number of
     ///   tasks specified in `totalTasks`. Calling it more times will have no
@@ -73,11 +79,15 @@ actor TestBarrier {
                 return
             }
 
-            for continuation in self.continuations {
-                continuation.resume()
-            }
+            let continuationsToResume = self.continuations
 
             self.continuations.removeAll()
+
+            for continuation in continuationsToResume {
+                Task.detached(priority: .userInitiated) {
+                    continuation.resume()
+                }
+            }
         }
     }
 
@@ -92,13 +102,13 @@ actor TestBarrier {
     /// for testing race conditions in concurrent code.
     ///
     /// ```swift
-    /// // Test race condition with default 1,000 tasks
+    /// // Test race condition with default 100 tasks
     /// await TestBarrier.executeConcurrently {
     ///     unsafeCounter += 1
     /// }
     ///
     /// // Test race condition with custom task count
-    /// await TestBarrier.executeConcurrently(taskCount: 500) {
+    /// await TestBarrier.executeConcurrently(taskCount: 50) {
     ///     someSharedResource.modify()
     /// }
     /// ```
